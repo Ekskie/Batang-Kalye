@@ -648,10 +648,12 @@ func spawn_hit_vfx(pos: Vector3) -> void:
 	var vfx_scene: PackedScene = preload("res://scenes/player/TagHitVFX.tscn")
 	if vfx_scene:
 		var vfx = vfx_scene.instantiate()
-		vfx.global_position = pos
 		var parent_node = get_parent()
 		if parent_node:
 			parent_node.add_child(vfx)
+			vfx.global_position = pos
+		else:
+			vfx.queue_free()
 
 @rpc("any_peer", "call_local", "reliable")
 func spawn_hit_vfx_rpc(pos: Vector3) -> void:

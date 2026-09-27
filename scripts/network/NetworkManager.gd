@@ -6,6 +6,7 @@ signal join_success()
 signal join_failed()
 signal player_list_updated()
 signal match_started()
+signal server_disconnected()
 
 const DEFAULT_PORT: int = 7777
 const MAX_PLAYERS: int = 8
@@ -14,6 +15,8 @@ var peer: ENetMultiplayerPeer
 var players: Dictionary = {} # peer_id: { "name": String, "score": int, "role": int }
 var local_player_name: String = "Batang Kalye"
 var is_host: bool = false
+var last_join_ip: String = ""
+var last_join_port: int = DEFAULT_PORT
 
 func _ready() -> void:
 	multiplayer.peer_connected.connect(_on_peer_connected)
@@ -25,6 +28,13 @@ func _ready() -> void:
 func create_game(player_name: String, port: int = DEFAULT_PORT) -> Error:
 	local_player_name = player_name
 	is_host = true
+
+	# Clean up any existing peer first
+	if peer:
+		peer.close()
+		multiplayer.multiplayer_peer = null
+		peer = null
+
 	peer = ENetMultiplayerPeer.new()
 	var err := peer.create_server(port, MAX_PLAYERS)
 	if err != OK:
@@ -32,6 +42,7 @@ func create_game(player_name: String, port: int = DEFAULT_PORT) -> Error:
 		return err
 
 	multiplayer.multiplayer_peer = peer
+	players.clear()
 	players[1] = {
 		"name": local_player_name,
 		"score": 0,
@@ -44,18 +55,59 @@ func create_game(player_name: String, port: int = DEFAULT_PORT) -> Error:
 func join_game(address: String, player_name: String, port: int = DEFAULT_PORT) -> Error:
 	local_player_name = player_name
 	is_host = false
-	peer = ENetMultiplayerPeer.new()
+
+	# Clean up any existing peer first
+	if peer:
+		peer.close()
+		multiplayer.multiplayer_peer = null
+		peer = null
+
 	var target_ip := address.strip_edges()
 	if target_ip.is_empty():
 		target_ip = "127.0.0.1"
 
-	var err := peer.create_client(target_ip, port)
+	# If address has embedded port, e.g. "something.gl.at.ply.gg:12345"
+	if ":" in target_ip:
+		var parts := target_ip.split(":")
+		target_ip = parts[0].strip_edges()
+		if parts.size() > 1 and parts[1].strip_edges().is_valid_int():
+			port = parts[1].strip_edges().to_int()
+
+	# Validate port range
+	if port <= 0 or port > 65535:
+		port = DEFAULT_PORT
+
+	last_join_ip = target_ip
+	last_join_port = port
+
+	# Resolve hostname if playit.gg domain is provided
+	var resolved_address := target_ip
+	if not target_ip.is_valid_ip_address():
+		var dns_result := IP.resolve_hostname(target_ip, IP.TYPE_IPV4)
+		if not dns_result.is_empty():
+			print("[NetworkManager] Resolved %s -> %s" % [target_ip, dns_result])
+			resolved_address = dns_result
+		else:
+			print("[NetworkManager] DNS resolution empty, passing %s directly to ENet" % target_ip)
+
+	peer = ENetMultiplayerPeer.new()
+	var err := peer.create_client(resolved_address, port)
 	if err != OK:
-		push_error("Failed to connect to %s:%d: %s" % [target_ip, port, error_string(err)])
+		push_error("Failed to connect to %s:%d: %s" % [resolved_address, port, error_string(err)])
 		join_failed.emit()
 		return err
 
 	multiplayer.multiplayer_peer = peer
+	print("[NetworkManager] Connecting to %s:%d (peer status: %d)" % [resolved_address, port, peer.get_connection_status()])
+
+	# Safety connection timeout timer (12s)
+	get_tree().create_timer(12.0).timeout.connect(func():
+		if peer and peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTING:
+			print("[NetworkManager] Connection timed out after 12 seconds")
+			leave_game()
+			join_failed.emit()
+	)
+
 	return OK
 
 func leave_game() -> void:
@@ -85,13 +137,20 @@ func _on_connected_to_server() -> void:
 	join_success.emit()
 
 func _on_connection_failed() -> void:
-	multiplayer.multiplayer_peer = null
+	if peer:
+		peer.close()
+		multiplayer.multiplayer_peer = null
+		peer = null
 	join_failed.emit()
 
 func _on_server_disconnected() -> void:
-	multiplayer.multiplayer_peer = null
+	if peer:
+		peer.close()
+		multiplayer.multiplayer_peer = null
+		peer = null
 	players.clear()
 	player_list_updated.emit()
+	server_disconnected.emit()
 
 @rpc("any_peer", "reliable")
 func register_player(new_name: String) -> void:

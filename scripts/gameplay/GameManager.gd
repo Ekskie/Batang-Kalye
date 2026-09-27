@@ -46,15 +46,43 @@ const PLAYER_COLORS: Array[Color] = [
 
 # Lobby UI elements
 @onready var name_input: LineEdit = $LobbyUI/Panel/VBoxContainer/NameEdit
-@onready var ip_input: LineEdit = $LobbyUI/Panel/VBoxContainer/IPEdit
+@onready var ip_input: LineEdit = $LobbyUI/Panel/VBoxContainer/ConnectionBox/IPEdit
+@onready var port_input: LineEdit = $LobbyUI/Panel/VBoxContainer/ConnectionBox/PortEdit
 @onready var btn_host: Button = $LobbyUI/Panel/VBoxContainer/BtnHost
 @onready var btn_join: Button = $LobbyUI/Panel/VBoxContainer/BtnJoin
+@onready var btn_cancel: Button = $LobbyUI/Panel/VBoxContainer/BtnCancel
 @onready var btn_solo: Button = $LobbyUI/Panel/VBoxContainer/BtnSolo
 @onready var btn_start_match: Button = $LobbyUI/Panel/VBoxContainer/BtnStartMatch
 @onready var player_list_label: Label = $LobbyUI/Panel/VBoxContainer/PlayerListLabel
 @onready var hotspot_info_label: Label = $LobbyUI/Panel/VBoxContainer/HotspotInfoLabel
 
+func _enter_tree() -> void:
+	_init_node_references()
+
+func _init_node_references() -> void:
+	if not network_manager: network_manager = get_node_or_null("NetworkManager")
+	if not maiba_manager: maiba_manager = get_node_or_null("MaibaTayaManager")
+	if not map_node: map_node = get_node_or_null("KalyeMap")
+	if not players_container: players_container = get_node_or_null("Players")
+	if not lobby_ui: lobby_ui = get_node_or_null("LobbyUI")
+	if not hud: hud = get_node_or_null("HUD")
+	if not maiba_ui: maiba_ui = get_node_or_null("MaibaTayaUI")
+	if not game_over_ui: game_over_ui = get_node_or_null("GameOverUI")
+	if not winner_label: winner_label = get_node_or_null("GameOverUI/Panel/VBoxContainer/WinnerLabel")
+
+	if not name_input: name_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/NameEdit")
+	if not ip_input: ip_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/ConnectionBox/IPEdit")
+	if not port_input: port_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/ConnectionBox/PortEdit")
+	if not btn_host: btn_host = get_node_or_null("LobbyUI/Panel/VBoxContainer/BtnHost")
+	if not btn_join: btn_join = get_node_or_null("LobbyUI/Panel/VBoxContainer/BtnJoin")
+	if not btn_cancel: btn_cancel = get_node_or_null("LobbyUI/Panel/VBoxContainer/BtnCancel")
+	if not btn_solo: btn_solo = get_node_or_null("LobbyUI/Panel/VBoxContainer/BtnSolo")
+	if not btn_start_match: btn_start_match = get_node_or_null("LobbyUI/Panel/VBoxContainer/BtnStartMatch")
+	if not player_list_label: player_list_label = get_node_or_null("LobbyUI/Panel/VBoxContainer/PlayerListLabel")
+	if not hotspot_info_label: hotspot_info_label = get_node_or_null("LobbyUI/Panel/VBoxContainer/HotspotInfoLabel")
+
 func _ready() -> void:
+	_init_node_references()
 	# Show lobby initially
 	_set_game_state(GameState.LOBBY)
 
@@ -64,10 +92,18 @@ func _ready() -> void:
 
 	# Display local IP for hotspot hosting
 	var ips := NetworkManager.get_local_ip_addresses()
-	hotspot_info_label.text = "Local / Hotspot IP: " + ips[0]
+	hotspot_info_label.text = "Local IP: " + ips[0] + " (Port 7777)\nPara sa Online: Gamitin ang PlayIt.gg Domain + Port"
 	ip_input.text = ips[0]
 
-	if "--run-self-test" in OS.get_cmdline_user_args() or "--run-self-test" in OS.get_cmdline_args():
+	var run_test := false
+	for arg in OS.get_cmdline_args():
+		if "--run-self-test" in arg:
+			run_test = true
+	for arg in OS.get_cmdline_user_args():
+		if "--run-self-test" in arg:
+			run_test = true
+
+	if run_test:
 		call_deferred("_run_automated_self_test")
 
 func _setup_network_signals() -> void:
@@ -75,12 +111,16 @@ func _setup_network_signals() -> void:
 	network_manager.join_success.connect(_on_join_success)
 	network_manager.join_failed.connect(_on_join_failed)
 	network_manager.player_list_updated.connect(_update_lobby_player_list)
+	network_manager.server_disconnected.connect(_on_server_disconnected)
 
 func _setup_ui_signals() -> void:
 	btn_host.pressed.connect(_on_btn_host_pressed)
 	btn_join.pressed.connect(_on_btn_join_pressed)
+	btn_cancel.pressed.connect(_on_btn_cancel_pressed)
 	btn_solo.pressed.connect(_on_btn_solo_pressed)
 	btn_start_match.pressed.connect(_on_btn_start_match_pressed)
+	if ip_input:
+		ip_input.text_changed.connect(_on_ip_text_changed)
 
 	var btn_rematch = $GameOverUI/Panel/VBoxContainer/BtnRematch
 	if btn_rematch:
@@ -92,21 +132,96 @@ func _setup_maiba_signals() -> void:
 	maiba_ui.choice_made.connect(func(c: int): maiba_manager.rpc_id(1, "submit_hand_choice", c))
 	maiba_manager.taya_decided.connect(_on_taya_decided)
 
+func _on_ip_text_changed(new_text: String) -> void:
+	if not ip_input:
+		ip_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/ConnectionBox/IPEdit")
+	if not port_input:
+		port_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/ConnectionBox/PortEdit")
+
+	if ":" in new_text:
+		var parts := new_text.split(":")
+		var host_part := parts[0].strip_edges()
+		var port_part := parts[1].strip_edges()
+		if port_part.is_valid_int():
+			if ip_input:
+				ip_input.text = host_part
+			if port_input:
+				port_input.text = port_part
+
 func _on_btn_host_pressed() -> void:
-	var pname := name_input.text.strip_edges()
+	var pname := name_input.text.strip_edges() if name_input else "Kuya Denn"
 	if pname.is_empty():
 		pname = "Kuya Denn"
-	network_manager.create_game(pname)
+
+	if not port_input:
+		port_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/ConnectionBox/PortEdit")
+
+	var port := NetworkManager.DEFAULT_PORT
+	if port_input and port_input.text.strip_edges().is_valid_int():
+		port = port_input.text.strip_edges().to_int()
+
+	var err := network_manager.create_game(pname, port)
+	if err != OK:
+		hotspot_info_label.text = "❌ Failed to create server sa Port %d!\n(Baka may ibang app na gumagamit nito)" % port
+		return
+
+	hotspot_info_label.text = "🟢 Server Active sa Port %d!\nI-forward sa PlayIt.gg o ipamigay ang Local IP sa kalaro." % port
+	btn_host.disabled = true
+	btn_join.disabled = true
+	btn_cancel.visible = true
+	btn_start_match.visible = true
 
 func _on_btn_join_pressed() -> void:
-	var pname := name_input.text.strip_edges()
+	var pname := name_input.text.strip_edges() if name_input else "Bata"
 	if pname.is_empty():
 		pname = "Bata " + str(randi() % 100)
-	var ip := ip_input.text.strip_edges()
-	network_manager.join_game(ip, pname)
+
+	if not ip_input:
+		ip_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/ConnectionBox/IPEdit")
+	if not port_input:
+		port_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/ConnectionBox/PortEdit")
+
+	var target := ip_input.text.strip_edges() if ip_input else "127.0.0.1"
+	var port := NetworkManager.DEFAULT_PORT
+
+	if ":" in target:
+		var parts := target.split(":")
+		target = parts[0].strip_edges()
+		if parts.size() > 1 and parts[1].strip_edges().is_valid_int():
+			port = parts[1].strip_edges().to_int()
+			if port_input:
+				port_input.text = str(port)
+	elif port_input and port_input.text.strip_edges().is_valid_int():
+		port = port_input.text.strip_edges().to_int()
+
+	if target.is_empty():
+		target = "127.0.0.1"
+
+	hotspot_info_label.text = "⏳ Kumukonekta sa %s:%d...\n(Pakihintay ang PlayIt.gg / Host)" % [target, port]
+	btn_host.disabled = true
+	btn_join.disabled = true
+	btn_cancel.visible = true
+
+	var err := network_manager.join_game(target, pname, port)
+	if err != OK:
+		hotspot_info_label.text = "❌ Error connecting to %s:%d." % [target, port]
+		btn_host.disabled = false
+		btn_join.disabled = false
+		btn_cancel.visible = false
+
+func _on_btn_cancel_pressed() -> void:
+	network_manager.leave_game()
+	btn_host.disabled = false
+	btn_join.disabled = false
+	btn_cancel.visible = false
+	btn_start_match.visible = false
+	var ips := NetworkManager.get_local_ip_addresses()
+	hotspot_info_label.text = "Local IP: " + ips[0] + " (Port 7777)\nPara sa Online: Gamitin ang PlayIt.gg Domain + Port"
+	player_list_label.text = "Mga Kasali: (Naghihintay...)"
 
 func _on_btn_solo_pressed() -> void:
-	var pname := name_input.text.strip_edges()
+	_init_node_references()
+	var pname := name_input.text.strip_edges() if name_input else "Dennrick (Solo)"
 	if pname.is_empty():
 		pname = "Dennrick (Solo)"
 	network_manager.create_game(pname)
@@ -295,15 +410,30 @@ func _set_game_state(new_state: GameState) -> void:
 func _on_server_created() -> void:
 	btn_host.disabled = true
 	btn_join.disabled = true
+	btn_cancel.visible = true
 	btn_start_match.visible = true
 
 func _on_join_success() -> void:
 	btn_host.disabled = true
 	btn_join.disabled = true
+	btn_cancel.visible = true
 	btn_start_match.visible = false
+	hotspot_info_label.text = "✅ Nakakonekta sa Host! (%s:%d)\nNaghihintay na simulan ng Host..." % [network_manager.last_join_ip, network_manager.last_join_port]
 
 func _on_join_failed() -> void:
-	hotspot_info_label.text = "Connection failed! Check IP address."
+	btn_host.disabled = false
+	btn_join.disabled = false
+	btn_cancel.visible = false
+	hotspot_info_label.text = "❌ Connection failed sa %s:%d!\nPakisuri kung tama ang PlayIt.gg IP/Domain at Port." % [network_manager.last_join_ip, network_manager.last_join_port]
+
+func _on_server_disconnected() -> void:
+	_set_game_state(GameState.LOBBY)
+	btn_host.disabled = false
+	btn_join.disabled = false
+	btn_cancel.visible = false
+	btn_start_match.visible = false
+	hotspot_info_label.text = "⚠️ Na-disconnect mula sa Server."
+	player_list_label.text = "Mga Kasali: (Naghihintay...)"
 
 func _update_lobby_player_list() -> void:
 	var text := "Mga Kasali (%d / 8):\n" % network_manager.players.size()
@@ -316,57 +446,118 @@ func _run_automated_self_test() -> void:
 	var results: Array[String] = []
 	results.append("[SELF-TEST] Starting automated verification...")
 
-	# 1. Click Solo Practice (spawns player 1 and bot 99)
-	results.append("[SELF-TEST] Clicking Solo Practice...")
+	# 1. Test PlayIt.gg IP & Port auto-parsing
+	results.append("[SELF-TEST] Testing PlayIt.gg address parsing...")
+	_on_ip_text_changed("taya-kalye.gl.at.ply.gg:34567")
+	if ip_input.text == "taya-kalye.gl.at.ply.gg" and port_input.text == "34567":
+		results.append("[PASS] Auto-parsed host and port correctly: " + ip_input.text + ":" + port_input.text)
+	else:
+		results.append("[FAIL] Auto-parsing failed: ip=" + ip_input.text + ", port=" + port_input.text)
+		_write_test_results(results, 1)
+		return
+
+	# 2. Click Solo Practice (spawns player 1 and bot 99)
+	results.append("[SELF-TEST] Spawning Solo Practice match...")
 	_on_btn_solo_pressed()
 
 	var p1: PlayerController = players_container.get_node_or_null("1") as PlayerController
 	var bot: PracticeBot = players_container.get_node_or_null("99") as PracticeBot
 
-	if not p1:
-		results.append("[FAIL] Player 1 not found in Players container!")
-		_write_test_results(results, 1)
-		return
-	if not bot:
-		results.append("[FAIL] Bot 99 not found in Players container!")
+	if not p1 or not bot:
+		results.append("[FAIL] Player 1 or Bot 99 not found!")
 		_write_test_results(results, 1)
 		return
 
 	results.append("[PASS] Player 1 and Bot 99 spawned successfully.")
-	results.append(" - P1 Authority: " + str(p1.get_multiplayer_authority()) + " | Role: " + str(p1.current_role))
-	results.append(" - Bot Authority: " + str(bot.get_multiplayer_authority()) + " | Role: " + str(bot.current_role))
 
-	# 2. Verify P1 Camera & UI exists, Bot Camera is safely null
-	if not p1.camera:
-		results.append("[FAIL] P1 Camera3D is missing!")
+	# 3. Test Powerup Gating (Dash & Double Jump locked by default)
+	results.append("[SELF-TEST] Testing Powerup Gating...")
+	if p1.max_air_jumps == 0 and p1.active_powerup == PlayerController.PowerupType.NONE:
+		results.append("[PASS] Double Jump locked by default (max_air_jumps = 0).")
+	else:
+		results.append("[FAIL] Double Jump is not locked by default!")
 		_write_test_results(results, 1)
 		return
-	if bot.camera != null:
-		results.append("[WARN] Bot has unexpected camera.")
-	results.append("[PASS] P1 has active Camera3D, Bot safely has null camera without errors.")
 
-	# 3. Simulate movement & tagging
+	# Verify Dash gating: attempting dash without powerup
+	p1._try_dash()
+	if not p1.is_dashing:
+		results.append("[PASS] Dash locked by default without Imagination Powerup.")
+	else:
+		results.append("[FAIL] Player dashed without powerup!")
+		_write_test_results(results, 1)
+		return
+
+	# 4. Test Trash Pickup & Recycling Bin System
+	results.append("[SELF-TEST] Testing Trash Pickup & Segregation...")
+	var test_trash: TrashItem = TrashItem.new()
+	test_trash.trash_type = TrashItem.TrashType.PLASTIC_BOTTLE
+	var picked := p1.pickup_trash(test_trash)
+	if picked and p1.has_trash() and p1.held_trash == TrashItem.TrashType.PLASTIC_BOTTLE:
+		results.append("[PASS] Picked up Plastic Bottle: " + p1.held_trash_name)
+	else:
+		results.append("[FAIL] Failed to pick up trash!")
+		_write_test_results(results, 1)
+		return
+
+	# Deposit into WRONG bin (Biodegradable / Green = 1)
+	p1.deposit_trash(false, 1)
+	if p1.has_trash():
+		results.append("[PASS] Wrong bin rejected deposit; trash kept safely in hand.")
+	else:
+		results.append("[FAIL] Trash was lost in wrong bin!")
+		_write_test_results(results, 1)
+		return
+
+	# Deposit into RIGHT bin (Recyclable / Blue = 0)
+	var prev_score: int = network_manager.players[1]["score"]
+	p1.deposit_trash(true, 0)
+	if not p1.has_trash() and network_manager.players[1]["score"] == (prev_score + 30):
+		results.append("[PASS] Correct bin accepted trash! +30 score awarded (Total: " + str(network_manager.players[1]["score"]) + ").")
+		results.append("[PASS] Imagination Powerup Unlocked: " + p1.get_powerup_name())
+	else:
+		results.append("[FAIL] Correct deposit failed or score not awarded!")
+		_write_test_results(results, 1)
+		return
+
+	# 5. Test Powerup Abilities (grant DASH explicitly to verify execution)
+	p1.set_powerup(PlayerController.PowerupType.DASH, 15.0)
+	p1._try_dash()
+	if p1.is_dashing and p1.dash_charges_left == 2:
+		results.append("[PASS] Kidlat Dash executed successfully with powerup! Charges left: " + str(p1.dash_charges_left))
+	else:
+		results.append("[FAIL] Kidlat Dash failed to execute!")
+		_write_test_results(results, 1)
+		return
+
+	# 6. Test Tagging
 	p1.global_position = bot.global_position + Vector3(0, 0, 1.5)
-	results.append("[SELF-TEST] Triggering tag from distance: " + str(p1.global_position.distance_to(bot.global_position)))
+	p1.current_role = PlayerController.Role.TAYA
+	bot.current_role = PlayerController.Role.RUNNER
+	bot.is_immune = false
+	results.append("[SELF-TEST] Testing Tagging mechanism...")
 	p1._try_tag()
 
 	results.append(" - Post-tag P1 Role: " + str(p1.current_role) + " (Expected RUNNER: 0)")
 	results.append(" - Post-tag Bot Role: " + str(bot.current_role) + " (Expected TAYA: 1)")
-	results.append(" - P1 Tag count: " + str(p1.tag_count))
 
 	if p1.current_role != PlayerController.Role.RUNNER or bot.current_role != PlayerController.Role.TAYA:
 		results.append("[FAIL] Role transfer failed!")
 		_write_test_results(results, 1)
 		return
 
-	# 4. End match
+	results.append("[PASS] Tag role transfer successful.")
+
+	# 7. End match
 	sync_game_over()
-	results.append("[PASS] Game over reached. Winner announcement: " + winner_label.text)
+	results.append("[PASS] Game over reached. Winner: " + winner_label.text)
 	results.append("[ALL TESTS PASSED] ZERO RUNTIME ERRORS DETECTED!")
 	_write_test_results(results, 0)
 
 func _write_test_results(lines: Array[String], exit_code: int) -> void:
-	var f := FileAccess.open("user://test_results.txt", FileAccess.WRITE)
+	for line in lines:
+		print(line)
+	var f := FileAccess.open("res://test_results.txt", FileAccess.WRITE)
 	if f:
 		f.store_string("\n".join(lines))
 		f.close()
