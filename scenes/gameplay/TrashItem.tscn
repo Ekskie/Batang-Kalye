@@ -1,0 +1,86 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/TrashItem.gd" id="1_trash"]
+[ext_resource type="Material" path="res://assets/materials/mat_bottle_plastic.tres" id="2_bottle"]
+[ext_resource type="Material" path="res://assets/materials/mat_tin_can.tres" id="3_can"]
+[ext_resource type="Material" path="res://assets/materials/mat_banana_peel.tres" id="4_peel"]
+[ext_resource type="Material" path="res://assets/materials/mat_candy_wrapper.tres" id="5_wrap"]
+[ext_resource type="Material" path="res://assets/materials/mat_banderitas_blue.tres" id="6_blue"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_bottle"]
+material = ExtResource("2_bottle")
+top_radius = 0.08
+bottom_radius = 0.1
+height = 0.38
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cap"]
+material = ExtResource("6_blue")
+top_radius = 0.04
+bottom_radius = 0.04
+height = 0.06
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_can"]
+material = ExtResource("3_can")
+top_radius = 0.12
+bottom_radius = 0.12
+height = 0.28
+
+[sub_resource type="BoxMesh" id="BoxMesh_peel"]
+material = ExtResource("4_peel")
+size = Vector3(0.28, 0.08, 0.32)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wrap"]
+material = ExtResource("5_wrap")
+size = Vector3(0.24, 0.06, 0.16)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_pickup"]
+radius = 1.35
+
+[node name="TrashItem" type="Node3D"]
+script = ExtResource("1_trash")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+
+[node name="BottleMesh" type="Node3D" parent="VisualRoot"]
+
+[node name="Body" type="MeshInstance3D" parent="VisualRoot/BottleMesh"]
+mesh = SubResource("CylinderMesh_bottle")
+
+[node name="Cap" type="MeshInstance3D" parent="VisualRoot/BottleMesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22, 0)
+mesh = SubResource("CylinderMesh_cap")
+
+[node name="CanMesh" type="Node3D" parent="VisualRoot"]
+visible = false
+
+[node name="Body" type="MeshInstance3D" parent="VisualRoot/CanMesh"]
+mesh = SubResource("CylinderMesh_can")
+
+[node name="PeelMesh" type="Node3D" parent="VisualRoot"]
+visible = false
+
+[node name="Body" type="MeshInstance3D" parent="VisualRoot/PeelMesh"]
+mesh = SubResource("BoxMesh_peel")
+
+[node name="WrapperMesh" type="Node3D" parent="VisualRoot"]
+visible = false
+
+[node name="Body" type="MeshInstance3D" parent="VisualRoot/WrapperMesh"]
+mesh = SubResource("BoxMesh_wrap")
+
+[node name="Area3D" type="Area3D" parent="."]
+collision_layer = 4
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+shape = SubResource("SphereShape3D_pickup")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+billboard = 1
+text = "🍾 Bote ng Tubig\n[Asul: Recyclable]"
+font_size = 18
+outline_size = 6
+modulate = Color(1, 0.95, 0.5, 1)

@@ -1,0 +1,166 @@
+[gd_scene load_steps=3 format=3 uid="uid://b2p3p5n7jkv11"]
+
+[ext_resource type="Script" path="res://scripts/ui/MobileControls.gd" id="1_controls"]
+[ext_resource type="Script" path="res://scripts/ui/VirtualJoystick.gd" id="2_joystick"]
+
+[node name="MobileControlsUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_controls")
+
+[node name="LeftTouchZone" type="Control" parent="."]
+layout_mode = 1
+anchor_top = 0.4
+anchor_right = 0.4
+anchor_bottom = 1.0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="VirtualJoystick" type="Control" parent="LeftTouchZone"]
+custom_minimum_size = Vector2(180, 180)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -90.0
+offset_top = -90.0
+offset_right = 90.0
+offset_bottom = 90.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("2_joystick")
+
+[node name="RightTouchZone" type="Control" parent="."]
+layout_mode = 1
+anchor_left = 0.35
+anchor_right = 1.0
+anchor_bottom = 0.65
+grow_horizontal = 0
+mouse_filter = 1
+
+[node name="ActionButtons" type="Control" parent="."]
+layout_mode = 1
+anchor_left = 0.65
+anchor_top = 0.55
+anchor_right = 0.98
+anchor_bottom = 0.96
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="BtnTag" type="Button" parent="ActionButtons"]
+custom_minimum_size = Vector2(130, 70)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -140.0
+offset_top = -75.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_font_sizes/font_size = 18
+text = "🔥 HAMPAS"
+
+[node name="BtnJump" type="Button" parent="ActionButtons"]
+custom_minimum_size = Vector2(80, 70)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -230.0
+offset_top = -75.0
+offset_right = -150.0
+offset_bottom = 0.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_font_sizes/font_size = 18
+text = "🦘 TALON"
+
+[node name="BtnSlide" type="Button" parent="ActionButtons"]
+custom_minimum_size = Vector2(80, 70)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -320.0
+offset_top = -75.0
+offset_right = -240.0
+offset_bottom = 0.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_font_sizes/font_size = 16
+text = "🏂 DULAS"
+
+[node name="BtnDash" type="Button" parent="ActionButtons"]
+custom_minimum_size = Vector2(90, 50)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -320.0
+offset_top = -135.0
+offset_right = -230.0
+offset_bottom = -85.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_font_sizes/font_size = 16
+text = "⚡ DASH"
+
+[node name="BtnSprint" type="Button" parent="ActionButtons"]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -110.0
+offset_top = -135.0
+offset_right = 0.0
+offset_bottom = -85.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+toggle_mode = true
+theme_override_font_sizes/font_size = 16
+text = "🏃 SPRINT"
+
+[node name="BtnPowerup" type="Button" parent="ActionButtons"]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -135.0
+offset_right = -120.0
+offset_bottom = -85.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_font_sizes/font_size = 16
+text = "✨ GAMIT"

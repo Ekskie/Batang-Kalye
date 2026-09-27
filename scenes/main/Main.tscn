@@ -1,0 +1,190 @@
+[gd_scene load_steps=7 format=3 uid="uid://cb5d5a6w8q001"]
+
+[ext_resource type="Script" path="res://scripts/gameplay/GameManager.gd" id="1_game_mgr"]
+[ext_resource type="Script" path="res://scripts/network/NetworkManager.gd" id="2_net_mgr"]
+[ext_resource type="Script" path="res://scripts/gameplay/MaibaTayaManager.gd" id="3_maiba_mgr"]
+[ext_resource type="PackedScene" uid="uid://bvyg7u1g0xkps" path="res://scenes/maps/KalyeMap.tscn" id="4_map"]
+[ext_resource type="PackedScene" uid="uid://cx6g0q6m6101p" path="res://scenes/ui/HUD.tscn" id="5_hud"]
+[ext_resource type="PackedScene" uid="uid://c515vpt0ygh45" path="res://scenes/ui/MaibaTayaUI.tscn" id="6_maiba_ui"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_game_mgr")
+
+[node name="NetworkManager" type="Node" parent="."]
+script = ExtResource("2_net_mgr")
+
+[node name="MaibaTayaManager" type="Node" parent="."]
+script = ExtResource("3_maiba_mgr")
+
+[node name="KalyeMap" parent="." instance=ExtResource("4_map")]
+
+[node name="Players" type="Node3D" parent="."]
+
+[node name="LobbyUI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="LobbyUI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.1, 0.14, 0.85)
+
+[node name="Panel" type="PanelContainer" parent="LobbyUI"]
+custom_minimum_size = Vector2(460, 480)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -240.0
+offset_right = 230.0
+offset_bottom = 240.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="LobbyUI/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="LobbyUI/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 28
+text = "TAYA-TAYAAN: BATANG KALYE"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="LobbyUI/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Level Up 3.0 • Team Fiery Fox • 8-Player Hotspot Tag"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="LobbyUI/Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="NameEdit" type="LineEdit" parent="LobbyUI/Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+placeholder_text = "Pangalan (e.g. Dennrick, Chris)"
+text = "Dennrick"
+alignment = 1
+
+[node name="IPEdit" type="LineEdit" parent="LobbyUI/Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+placeholder_text = "Host IP Address (e.g. 192.168.43.1)"
+text = "127.0.0.1"
+alignment = 1
+
+[node name="BtnHost" type="Button" parent="LobbyUI/Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "📡 GUMAWA NG ROOM (Host Hotspot)"
+
+[node name="BtnJoin" type="Button" parent="LobbyUI/Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "🔗 SUMALI SA ROOM (Join)"
+
+[node name="BtnSolo" type="Button" parent="LobbyUI/Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "🎮 SOLO PRACTICE (Test Movement & Kalye)"
+
+[node name="HotspotInfoLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.9, 0.6, 1)
+theme_override_font_sizes/font_size = 13
+text = "Local / Hotspot IP: 127.0.0.1"
+horizontal_alignment = 1
+
+[node name="PlayerListLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 14
+text = "Mga Kasali: (Naghihintay...)"
+
+[node name="BtnStartMatch" type="Button" parent="LobbyUI/Panel/VBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+text = "🔥 SIMULAN ANG LARO (Maiba Taya!)"
+
+[node name="HUD" parent="." instance=ExtResource("5_hud")]
+visible = false
+
+[node name="MaibaTayaUI" parent="." instance=ExtResource("6_maiba_ui")]
+visible = false
+
+[node name="GameOverUI" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="GameOverUI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="Panel" type="PanelContainer" parent="GameOverUI"]
+custom_minimum_size = Vector2(400, 240)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -120.0
+offset_right = 200.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameOverUI/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="Label" parent="GameOverUI/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "TAPOS NA ANG LARO!"
+horizontal_alignment = 1
+
+[node name="WinnerLabel" type="Label" parent="GameOverUI/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "🏆 PANALO: Dennrick!"
+horizontal_alignment = 1
+
+[node name="BtnRematch" type="Button" parent="GameOverUI/Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "🔄 BUMALIK SA LOBBY"

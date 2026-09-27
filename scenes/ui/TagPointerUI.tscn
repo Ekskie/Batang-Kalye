@@ -1,0 +1,111 @@
+[gd_scene load_steps=2 format=3 uid="uid://ctb8n4p7kqn3v"]
+
+[ext_resource type="Script" path="res://scripts/ui/TagPointerUI.gd" id="1_pointer"]
+
+[node name="TagPointerUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_pointer")
+
+[node name="Reticle" type="Control" parent="."]
+custom_minimum_size = Vector2(160, 60)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 160.0
+offset_bottom = 60.0
+mouse_filter = 2
+
+[node name="Icon" type="Label" parent="Reticle"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 30.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "🎯"
+horizontal_alignment = 1
+
+[node name="InfoLabel" type="Label" parent="Reticle"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -26.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 14
+text = "Target (4.2m)"
+horizontal_alignment = 1
+
+[node name="OffscreenIndicator" type="Control" parent="."]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 70.0
+offset_bottom = 70.0
+mouse_filter = 2
+
+[node name="Arrow" type="Label" parent="OffscreenIndicator"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_top = -15.0
+offset_right = 20.0
+offset_bottom = 25.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 28
+text = "▲"
+horizontal_alignment = 1
+
+[node name="DistanceLabel" type="Label" parent="OffscreenIndicator"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -25.0
+offset_right = 40.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 13
+text = "12m"
+horizontal_alignment = 1
+
+[node name="WarningBanner" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -180.0
+offset_top = 70.0
+offset_right = 180.0
+offset_bottom = 110.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="WarningBanner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.25, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 15
+text = "⚠️ DELIKADO! MALAPIT ANG TAYA!"
+horizontal_alignment = 1
