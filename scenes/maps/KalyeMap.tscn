@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://bvyg7u1g0xkps"]
+[gd_scene format=3 uid="uid://bvyg7u1g0xkps"]
 
 [ext_resource type="Material" path="res://assets/materials/mat_asphalt.tres" id="1_asphalt"]
 [ext_resource type="Material" path="res://assets/materials/mat_sidewalk.tres" id="2_sidewalk"]
@@ -18,27 +18,15 @@
 [ext_resource type="Material" path="res://assets/materials/mat_tricycle_red.tres" id="16_tri_red"]
 [ext_resource type="Material" path="res://assets/materials/mat_tricycle_chrome.tres" id="17_tri_chr"]
 [ext_resource type="Material" path="res://assets/materials/mat_rubber.tres" id="18_rubber"]
-[ext_resource type="Script" path="res://scripts/gameplay/RecyclingBin.gd" id="19_bin_script"]
-[ext_resource type="Script" path="res://scripts/gameplay/WaterZone.gd" id="20_water_script"]
+[ext_resource type="Script" uid="uid://cndmhed5g3avy" path="res://scripts/gameplay/RecyclingBin.gd" id="19_bin_script"]
+[ext_resource type="Script" uid="uid://5abq30evirab" path="res://scripts/gameplay/WaterZone.gd" id="20_water_script"]
 [ext_resource type="Material" path="res://assets/materials/mat_canal_water.tres" id="21_canal_water"]
 [ext_resource type="Material" path="res://assets/materials/mat_concrete_wall.tres" id="22_concrete_wall"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/TrashItem.tscn" id="23_trash_scene"]
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_bin"]
-radius = 1.6
-height = 1.8
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
-shading_mode = 0
-albedo_color = Color(1, 0.9, 0.3, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_spark"]
-material = SubResource("StandardMaterial3D_spark")
-radius = 0.08
-height = 0.16
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_canal"]
-size = Vector3(22.5, 1.2, 7.5)
+[ext_resource type="Material" path="res://assets/materials/mat_danger_road.tres" id="24_danger_road"]
+[ext_resource type="Material" path="res://assets/materials/mat_dog_fur.tres" id="25_dog_fur"]
+[ext_resource type="Script" uid="uid://cyu3c5f6ub22u" path="res://scripts/gameplay/DogChaser.gd" id="26_dog_script"]
+[ext_resource type="PackedScene" uid="uid://c888kmg8ma8uh" path="res://assets/models/Tindahan-ni-Mama.glb" id="27_0i5ci"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ph"]
 sky_top_color = Color(0.2, 0.48, 0.88, 1)
@@ -56,25 +44,18 @@ sky = SubResource("Sky_kalye")
 tonemap_mode = 2
 tonemap_exposure = 1.05
 glow_enabled = true
-glow_bloom = 0.12
 glow_intensity = 0.5
+glow_bloom = 0.12
 fog_enabled = true
 fog_light_color = Color(0.92, 0.82, 0.72, 1)
 fog_density = 0.005
 
 [sub_resource type="BoxMesh" id="BoxMesh_road"]
 material = ExtResource("1_asphalt")
-size = Vector3(14, 0.4, 60)
+size = Vector3(18, 0.4, 100)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_road"]
-size = Vector3(14, 0.4, 60)
-
-[sub_resource type="BoxMesh" id="BoxMesh_sidewalk"]
-material = ExtResource("2_sidewalk")
-size = Vector3(4, 0.6, 60)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_sidewalk"]
-size = Vector3(4, 0.6, 60)
+size = Vector3(18, 0.4, 100)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_line"]
 albedo_color = Color(0.98, 0.82, 0.15, 1)
@@ -83,19 +64,63 @@ albedo_color = Color(0.98, 0.82, 0.15, 1)
 material = SubResource("StandardMaterial3D_line")
 size = Vector3(0.3, 0.42, 4)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_court"]
-albedo_color = Color(0.95, 0.95, 0.95, 1)
+[sub_resource type="BoxMesh" id="BoxMesh_sidewalk"]
+material = ExtResource("2_sidewalk")
+size = Vector3(11.78418, 0.6, 100)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sidewalk"]
+size = Vector3(5, 0.6, 100)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_store_paint"]
 albedo_color = Color(0.22, 0.55, 0.8, 1)
 roughness = 0.65
 
-[node name="KalyeMap" type="Node3D"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_court"]
+albedo_color = Color(0.95, 0.95, 0.95, 1)
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_bin"]
+height = 1.8
+radius = 1.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+shading_mode = 0
+albedo_color = Color(1, 0.9, 0.3, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_spark"]
+material = SubResource("StandardMaterial3D_spark")
+radius = 0.08
+height = 0.16
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_canal"]
+size = Vector3(22.5, 1.2, 7.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_danger_road"]
+material = ExtResource("24_danger_road")
+size = Vector3(18, 0.42, 40)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_danger_road"]
+size = Vector3(18, 0.42, 40)
+
+[sub_resource type="SphereMesh" id="SphereMesh_dog_body"]
+material = ExtResource("25_dog_fur")
+radius = 0.35
+height = 0.7
+
+[sub_resource type="SphereMesh" id="SphereMesh_dog_head"]
+material = ExtResource("25_dog_fur")
+radius = 0.25
+height = 0.5
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_dog"]
+radius = 0.4
+height = 1.0
+
+[node name="KalyeMap" type="Node3D" unique_id=1037786015]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1952204700]
 environment = SubResource("Environment_kalye")
 
-[node name="SunLight" type="DirectionalLight3D" parent="."]
+[node name="SunLight" type="DirectionalLight3D" parent="." unique_id=1619668653]
 transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 25, 0)
 light_color = Color(1, 0.94, 0.85, 1)
 light_energy = 1.35
@@ -103,783 +128,891 @@ shadow_enabled = true
 shadow_bias = 0.03
 directional_shadow_max_distance = 65.0
 
-[node name="Ground" type="Node3D" parent="."]
+[node name="Ground" type="Node3D" parent="." unique_id=58958128]
 
-[node name="Road" type="StaticBody3D" parent="Ground"]
+[node name="Road" type="StaticBody3D" parent="Ground" unique_id=349672857]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground/Road"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground/Road" unique_id=1250396726]
 mesh = SubResource("BoxMesh_road")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/Road"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/Road" unique_id=1803641540]
 shape = SubResource("BoxShape3D_road")
 
-[node name="RoadLines" type="Node3D" parent="Ground"]
+[node name="RoadLines" type="Node3D" parent="Ground" unique_id=430018151]
 
-[node name="Line1" type="MeshInstance3D" parent="Ground/RoadLines"]
+[node name="Line1" type="MeshInstance3D" parent="Ground/RoadLines" unique_id=1240559467]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.19, -22)
 mesh = SubResource("BoxMesh_roadline")
 
-[node name="Line2" type="MeshInstance3D" parent="Ground/RoadLines"]
+[node name="Line2" type="MeshInstance3D" parent="Ground/RoadLines" unique_id=53695117]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.19, -12)
 mesh = SubResource("BoxMesh_roadline")
 
-[node name="Line3" type="MeshInstance3D" parent="Ground/RoadLines"]
+[node name="Line3" type="MeshInstance3D" parent="Ground/RoadLines" unique_id=69839724]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.19, 2)
 mesh = SubResource("BoxMesh_roadline")
 
-[node name="Line4" type="MeshInstance3D" parent="Ground/RoadLines"]
+[node name="Line4" type="MeshInstance3D" parent="Ground/RoadLines" unique_id=1952834851]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.19, 12)
 mesh = SubResource("BoxMesh_roadline")
 
-[node name="Line5" type="MeshInstance3D" parent="Ground/RoadLines"]
+[node name="Line5" type="MeshInstance3D" parent="Ground/RoadLines" unique_id=725694287]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.19, 22)
 mesh = SubResource("BoxMesh_roadline")
 
-[node name="StreetPuddle" type="CSGBox3D" parent="Ground"]
+[node name="StreetPuddle" type="CSGBox3D" parent="Ground" unique_id=1377383839]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.01, -4)
 size = Vector3(3.2, 0.02, 4.5)
 material = ExtResource("5_puddle")
 
-[node name="LeftSidewalk" type="StaticBody3D" parent="Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, -0.1, 0)
+[node name="LeftSidewalk" type="StaticBody3D" parent="Ground" unique_id=384786528]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5, -0.1, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground/LeftSidewalk"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground/LeftSidewalk" unique_id=826064638]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.3920898, 0, 0)
 mesh = SubResource("BoxMesh_sidewalk")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/LeftSidewalk"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/LeftSidewalk" unique_id=2029504068]
 shape = SubResource("BoxShape3D_sidewalk")
 
-[node name="RightSidewalk" type="StaticBody3D" parent="Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, -0.1, 0)
+[node name="RightSidewalk" type="StaticBody3D" parent="Ground" unique_id=214151123]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, -0.1, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground/RightSidewalk"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground/RightSidewalk" unique_id=1459867107]
 mesh = SubResource("BoxMesh_sidewalk")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/RightSidewalk"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/RightSidewalk" unique_id=2137365746]
 shape = SubResource("BoxShape3D_sidewalk")
 
-[node name="PikoCourt" type="Node3D" parent="Ground"]
+[node name="PikoCourt" type="Node3D" parent="Ground" unique_id=537237526]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 0.015, -2)
 
-[node name="Sq1" type="CSGBox3D" parent="Ground/PikoCourt"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+[node name="Sq1" type="CSGBox3D" parent="Ground/PikoCourt" unique_id=1051853019]
 size = Vector3(1.1, 0.01, 1.1)
 material = ExtResource("15_chalk")
 
-[node name="Lbl1" type="Label3D" parent="Ground/PikoCourt/Sq1"]
+[node name="Lbl1" type="Label3D" parent="Ground/PikoCourt/Sq1" unique_id=1789016347]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.02, 0)
+modulate = Color(0.95, 0.95, 0.95, 0.9)
 text = "1"
 font_size = 28
-modulate = Color(0.95, 0.95, 0.95, 0.9)
 
-[node name="Sq2" type="CSGBox3D" parent="Ground/PikoCourt"]
+[node name="Sq2" type="CSGBox3D" parent="Ground/PikoCourt" unique_id=50421979]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.25)
 size = Vector3(1.1, 0.01, 1.1)
 material = ExtResource("15_chalk")
 
-[node name="Lbl2" type="Label3D" parent="Ground/PikoCourt/Sq2"]
+[node name="Lbl2" type="Label3D" parent="Ground/PikoCourt/Sq2" unique_id=1851410921]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.02, 0)
+modulate = Color(0.95, 0.95, 0.95, 0.9)
 text = "2"
 font_size = 28
-modulate = Color(0.95, 0.95, 0.95, 0.9)
 
-[node name="Sq3" type="CSGBox3D" parent="Ground/PikoCourt"]
+[node name="Sq3" type="CSGBox3D" parent="Ground/PikoCourt" unique_id=732419843]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.5)
 size = Vector3(1.1, 0.01, 1.1)
 material = ExtResource("15_chalk")
 
-[node name="Lbl3" type="Label3D" parent="Ground/PikoCourt/Sq3"]
+[node name="Lbl3" type="Label3D" parent="Ground/PikoCourt/Sq3" unique_id=2038952485]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.02, 0)
+modulate = Color(0.95, 0.95, 0.95, 0.9)
 text = "3"
 font_size = 28
-modulate = Color(0.95, 0.95, 0.95, 0.9)
 
-[node name="Sq4" type="CSGBox3D" parent="Ground/PikoCourt"]
+[node name="Sq4" type="CSGBox3D" parent="Ground/PikoCourt" unique_id=1767580728]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.65, 0, -3.75)
-size = Vector3(1.0, 0.01, 1.1)
+size = Vector3(1, 0.01, 1.1)
 material = ExtResource("15_chalk")
 
-[node name="Lbl4" type="Label3D" parent="Ground/PikoCourt/Sq4"]
+[node name="Lbl4" type="Label3D" parent="Ground/PikoCourt/Sq4" unique_id=11270954]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.02, 0)
+modulate = Color(0.95, 0.95, 0.95, 0.9)
 text = "4"
 font_size = 28
-modulate = Color(0.95, 0.95, 0.95, 0.9)
 
-[node name="Sq5" type="CSGBox3D" parent="Ground/PikoCourt"]
+[node name="Sq5" type="CSGBox3D" parent="Ground/PikoCourt" unique_id=1985854090]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.65, 0, -3.75)
-size = Vector3(1.0, 0.01, 1.1)
+size = Vector3(1, 0.01, 1.1)
 material = ExtResource("15_chalk")
 
-[node name="Lbl5" type="Label3D" parent="Ground/PikoCourt/Sq5"]
+[node name="Lbl5" type="Label3D" parent="Ground/PikoCourt/Sq5" unique_id=1672370704]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.02, 0)
+modulate = Color(0.95, 0.95, 0.95, 0.9)
 text = "5"
 font_size = 28
-modulate = Color(0.95, 0.95, 0.95, 0.9)
 
-[node name="Sq6" type="CSGBox3D" parent="Ground/PikoCourt"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5.0)
+[node name="Sq6" type="CSGBox3D" parent="Ground/PikoCourt" unique_id=761207631]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5)
 size = Vector3(1.1, 0.01, 1.1)
 material = ExtResource("15_chalk")
 
-[node name="Lbl6" type="Label3D" parent="Ground/PikoCourt/Sq6"]
+[node name="Lbl6" type="Label3D" parent="Ground/PikoCourt/Sq6" unique_id=81190607]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.02, 0)
+modulate = Color(0.95, 0.95, 0.95, 0.9)
 text = "6"
 font_size = 28
-modulate = Color(0.95, 0.95, 0.95, 0.9)
 
-[node name="Buwan" type="CSGCylinder3D" parent="Ground/PikoCourt"]
+[node name="Buwan" type="CSGCylinder3D" parent="Ground/PikoCourt" unique_id=47480260]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.4)
 radius = 1.0
 height = 0.01
 material = ExtResource("15_chalk")
 
-[node name="LblBuwan" type="Label3D" parent="Ground/PikoCourt/Buwan"]
+[node name="LblBuwan" type="Label3D" parent="Ground/PikoCourt/Buwan" unique_id=65429931]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.02, 0)
+modulate = Color(0.95, 0.95, 0.95, 0.9)
 text = "🌕 BUWAN"
 font_size = 20
-modulate = Color(0.95, 0.95, 0.95, 0.9)
 
-[node name="SariSariStore" type="StaticBody3D" parent="."]
+[node name="SariSariStore" type="StaticBody3D" parent="." unique_id=574253905]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 0, 0)
 
-[node name="MainBuilding" type="CSGBox3D" parent="SariSariStore"]
+[node name="MainBuilding" type="CSGBox3D" parent="SariSariStore" unique_id=922614350]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 use_collision = true
 size = Vector3(4.5, 3.6, 6)
 material = SubResource("StandardMaterial3D_store_paint")
 
-[node name="Roof" type="CSGBox3D" parent="SariSariStore"]
+[node name="Roof" type="CSGBox3D" parent="SariSariStore" unique_id=1745184043]
 transform = Transform3D(0.984808, 0.173648, 0, -0.173648, 0.984808, 0, 0, 0, 1, 0.2, 3.8, 0)
 use_collision = true
 size = Vector3(5.2, 0.15, 6.8)
 material = ExtResource("4_fence")
 
-[node name="CounterWood" type="CSGBox3D" parent="SariSariStore"]
+[node name="CounterWood" type="CSGBox3D" parent="SariSariStore" unique_id=1714793513]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9, 0.9, 0)
 use_collision = true
 size = Vector3(1.2, 0.9, 3.5)
 material = ExtResource("3_wood")
 
-[node name="StoreLamp" type="OmniLight3D" parent="SariSariStore"]
+[node name="StoreLamp" type="OmniLight3D" parent="SariSariStore" unique_id=1002401256]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 2.5, 0)
 light_color = Color(1, 0.78, 0.45, 1)
 light_energy = 2.4
 omni_range = 8.5
 
-[node name="StoreBulb" type="MeshInstance3D" parent="SariSariStore/StoreLamp"]
+[node name="StoreBulb" type="MeshInstance3D" parent="SariSariStore/StoreLamp" unique_id=267734783]
 material_override = ExtResource("6_lamp")
 
-[node name="Sign" type="Label3D" parent="SariSariStore"]
+[node name="Sign" type="Label3D" parent="SariSariStore" unique_id=294675906]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 2.1, 2.7, 0)
+modulate = Color(1, 0.9, 0.2, 1)
 text = "ALING NENA SARI-SARI STORE"
 font_size = 24
 outline_size = 8
-modulate = Color(1, 0.9, 0.2, 1)
 
-[node name="SubSign" type="Label3D" parent="SariSariStore"]
+[node name="SubSign" type="Label3D" parent="SariSariStore" unique_id=1046399500]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 2.1, 2.25, 0)
+modulate = Color(0.9, 0.95, 1, 1)
 text = "❄️ ICE TUBIG • E-LOAD • SNACKS"
 font_size = 16
 outline_size = 6
-modulate = Color(0.9, 0.95, 1, 1)
 
-[node name="CokeCrates" type="Node3D" parent="SariSariStore"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0, 0.2, -2.2)
+[node name="CokeCrates" type="Node3D" parent="SariSariStore" unique_id=836429920]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.2, -2.2)
 
-[node name="Crate1" type="CSGBox3D" parent="SariSariStore/CokeCrates"]
+[node name="Crate1" type="CSGBox3D" parent="SariSariStore/CokeCrates" unique_id=569879926]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
 use_collision = true
 size = Vector3(0.55, 0.38, 0.75)
 material = ExtResource("14_coke")
 
-[node name="Crate2" type="CSGBox3D" parent="SariSariStore/CokeCrates"]
+[node name="CokeLabel" type="Label3D" parent="SariSariStore/CokeCrates/Crate1" unique_id=843883636]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.29, 0, 0)
+text = "Coca-Cola"
+font_size = 13
+
+[node name="Crate2" type="CSGBox3D" parent="SariSariStore/CokeCrates" unique_id=2023487973]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.58, 0)
 use_collision = true
 size = Vector3(0.55, 0.38, 0.75)
 material = ExtResource("14_coke")
 
-[node name="Crate3" type="CSGBox3D" parent="SariSariStore/CokeCrates"]
+[node name="Crate3" type="CSGBox3D" parent="SariSariStore/CokeCrates" unique_id=818435781]
 transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0.02, 0.94, 0)
 use_collision = true
 size = Vector3(0.52, 0.35, 0.72)
 material = ExtResource("14_coke")
 
-[node name="CokeLabel" type="Label3D" parent="SariSariStore/CokeCrates/Crate1"]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.29, 0, 0)
-text = "Coca-Cola"
-font_size = 13
-modulate = Color(1, 1, 1, 1)
-
-[node name="ElectricPost" type="StaticBody3D" parent="."]
+[node name="ElectricPost" type="StaticBody3D" parent="." unique_id=47180294]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 0, -8)
 
-[node name="PostPole" type="CSGCylinder3D" parent="ElectricPost"]
+[node name="PostPole" type="CSGCylinder3D" parent="ElectricPost" unique_id=1726033421]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8, 0)
 use_collision = true
 radius = 0.2
 height = 7.6
 material = ExtResource("2_sidewalk")
 
-[node name="CrossArm" type="CSGBox3D" parent="ElectricPost"]
+[node name="CrossArm" type="CSGBox3D" parent="ElectricPost" unique_id=1004201213]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.1, 0)
 size = Vector3(0.2, 0.2, 2.4)
 material = ExtResource("3_wood")
 
-[node name="BasketballBoard" type="CSGBox3D" parent="ElectricPost"]
+[node name="BasketballBoard" type="CSGBox3D" parent="ElectricPost" unique_id=308731203]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 3.6, 0)
 use_collision = true
 size = Vector3(0.08, 1.1, 1.5)
 material = ExtResource("3_wood")
 
-[node name="BasketballRing" type="CSGTorus3D" parent="ElectricPost"]
+[node name="BasketballRing" type="CSGTorus3D" parent="ElectricPost" unique_id=840117742]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 3.2, 0)
 inner_radius = 0.22
 outer_radius = 0.28
 material = ExtResource("7_b_red")
 
-[node name="CourtKeyLines" type="Node3D" parent="."]
+[node name="CourtKeyLines" type="Node3D" parent="." unique_id=689768570]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0.01, -8)
 
-[node name="LineLeft" type="CSGBox3D" parent="CourtKeyLines"]
+[node name="LineLeft" type="CSGBox3D" parent="CourtKeyLines" unique_id=332197008]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.5)
 size = Vector3(5, 0.01, 0.12)
 material = SubResource("StandardMaterial3D_court")
 
-[node name="LineRight" type="CSGBox3D" parent="CourtKeyLines"]
+[node name="LineRight" type="CSGBox3D" parent="CourtKeyLines" unique_id=969364884]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.5)
 size = Vector3(5, 0.01, 0.12)
 material = SubResource("StandardMaterial3D_court")
 
-[node name="FreeThrow" type="CSGBox3D" parent="CourtKeyLines"]
+[node name="FreeThrow" type="CSGBox3D" parent="CourtKeyLines" unique_id=2084461601]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, 0)
 size = Vector3(0.12, 0.01, 5)
 material = SubResource("StandardMaterial3D_court")
 
-[node name="ElectricPostWest" type="StaticBody3D" parent="."]
+[node name="ElectricPostWest" type="StaticBody3D" parent="." unique_id=358012421]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 0, -8)
 
-[node name="PostPole" type="CSGCylinder3D" parent="ElectricPostWest"]
+[node name="PostPole" type="CSGCylinder3D" parent="ElectricPostWest" unique_id=1878661301]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8, 0)
 use_collision = true
 radius = 0.2
 height = 7.6
 material = ExtResource("2_sidewalk")
 
-[node name="CrossArm" type="CSGBox3D" parent="ElectricPostWest"]
+[node name="CrossArm" type="CSGBox3D" parent="ElectricPostWest" unique_id=5161187]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.1, 0)
 size = Vector3(0.2, 0.2, 2.4)
 material = ExtResource("3_wood")
 
-[node name="ElectricPostNorthEast" type="StaticBody3D" parent="."]
+[node name="ElectricPostNorthEast" type="StaticBody3D" parent="." unique_id=1463891981]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 0, 14)
 
-[node name="PostPole" type="CSGCylinder3D" parent="ElectricPostNorthEast"]
+[node name="PostPole" type="CSGCylinder3D" parent="ElectricPostNorthEast" unique_id=164328864]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8, 0)
 use_collision = true
 radius = 0.2
 height = 7.6
 material = ExtResource("2_sidewalk")
 
-[node name="CrossArm" type="CSGBox3D" parent="ElectricPostNorthEast"]
+[node name="CrossArm" type="CSGBox3D" parent="ElectricPostNorthEast" unique_id=448910768]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.1, 0)
 size = Vector3(0.2, 0.2, 2.4)
 material = ExtResource("3_wood")
 
-[node name="ElectricPostNorthWest" type="StaticBody3D" parent="."]
+[node name="ElectricPostNorthWest" type="StaticBody3D" parent="." unique_id=1297868040]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 0, 14)
 
-[node name="PostPole" type="CSGCylinder3D" parent="ElectricPostNorthWest"]
+[node name="PostPole" type="CSGCylinder3D" parent="ElectricPostNorthWest" unique_id=1609140042]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.8, 0)
 use_collision = true
 radius = 0.2
 height = 7.6
 material = ExtResource("2_sidewalk")
 
-[node name="CrossArm" type="CSGBox3D" parent="ElectricPostNorthWest"]
+[node name="CrossArm" type="CSGBox3D" parent="ElectricPostNorthWest" unique_id=22477068]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.1, 0)
 size = Vector3(0.2, 0.2, 2.4)
 material = ExtResource("3_wood")
 
-[node name="SpaghettiWires" type="Node3D" parent="."]
+[node name="SpaghettiWires" type="Node3D" parent="." unique_id=710798921]
 
-[node name="Wire1" type="CSGBox3D" parent="SpaghettiWires"]
+[node name="Wire1" type="CSGBox3D" parent="SpaghettiWires" unique_id=1971498393]
 transform = Transform3D(0.97, 0, 0.24, 0, 1, 0, -0.24, 0, 0.97, 0, 6.8, -8)
 size = Vector3(15.5, 0.03, 0.03)
 material = ExtResource("18_rubber")
 
-[node name="Wire2" type="CSGBox3D" parent="SpaghettiWires"]
+[node name="Wire2" type="CSGBox3D" parent="SpaghettiWires" unique_id=1296925299]
 transform = Transform3D(0.97, -0.02, -0.24, 0.02, 1, 0, 0.24, 0, 0.97, 0, 6.6, -8.3)
 size = Vector3(15.5, 0.03, 0.03)
 material = ExtResource("18_rubber")
 
-[node name="Wire3" type="CSGBox3D" parent="SpaghettiWires"]
+[node name="Wire3" type="CSGBox3D" parent="SpaghettiWires" unique_id=623838828]
 transform = Transform3D(0.97, 0, 0.24, 0, 1, 0, -0.24, 0, 0.97, 0, 6.8, 14)
 size = Vector3(15.5, 0.03, 0.03)
 material = ExtResource("18_rubber")
 
-[node name="Wire4" type="CSGBox3D" parent="SpaghettiWires"]
+[node name="Wire4" type="CSGBox3D" parent="SpaghettiWires" unique_id=689462498]
 transform = Transform3D(0.04, 0, 0.999, 0, 1, 0, -0.999, 0, 0.04, 7.5, 6.9, 3)
 size = Vector3(22.5, 0.03, 0.03)
 material = ExtResource("18_rubber")
 
-[node name="Wire5" type="CSGBox3D" parent="SpaghettiWires"]
+[node name="Wire5" type="CSGBox3D" parent="SpaghettiWires" unique_id=53510620]
 transform = Transform3D(0.04, 0, 0.999, 0, 1, 0, -0.999, 0, 0.04, -7.5, 6.9, 3)
 size = Vector3(22.5, 0.03, 0.03)
 material = ExtResource("18_rubber")
 
-[node name="BanderitasFiesta" type="Node3D" parent="."]
+[node name="BanderitasFiesta" type="Node3D" parent="." unique_id=591041883]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.2, -8)
 
-[node name="Wire" type="CSGCylinder3D" parent="BanderitasFiesta"]
+[node name="Wire" type="CSGCylinder3D" parent="BanderitasFiesta" unique_id=584537146]
 transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 radius = 0.02
 height = 15.0
 material = ExtResource("1_asphalt")
 
-[node name="Flag1" type="CSGPolygon3D" parent="BanderitasFiesta"]
+[node name="Flag1" type="CSGPolygon3D" parent="BanderitasFiesta" unique_id=1108930916]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 0, 0)
 polygon = PackedVector2Array(0, 0, 0.5, 0, 0.25, -0.6)
 depth = 0.02
 material = ExtResource("7_b_red")
 
-[node name="Flag2" type="CSGPolygon3D" parent="BanderitasFiesta"]
+[node name="Flag2" type="CSGPolygon3D" parent="BanderitasFiesta" unique_id=1552594676]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -0.15, 0)
 polygon = PackedVector2Array(0, 0, 0.5, 0, 0.25, -0.6)
 depth = 0.02
 material = ExtResource("8_b_yel")
 
-[node name="Flag3" type="CSGPolygon3D" parent="BanderitasFiesta"]
+[node name="Flag3" type="CSGPolygon3D" parent="BanderitasFiesta" unique_id=228230639]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, -0.25, 0)
 polygon = PackedVector2Array(0, 0, 0.5, 0, 0.25, -0.6)
 depth = 0.02
 material = ExtResource("9_b_blu")
 
-[node name="Flag4" type="CSGPolygon3D" parent="BanderitasFiesta"]
+[node name="Flag4" type="CSGPolygon3D" parent="BanderitasFiesta" unique_id=781677291]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, -0.28, 0)
 polygon = PackedVector2Array(0, 0, 0.5, 0, 0.25, -0.6)
 depth = 0.02
 material = ExtResource("10_b_grn")
 
-[node name="Flag5" type="CSGPolygon3D" parent="BanderitasFiesta"]
+[node name="Flag5" type="CSGPolygon3D" parent="BanderitasFiesta" unique_id=1288321250]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, -0.2, 0)
 polygon = PackedVector2Array(0, 0, 0.5, 0, 0.25, -0.6)
 depth = 0.02
 material = ExtResource("7_b_red")
 
-[node name="Flag6" type="CSGPolygon3D" parent="BanderitasFiesta"]
+[node name="Flag6" type="CSGPolygon3D" parent="BanderitasFiesta" unique_id=814924713]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, -0.05, 0)
 polygon = PackedVector2Array(0, 0, 0.5, 0, 0.25, -0.6)
 depth = 0.02
 material = ExtResource("8_b_yel")
 
-[node name="SegregationBins" type="Node3D" parent="."]
+[node name="SegregationBins" type="Node3D" parent="." unique_id=1117963623]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 0.2, 10)
 
-[node name="BinRecyclable" type="Area3D" parent="SegregationBins"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+[node name="BinRecyclable" type="Area3D" parent="SegregationBins" unique_id=1627489832]
 collision_layer = 4
 collision_mask = 2
 script = ExtResource("19_bin_script")
-bin_category = 0
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SegregationBins/BinRecyclable"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SegregationBins/BinRecyclable" unique_id=959969692]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("CylinderShape3D_bin")
 
-[node name="VisualBin" type="CSGBox3D" parent="SegregationBins/BinRecyclable"]
+[node name="VisualBin" type="CSGBox3D" parent="SegregationBins/BinRecyclable" unique_id=1069943525]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 use_collision = true
-size = Vector3(0.65, 1.0, 0.65)
+size = Vector3(0.65, 1, 0.65)
 material = ExtResource("11_t_blu")
 
-[node name="Label" type="Label3D" parent="SegregationBins/BinRecyclable/VisualBin"]
+[node name="Label" type="Label3D" parent="SegregationBins/BinRecyclable/VisualBin" unique_id=1968966381]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.35, 0.2, 0)
-text = "🔵 RECYCLABLE\n(LATA/BOTE)"
+text = "🔵 RECYCLABLE
+(LATA/BOTE)"
 font_size = 14
 outline_size = 4
 
-[node name="SparkParticles" type="CPUParticles3D" parent="SegregationBins/BinRecyclable"]
+[node name="SparkParticles" type="CPUParticles3D" parent="SegregationBins/BinRecyclable" unique_id=261678123]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
 emitting = false
-one_shot = true
-explosiveness = 0.8
 amount = 16
 lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
 mesh = SubResource("SphereMesh_spark")
 direction = Vector3(0, 1, 0)
 spread = 60.0
-gravity = Vector3(0, -3.0, 0)
+gravity = Vector3(0, -3, 0)
 initial_velocity_min = 2.0
 initial_velocity_max = 4.0
 
-[node name="BinBiodegradable" type="Area3D" parent="SegregationBins"]
+[node name="BinBiodegradable" type="Area3D" parent="SegregationBins" unique_id=666089927]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.2)
 collision_layer = 4
 collision_mask = 2
 script = ExtResource("19_bin_script")
 bin_category = 1
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SegregationBins/BinBiodegradable"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SegregationBins/BinBiodegradable" unique_id=830999808]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("CylinderShape3D_bin")
 
-[node name="VisualBin" type="CSGBox3D" parent="SegregationBins/BinBiodegradable"]
+[node name="VisualBin" type="CSGBox3D" parent="SegregationBins/BinBiodegradable" unique_id=1281277682]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 use_collision = true
-size = Vector3(0.65, 1.0, 0.65)
+size = Vector3(0.65, 1, 0.65)
 material = ExtResource("12_t_grn")
 
-[node name="Label" type="Label3D" parent="SegregationBins/BinBiodegradable/VisualBin"]
+[node name="Label" type="Label3D" parent="SegregationBins/BinBiodegradable/VisualBin" unique_id=988496894]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.35, 0.2, 0)
-text = "🟢 NABUBULOK\n(ORGANIC)"
+text = "🟢 NABUBULOK
+(ORGANIC)"
 font_size = 14
 outline_size = 4
 
-[node name="SparkParticles" type="CPUParticles3D" parent="SegregationBins/BinBiodegradable"]
+[node name="SparkParticles" type="CPUParticles3D" parent="SegregationBins/BinBiodegradable" unique_id=1402594225]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
 emitting = false
-one_shot = true
-explosiveness = 0.8
 amount = 16
 lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
 mesh = SubResource("SphereMesh_spark")
 direction = Vector3(0, 1, 0)
 spread = 60.0
-gravity = Vector3(0, -3.0, 0)
+gravity = Vector3(0, -3, 0)
 initial_velocity_min = 2.0
 initial_velocity_max = 4.0
 
-[node name="BinNonBio" type="Area3D" parent="SegregationBins"]
+[node name="BinNonBio" type="Area3D" parent="SegregationBins" unique_id=1471500245]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.2)
 collision_layer = 4
 collision_mask = 2
 script = ExtResource("19_bin_script")
 bin_category = 2
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SegregationBins/BinNonBio"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SegregationBins/BinNonBio" unique_id=1558039122]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("CylinderShape3D_bin")
 
-[node name="VisualBin" type="CSGBox3D" parent="SegregationBins/BinNonBio"]
+[node name="VisualBin" type="CSGBox3D" parent="SegregationBins/BinNonBio" unique_id=1288250923]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 use_collision = true
-size = Vector3(0.65, 1.0, 0.65)
+size = Vector3(0.65, 1, 0.65)
 material = ExtResource("13_t_yel")
 
-[node name="Label" type="Label3D" parent="SegregationBins/BinNonBio/VisualBin"]
+[node name="Label" type="Label3D" parent="SegregationBins/BinNonBio/VisualBin" unique_id=1583625870]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.35, 0.2, 0)
-text = "🟡 DI-NABUBULOK\n(PLASTIK)"
+text = "🟡 DI-NABUBULOK
+(PLASTIK)"
 font_size = 14
 outline_size = 4
 
-[node name="SparkParticles" type="CPUParticles3D" parent="SegregationBins/BinNonBio"]
+[node name="SparkParticles" type="CPUParticles3D" parent="SegregationBins/BinNonBio" unique_id=1506390297]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
 emitting = false
-one_shot = true
-explosiveness = 0.8
 amount = 16
 lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
 mesh = SubResource("SphereMesh_spark")
 direction = Vector3(0, 1, 0)
 spread = 60.0
-gravity = Vector3(0, -3.0, 0)
+gravity = Vector3(0, -3, 0)
 initial_velocity_min = 2.0
 initial_velocity_max = 4.0
 
-[node name="Obstacles" type="Node3D" parent="."]
+[node name="Obstacles" type="Node3D" parent="." unique_id=89482551]
 
-[node name="CratesStack" type="StaticBody3D" parent="Obstacles"]
+[node name="CratesStack" type="StaticBody3D" parent="Obstacles" unique_id=1251091962]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 4)
 
-[node name="Crate1" type="CSGBox3D" parent="Obstacles/CratesStack"]
+[node name="Crate1" type="CSGBox3D" parent="Obstacles/CratesStack" unique_id=789662208]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 use_collision = true
-size = Vector3(1.2, 1.0, 1.2)
+size = Vector3(1.2, 1, 1.2)
 material = ExtResource("3_wood")
 
-[node name="Crate2" type="CSGBox3D" parent="Obstacles/CratesStack"]
+[node name="Crate2" type="CSGBox3D" parent="Obstacles/CratesStack" unique_id=895522810]
 transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0.1, 1.4, 0)
 use_collision = true
-size = Vector3(1.0, 0.8, 1.0)
+size = Vector3(1, 0.8, 1)
 material = ExtResource("3_wood")
 
-[node name="TricycleBlockade" type="StaticBody3D" parent="Obstacles"]
+[node name="TricycleBlockade" type="StaticBody3D" parent="Obstacles" unique_id=211031667]
 transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, -4.5, 0, -12)
 
-[node name="SidecarCabin" type="CSGBox3D" parent="Obstacles/TricycleBlockade"]
+[node name="SidecarCabin" type="CSGBox3D" parent="Obstacles/TricycleBlockade" unique_id=162135470]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.5, 0)
 use_collision = true
 size = Vector3(1.2, 0.8, 1.8)
 material = ExtResource("16_tri_red")
 
-[node name="SidecarRoof" type="CSGBox3D" parent="Obstacles/TricycleBlockade"]
+[node name="SidecarRoof" type="CSGBox3D" parent="Obstacles/TricycleBlockade" unique_id=1313254207]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 1.45, 0)
 use_collision = true
 size = Vector3(1.3, 0.08, 1.9)
 material = ExtResource("16_tri_red")
 
-[node name="PillarFL" type="CSGBox3D" parent="Obstacles/TricycleBlockade"]
+[node name="PillarFL" type="CSGBox3D" parent="Obstacles/TricycleBlockade" unique_id=1255941297]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.05, 1.1, 0.85)
 size = Vector3(0.06, 0.7, 0.06)
 material = ExtResource("17_tri_chr")
 
-[node name="PillarFR" type="CSGBox3D" parent="Obstacles/TricycleBlockade"]
+[node name="PillarFR" type="CSGBox3D" parent="Obstacles/TricycleBlockade" unique_id=1111044108]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.1, 0.85)
 size = Vector3(0.06, 0.7, 0.06)
 material = ExtResource("17_tri_chr")
 
-[node name="PillarBL" type="CSGBox3D" parent="Obstacles/TricycleBlockade"]
+[node name="PillarBL" type="CSGBox3D" parent="Obstacles/TricycleBlockade" unique_id=598223415]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.05, 1.1, -0.85)
 size = Vector3(0.06, 0.7, 0.06)
 material = ExtResource("17_tri_chr")
 
-[node name="PillarBR" type="CSGBox3D" parent="Obstacles/TricycleBlockade"]
+[node name="PillarBR" type="CSGBox3D" parent="Obstacles/TricycleBlockade" unique_id=1516329333]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.1, -0.85)
 size = Vector3(0.06, 0.7, 0.06)
 material = ExtResource("17_tri_chr")
 
-[node name="SideWheel" type="CSGCylinder3D" parent="Obstacles/TricycleBlockade"]
+[node name="SideWheel" type="CSGCylinder3D" parent="Obstacles/TricycleBlockade" unique_id=213683096]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.18, 0.35, 0)
 radius = 0.35
 height = 0.16
 material = ExtResource("18_rubber")
 
-[node name="MotoChassis" type="CSGBox3D" parent="Obstacles/TricycleBlockade"]
+[node name="MotoChassis" type="CSGBox3D" parent="Obstacles/TricycleBlockade" unique_id=312875219]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.65, 0.5, 0)
 use_collision = true
 size = Vector3(0.45, 0.65, 1.8)
 material = ExtResource("17_tri_chr")
 
-[node name="MotoSeat" type="CSGBox3D" parent="Obstacles/TricycleBlockade"]
+[node name="MotoSeat" type="CSGBox3D" parent="Obstacles/TricycleBlockade" unique_id=1338922532]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.65, 0.88, -0.2)
 size = Vector3(0.38, 0.12, 0.7)
 material = ExtResource("18_rubber")
 
-[node name="MotoFrontWheel" type="CSGCylinder3D" parent="Obstacles/TricycleBlockade"]
+[node name="MotoFrontWheel" type="CSGCylinder3D" parent="Obstacles/TricycleBlockade" unique_id=223610893]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0.65, 0.35, 0.85)
 radius = 0.35
 height = 0.14
 material = ExtResource("18_rubber")
 
-[node name="MotoRearWheel" type="CSGCylinder3D" parent="Obstacles/TricycleBlockade"]
+[node name="MotoRearWheel" type="CSGCylinder3D" parent="Obstacles/TricycleBlockade" unique_id=1765462403]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0.65, 0.35, -0.85)
 radius = 0.35
 height = 0.14
 material = ExtResource("18_rubber")
 
-[node name="Handlebar" type="CSGBox3D" parent="Obstacles/TricycleBlockade"]
+[node name="Handlebar" type="CSGBox3D" parent="Obstacles/TricycleBlockade" unique_id=1552809901]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.65, 1.05, 0.55)
 size = Vector3(0.7, 0.05, 0.05)
 material = ExtResource("17_tri_chr")
 
-[node name="Headlight" type="CSGCylinder3D" parent="Obstacles/TricycleBlockade"]
+[node name="Headlight" type="CSGCylinder3D" parent="Obstacles/TricycleBlockade" unique_id=984634019]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.65, 0.95, 0.95)
 radius = 0.12
 height = 0.12
 material = ExtResource("6_lamp")
 
-[node name="Plate" type="Label3D" parent="Obstacles/TricycleBlockade"]
+[node name="Plate" type="Label3D" parent="Obstacles/TricycleBlockade" unique_id=376851912]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.35, 0.91)
+modulate = Color(1, 0.9, 0.2, 1)
 text = "BATANG-KALYE 2026"
 font_size = 14
 outline_size = 4
-modulate = Color(1, 0.9, 0.2, 1)
 
-[node name="ParkourRamp" type="StaticBody3D" parent="Obstacles"]
+[node name="ParkourRamp" type="StaticBody3D" parent="Obstacles" unique_id=219812542]
 transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, 5, 0.3, 14)
 
-[node name="RampMesh" type="CSGBox3D" parent="Obstacles/ParkourRamp"]
+[node name="RampMesh" type="CSGBox3D" parent="Obstacles/ParkourRamp" unique_id=1481160702]
 use_collision = true
 size = Vector3(2.2, 0.2, 3.5)
 material = ExtResource("3_wood")
 
-[node name="PerimeterFences" type="Node3D" parent="."]
+[node name="PerimeterFences" type="Node3D" parent="." unique_id=291267385]
 
-[node name="NorthWall" type="CSGBox3D" parent="PerimeterFences"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -30)
+[node name="NorthWall" type="CSGBox3D" parent="PerimeterFences" unique_id=968156681]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -50)
 use_collision = true
-size = Vector3(24, 3, 0.4)
+size = Vector3(36, 3, 0.4)
 material = ExtResource("4_fence")
 
-[node name="SouthWall" type="CSGBox3D" parent="PerimeterFences"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 30)
+[node name="SouthWall" type="CSGBox3D" parent="PerimeterFences" unique_id=1815558815]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 50)
 use_collision = true
-size = Vector3(24, 3, 0.4)
+size = Vector3(36, 3, 0.4)
 material = ExtResource("4_fence")
 
-[node name="WestWall" type="CSGBox3D" parent="PerimeterFences"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5, 1.5, 0)
+[node name="WestWall" type="CSGBox3D" parent="PerimeterFences" unique_id=1403342236]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.8, 1.5, 0)
 use_collision = true
-size = Vector3(0.4, 3, 60)
+size = Vector3(0.4, 3, 100)
 material = ExtResource("4_fence")
 
-[node name="EastWall" type="CSGBox3D" parent="PerimeterFences"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 1.5, 0)
+[node name="EastWall" type="CSGBox3D" parent="PerimeterFences" unique_id=1922381568]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.8, 1.5, 0)
 use_collision = true
-size = Vector3(0.4, 3, 60)
+size = Vector3(0.4, 3, 100)
 material = ExtResource("4_fence")
 
-[node name="SpawnPoints" type="Node3D" parent="."]
+[node name="SpawnPoints" type="Node3D" parent="." unique_id=746685651]
 
-[node name="Spawn1" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.5, -20)
+[node name="Spawn1" type="Marker3D" parent="SpawnPoints" unique_id=186111264]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.5, -38)
 
-[node name="Spawn2" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, -20)
+[node name="Spawn2" type="Marker3D" parent="SpawnPoints" unique_id=1337869451]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.5, -38)
 
-[node name="Spawn3" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.5, -5)
+[node name="Spawn3" type="Marker3D" parent="SpawnPoints" unique_id=1161443726]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.5, -10)
 
-[node name="Spawn4" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.5, -5)
+[node name="Spawn4" type="Marker3D" parent="SpawnPoints" unique_id=580013391]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.5, -10)
 
-[node name="Spawn5" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.5, 15)
+[node name="Spawn5" type="Marker3D" parent="SpawnPoints" unique_id=129668432]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.5, 20)
 
-[node name="Spawn6" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, 15)
+[node name="Spawn6" type="Marker3D" parent="SpawnPoints" unique_id=1002415226]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.5, 20)
 
-[node name="Spawn7" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 24)
+[node name="Spawn7" type="Marker3D" parent="SpawnPoints" unique_id=1644780604]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.5, 42)
 
-[node name="Spawn8" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -24)
+[node name="Spawn8" type="Marker3D" parent="SpawnPoints" unique_id=1585861147]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, 42)
 
-[node name="FloodedCanal" type="Node3D" parent="."]
+[node name="FloodedCanal" type="Node3D" parent="." unique_id=1701258866]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -18)
 
-[node name="WaterMesh" type="CSGBox3D" parent="FloodedCanal"]
+[node name="WaterMesh" type="CSGBox3D" parent="FloodedCanal" unique_id=1309072331]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
-size = Vector3(22.5, 0.15, 7.0)
+size = Vector3(22.5, 0.15, 7)
 material = ExtResource("21_canal_water")
 
-[node name="FloodedCanalZone" type="Area3D" parent="FloodedCanal"]
+[node name="FloodedCanalZone" type="Area3D" parent="FloodedCanal" unique_id=1726443700]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 collision_layer = 8
 collision_mask = 2
 script = ExtResource("20_water_script")
 water_depth = 0.55
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FloodedCanal/FloodedCanalZone"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FloodedCanal/FloodedCanalZone" unique_id=290769375]
 shape = SubResource("BoxShape3D_canal")
 
-[node name="CanalNorthCurb" type="CSGBox3D" parent="FloodedCanal"]
+[node name="CanalNorthCurb" type="CSGBox3D" parent="FloodedCanal" unique_id=967421713]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, -3.6)
 use_collision = true
 size = Vector3(22.8, 0.4, 0.4)
 material = ExtResource("2_sidewalk")
 
-[node name="CanalSouthCurb" type="CSGBox3D" parent="FloodedCanal"]
+[node name="CanalSouthCurb" type="CSGBox3D" parent="FloodedCanal" unique_id=150722756]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 3.6)
 use_collision = true
 size = Vector3(22.8, 0.4, 0.4)
 material = ExtResource("2_sidewalk")
 
-[node name="SteppingStone1" type="CSGBox3D" parent="FloodedCanal"]
+[node name="SteppingStone1" type="CSGBox3D" parent="FloodedCanal" unique_id=789173740]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 0.22, 0)
 use_collision = true
 size = Vector3(1.1, 0.35, 1.1)
 material = ExtResource("2_sidewalk")
 
-[node name="SteppingStone2" type="CSGBox3D" parent="FloodedCanal"]
+[node name="SteppingStone2" type="CSGBox3D" parent="FloodedCanal" unique_id=811871537]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22, 0)
 use_collision = true
 size = Vector3(1.1, 0.35, 1.1)
 material = ExtResource("2_sidewalk")
 
-[node name="SteppingStone3" type="CSGBox3D" parent="FloodedCanal"]
+[node name="SteppingStone3" type="CSGBox3D" parent="FloodedCanal" unique_id=1466225607]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0.22, 0)
 use_collision = true
 size = Vector3(1.1, 0.35, 1.1)
 material = ExtResource("2_sidewalk")
 
-[node name="PlankBridge" type="CSGBox3D" parent="FloodedCanal"]
+[node name="PlankBridge" type="CSGBox3D" parent="FloodedCanal" unique_id=23111491]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 0.28, 0)
 use_collision = true
 size = Vector3(1.4, 0.12, 7.2)
 material = ExtResource("3_wood")
 
-[node name="CanalSign" type="Label3D" parent="FloodedCanal"]
+[node name="CanalSign" type="Label3D" parent="FloodedCanal" unique_id=1600804207]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 1.2, 3.8)
-text = "⚠️ BABALA: BAHANG KALYE!\n(Water Run Area)"
+modulate = Color(1, 0.85, 0.2, 1)
+text = "⚠️ BABALA: BAHANG KALYE!
+(Water Run Area)"
 font_size = 15
 outline_size = 4
-modulate = Color(1, 0.85, 0.2, 1)
 
-[node name="WallRunCorridors" type="Node3D" parent="."]
+[node name="WallRunCorridors" type="Node3D" parent="." unique_id=1546739381]
 
-[node name="EastParkourWall" type="CSGBox3D" parent="WallRunCorridors"]
+[node name="EastParkourWall" type="CSGBox3D" parent="WallRunCorridors" unique_id=1498137096]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.2, 2.2, 5)
 use_collision = true
-size = Vector3(0.5, 4.5, 24.0)
+size = Vector3(0.5, 4.5, 24)
 material = ExtResource("22_concrete_wall")
 
-[node name="EastRampUp" type="StaticBody3D" parent="WallRunCorridors"]
+[node name="EastRampUp" type="StaticBody3D" parent="WallRunCorridors" unique_id=1676405949]
 transform = Transform3D(1, 0, 0, 0, 0.939693, -0.34202, 0, 0.34202, 0.939693, 9.8, 0.85, -8.5)
 
-[node name="RampMesh" type="CSGBox3D" parent="WallRunCorridors/EastRampUp"]
+[node name="RampMesh" type="CSGBox3D" parent="WallRunCorridors/EastRampUp" unique_id=811931260]
 use_collision = true
-size = Vector3(1.8, 0.2, 4.0)
+size = Vector3(1.8, 0.2, 4)
 material = ExtResource("3_wood")
 
-[node name="EastHighLedge" type="CSGBox3D" parent="WallRunCorridors"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.6, 2.4, 18.0)
+[node name="EastHighLedge" type="CSGBox3D" parent="WallRunCorridors" unique_id=293430874]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.6, 2.4, 18)
 use_collision = true
 size = Vector3(2.4, 0.3, 3.5)
 material = ExtResource("3_wood")
 
-[node name="WestParkourWall" type="CSGBox3D" parent="WallRunCorridors"]
+[node name="WestParkourWall" type="CSGBox3D" parent="WallRunCorridors" unique_id=698160525]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.2, 2.2, -5)
 use_collision = true
-size = Vector3(0.5, 4.5, 20.0)
+size = Vector3(0.5, 4.5, 20)
 material = ExtResource("22_concrete_wall")
 
-[node name="WestRampUp" type="StaticBody3D" parent="WallRunCorridors"]
+[node name="WestRampUp" type="StaticBody3D" parent="WallRunCorridors" unique_id=1964820088]
 transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, -9.8, 0.85, 6.5)
 
-[node name="RampMesh" type="CSGBox3D" parent="WallRunCorridors/WestRampUp"]
+[node name="RampMesh" type="CSGBox3D" parent="WallRunCorridors/WestRampUp" unique_id=1642835872]
 use_collision = true
-size = Vector3(1.8, 0.2, 4.0)
+size = Vector3(1.8, 0.2, 4)
 material = ExtResource("3_wood")
 
-[node name="WestHighLedge" type="CSGBox3D" parent="WallRunCorridors"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.6, 2.4, -16.0)
+[node name="WestHighLedge" type="CSGBox3D" parent="WallRunCorridors" unique_id=1687448572]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.6, 2.4, -16)
 use_collision = true
 size = Vector3(2.4, 0.3, 3.5)
 material = ExtResource("3_wood")
 
-[node name="TrashPickups" type="Node3D" parent="."]
+[node name="TrashPickups" type="Node3D" parent="." unique_id=129400756]
 
-[node name="TrashBottle1" parent="TrashPickups" instance=ExtResource("23_trash_scene")]
+[node name="TrashBottle1" parent="TrashPickups" unique_id=1760900509 instance=ExtResource("23_trash_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0.25, -8)
-trash_type = 0
 
-[node name="TrashCan1" parent="TrashPickups" instance=ExtResource("23_trash_scene")]
+[node name="TrashCan1" parent="TrashPickups" unique_id=454793292 instance=ExtResource("23_trash_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.25, -6)
 trash_type = 1
 
-[node name="TrashBanana1" parent="TrashPickups" instance=ExtResource("23_trash_scene")]
+[node name="TrashBanana1" parent="TrashPickups" unique_id=174471522 instance=ExtResource("23_trash_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0.25, 2)
 trash_type = 2
 
-[node name="TrashWrapper1" parent="TrashPickups" instance=ExtResource("23_trash_scene")]
+[node name="TrashWrapper1" parent="TrashPickups" unique_id=1844655776 instance=ExtResource("23_trash_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.25, 8)
 trash_type = 3
 
-[node name="TrashBottle2" parent="TrashPickups" instance=ExtResource("23_trash_scene")]
+[node name="TrashBottle2" parent="TrashPickups" unique_id=1236361490 instance=ExtResource("23_trash_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.25, 22)
-trash_type = 0
 
-[node name="TrashCan2" parent="TrashPickups" instance=ExtResource("23_trash_scene")]
+[node name="TrashCan2" parent="TrashPickups" unique_id=477655288 instance=ExtResource("23_trash_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.25, 23)
 trash_type = 1
 
-[node name="TrashCanalWrapper" parent="TrashPickups" instance=ExtResource("23_trash_scene")]
+[node name="TrashCanalWrapper" parent="TrashPickups" unique_id=174077947 instance=ExtResource("23_trash_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0.25, -18)
 trash_type = 3
 
-[node name="TrashBanana2" parent="TrashPickups" instance=ExtResource("23_trash_scene")]
+[node name="TrashBanana2" parent="TrashPickups" unique_id=1138753204 instance=ExtResource("23_trash_scene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.25, 4)
 trash_type = 2
 
+[node name="TrashDanger1" parent="TrashPickups" unique_id=1040284128 instance=ExtResource("23_trash_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.25, 35)
+
+[node name="TrashDanger2" parent="TrashPickups" unique_id=1135319647 instance=ExtResource("23_trash_scene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.25, 42)
+trash_type = 1
+
+[node name="ZoneLabels" type="Node3D" parent="." unique_id=1802684938]
+
+[node name="NormalZoneLabel" type="Label3D" parent="ZoneLabels" unique_id=800837223]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, -40)
+modulate = Color(0.3, 1, 0.4, 1)
+text = "🏠 NORMAL STREET
+(Kalye Ligtas)"
+font_size = 18
+outline_size = 5
+
+[node name="FloodedZoneLabel" type="Label3D" parent="ZoneLabels" unique_id=785160276]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 2.5, -18)
+modulate = Color(0.3, 0.7, 1, 1)
+text = "🌊 FLOODED STREET
+(Bahang Kalye - Bawasan ang bilis!)"
+font_size = 16
+outline_size = 5
+
+[node name="DangerZoneLabel" type="Label3D" parent="ZoneLabels" unique_id=1806199763]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 32)
+modulate = Color(1, 0.3, 0.2, 1)
+text = "⚠️ MAPANGANIB NA KALYE!
+(Dangerous Street - May asong nagbabantay!)"
+font_size = 16
+outline_size = 5
+
+[node name="DangerousZone" type="Node3D" parent="." unique_id=1156771423]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
+
+[node name="DangerRoad" type="StaticBody3D" parent="DangerousZone" unique_id=771424885]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.01, 10)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="DangerousZone/DangerRoad" unique_id=45256681]
+mesh = SubResource("BoxMesh_danger_road")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DangerousZone/DangerRoad" unique_id=1810930656]
+shape = SubResource("BoxShape3D_danger_road")
+
+[node name="DangerSign1" type="Label3D" parent="DangerousZone" unique_id=1844962823]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1.8, 2)
+modulate = Color(1, 0.5, 0.1, 1)
+text = "🐕 MAINGAT! ASONG GALA!
+(Stun ka nito!)"
+font_size = 14
+outline_size = 4
+
+[node name="DangerSign2" type="Label3D" parent="DangerousZone" unique_id=845986340]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1.8, 2)
+modulate = Color(1, 0.5, 0.1, 1)
+text = "BEWARE OF DOG!
+🐕 PABABA NG BILIS!"
+font_size = 14
+outline_size = 4
+
+[node name="CrackDecal1" type="CSGBox3D" parent="DangerousZone" unique_id=161654384]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.22, 5)
+size = Vector3(0.15, 0.02, 3.5)
+material = ExtResource("15_chalk")
+
+[node name="CrackDecal2" type="CSGBox3D" parent="DangerousZone" unique_id=104606935]
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 4, 0.22, 12)
+size = Vector3(0.12, 0.02, 2.8)
+material = ExtResource("15_chalk")
+
+[node name="BrokenBarrel1" type="CSGCylinder3D" parent="DangerousZone" unique_id=1821958613]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.55, 15)
+use_collision = true
+radius = 0.35
+height = 1.0
+material = ExtResource("17_tri_chr")
+
+[node name="BrokenBarrel2" type="CSGCylinder3D" parent="DangerousZone" unique_id=1298560601]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.55, 8)
+use_collision = true
+radius = 0.35
+height = 1.0
+material = ExtResource("17_tri_chr")
+
+[node name="DogChaser" type="CharacterBody3D" parent="DangerousZone" unique_id=1713256834]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.6, 10)
+script = ExtResource("26_dog_script")
+patrol_center = Vector3(0, 0.6, 40)
+
+[node name="DogBody" type="MeshInstance3D" parent="DangerousZone/DogChaser" unique_id=1017245709]
+mesh = SubResource("SphereMesh_dog_body")
+
+[node name="DogHead" type="MeshInstance3D" parent="DangerousZone/DogChaser" unique_id=2029657917]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0.3)
+mesh = SubResource("SphereMesh_dog_head")
+
+[node name="DogLabel" type="Label3D" parent="DangerousZone/DogChaser" unique_id=1495864512]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+modulate = Color(1, 0.5, 0.1, 1)
+text = "🐕 BANTAY"
+font_size = 12
+outline_size = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DangerousZone/DogChaser" unique_id=2026662754]
+shape = SubResource("CapsuleShape3D_dog")
+
+[node name="Tindahan-ni-Mama" parent="." unique_id=479959081 instance=ExtResource("27_0i5ci")]
+transform = Transform3D(0.52, 0, 0, 0, 0.52, 0, 0, 0, 0.52, -0.9793463, 0.017964125, -28.235117)

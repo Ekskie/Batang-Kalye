@@ -1,9 +1,9 @@
-[gd_scene load_steps=14 format=3 uid="uid://c6l28vdsvwqqq"]
+[gd_scene format=3 uid="uid://c6l28vdsvwqqq"]
 
-[ext_resource type="Script" path="res://scripts/player/PlayerController.gd" id="1_controller"]
+[ext_resource type="Script" uid="uid://bcsv8adfaov6b" path="res://scripts/player/PlayerController.gd" id="1_controller"]
 [ext_resource type="PackedScene" uid="uid://c8m8q44j5kd0q" path="res://scenes/player/CharacterModel.tscn" id="2_model"]
 [ext_resource type="PackedScene" uid="uid://b2p3p5n7jkv11" path="res://scenes/ui/MobileControlsUI.tscn" id="3_mobile_ui"]
-[ext_resource type="PackedScene" path="res://scenes/ui/TagPointerUI.tscn" id="4_pointer"]
+[ext_resource type="PackedScene" uid="uid://ctb8n4p7kqn3v" path="res://scenes/ui/TagPointerUI.tscn" id="4_pointer"]
 [ext_resource type="Material" path="res://assets/materials/mat_powerup_aura.tres" id="5_aura_mat"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
@@ -38,54 +38,52 @@ material = SubResource("StandardMaterial3D_water_splash")
 radius = 0.12
 height = 0.24
 
-[node name="Player" type="CharacterBody3D"]
+[node name="Player" type="CharacterBody3D" unique_id=346476755]
 collision_layer = 2
 collision_mask = 3
 script = ExtResource("1_controller")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=220070193]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.725, 0)
 shape = SubResource("CapsuleShape3D_player")
 
-[node name="CharacterModel" parent="." instance=ExtResource("2_model")]
+[node name="CharacterModel" parent="." unique_id=2044598944 instance=ExtResource("2_model")]
+transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, 0, 0, 0)
 
-[node name="TagArea" type="Area3D" parent="."]
+[node name="TagArea" type="Area3D" parent="." unique_id=1871323900]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, -0.9)
 collision_layer = 0
 collision_mask = 2
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="TagArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TagArea" unique_id=1989007049]
 shape = SubResource("SphereShape3D_tag")
 
-[node name="CameraMount" type="Node3D" parent="."]
+[node name="CameraMount" type="Node3D" parent="." unique_id=2138527633]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
 
-[node name="SpringArm3D" type="SpringArm3D" parent="CameraMount"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraMount" unique_id=1227128348]
 spring_length = 3.6
 margin = 0.15
 
-[node name="Camera3D" type="Camera3D" parent="CameraMount/SpringArm3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+[node name="Camera3D" type="Camera3D" parent="CameraMount/SpringArm3D" unique_id=546876737]
 fov = 72.0
 
-[node name="NameLabel" type="Label3D" parent="."]
+[node name="NameLabel" type="Label3D" parent="." unique_id=1860020287]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85, 0)
 billboard = 1
 text = "Batang Kalye"
 font_size = 24
 outline_size = 6
 
-[node name="HeldItemDisplay" type="Label3D" parent="."]
+[node name="HeldItemDisplay" type="Label3D" parent="." unique_id=1329510977]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
 visible = false
 billboard = 1
-text = ""
+modulate = Color(1, 0.9, 0.2, 1)
 font_size = 18
 outline_size = 5
-modulate = Color(1, 0.9, 0.2, 1)
 
-[node name="SlideDust" type="CPUParticles3D" parent="."]
+[node name="SlideDust" type="CPUParticles3D" parent="." unique_id=1676025448]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
 emitting = false
 amount = 14
@@ -99,14 +97,14 @@ initial_velocity_max = 2.8
 scale_amount_min = 0.5
 scale_amount_max = 1.4
 
-[node name="PowerupAura" type="CPUParticles3D" parent="."]
+[node name="PowerupAura" type="CPUParticles3D" parent="." unique_id=84697897]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 emitting = false
 amount = 26
 lifetime = 0.6
 mesh = SubResource("SphereMesh_aura")
 emission_shape = 2
-emission_box_extents = Vector3(0.35, 0.65, 0.35)
+emission_sphere_radius = 1.0
 direction = Vector3(0, 1, 0)
 spread = 25.0
 gravity = Vector3(0, 1.8, 0)
@@ -115,20 +113,19 @@ initial_velocity_max = 2.2
 scale_amount_min = 0.6
 scale_amount_max = 1.3
 
-[node name="WaterSplash" type="CPUParticles3D" parent="."]
+[node name="WaterSplash" type="CPUParticles3D" parent="." unique_id=756629893]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 emitting = false
 amount = 20
 lifetime = 0.35
 mesh = SubResource("SphereMesh_water_splash")
 direction = Vector3(0, 1, 0)
-spread = 45.0
-gravity = Vector3(0, -7.0, 0)
+gravity = Vector3(0, -7, 0)
 initial_velocity_min = 2.5
 initial_velocity_max = 4.5
 scale_amount_min = 0.5
 scale_amount_max = 1.5
 
-[node name="MobileControlsUI" parent="." instance=ExtResource("3_mobile_ui")]
+[node name="MobileControlsUI" parent="." unique_id=1154548969 instance=ExtResource("3_mobile_ui")]
 
-[node name="TagPointerUI" parent="." instance=ExtResource("4_pointer")]
+[node name="TagPointerUI" parent="." unique_id=1326628435 instance=ExtResource("4_pointer")]

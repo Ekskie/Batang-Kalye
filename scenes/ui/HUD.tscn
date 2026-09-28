@@ -1,6 +1,88 @@
-[gd_scene load_steps=6 format=3 uid="uid://cx6g0q6m6101p"]
+[gd_scene load_steps=9 format=3 uid="uid://cx6g0q6m6101p"]
 
 [ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="1_hud"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pill"]
+bg_color = Color(0.08, 0.1, 0.14, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.7, 1, 0.6)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prompt"]
+bg_color = Color(0.06, 0.08, 0.12, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.85, 0.2, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(1, 0.8, 0, 0.35)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.08, 0.1, 0.14, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.8, 1, 0.8)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_powerup_card"]
+bg_color = Color(0.12, 0.08, 0.2, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.3, 1, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.7, 0.2, 1, 0.3)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_danger_pill"]
+bg_color = Color(0.75, 0.1, 0.1, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.4, 0.3, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+shadow_color = Color(1, 0, 0, 0.5)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
+bg_color = Color(0.08, 0.18, 0.12, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 1, 0.4, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
 bg_color = Color(0.1, 0.08, 0.14, 0.92)
@@ -16,44 +98,6 @@ corner_radius_bottom_left = 12
 shadow_color = Color(0, 0, 0, 0.5)
 shadow_size = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_powerup"]
-bg_color = Color(0.08, 0.12, 0.2, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.2, 0.85, 1, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-shadow_color = Color(0, 0.6, 1, 0.3)
-shadow_size = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_trash"]
-bg_color = Color(0.1, 0.12, 0.14, 0.9)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.3, 0.7, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
-bg_color = Color(0.08, 0.18, 0.12, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.2, 1, 0.4, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
 [node name="HUD" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -64,69 +108,111 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_hud")
 
-[node name="TopBar" type="HBoxContainer" parent="."]
+[node name="TopBar" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 20.0
-offset_top = 15.0
-offset_right = -20.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 16.0
+offset_right = 100.0
 offset_bottom = 60.0
 grow_horizontal = 2
-alignment = 1
+mouse_filter = 2
 
-[node name="RoleBadge" type="Label" parent="TopBar"]
+[node name="TimerContainer" type="PanelContainer" parent="TopBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill")
+
+[node name="TimerLabel" type="Label" parent="TopBar/TimerContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 8
+theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 22
+text = "⏱️ 03:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SideBar" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 18.0
+offset_top = 16.0
+offset_right = 260.0
+offset_bottom = 66.0
+mouse_filter = 2
+
+[node name="RolePanel" type="PanelContainer" parent="SideBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill")
+
+[node name="Margin" type="MarginContainer" parent="SideBar/RolePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_right = 14
+
+[node name="HBox" type="HBoxContainer" parent="SideBar/RolePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="RoleBadge" type="Label" parent="SideBar/RolePanel/Margin/HBox"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
 text = "👟 RUNNER"
 
-[node name="TimerLabel" type="Label" parent="TopBar"]
-custom_minimum_size = Vector2(160, 0)
+[node name="VSeparator" type="VSeparator" parent="SideBar/RolePanel/Margin/HBox"]
 layout_mode = 2
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 28
-text = "03:00"
-horizontal_alignment = 1
 
-[node name="ScoreLabel" type="Label" parent="TopBar"]
+[node name="ScoreLabel" type="Label" parent="SideBar/RolePanel/Margin/HBox"]
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 22
-text = "⏱️ Survived: 0.0s"
-horizontal_alignment = 2
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 16
+text = "⏱️ 0.0s"
 
 [node name="ScoreboardPanel" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -220.0
-offset_top = 70.0
-offset_right = -20.0
-offset_bottom = 220.0
+offset_left = -210.0
+offset_top = 16.0
+offset_right = -18.0
+offset_bottom = 150.0
 grow_horizontal = 0
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pill")
 
 [node name="MarginContainer" type="MarginContainer" parent="ScoreboardPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
+theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_bottom = 8
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ScoreboardPanel/MarginContainer"]
 layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="Title" type="Label" parent="ScoreboardPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "MGA MANLALARO (PLAYERS)"
+theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
+theme_override_font_sizes/font_size = 12
+text = "👥 MGA BATA"
 
 [node name="HSeparator" type="HSeparator" parent="ScoreboardPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -134,75 +220,161 @@ layout_mode = 2
 [node name="PlayerList" type="VBoxContainer" parent="ScoreboardPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="PowerupPanel" type="PanelContainer" parent="."]
+[node name="ContextualPrompt" type="PanelContainer" parent="."]
 visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -110.0
+offset_top = -190.0
+offset_right = 110.0
+offset_bottom = -135.0
+grow_horizontal = 2
+grow_vertical = 0
+pivot_offset = Vector2(110, 27)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_prompt")
+
+[node name="Margin" type="MarginContainer" parent="ContextualPrompt"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_right = 16
+
+[node name="HBox" type="HBoxContainer" parent="ContextualPrompt/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="PromptIcon" type="Label" parent="ContextualPrompt/Margin/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "🥫"
+
+[node name="PromptAction" type="Label" parent="ContextualPrompt/Margin/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "[E] PULUTIN"
+
+[node name="BottomBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -115.0
+offset_right = 320.0
+offset_bottom = -20.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="InventorySlot" type="PanelContainer" parent="BottomBar"]
+custom_minimum_size = Vector2(100, 95)
+layout_mode = 2
+pivot_offset = Vector2(50, 47)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="BottomBar/InventorySlot"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="VBox" type="VBoxContainer" parent="BottomBar/InventorySlot/Margin"]
+layout_mode = 2
+alignment = 1
+
+[node name="TrashIcon" type="Label" parent="BottomBar/InventorySlot/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "📭"
+horizontal_alignment = 1
+
+[node name="TrashType" type="Label" parent="BottomBar/InventorySlot/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "WALANG LAMAN"
+horizontal_alignment = 1
+
+[node name="DropHint" type="Label" parent="BottomBar/InventorySlot/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.3, 1)
+theme_override_font_sizes/font_size = 10
+text = "[Q] BITAW"
+horizontal_alignment = 1
+
+[node name="PowerupSlot" type="PanelContainer" parent="BottomBar"]
+visible = false
+custom_minimum_size = Vector2(140, 95)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_powerup_card")
+
+[node name="Margin" type="MarginContainer" parent="BottomBar/PowerupSlot"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="VBox" type="VBoxContainer" parent="BottomBar/PowerupSlot/Margin"]
+layout_mode = 2
+alignment = 1
+
+[node name="PowerupIcon" type="Label" parent="BottomBar/PowerupSlot/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "⚡"
+horizontal_alignment = 1
+
+[node name="PowerupLabel" type="Label" parent="BottomBar/PowerupSlot/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = "KIDLAT DASH"
+horizontal_alignment = 1
+
+[node name="DangerOverlay" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DangerPill" type="PanelContainer" parent="DangerOverlay"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -175.0
+offset_left = -130.0
 offset_top = 68.0
-offset_right = 175.0
-offset_bottom = 114.0
+offset_right = 130.0
+offset_bottom = 104.0
 grow_horizontal = 2
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_powerup")
+theme_override_styles/panel = SubResource("StyleBoxFlat_danger_pill")
 
-[node name="MarginContainer" type="MarginContainer" parent="PowerupPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 6
-
-[node name="PowerupLabel" type="Label" parent="PowerupPanel/MarginContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95, 0.4, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 16
-text = "✨ IMAGINATION: ⚡ KIDLAT DASH (3x)"
-horizontal_alignment = 1
-
-[node name="HeldTrashPanel" type="PanelContainer" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 20.0
-offset_top = 50.0
-offset_right = 265.0
-offset_bottom = 125.0
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_trash")
-
-[node name="MarginContainer" type="MarginContainer" parent="HeldTrashPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 8
-
-[node name="VBoxContainer" type="VBoxContainer" parent="HeldTrashPanel/MarginContainer"]
-layout_mode = 2
-
-[node name="HeldTrashName" type="Label" parent="HeldTrashPanel/MarginContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="DangerOverlay/DangerPill"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.4, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 14
-text = "🗑️ Dala: 🍾 Bote ng Tubig"
-
-[node name="HeldTrashHint" type="Label" parent="HeldTrashPanel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 12
-text = "👉 Dalhin sa: 🔵 Asul (Recyclable)"
+text = "⚠️ TAYA MALAPIT! (10m)"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="ToastPanel" type="PanelContainer" parent="."]
 visible = false
@@ -210,12 +382,12 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -210.0
-offset_top = 125.0
-offset_right = 210.0
-offset_bottom = 180.0
+offset_left = -190.0
+offset_top = 115.0
+offset_right = 190.0
+offset_bottom = 165.0
 grow_horizontal = 2
-pivot_offset = Vector2(210, 27)
+pivot_offset = Vector2(190, 25)
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_toast")
 
@@ -232,7 +404,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 15
-text = "🎉 TAMANG TAPON! (+30 Pts)"
+text = "🎉 TAMANG TAPON!"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -242,20 +414,20 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -220.0
-offset_top = 75.0
-offset_right = 220.0
-offset_bottom = 145.0
+offset_left = -210.0
+offset_top = 70.0
+offset_right = 210.0
+offset_bottom = 135.0
 grow_horizontal = 2
-pivot_offset = Vector2(220, 35)
+pivot_offset = Vector2(210, 32)
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_banner")
 
 [node name="MarginContainer" type="MarginContainer" parent="TagBanner"]
 layout_mode = 2
-theme_override_constants/margin_left = 15
+theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 15
+theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 8
 
 [node name="Label" type="Label" parent="TagBanner/MarginContainer"]
@@ -264,6 +436,6 @@ theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
-text = "💥 NA-TAYA SI JUAN!\nWALANG BAWIAN!"
+text = "💥 NA-TAYA SI JUAN!"
 horizontal_alignment = 1
 vertical_alignment = 1

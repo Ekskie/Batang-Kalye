@@ -164,3 +164,43 @@ grow_vertical = 0
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
 text = "✨ GAMIT"
+
+[node name="BtnInteract" type="Button" parent="ActionButtons"]
+visible = false
+custom_minimum_size = Vector2(140, 58)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -280.0
+offset_top = -205.0
+offset_right = -140.0
+offset_bottom = -147.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.92, 0.25, 1)
+theme_override_font_sizes/font_size = 17
+text = "🥫 PULUTIN"
+
+[node name="BtnDrop" type="Button" parent="ActionButtons"]
+visible = false
+custom_minimum_size = Vector2(110, 50)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -200.0
+offset_right = -10.0
+offset_bottom = -150.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 0.45, 0.35, 1)
+theme_override_font_sizes/font_size = 15
+text = "📦 BITAW"
