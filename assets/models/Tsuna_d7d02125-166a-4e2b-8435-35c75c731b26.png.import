@@ -2,9 +2,9 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bascx0crphuhh"
-path.s3tc="res://.godot/imported/Mgabata_d7d02125-166a-4e2b-8435-35c75c731b26.png-cb96c42137230cbe35b407a5cafc2459.s3tc.ctex"
-path.etc2="res://.godot/imported/Mgabata_d7d02125-166a-4e2b-8435-35c75c731b26.png-cb96c42137230cbe35b407a5cafc2459.etc2.ctex"
+uid="uid://c563kb1t6vfee"
+path.s3tc="res://.godot/imported/Tsuna_d7d02125-166a-4e2b-8435-35c75c731b26.png-bfb964eb88afed49d8a2c219d56dc322.s3tc.ctex"
+path.etc2="res://.godot/imported/Tsuna_d7d02125-166a-4e2b-8435-35c75c731b26.png-bfb964eb88afed49d8a2c219d56dc322.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://assets/Mgabata_d7d02125-166a-4e2b-8435-35c75c731b26.png"
-dest_files=["res://.godot/imported/Mgabata_d7d02125-166a-4e2b-8435-35c75c731b26.png-cb96c42137230cbe35b407a5cafc2459.s3tc.ctex", "res://.godot/imported/Mgabata_d7d02125-166a-4e2b-8435-35c75c731b26.png-cb96c42137230cbe35b407a5cafc2459.etc2.ctex"]
+source_file="res://assets/models/Tsuna_d7d02125-166a-4e2b-8435-35c75c731b26.png"
+dest_files=["res://.godot/imported/Tsuna_d7d02125-166a-4e2b-8435-35c75c731b26.png-bfb964eb88afed49d8a2c219d56dc322.s3tc.ctex", "res://.godot/imported/Tsuna_d7d02125-166a-4e2b-8435-35c75c731b26.png-bfb964eb88afed49d8a2c219d56dc322.etc2.ctex"]
 
 [params]
 

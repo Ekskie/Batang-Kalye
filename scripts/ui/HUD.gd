@@ -3,6 +3,7 @@ extends Control
 
 # Top Bar
 @onready var timer_label: Label = get_node_or_null("TopBar/TimerContainer/TimerLabel")
+@onready var btn_hud_pause: Button = get_node_or_null("TopBar/BtnHudPause")
 
 # Side Role & Score
 @onready var role_badge: Label = get_node_or_null("SideBar/RolePanel/Margin/HBox/RoleBadge")
@@ -47,6 +48,12 @@ var inv_tween: Tween
 var is_taya_local: bool = false
 
 func _ready() -> void:
+	if btn_hud_pause:
+		btn_hud_pause.pressed.connect(func():
+			var main_node = get_node_or_null("/root/Main")
+			if main_node and main_node.has_method("toggle_pause"):
+				main_node.toggle_pause()
+		)
 	if contextual_prompt:
 		contextual_prompt.visible = false
 	if danger_overlay:

@@ -12,8 +12,10 @@ const DEFAULT_PORT: int = 7777
 const MAX_PLAYERS: int = 8
 
 var peer: ENetMultiplayerPeer
-var players: Dictionary = {} # peer_id: { "name": String, "score": int, "role": int }
+var players: Dictionary = {} # peer_id: { "name": String, "score": int, "role": int, "character": int, "color_idx": int }
 var local_player_name: String = "Batang Kalye"
+var local_character_type: int = 0
+var local_color_index: int = 0
 var is_host: bool = false
 var last_join_ip: String = ""
 var last_join_port: int = DEFAULT_PORT
@@ -46,7 +48,9 @@ func create_game(player_name: String, port: int = DEFAULT_PORT) -> Error:
 	players[1] = {
 		"name": local_player_name,
 		"score": 0,
-		"role": 0
+		"role": 0,
+		"character": local_character_type,
+		"color_idx": local_color_index
 	}
 	server_created.emit()
 	player_list_updated.emit()
@@ -110,6 +114,20 @@ func join_game(address: String, player_name: String, port: int = DEFAULT_PORT) -
 
 	return OK
 
+func set_local_customization(char_type: int, color_idx: int) -> void:
+	local_character_type = char_type
+	local_color_index = color_idx
+	var my_id := multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
+	if players.has(my_id):
+		players[my_id]["character"] = char_type
+		players[my_id]["color_idx"] = color_idx
+		if multiplayer.has_multiplayer_peer():
+			if multiplayer.is_server():
+				rpc("sync_player_list", players)
+			else:
+				rpc_id(1, "update_customization", char_type, color_idx)
+		player_list_updated.emit()
+
 func leave_game() -> void:
 	if peer:
 		peer.close()
@@ -132,8 +150,7 @@ func _on_peer_disconnected(id: int) -> void:
 			rpc("sync_player_list", players)
 
 func _on_connected_to_server() -> void:
-	var my_id := multiplayer.get_unique_id()
-	rpc_id(1, "register_player", local_player_name)
+	rpc_id(1, "register_player", local_player_name, local_character_type, local_color_index)
 	join_success.emit()
 
 func _on_connection_failed() -> void:
@@ -153,17 +170,31 @@ func _on_server_disconnected() -> void:
 	server_disconnected.emit()
 
 @rpc("any_peer", "reliable")
-func register_player(new_name: String) -> void:
+func register_player(new_name: String, char_type: int = 0, color_idx: int = 0) -> void:
 	if not multiplayer.is_server():
 		return
 	var sender_id := multiplayer.get_remote_sender_id()
 	players[sender_id] = {
 		"name": new_name,
 		"score": 0,
-		"role": 0
+		"role": 0,
+		"character": char_type,
+		"color_idx": color_idx
 	}
 	rpc("sync_player_list", players)
 	player_list_updated.emit()
+
+@rpc("any_peer", "reliable")
+func update_customization(char_type: int, color_idx: int) -> void:
+	var sender_id := multiplayer.get_remote_sender_id()
+	if sender_id == 0:
+		sender_id = multiplayer.get_unique_id()
+	if players.has(sender_id):
+		players[sender_id]["character"] = char_type
+		players[sender_id]["color_idx"] = color_idx
+		if multiplayer.is_server():
+			rpc("sync_player_list", players)
+		player_list_updated.emit()
 
 @rpc("authority", "reliable")
 func sync_player_list(updated_players: Dictionary) -> void:

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://c888kmg8ma8uh"
-path="res://.godot/imported/Tindahan-ni-Mama.glb-58610adb119432cf7a34f611b5dbe499.scn"
+uid="uid://5outr5rgk58w"
+path="res://.godot/imported/Kalbo.glb-b0b02e05784ce2ebc5d2503647772cf8.scn"
 
 [deps]
 
-source_file="res://assets/models/Tindahan-ni-Mama.glb"
-dest_files=["res://.godot/imported/Tindahan-ni-Mama.glb-58610adb119432cf7a34f611b5dbe499.scn"]
+source_file="res://assets/models/Kalbo.glb"
+dest_files=["res://.godot/imported/Kalbo.glb-b0b02e05784ce2ebc5d2503647772cf8.scn"]
 
 [params]
 

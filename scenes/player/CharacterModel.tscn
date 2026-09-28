@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://c8m8q44j5kd0q"]
+[gd_scene load_steps=29 format=3 uid="uid://c8m8q44j5kd0q"]
 
 [ext_resource type="Script" path="res://scripts/player/CharacterAnimator.gd" id="1_anim"]
 [ext_resource type="Material" path="res://assets/materials/mat_runner.tres" id="2_runner"]
@@ -9,7 +9,8 @@
 [ext_resource type="Material" path="res://assets/materials/mat_banana_peel.tres" id="7_peel"]
 [ext_resource type="Material" path="res://assets/materials/mat_candy_wrapper.tres" id="8_wrap"]
 [ext_resource type="Material" path="res://assets/materials/mat_banderitas_blue.tres" id="9_blue"]
-[ext_resource type="PackedScene" uid="uid://bbvc6rd7yyilh" path="res://assets/models/Bataanimation.glb" id="10_bata"]
+[ext_resource type="PackedScene" uid="uid://tr3c74umef1w" path="res://assets/models/Tsuna.glb" id="10_tsuna"]
+[ext_resource type="PackedScene" uid="uid://5outr5rgk58w" path="res://assets/models/Kalbo.glb" id="11_kalbo"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_torso"]
 radius = 0.26
@@ -99,8 +100,97 @@ height = 0.16
 [node name="CharacterModel" type="Node3D"]
 script = ExtResource("1_anim")
 
-[node name="Bataanimation" parent="." instance=ExtResource("10_bata")]
+[node name="ModelTsuna" parent="." instance=ExtResource("10_tsuna")]
 transform = Transform3D(-25, 0, 0, 0, 25, 0, 0, 0, -25, 0, 0, 0)
+visible = true
+
+[node name="ModelKalbo" parent="." instance=ExtResource("11_kalbo")]
+transform = Transform3D(-25, 0, 0, 0, 25, 0, 0, 0, -25, 0, 0, 0)
+visible = false
+
+[node name="ModelBata" parent="." instance=ExtResource("10_tsuna")]
+transform = Transform3D(-25, 0, 0, 0, 25, 0, 0, 0, -25, 0, 0, 0)
+visible = false
+
+[node name="ModelOriginal" type="Node3D" parent="."]
+visible = false
+
+[node name="Torso" type="MeshInstance3D" parent="ModelOriginal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+mesh = SubResource("CapsuleMesh_torso")
+surface_material_override/0 = ExtResource("2_runner")
+
+[node name="Head" type="MeshInstance3D" parent="ModelOriginal/Torso"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 0)
+mesh = SubResource("SphereMesh_head")
+surface_material_override/0 = SubResource("StandardMaterial3D_skin")
+
+[node name="Cap" type="MeshInstance3D" parent="ModelOriginal/Torso/Head"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0.12, -0.06)
+mesh = SubResource("BoxMesh_visor")
+surface_material_override/0 = SubResource("StandardMaterial3D_cap")
+
+[node name="LeftEye" type="MeshInstance3D" parent="ModelOriginal/Torso/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.02, -0.19)
+mesh = SubResource("SphereMesh_eye")
+surface_material_override/0 = SubResource("StandardMaterial3D_eye")
+
+[node name="RightEye" type="MeshInstance3D" parent="ModelOriginal/Torso/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08, 0.02, -0.19)
+mesh = SubResource("SphereMesh_eye")
+surface_material_override/0 = SubResource("StandardMaterial3D_eye")
+
+[node name="Backpack" type="MeshInstance3D" parent="ModelOriginal/Torso"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0.18)
+mesh = SubResource("BoxMesh_backpack")
+surface_material_override/0 = SubResource("StandardMaterial3D_cap")
+
+[node name="Shorts" type="MeshInstance3D" parent="ModelOriginal/Torso"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.22, 0)
+mesh = SubResource("CylinderMesh_shorts")
+surface_material_override/0 = SubResource("StandardMaterial3D_shorts")
+
+[node name="LeftArmPivot" type="Node3D" parent="ModelOriginal/Torso"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.32, 0.15, 0)
+
+[node name="ArmMesh" type="MeshInstance3D" parent="ModelOriginal/Torso/LeftArmPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
+mesh = SubResource("CapsuleMesh_limb")
+surface_material_override/0 = SubResource("StandardMaterial3D_skin")
+
+[node name="RightArmPivot" type="Node3D" parent="ModelOriginal/Torso"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.32, 0.15, 0)
+
+[node name="ArmMesh" type="MeshInstance3D" parent="ModelOriginal/Torso/RightArmPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
+mesh = SubResource("CapsuleMesh_limb")
+surface_material_override/0 = SubResource("StandardMaterial3D_skin")
+
+[node name="LeftLegPivot" type="Node3D" parent="ModelOriginal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.42, 0)
+
+[node name="LegMesh" type="MeshInstance3D" parent="ModelOriginal/LeftLegPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
+mesh = SubResource("CapsuleMesh_limb")
+surface_material_override/0 = SubResource("StandardMaterial3D_skin")
+
+[node name="Shoe" type="MeshInstance3D" parent="ModelOriginal/LeftLegPivot/LegMesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -0.04)
+mesh = SubResource("BoxMesh_shoe")
+surface_material_override/0 = SubResource("StandardMaterial3D_shorts")
+
+[node name="RightLegPivot" type="Node3D" parent="ModelOriginal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0.42, 0)
+
+[node name="LegMesh" type="MeshInstance3D" parent="ModelOriginal/RightLegPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
+mesh = SubResource("CapsuleMesh_limb")
+surface_material_override/0 = SubResource("StandardMaterial3D_skin")
+
+[node name="Shoe" type="MeshInstance3D" parent="ModelOriginal/RightLegPivot/LegMesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -0.04)
+mesh = SubResource("BoxMesh_shoe")
+surface_material_override/0 = SubResource("StandardMaterial3D_shorts")
 
 [node name="HeldItemAnchor" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0.7, -0.32)
@@ -132,86 +222,6 @@ visible = false
 
 [node name="Body" type="MeshInstance3D" parent="HeldItemAnchor/HeldWrapper"]
 mesh = SubResource("BoxMesh_held_wrap")
-
-[node name="Torso" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
-visible = false
-mesh = SubResource("CapsuleMesh_torso")
-surface_material_override/0 = ExtResource("2_runner")
-
-[node name="Head" type="MeshInstance3D" parent="Torso"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 0)
-mesh = SubResource("SphereMesh_head")
-surface_material_override/0 = SubResource("StandardMaterial3D_skin")
-
-[node name="Cap" type="MeshInstance3D" parent="Torso/Head"]
-transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0.12, -0.06)
-mesh = SubResource("BoxMesh_visor")
-surface_material_override/0 = SubResource("StandardMaterial3D_cap")
-
-[node name="LeftEye" type="MeshInstance3D" parent="Torso/Head"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.02, -0.19)
-mesh = SubResource("SphereMesh_eye")
-surface_material_override/0 = SubResource("StandardMaterial3D_eye")
-
-[node name="RightEye" type="MeshInstance3D" parent="Torso/Head"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08, 0.02, -0.19)
-mesh = SubResource("SphereMesh_eye")
-surface_material_override/0 = SubResource("StandardMaterial3D_eye")
-
-[node name="Backpack" type="MeshInstance3D" parent="Torso"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0.18)
-mesh = SubResource("BoxMesh_backpack")
-surface_material_override/0 = SubResource("StandardMaterial3D_cap")
-
-[node name="Shorts" type="MeshInstance3D" parent="Torso"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.22, 0)
-mesh = SubResource("CylinderMesh_shorts")
-surface_material_override/0 = SubResource("StandardMaterial3D_shorts")
-
-[node name="LeftArmPivot" type="Node3D" parent="Torso"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.32, 0.15, 0)
-
-[node name="ArmMesh" type="MeshInstance3D" parent="Torso/LeftArmPivot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
-mesh = SubResource("CapsuleMesh_limb")
-surface_material_override/0 = SubResource("StandardMaterial3D_skin")
-
-[node name="RightArmPivot" type="Node3D" parent="Torso"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.32, 0.15, 0)
-
-[node name="ArmMesh" type="MeshInstance3D" parent="Torso/RightArmPivot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
-mesh = SubResource("CapsuleMesh_limb")
-surface_material_override/0 = SubResource("StandardMaterial3D_skin")
-
-[node name="LeftLegPivot" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.42, 0)
-visible = false
-
-[node name="LegMesh" type="MeshInstance3D" parent="LeftLegPivot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
-mesh = SubResource("CapsuleMesh_limb")
-surface_material_override/0 = SubResource("StandardMaterial3D_skin")
-
-[node name="Shoe" type="MeshInstance3D" parent="LeftLegPivot/LegMesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -0.04)
-mesh = SubResource("BoxMesh_shoe")
-surface_material_override/0 = SubResource("StandardMaterial3D_shorts")
-
-[node name="RightLegPivot" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0.42, 0)
-visible = false
-
-[node name="LegMesh" type="MeshInstance3D" parent="RightLegPivot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
-mesh = SubResource("CapsuleMesh_limb")
-surface_material_override/0 = SubResource("StandardMaterial3D_skin")
-
-[node name="Shoe" type="MeshInstance3D" parent="RightLegPivot/LegMesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -0.04)
-mesh = SubResource("BoxMesh_shoe")
-surface_material_override/0 = SubResource("StandardMaterial3D_shorts")
 
 [node name="TayaAura" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)

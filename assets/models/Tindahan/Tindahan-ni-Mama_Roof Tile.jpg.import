@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ct0qnwk52yfkk"
-path.s3tc="res://.godot/imported/Tindahan-ni-Mama_TINDAHAN NI ALING NENA.png-695b7155bf3a79adea805a8b727c42b0.s3tc.ctex"
-path.etc2="res://.godot/imported/Tindahan-ni-Mama_TINDAHAN NI ALING NENA.png-695b7155bf3a79adea805a8b727c42b0.etc2.ctex"
+uid="uid://b088x7mee53tl"
+path.s3tc="res://.godot/imported/Tindahan-ni-Mama_Roof Tile.jpg-f37c705841aa2d56f8f88af0a9911553.s3tc.ctex"
+path.etc2="res://.godot/imported/Tindahan-ni-Mama_Roof Tile.jpg-f37c705841aa2d56f8f88af0a9911553.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "f472c5f178b52833de9434f3f42a2a3b"
+"md5": "982c838a1751fb2eb5d3834de640b973"
 }
 
 [deps]
 
-source_file="res://assets/models/Tindahan-ni-Mama_TINDAHAN NI ALING NENA.png"
-dest_files=["res://.godot/imported/Tindahan-ni-Mama_TINDAHAN NI ALING NENA.png-695b7155bf3a79adea805a8b727c42b0.s3tc.ctex", "res://.godot/imported/Tindahan-ni-Mama_TINDAHAN NI ALING NENA.png-695b7155bf3a79adea805a8b727c42b0.etc2.ctex"]
+source_file="res://assets/models/Tindahan/Tindahan-ni-Mama_Roof Tile.jpg"
+dest_files=["res://.godot/imported/Tindahan-ni-Mama_Roof Tile.jpg-f37c705841aa2d56f8f88af0a9911553.s3tc.ctex", "res://.godot/imported/Tindahan-ni-Mama_Roof Tile.jpg-f37c705841aa2d56f8f88af0a9911553.etc2.ctex"]
 
 [params]
 

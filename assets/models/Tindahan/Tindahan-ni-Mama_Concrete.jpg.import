@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://6airjr3i8mqk"
-path.s3tc="res://.godot/imported/Tindahan-ni-Mama_Window.jpg-5b7013caf79584b717f0c5c59c683f1e.s3tc.ctex"
-path.etc2="res://.godot/imported/Tindahan-ni-Mama_Window.jpg-5b7013caf79584b717f0c5c59c683f1e.etc2.ctex"
+uid="uid://dgsyq8n07j0u8"
+path.s3tc="res://.godot/imported/Tindahan-ni-Mama_Concrete.jpg-e69a16373868486a331199157b094f51.s3tc.ctex"
+path.etc2="res://.godot/imported/Tindahan-ni-Mama_Concrete.jpg-e69a16373868486a331199157b094f51.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "8bb445a167f97b1d671c4df7e979567a"
+"md5": "171899005daecfd14f0cbe18da91ad5a"
 }
 
 [deps]
 
-source_file="res://assets/models/Tindahan-ni-Mama_Window.jpg"
-dest_files=["res://.godot/imported/Tindahan-ni-Mama_Window.jpg-5b7013caf79584b717f0c5c59c683f1e.s3tc.ctex", "res://.godot/imported/Tindahan-ni-Mama_Window.jpg-5b7013caf79584b717f0c5c59c683f1e.etc2.ctex"]
+source_file="res://assets/models/Tindahan/Tindahan-ni-Mama_Concrete.jpg"
+dest_files=["res://.godot/imported/Tindahan-ni-Mama_Concrete.jpg-e69a16373868486a331199157b094f51.s3tc.ctex", "res://.godot/imported/Tindahan-ni-Mama_Concrete.jpg-e69a16373868486a331199157b094f51.etc2.ctex"]
 
 [params]
 

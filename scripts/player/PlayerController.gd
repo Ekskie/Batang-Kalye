@@ -231,18 +231,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not is_multiplayer_authority():
 		return
 
-	# Desktop mouse capture toggle
+	var main_node = get_node_or_null("/root/Main")
+	var is_paused: bool = main_node and ("is_game_paused" in main_node) and main_node.is_game_paused
+	if is_paused:
+		return
+
 	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_ESCAPE:
-			if is_cursor_free:
-				# Re-enter game: capture mouse and resume control
-				is_cursor_free = false
-				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-			else:
-				# Free cursor so user can interact with desktop / quit
-				is_cursor_free = true
-				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		elif event.keycode == KEY_T:
+		if event.keycode == KEY_T:
 			# Debug practice role toggle
 			var next_role: Role = Role.RUNNER if current_role == Role.TAYA else Role.TAYA
 			current_role = next_role
@@ -258,8 +253,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			_try_tag()
 
-	# Mouse look when captured (only when cursor is NOT free)
-	if not is_cursor_free and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and event is InputEventMouseMotion:
+	# Mouse look when captured (only when cursor is NOT free and game is not paused)
+	if not is_cursor_free and not is_paused and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and event is InputEventMouseMotion:
 		_rotate_camera(-event.relative.x * mouse_sensitivity, -event.relative.y * mouse_sensitivity)
 
 func _on_mobile_camera_dragged(relative_vec: Vector2) -> void:
@@ -278,6 +273,13 @@ func _rotate_camera(delta_yaw: float, delta_pitch: float) -> void:
 	_apply_camera_rotation()
 
 func _physics_process(delta: float) -> void:
+	var main_node = get_node_or_null("/root/Main")
+	if main_node and ("is_game_paused" in main_node) and main_node.is_game_paused:
+		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
+		velocity.z = move_toward(velocity.z, 0.0, friction * delta)
+		move_and_slide()
+		return
+
 	_update_timers(delta)
 
 	if is_multiplayer_authority():

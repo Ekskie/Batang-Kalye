@@ -26,7 +26,7 @@
 [ext_resource type="Material" path="res://assets/materials/mat_danger_road.tres" id="24_danger_road"]
 [ext_resource type="Material" path="res://assets/materials/mat_dog_fur.tres" id="25_dog_fur"]
 [ext_resource type="Script" uid="uid://cyu3c5f6ub22u" path="res://scripts/gameplay/DogChaser.gd" id="26_dog_script"]
-[ext_resource type="PackedScene" uid="uid://c888kmg8ma8uh" path="res://assets/models/Tindahan-ni-Mama.glb" id="27_0i5ci"]
+[ext_resource type="PackedScene" uid="uid://c888kmg8ma8uh" path="res://assets/models/Tindahan/Tindahan-ni-Mama.glb" id="27_0i5ci"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ph"]
 sky_top_color = Color(0.2, 0.48, 0.88, 1)

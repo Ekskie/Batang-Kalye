@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://biic6aeu8jbq8"
-path.s3tc="res://.godot/imported/Bataanimation_d7d02125-166a-4e2b-8435-35c75c731b26.png-b3241d58e63a1586ba158fabab4866c0.s3tc.ctex"
-path.etc2="res://.godot/imported/Bataanimation_d7d02125-166a-4e2b-8435-35c75c731b26.png-b3241d58e63a1586ba158fabab4866c0.etc2.ctex"
+uid="uid://b27a6i77mpwdw"
+path.s3tc="res://.godot/imported/Tindahan-ni-Mama_Yellow-Concrete.jpg-ecae1fbc3905448ba56799d8af563afa.s3tc.ctex"
+path.etc2="res://.godot/imported/Tindahan-ni-Mama_Yellow-Concrete.jpg-ecae1fbc3905448ba56799d8af563afa.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "d9f2337537ccfa91e5f5614507682e93"
+"md5": "b791e5ef4b9ffc468e955575288f4a13"
 }
 
 [deps]
 
-source_file="res://assets/models/Bataanimation_d7d02125-166a-4e2b-8435-35c75c731b26.png"
-dest_files=["res://.godot/imported/Bataanimation_d7d02125-166a-4e2b-8435-35c75c731b26.png-b3241d58e63a1586ba158fabab4866c0.s3tc.ctex", "res://.godot/imported/Bataanimation_d7d02125-166a-4e2b-8435-35c75c731b26.png-b3241d58e63a1586ba158fabab4866c0.etc2.ctex"]
+source_file="res://assets/models/Tindahan/Tindahan-ni-Mama_Yellow-Concrete.jpg"
+dest_files=["res://.godot/imported/Tindahan-ni-Mama_Yellow-Concrete.jpg-ecae1fbc3905448ba56799d8af563afa.s3tc.ctex", "res://.godot/imported/Tindahan-ni-Mama_Yellow-Concrete.jpg-ecae1fbc3905448ba56799d8af563afa.etc2.ctex"]
 
 [params]
 

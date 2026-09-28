@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bbvc6rd7yyilh"
-path="res://.godot/imported/Bataanimation.glb-12203b09781b761921029106a97ae403.scn"
+uid="uid://c888kmg8ma8uh"
+path="res://.godot/imported/Tindahan-ni-Mama.glb-b294256b9641f5f0d4a2339005793c5c.scn"
 
 [deps]
 
-source_file="res://assets/models/Bataanimation.glb"
-dest_files=["res://.godot/imported/Bataanimation.glb-12203b09781b761921029106a97ae403.scn"]
+source_file="res://assets/models/Tindahan/Tindahan-ni-Mama.glb"
+dest_files=["res://.godot/imported/Tindahan-ni-Mama.glb-b294256b9641f5f0d4a2339005793c5c.scn"]
 
 [params]
 

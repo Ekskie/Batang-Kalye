@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b088x7mee53tl"
-path.s3tc="res://.godot/imported/Tindahan-ni-Mama_Roof Tile.jpg-c218047fb8ae1020787deefccc16087f.s3tc.ctex"
-path.etc2="res://.godot/imported/Tindahan-ni-Mama_Roof Tile.jpg-c218047fb8ae1020787deefccc16087f.etc2.ctex"
+uid="uid://pl2ock4i4bra"
+path.s3tc="res://.godot/imported/Tindahan-ni-Mama_door.jpg-0266f432b5f5c180b1a6616d42535f41.s3tc.ctex"
+path.etc2="res://.godot/imported/Tindahan-ni-Mama_door.jpg-0266f432b5f5c180b1a6616d42535f41.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "982c838a1751fb2eb5d3834de640b973"
+"md5": "ea1c38bd7d147527fbad6f9fa87fa156"
 }
 
 [deps]
 
-source_file="res://assets/models/Tindahan-ni-Mama_Roof Tile.jpg"
-dest_files=["res://.godot/imported/Tindahan-ni-Mama_Roof Tile.jpg-c218047fb8ae1020787deefccc16087f.s3tc.ctex", "res://.godot/imported/Tindahan-ni-Mama_Roof Tile.jpg-c218047fb8ae1020787deefccc16087f.etc2.ctex"]
+source_file="res://assets/models/Tindahan/Tindahan-ni-Mama_door.jpg"
+dest_files=["res://.godot/imported/Tindahan-ni-Mama_door.jpg-0266f432b5f5c180b1a6616d42535f41.s3tc.ctex", "res://.godot/imported/Tindahan-ni-Mama_door.jpg-0266f432b5f5c180b1a6616d42535f41.etc2.ctex"]
 
 [params]
 

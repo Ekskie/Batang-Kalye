@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://pl2ock4i4bra"
-path.s3tc="res://.godot/imported/Tindahan-ni-Mama_door.jpg-f275e0141bb21392a96553798f690240.s3tc.ctex"
-path.etc2="res://.godot/imported/Tindahan-ni-Mama_door.jpg-f275e0141bb21392a96553798f690240.etc2.ctex"
+uid="uid://cixjbmgkgo528"
+path.s3tc="res://.godot/imported/Kalbo_d7d02125-166a-4e2b-8435-35c75c731b26.png-96666d9f51fcd138b1667fcb75531e35.s3tc.ctex"
+path.etc2="res://.godot/imported/Kalbo_d7d02125-166a-4e2b-8435-35c75c731b26.png-96666d9f51fcd138b1667fcb75531e35.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "ea1c38bd7d147527fbad6f9fa87fa156"
+"md5": "d9f2337537ccfa91e5f5614507682e93"
 }
 
 [deps]
 
-source_file="res://assets/models/Tindahan-ni-Mama_door.jpg"
-dest_files=["res://.godot/imported/Tindahan-ni-Mama_door.jpg-f275e0141bb21392a96553798f690240.s3tc.ctex", "res://.godot/imported/Tindahan-ni-Mama_door.jpg-f275e0141bb21392a96553798f690240.etc2.ctex"]
+source_file="res://assets/models/Kalbo_d7d02125-166a-4e2b-8435-35c75c731b26.png"
+dest_files=["res://.godot/imported/Kalbo_d7d02125-166a-4e2b-8435-35c75c731b26.png-96666d9f51fcd138b1667fcb75531e35.s3tc.ctex", "res://.godot/imported/Kalbo_d7d02125-166a-4e2b-8435-35c75c731b26.png-96666d9f51fcd138b1667fcb75531e35.etc2.ctex"]
 
 [params]
 

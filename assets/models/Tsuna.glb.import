@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://jo6wd10lkstb"
-path="res://.godot/imported/Mgabata.glb-cf234119720059bff3bb8a89035c935c.scn"
+uid="uid://tr3c74umef1w"
+path="res://.godot/imported/Tsuna.glb-371966cb8a6a2f3da30fa1d918d0917f.scn"
 
 [deps]
 
-source_file="res://assets/Mgabata.glb"
-dest_files=["res://.godot/imported/Mgabata.glb-cf234119720059bff3bb8a89035c935c.scn"]
+source_file="res://assets/models/Tsuna.glb"
+dest_files=["res://.godot/imported/Tsuna.glb-371966cb8a6a2f3da30fa1d918d0917f.scn"]
 
 [params]
 

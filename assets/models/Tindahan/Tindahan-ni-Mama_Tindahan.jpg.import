@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b27a6i77mpwdw"
-path.s3tc="res://.godot/imported/Tindahan-ni-Mama_Yellow-Concrete.jpg-da2b7a0351af446dc15038fbab815847.s3tc.ctex"
-path.etc2="res://.godot/imported/Tindahan-ni-Mama_Yellow-Concrete.jpg-da2b7a0351af446dc15038fbab815847.etc2.ctex"
+uid="uid://bis6sfyvxxftt"
+path.s3tc="res://.godot/imported/Tindahan-ni-Mama_Tindahan.jpg-2a525969be6a873a0368236e0303ec0b.s3tc.ctex"
+path.etc2="res://.godot/imported/Tindahan-ni-Mama_Tindahan.jpg-2a525969be6a873a0368236e0303ec0b.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "b791e5ef4b9ffc468e955575288f4a13"
+"md5": "0b64d07c123e3fcaf6e3aee889b6727d"
 }
 
 [deps]
 
-source_file="res://assets/models/Tindahan-ni-Mama_Yellow-Concrete.jpg"
-dest_files=["res://.godot/imported/Tindahan-ni-Mama_Yellow-Concrete.jpg-da2b7a0351af446dc15038fbab815847.s3tc.ctex", "res://.godot/imported/Tindahan-ni-Mama_Yellow-Concrete.jpg-da2b7a0351af446dc15038fbab815847.etc2.ctex"]
+source_file="res://assets/models/Tindahan/Tindahan-ni-Mama_Tindahan.jpg"
+dest_files=["res://.godot/imported/Tindahan-ni-Mama_Tindahan.jpg-2a525969be6a873a0368236e0303ec0b.s3tc.ctex", "res://.godot/imported/Tindahan-ni-Mama_Tindahan.jpg-2a525969be6a873a0368236e0303ec0b.etc2.ctex"]
 
 [params]
 
