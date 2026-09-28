@@ -32,6 +32,7 @@ func _physics_process(delta: float) -> void:
 	if model:
 		model.is_sliding = is_sliding
 		model.is_dashing = is_dashing
+		model.has_superspeed = false
 		model.animate(delta, horizontal_speed, is_on_floor(), current_max)
 
 func _process_runner_ai(delta: float) -> void:

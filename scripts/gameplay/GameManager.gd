@@ -44,6 +44,9 @@ const PLAYER_COLORS: Array[Color] = [
 @onready var game_over_ui: Control = $GameOverUI
 @onready var winner_label: Label = $GameOverUI/Panel/VBoxContainer/WinnerLabel
 
+# Special Event managers
+@onready var nanay_event: Node = get_node_or_null("NanayEvent")
+
 # Lobby UI elements
 @onready var name_input: LineEdit = $LobbyUI/Panel/VBoxContainer/NameEdit
 @onready var ip_input: LineEdit = $LobbyUI/Panel/VBoxContainer/ConnectionBox/IPEdit
@@ -69,6 +72,7 @@ func _init_node_references() -> void:
 	if not maiba_ui: maiba_ui = get_node_or_null("MaibaTayaUI")
 	if not game_over_ui: game_over_ui = get_node_or_null("GameOverUI")
 	if not winner_label: winner_label = get_node_or_null("GameOverUI/Panel/VBoxContainer/WinnerLabel")
+	if not nanay_event: nanay_event = get_node_or_null("NanayEvent")
 
 	if not name_input: name_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/NameEdit")
 	if not ip_input: ip_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/ConnectionBox/IPEdit")
@@ -89,6 +93,7 @@ func _ready() -> void:
 	_setup_network_signals()
 	_setup_ui_signals()
 	_setup_maiba_signals()
+	_setup_nanay_event()
 
 	# Display local IP for hotspot hosting
 	var ips := NetworkManager.get_local_ip_addresses()
@@ -131,6 +136,31 @@ func _setup_maiba_signals() -> void:
 	maiba_manager.hand_choice_requested.connect(func(limit: float): maiba_ui.request_choice(limit))
 	maiba_ui.choice_made.connect(func(c: int): maiba_manager.rpc_id(1, "submit_hand_choice", c))
 	maiba_manager.taya_decided.connect(_on_taya_decided)
+
+func _setup_nanay_event() -> void:
+	if not nanay_event:
+		return
+	nanay_event.call("setup", self, players_container)
+	nanay_event.connect("player_sent_home", _on_player_sent_home)
+
+func _on_player_sent_home(pid: int, pname: String) -> void:
+	# Player reached Tindahan — they are OUT of this round (spectator) but rejoin next round
+	var player_node: PlayerController = players_container.get_node_or_null(str(pid)) as PlayerController
+	if player_node:
+		# Make them a spectator: hide and disable input
+		player_node.visible = false
+		player_node.set_process(false)
+		player_node.set_physics_process(false)
+		# Don't make them Taya — they're just sent home!
+
+	# Update scoreboard data — deduct 10 pts for being caught by Nanay :)
+	if network_manager.players.has(pid):
+		network_manager.players[pid]["score"] = max(0, network_manager.players[pid].get("score", 0) - 10)
+		network_manager.players[pid]["sent_home"] = true
+
+	if hud:
+		hud.show_tag_banner("NANAY", pname)
+		hud.update_scoreboard(network_manager.players)
 
 func _on_ip_text_changed(new_text: String) -> void:
 	if not ip_input:
@@ -406,6 +436,9 @@ func _set_game_state(new_state: GameState) -> void:
 		# Free players
 		for child in players_container.get_children():
 			child.queue_free()
+		# Reset NanayEvent for next match
+		if nanay_event:
+			nanay_event.call("clear_sent_home")
 
 func _on_server_created() -> void:
 	btn_host.disabled = true
@@ -436,10 +469,13 @@ func _on_server_disconnected() -> void:
 	player_list_label.text = "Mga Kasali: (Naghihintay...)"
 
 func _update_lobby_player_list() -> void:
-	var text := "Mga Kasali (%d / 8):\n" % network_manager.players.size()
+	var count := network_manager.players.size()
+	var text := "👥 MGA MANLALARO (%d / 8 PLAYERS):\n" % count
 	for pid in network_manager.players.keys():
 		var pinfo = network_manager.players[pid]
-		text += "• " + pinfo["name"] + "\n"
+		var is_host: bool = (pid == 1)
+		var tag := " 👑 [HOST • READY ✓]" if is_host else " 👟 [READY ✓]"
+		text += "• 👤 %s%s\n" % [pinfo["name"], tag]
 	player_list_label.text = text
 
 func _run_automated_self_test() -> void:

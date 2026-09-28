@@ -8,6 +8,8 @@ signal slide_pressed()
 signal dash_pressed()
 signal tag_pressed()
 signal powerup_pressed()
+signal interact_pressed()
+signal drop_pressed()
 
 @onready var joystick: KalyeVirtualJoystick = $LeftTouchZone/VirtualJoystick
 @onready var camera_touch_zone: Control = $RightTouchZone
@@ -17,6 +19,8 @@ signal powerup_pressed()
 @onready var btn_dash: Button = $ActionButtons/BtnDash
 @onready var btn_tag: Button = $ActionButtons/BtnTag
 @onready var btn_powerup: Button = $ActionButtons/BtnPowerup
+@onready var btn_interact: Button = get_node_or_null("ActionButtons/BtnInteract")
+@onready var btn_drop: Button = get_node_or_null("ActionButtons/BtnDrop")
 
 var camera_touch_id: int = -1
 var is_sprinting: bool = false
@@ -34,11 +38,17 @@ func _ready() -> void:
 		btn_tag.pressed.connect(func(): tag_pressed.emit())
 	if btn_powerup:
 		btn_powerup.pressed.connect(func(): powerup_pressed.emit())
+	if btn_interact:
+		btn_interact.pressed.connect(func(): interact_pressed.emit())
+	if btn_drop:
+		btn_drop.pressed.connect(func(): drop_pressed.emit())
 
 	if camera_touch_zone:
 		camera_touch_zone.gui_input.connect(_on_camera_zone_input)
 
 	update_powerup_buttons(0, 0)
+	set_interact_prompt(false, "", "")
+	set_drop_button_visible(false)
 
 func _on_sprint_toggled(button_pressed: bool) -> void:
 	is_sprinting = button_pressed
@@ -68,7 +78,7 @@ func set_tag_button_highlight(is_taya: bool) -> void:
 			btn_tag.text = "🔥 HAMPAS (TAG!)"
 			btn_tag.modulate = Color(1.0, 0.3, 0.2)
 		else:
-			btn_tag.text = "✋ IWAS / DEFLECT"
+			btn_tag.text = "✋ IWAS"
 			btn_tag.modulate = Color(0.3, 0.8, 1.0)
 
 func on_powerup_changed(powerup_type: int, _duration_left: float, charges: int) -> void:
@@ -90,3 +100,14 @@ func update_powerup_buttons(powerup_type: int, dash_charges: int) -> void:
 		else:
 			btn_jump.text = "⬆ JUMP"
 			btn_jump.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+# --- Contextual Interaction Prompt for Mobile ---
+func set_interact_prompt(is_visible: bool, icon: String, action_text: String) -> void:
+	if btn_interact:
+		btn_interact.visible = is_visible
+		if is_visible:
+			btn_interact.text = "%s %s" % [icon, action_text]
+
+func set_drop_button_visible(is_visible: bool) -> void:
+	if btn_drop:
+		btn_drop.visible = is_visible

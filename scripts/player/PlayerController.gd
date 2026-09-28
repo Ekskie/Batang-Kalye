@@ -6,6 +6,8 @@ signal role_changed(new_role: int)
 signal powerup_changed(powerup_type: int, duration_left: float, charges: int)
 signal trash_changed(trash_type: int, trash_name: String, bin_category: int)
 signal notification_displayed(message: String, is_success: bool)
+signal interactable_changed(has_target: bool, prompt_icon: String, prompt_action: String)
+signal danger_detected(is_danger: bool, distance: float)
 
 enum Role {
 	RUNNER = 0,
@@ -118,6 +120,16 @@ var is_wall_running: bool = false
 var wall_run_dir: Vector3 = Vector3.ZERO
 var wall_run_normal: Vector3 = Vector3.ZERO
 
+# Stun system (triggered by dog NPC or events)
+var is_stunned: bool = false
+var stun_timer: float = 0.0
+
+# Contextual Interaction & Proximity
+var nearby_interactables: Array[Node3D] = []
+var current_interactable: Node3D = null
+var danger_check_timer: float = 0.0
+var is_cursor_free: bool = false  # True when user pressed Escape to free cursor
+
 # Node references (using safe lookups for compatibility with AI bots & remote peers)
 @onready var collision_shape: CollisionShape3D = get_node_or_null("CollisionShape3D")
 @onready var camera_mount: Node3D = get_node_or_null("CameraMount")
@@ -192,6 +204,10 @@ func _ready() -> void:
 				trash_changed.connect(hud_node.on_trash_changed)
 			if hud_node.has_method("show_toast_notification"):
 				notification_displayed.connect(hud_node.show_toast_notification)
+			if hud_node.has_method("on_interactable_changed"):
+				interactable_changed.connect(hud_node.on_interactable_changed)
+			if hud_node.has_method("on_danger_detected"):
+				danger_detected.connect(hud_node.on_danger_detected)
 
 func _setup_mobile_ui() -> void:
 	if not mobile_ui:
@@ -202,6 +218,10 @@ func _setup_mobile_ui() -> void:
 	mobile_ui.slide_pressed.connect(func(): _try_slide())
 	mobile_ui.dash_pressed.connect(func(): _try_dash())
 	mobile_ui.tag_pressed.connect(func(): _try_tag())
+	if mobile_ui.has_signal("interact_pressed"):
+		mobile_ui.interact_pressed.connect(func(): _try_interact())
+	if mobile_ui.has_signal("drop_pressed"):
+		mobile_ui.drop_pressed.connect(func(): drop_trash())
 	if mobile_ui.has_method("on_powerup_changed"):
 		powerup_changed.connect(mobile_ui.on_powerup_changed)
 	if mobile_ui.has_method("update_powerup_buttons"):
@@ -214,24 +234,32 @@ func _unhandled_input(event: InputEvent) -> void:
 	# Desktop mouse capture toggle
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_ESCAPE:
-			if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-			else:
+			if is_cursor_free:
+				# Re-enter game: capture mouse and resume control
+				is_cursor_free = false
 				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			else:
+				# Free cursor so user can interact with desktop / quit
+				is_cursor_free = true
+				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		elif event.keycode == KEY_T:
 			# Debug practice role toggle
 			var next_role: Role = Role.RUNNER if current_role == Role.TAYA else Role.TAYA
 			current_role = next_role
 
-	# Left click captures mouse or executes tag
+	# Left click: if cursor is free, recapture it; otherwise execute tag
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		if is_cursor_free:
+			# User clicked back into game — recapture
+			is_cursor_free = false
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		elif Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		else:
 			_try_tag()
 
-	# Mouse look when captured
-	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and event is InputEventMouseMotion:
+	# Mouse look when captured (only when cursor is NOT free)
+	if not is_cursor_free and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and event is InputEventMouseMotion:
 		_rotate_camera(-event.relative.x * mouse_sensitivity, -event.relative.y * mouse_sensitivity)
 
 func _on_mobile_camera_dragged(relative_vec: Vector2) -> void:
@@ -257,6 +285,11 @@ func _physics_process(delta: float) -> void:
 		_process_scoring(delta)
 		_update_tag_targeting()
 		_update_camera_fov(delta)
+		_update_interactable_target()
+		danger_check_timer -= delta
+		if danger_check_timer <= 0.0:
+			danger_check_timer = 0.25
+			_check_danger_proximity()
 		# Send sync data to peers
 		var rot_y: float = model.rotation.y if model else 0.0
 		rpc("sync_transform", global_position, rot_y, velocity.length(), is_on_floor(), is_sliding, is_dashing)
@@ -269,6 +302,7 @@ func _physics_process(delta: float) -> void:
 		var current_max: float = sprint_speed if is_sprinting else walk_speed
 		model.is_sliding = is_sliding
 		model.is_dashing = is_dashing
+		model.has_superspeed = (active_powerup == PowerupType.SUPER_SPEED)
 		model.animate(delta, horizontal_speed, is_on_floor(), current_max)
 
 	if slide_dust:
@@ -284,6 +318,15 @@ func _update_timers(delta: float) -> void:
 		current_immunity_timer -= delta
 		if current_immunity_timer <= 0.0:
 			is_immune = false
+
+	# Stun timer countdown (dog NPC / event stun)
+	if is_stunned:
+		stun_timer -= delta
+		if stun_timer <= 0.0:
+			is_stunned = false
+			_update_role_state()
+			if is_multiplayer_authority():
+				notification_displayed.emit("Okay na! Tumakbo na ulit! 🏃", true)
 
 	# Imagination powerup countdown
 	if active_powerup != PowerupType.NONE:
@@ -301,6 +344,15 @@ func _update_timers(delta: float) -> void:
 		if coyote_timer > 0.0:
 			coyote_timer -= delta
 
+func apply_stun(duration: float) -> void:
+	is_stunned = true
+	stun_timer = duration
+	velocity = Vector3.ZERO
+	if name_label:
+		name_label.text = "💫 NA-STUN! 💫"
+	if is_multiplayer_authority():
+		notification_displayed.emit("🐶 Kinagat ng aso!", false)
+
 func _process_authority_movement(delta: float) -> void:
 	# Decoupled camera tracking player smoothly
 	if camera_mount:
@@ -312,6 +364,22 @@ func _process_authority_movement(delta: float) -> void:
 			velocity.y += jump_gravity * delta
 		else:
 			velocity.y += fall_gravity * delta
+
+	# Stun gate — freeze all input while stunned by dog/event
+	if is_stunned:
+		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
+		velocity.z = move_toward(velocity.z, 0.0, friction * delta)
+		move_and_slide()
+		return
+
+	# Cursor-free gate — freeze all input while cursor is visible (Escape pressed)
+	if is_cursor_free:
+		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
+		velocity.z = move_toward(velocity.z, 0.0, friction * delta)
+		if not is_on_floor():
+			velocity.y += fall_gravity * delta
+		move_and_slide()
+		return
 
 	# Input checks
 	if Input.is_action_pressed("sprint"):
@@ -332,6 +400,12 @@ func _process_authority_movement(delta: float) -> void:
 
 	if Input.is_action_just_pressed("action_tag"):
 		_try_tag()
+
+	if Input.is_action_just_pressed("interact"):
+		_try_interact()
+
+	if Input.is_action_just_pressed("drop_trash"):
+		drop_trash()
 
 	# Process queued jump
 	if jump_buffer_timer > 0.0:
@@ -446,6 +520,8 @@ func _process_authority_movement(delta: float) -> void:
 	var target_speed: float = current_sprint_spd if is_sprinting else current_walk_spd
 	if current_role == Role.TAYA:
 		target_speed *= 1.1
+	if has_trash():
+		target_speed *= 0.85 # High risk: 15% carrying slowdown
 
 	# Water zone physics
 	if is_in_water:
@@ -499,6 +575,11 @@ func _try_slide() -> void:
 	if is_sliding or slide_cooldown > 0.0 or not is_on_floor():
 		return
 
+	if has_trash():
+		if is_multiplayer_authority():
+			notification_displayed.emit("Mabigat ang dala! Pindutin ang [Q] para bitawan.", false)
+		return
+
 	var h_vel := Vector2(velocity.x, velocity.z)
 	if h_vel.length() < 3.0:
 		return
@@ -521,6 +602,11 @@ func _end_slide() -> void:
 
 func _try_dash() -> void:
 	if is_dashing or dash_cooldown > 0.0:
+		return
+
+	if has_trash():
+		if is_multiplayer_authority():
+			notification_displayed.emit("Mabigat ang dala! Pindutin ang [Q] para bitawan.", false)
 		return
 
 	# Dash requires imagination powerup!
@@ -729,6 +815,13 @@ func _server_process_tag(chaser_id: int, target_id: int) -> void:
 				game_mgr.notify_tag_event(chaser_id, target_id)
 
 func apply_tagged(chaser_id: int) -> void:
+	if has_trash():
+		drop_trash()
+	if Engine.has_singleton("AudioManager"):
+		AudioManager.play_tag_hit()
+	elif has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").play_tag_hit()
+
 	set_role_rpc(Role.TAYA)
 	grant_immunity_rpc(immunity_time)
 	if multiplayer.has_multiplayer_peer():
@@ -765,8 +858,6 @@ func has_trash() -> bool:
 
 func pickup_trash(item: TrashItem) -> bool:
 	if has_trash():
-		if is_multiplayer_authority():
-			notification_displayed.emit("May hawak ka nang basura! Itapon muna sa tamang basurahan.", false)
 		return false
 
 	held_trash = item.trash_type
@@ -776,25 +867,17 @@ func pickup_trash(item: TrashItem) -> bool:
 	_update_held_item_visuals()
 
 	if is_multiplayer_authority():
-		var hint = item.get_bin_hint()
-		notification_displayed.emit("🗑️ Napulot: %s!\nDalhin sa: %s" % [held_trash_name, hint], true)
 		trash_changed.emit(held_trash, held_trash_name, held_trash_category)
+		_update_interactable_target()
 
 	return true
 
 func deposit_trash(is_correct: bool, bin_cat: int) -> void:
 	if not is_correct:
-		if is_multiplayer_authority():
-			var bin_name = "Asul (Recyclable)"
-			match bin_cat:
-				0: bin_name = "Asul (Recyclable)"
-				1: bin_name = "Berde (Nabubulok)"
-				2: bin_name = "Dilaw (Di-Nabubulok)"
-			notification_displayed.emit("❌ Maling basurahan! Ang %s ay hindi para sa %s!" % [held_trash_name, bin_name], false)
+		# Subtle negative feedback is handled visually and via sound by the RecyclingBin
 		return
 
 	# Correct deposit!
-	var old_trash_name = held_trash_name
 	held_trash = -1
 	held_trash_name = ""
 	held_trash_category = 0
@@ -811,8 +894,7 @@ func deposit_trash(is_correct: bool, bin_cat: int) -> void:
 
 	if is_multiplayer_authority():
 		trash_changed.emit(-1, "", 0)
-		var p_name = get_powerup_name()
-		notification_displayed.emit("🎉 TAMANG TAPON! (+30 Pts)\nImagination Power Unlocked: %s!" % p_name, true)
+		_update_interactable_target()
 
 # --- Imagination Powerup System ---
 func grant_random_powerup() -> PowerupType:
@@ -825,6 +907,12 @@ func grant_random_powerup() -> PowerupType:
 	]
 	var chosen: PowerupType = options.pick_random() as PowerupType
 	set_powerup(chosen)
+
+	if Engine.has_singleton("AudioManager"):
+		AudioManager.play_powerup()
+	elif has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").play_powerup()
+
 	return chosen
 
 func set_powerup(p_type: PowerupType, duration: float = 16.0) -> void:
@@ -861,7 +949,7 @@ func clear_powerup() -> void:
 	if is_multiplayer_authority():
 		powerup_changed.emit(active_powerup, 0.0, 0)
 		if was_active:
-			notification_displayed.emit("💨 Naglaho na ang kapangyarihan ng imahinasyon!", false)
+			notification_displayed.emit("💨 Naglaho na ang kapangyarihan!", false)
 
 	if multiplayer.has_multiplayer_peer():
 		rpc("sync_powerup_state", 0)
@@ -913,10 +1001,121 @@ func _update_powerup_visuals() -> void:
 		mobile_ui.update_powerup_buttons(active_powerup, dash_charges_left)
 
 func _update_held_item_visuals() -> void:
+	if model and model.has_method("set_held_trash"):
+		model.set_held_trash(held_trash)
 	if held_item_display:
-		if has_trash():
-			held_item_display.text = "📦 " + held_trash_name
-			held_item_display.visible = true
-		else:
-			held_item_display.text = ""
-			held_item_display.visible = false
+		held_item_display.visible = false
+	if mobile_ui and mobile_ui.has_method("set_drop_button_visible"):
+		mobile_ui.set_drop_button_visible(has_trash())
+	if is_multiplayer_authority() and multiplayer.has_multiplayer_peer():
+		rpc("sync_held_trash_rpc", held_trash)
+
+@rpc("any_peer", "call_local", "reliable")
+func sync_held_trash_rpc(t_type: int) -> void:
+	held_trash = t_type
+	if model and model.has_method("set_held_trash"):
+		model.set_held_trash(t_type)
+
+# --- Contextual Interaction & Loot System ---
+func _try_interact() -> void:
+	_update_interactable_target()
+	if not is_instance_valid(current_interactable):
+		return
+	if current_interactable is TrashItem:
+		current_interactable.interact(self)
+	elif current_interactable is RecyclingBin:
+		current_interactable.interact(self)
+
+func drop_trash() -> void:
+	if not has_trash():
+		return
+	var dropped_type := held_trash
+	held_trash = -1
+	held_trash_name = ""
+	held_trash_category = 0
+	_update_held_item_visuals()
+
+	if Engine.has_singleton("AudioManager"):
+		AudioManager.play_drop()
+	elif has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").play_drop()
+
+	if is_multiplayer_authority():
+		trash_changed.emit(-1, "", 0)
+		_update_interactable_target()
+
+func register_nearby_interactable(node: Node3D) -> void:
+	if not nearby_interactables.has(node):
+		nearby_interactables.append(node)
+	_update_interactable_target()
+
+func unregister_nearby_interactable(node: Node3D) -> void:
+	nearby_interactables.erase(node)
+	if current_interactable == node:
+		current_interactable = null
+	_update_interactable_target()
+
+func _update_interactable_target() -> void:
+	var valid_list: Array[Node3D] = []
+	for item in nearby_interactables:
+		if is_instance_valid(item):
+			valid_list.append(item)
+	nearby_interactables = valid_list
+
+	if nearby_interactables.is_empty():
+		current_interactable = null
+		interactable_changed.emit(false, "", "")
+		if mobile_ui and mobile_ui.has_method("set_interact_prompt"):
+			mobile_ui.set_interact_prompt(false, "", "")
+		return
+
+	# Prioritize by distance and suitability
+	var best: Node3D = null
+	var min_d: float = 999.0
+	for item in nearby_interactables:
+		if item is TrashItem and has_trash():
+			continue # Already carrying an item
+		var d: float = global_position.distance_to(item.global_position)
+		if d < min_d:
+			min_d = d
+			best = item
+
+	current_interactable = best
+	if is_instance_valid(current_interactable):
+		var icon: String = "✨"
+		var action: String = "INTERACT"
+		if current_interactable is TrashItem:
+			icon = current_interactable.get_item_icon()
+			action = "PULUTIN"
+		elif current_interactable is RecyclingBin:
+			icon = "🗑️"
+			action = "IPASOK" if has_trash() else "BASURAHAN"
+		interactable_changed.emit(true, icon, action)
+		if mobile_ui and mobile_ui.has_method("set_interact_prompt"):
+			mobile_ui.set_interact_prompt(true, icon, action)
+	else:
+		interactable_changed.emit(false, "", "")
+		if mobile_ui and mobile_ui.has_method("set_interact_prompt"):
+			mobile_ui.set_interact_prompt(false, "", "")
+
+func _check_danger_proximity() -> void:
+	if current_role != Role.RUNNER:
+		danger_detected.emit(false, 0.0)
+		return
+
+	var min_dist: float = 999.0
+	for p in get_tree().get_nodes_in_group("players"):
+		if p is PlayerController and p != self and p.current_role == Role.TAYA:
+			var d := global_position.distance_to(p.global_position)
+			if d < min_dist:
+				min_dist = d
+
+	if min_dist < 14.0:
+		danger_detected.emit(true, min_dist)
+		if min_dist < 8.0:
+			if Engine.has_singleton("AudioManager"):
+				AudioManager.play_danger()
+			elif has_node("/root/AudioManager"):
+				get_node("/root/AudioManager").play_danger()
+	else:
+		danger_detected.emit(false, 0.0)
