@@ -8,6 +8,10 @@
 [ext_resource type="PackedScene" uid="uid://c515vpt0ygh45" path="res://scenes/ui/MaibaTayaUI.tscn" id="6_maiba_ui"]
 [ext_resource type="Script" uid="uid://bytm1u064jnxw" path="res://scripts/gameplay/NanayEvent.gd" id="7_nanay_event"]
 [ext_resource type="PackedScene" uid="uid://c8m8q44j5kd0q" path="res://scenes/player/CharacterModel.tscn" id="8_char_model"]
+[ext_resource type="Material" path="res://assets/materials/mat_anime_outline.tres" id="9_outline_mat"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_preview_toon"]
+size = Vector2(2, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_title_card"]
 content_margin_left = 32.0
@@ -478,7 +482,7 @@ layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_showroom_frame")
 
 [node name="PreviewViewportContainer" type="SubViewportContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PreviewFrame" unique_id=161383334]
-custom_minimum_size = Vector2(486, 260)
+custom_minimum_size = Vector2(486, 220)
 layout_mode = 2
 stretch = true
 
@@ -486,13 +490,20 @@ stretch = true
 own_world_3d = true
 transparent_bg = true
 handle_input_locally = false
-size = Vector2i(486, 260)
-render_target_update_mode = 0
+size = Vector2i(486, 220)
+render_target_update_mode = 3
 
 [node name="PreviewCamera" type="Camera3D" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PreviewFrame/PreviewViewportContainer/PreviewSubViewport" unique_id=982116168]
 transform = Transform3D(1, 0, 0, 0, 0.998135, 0.0610485, 0, -0.0610485, 0.998135, 0, 1.05, 3.3)
 current = true
 fov = 38.0
+
+[node name="ToonOutlineQuad" type="MeshInstance3D" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PreviewFrame/PreviewViewportContainer/PreviewSubViewport/PreviewCamera" unique_id=198422312]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)
+extra_cull_margin = 16384.0
+cast_shadow = 0
+mesh = SubResource("QuadMesh_preview_toon")
+material_override = ExtResource("9_outline_mat")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PreviewFrame/PreviewViewportContainer/PreviewSubViewport" unique_id=1899516977]
 transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 2, 4, 3)
@@ -600,42 +611,180 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "3: 🧢 Batang"
+text = "3: 🏃 Totoy"
 
 [node name="BtnPreset4" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=1637967557]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "4: 🔥 Tsuna"
+text = "4: 👧 Nene"
 
 [node name="BtnPreset5" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=1512423227]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "5: 🩲 Kalbo"
+text = "5: 🧢 Tisoy"
 
 [node name="BtnPreset6" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=400899232]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "6: ⭐ Batang"
+text = "6: 🏀 Baldo"
 
 [node name="BtnPreset7" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=938220256]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "7: ⚡ Tsuna"
+text = "7: 🧣 Nonoy"
 
 [node name="BtnPreset8" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=114541734]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "8: 🥊 Kalbo"
+text = "8: 🎀 Kikay"
+
+[node name="SlotsGrid" type="GridContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom" unique_id=1849102401]
+layout_mode = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 4
+columns = 2
+
+[node name="HairRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid" unique_id=1849102402]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="BtnPrevHair" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HairRow" unique_id=1849102403]
+custom_minimum_size = Vector2(28, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "◀"
+
+[node name="HairBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HairRow" unique_id=1849102404]
+custom_minimum_size = Vector2(140, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_badge_dark")
+
+[node name="HairLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HairRow/HairBadge" unique_id=1849102405]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "⚡ Spiky Anime"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BtnNextHair" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HairRow" unique_id=1849102406]
+custom_minimum_size = Vector2(28, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "▶"
+
+[node name="HeadRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid" unique_id=1849102407]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="BtnPrevHead" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HeadRow" unique_id=1849102408]
+custom_minimum_size = Vector2(28, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "◀"
+
+[node name="HeadBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HeadRow" unique_id=1849102409]
+custom_minimum_size = Vector2(140, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_badge_dark")
+
+[node name="HeadLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HeadRow/HeadBadge" unique_id=1849102410]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "🚫 Wala (None)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BtnNextHead" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HeadRow" unique_id=1849102411]
+custom_minimum_size = Vector2(28, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "▶"
+
+[node name="BodyRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid" unique_id=1849102412]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="BtnPrevBody" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/BodyRow" unique_id=1849102413]
+custom_minimum_size = Vector2(28, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "◀"
+
+[node name="BodyBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/BodyRow" unique_id=1849102414]
+custom_minimum_size = Vector2(140, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_badge_dark")
+
+[node name="BodyLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/BodyRow/BodyBadge" unique_id=1849102415]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "👕 Street T-Shirt"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BtnNextBody" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/BodyRow" unique_id=1849102416]
+custom_minimum_size = Vector2(28, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "▶"
+
+[node name="FootRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid" unique_id=1849102417]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="BtnPrevFoot" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/FootRow" unique_id=1849102418]
+custom_minimum_size = Vector2(28, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "◀"
+
+[node name="FootBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/FootRow" unique_id=1849102419]
+custom_minimum_size = Vector2(140, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_badge_dark")
+
+[node name="FootLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/FootRow/FootBadge" unique_id=1849102420]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 11
+text = "🩴 Spartan (Asul/Puti)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BtnNextFoot" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/FootRow" unique_id=1849102421]
+custom_minimum_size = Vector2(28, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
+text = "▶"
 
 [node name="VSeparator" type="VSeparator" parent="LobbyUI/Panel/VBoxContainer/MainColumns" unique_id=898941989]
 layout_mode = 2

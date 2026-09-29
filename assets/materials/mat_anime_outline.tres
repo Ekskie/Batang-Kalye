@@ -1,0 +1,12 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/anime_toon_outline.gdshader" id="1_shader"]
+
+[resource]
+render_priority = 100
+shader = ExtResource("1_shader")
+shader_parameter/outline_color = Color(0.08, 0.08, 0.12, 1)
+shader_parameter/outline_thickness = 1.35
+shader_parameter/depth_threshold = 0.42
+shader_parameter/normal_threshold = 0.52
+shader_parameter/color_threshold = 0.25

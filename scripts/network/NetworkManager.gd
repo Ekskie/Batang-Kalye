@@ -12,10 +12,19 @@ const DEFAULT_PORT: int = 7777
 const MAX_PLAYERS: int = 8
 
 var peer: ENetMultiplayerPeer
-var players: Dictionary = {} # peer_id: { "name": String, "score": int, "role": int, "character": int, "color_idx": int }
+var players: Dictionary = {} # peer_id: { "name": String, "score": int, "role": int, "character": int, "color_idx": int, "outfit": Dictionary }
 var local_player_name: String = "Batang Kalye"
 var local_character_type: int = 0
 var local_color_index: int = 0
+var local_outfit: Dictionary = {
+	"archetype": 0,
+	"base": 0,
+	"hair": 0,
+	"headwear": 0,
+	"body": 0,
+	"footwear": 0,
+	"color": 0
+}
 var is_host: bool = false
 var last_join_ip: String = ""
 var last_join_port: int = DEFAULT_PORT
@@ -49,8 +58,9 @@ func create_game(player_name: String, port: int = DEFAULT_PORT) -> Error:
 		"name": local_player_name,
 		"score": 0,
 		"role": 0,
-		"character": local_character_type,
-		"color_idx": local_color_index
+		"character": local_outfit.get("base", local_character_type),
+		"color_idx": local_outfit.get("color", local_color_index),
+		"outfit": local_outfit
 	}
 	server_created.emit()
 	player_list_updated.emit()
@@ -114,19 +124,35 @@ func join_game(address: String, player_name: String, port: int = DEFAULT_PORT) -
 
 	return OK
 
-func set_local_customization(char_type: int, color_idx: int) -> void:
-	local_character_type = char_type
-	local_color_index = color_idx
+func set_local_outfit(outfit: Dictionary) -> void:
+	local_outfit = outfit.duplicate()
+	local_character_type = outfit.get("base", 0)
+	local_color_index = outfit.get("color", 0)
 	var my_id := multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
 	if players.has(my_id):
-		players[my_id]["character"] = char_type
-		players[my_id]["color_idx"] = color_idx
+		players[my_id]["character"] = local_character_type
+		players[my_id]["color_idx"] = local_color_index
+		players[my_id]["outfit"] = local_outfit
 		if multiplayer.has_multiplayer_peer():
 			if multiplayer.is_server():
 				rpc("sync_player_list", players)
 			else:
-				rpc_id(1, "update_customization", char_type, color_idx)
+				rpc_id(1, "update_outfit", local_outfit)
 		player_list_updated.emit()
+
+func set_local_customization(char_type: int, color_idx: int) -> void:
+	local_character_type = char_type
+	local_color_index = color_idx
+	local_outfit = {
+		"archetype": char_type,
+		"base": char_type,
+		"hair": 0,
+		"headwear": 0,
+		"body": 0,
+		"footwear": 0,
+		"color": color_idx
+	}
+	set_local_outfit(local_outfit)
 
 func leave_game() -> void:
 	if peer:
@@ -150,7 +176,7 @@ func _on_peer_disconnected(id: int) -> void:
 			rpc("sync_player_list", players)
 
 func _on_connected_to_server() -> void:
-	rpc_id(1, "register_player", local_player_name, local_character_type, local_color_index)
+	rpc_id(1, "register_player_outfit", local_player_name, local_outfit)
 	join_success.emit()
 
 func _on_connection_failed() -> void:
@@ -170,7 +196,7 @@ func _on_server_disconnected() -> void:
 	server_disconnected.emit()
 
 @rpc("any_peer", "reliable")
-func register_player(new_name: String, char_type: int = 0, color_idx: int = 0) -> void:
+func register_player_outfit(new_name: String, outfit: Dictionary) -> void:
 	if not multiplayer.is_server():
 		return
 	var sender_id := multiplayer.get_remote_sender_id()
@@ -178,23 +204,51 @@ func register_player(new_name: String, char_type: int = 0, color_idx: int = 0) -
 		"name": new_name,
 		"score": 0,
 		"role": 0,
-		"character": char_type,
-		"color_idx": color_idx
+		"character": outfit.get("base", 0),
+		"color_idx": outfit.get("color", 0),
+		"outfit": outfit
 	}
 	rpc("sync_player_list", players)
 	player_list_updated.emit()
 
 @rpc("any_peer", "reliable")
-func update_customization(char_type: int, color_idx: int) -> void:
+func register_player(new_name: String, char_type: int = 0, color_idx: int = 0) -> void:
+	var dummy_outfit := {
+		"archetype": char_type,
+		"base": char_type,
+		"hair": 0,
+		"headwear": 0,
+		"body": 0,
+		"footwear": 0,
+		"color": color_idx
+	}
+	register_player_outfit(new_name, dummy_outfit)
+
+@rpc("any_peer", "reliable")
+func update_outfit(outfit: Dictionary) -> void:
 	var sender_id := multiplayer.get_remote_sender_id()
 	if sender_id == 0:
 		sender_id = multiplayer.get_unique_id()
 	if players.has(sender_id):
-		players[sender_id]["character"] = char_type
-		players[sender_id]["color_idx"] = color_idx
+		players[sender_id]["outfit"] = outfit
+		players[sender_id]["character"] = outfit.get("base", 0)
+		players[sender_id]["color_idx"] = outfit.get("color", 0)
 		if multiplayer.is_server():
 			rpc("sync_player_list", players)
 		player_list_updated.emit()
+
+@rpc("any_peer", "reliable")
+func update_customization(char_type: int, color_idx: int) -> void:
+	var dummy_outfit := {
+		"archetype": char_type,
+		"base": char_type,
+		"hair": 0,
+		"headwear": 0,
+		"body": 0,
+		"footwear": 0,
+		"color": color_idx
+	}
+	update_outfit(dummy_outfit)
 
 @rpc("authority", "reliable")
 func sync_player_list(updated_players: Dictionary) -> void:

@@ -10,7 +10,7 @@
 [PASS] Picked up Plastic Bottle: 🍾 Bote ng Tubig
 [PASS] Wrong bin rejected deposit; trash kept safely in hand.
 [PASS] Correct bin accepted trash! +30 score awarded (Total: 30).
-[PASS] Imagination Powerup Unlocked: 🧗 WALL RUN (Akyat-Pader)
+[PASS] Imagination Powerup Unlocked: 🦘 DOUBLE JUMP (Luksong-Tinik)
 [PASS] Kidlat Dash executed successfully with powerup! Charges left: 2
 [SELF-TEST] Testing Tagging mechanism...
  - Post-tag P1 Role: 0 (Expected RUNNER: 0)
@@ -19,6 +19,9 @@
 [SELF-TEST] Testing Pause Menu...
 [PASS] Pause menu opened successfully.
 [PASS] Pause menu closed successfully.
+[SELF-TEST] Testing 8-Character Roster & Customization...
+[PASS] All 8 Pinoy Archetypes selected and applied successfully.
+[PASS] Modular outfit saved to config and reloaded successfully.
 [PASS] Game over reached. Winner: 📢 "HOY MGA BATA! UMUWI NA KAYO, GABI NA!"
 
 🏆 PANALO: Dennrick! 🏆

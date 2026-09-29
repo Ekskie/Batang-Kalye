@@ -5,6 +5,10 @@
 [ext_resource type="PackedScene" uid="uid://b2p3p5n7jkv11" path="res://scenes/ui/MobileControlsUI.tscn" id="3_mobile_ui"]
 [ext_resource type="PackedScene" uid="uid://ctb8n4p7kqn3v" path="res://scenes/ui/TagPointerUI.tscn" id="4_pointer"]
 [ext_resource type="Material" path="res://assets/materials/mat_powerup_aura.tres" id="5_aura_mat"]
+[ext_resource type="Material" path="res://assets/materials/mat_anime_outline.tres" id="6_outline_mat"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_toon"]
+size = Vector2(2, 2)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
 radius = 0.35
@@ -67,6 +71,13 @@ margin = 0.15
 
 [node name="Camera3D" type="Camera3D" parent="CameraMount/SpringArm3D" unique_id=546876737]
 fov = 72.0
+
+[node name="ToonOutlineQuad" type="MeshInstance3D" parent="CameraMount/SpringArm3D/Camera3D" unique_id=149817293]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)
+extra_cull_margin = 16384.0
+cast_shadow = 0
+mesh = SubResource("QuadMesh_toon")
+material_override = ExtResource("6_outline_mat")
 
 [node name="NameLabel" type="Label3D" parent="." unique_id=1860020287]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85, 0)
