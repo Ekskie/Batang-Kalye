@@ -34,6 +34,13 @@ const FloatingTextScript = preload("res://scripts/player/FloatingText.gd")
 
 var is_bot: bool = false
 
+var is_solo_practice: bool:
+	get:
+		var main_node = get_node_or_null("/root/Main")
+		if main_node and "network_manager" in main_node and main_node.network_manager:
+			return main_node.network_manager.is_solo_practice
+		return false
+
 func is_local_human() -> bool:
 	if is_bot:
 		return false
@@ -318,10 +325,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_T:
-			# Debug practice role toggle
+		if event.keycode == KEY_T and is_solo_practice:
 			var next_role: Role = Role.RUNNER if current_role == Role.TAYA else Role.TAYA
 			current_role = next_role
+			_update_role_state()
 
 	# Left click: if cursor is free, recapture it; otherwise execute tag
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

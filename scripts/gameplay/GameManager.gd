@@ -116,8 +116,8 @@ var selected_color_idx: int:
 enum LobbyTab { BROWSE, HOST, DIRECT, ROOM_ACTIVE }
 var current_lobby_tab: LobbyTab = LobbyTab.BROWSE
 
-enum HostNetType { ONLINE_WEBRTC, LOCAL_LAN, CUSTOM_TUNNEL }
-var current_host_net_type: HostNetType = HostNetType.ONLINE_WEBRTC
+enum HostNetType { ONLINE, HOTSPOT }
+var current_host_net_type: HostNetType = HostNetType.ONLINE
 var current_joined_room_name: String = "Kalye Room"
 
 const SupabaseLobbyManagerScript = preload("res://scripts/network/SupabaseLobbyManager.gd")
@@ -197,7 +197,22 @@ var slot_labels: Array[Label] = []
 @onready var btn_next_foot: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/FootRow/BtnNextFoot")
 @onready var foot_label: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/FootRow/FootBadge/FootLabel")
 
-# Pause Menu UI elements
+# Pause & Settings Menu UI elements
+const SETTINGS_SAVE_PATH: String = "user://game_settings.cfg"
+var settings_opened_from: String = "PAUSE"
+var settings_data: Dictionary = {
+	"preset": 2, # 1: Low, 2: Medium, 3: High, 0: Custom
+	"render_scale": 0.75,
+	"shadows": true,
+	"glow": false,
+	"max_fps": 60,
+	"anti_aliasing": 0,
+	"show_fps": false,
+	"volume": 1.0,
+	"sensitivity": 2.5,
+	"fov": 75.0
+}
+
 @onready var pause_ui: Control = get_node_or_null("PauseUI")
 @onready var pause_panel: Control = get_node_or_null("PauseUI/PausePanel")
 @onready var btn_resume: Button = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnResume")
@@ -205,13 +220,29 @@ var slot_labels: Array[Label] = []
 @onready var btn_pause_lobby: Button = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnPauseLobby")
 @onready var btn_pause_quit: Button = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnPauseQuit")
 @onready var settings_panel: Control = get_node_or_null("PauseUI/SettingsPanel")
-@onready var volume_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/VolumeRow/VolumeSlider")
-@onready var volume_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/VolumeRow/VolumeLabel")
-@onready var sensitivity_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/SensitivityRow/SensitivitySlider")
-@onready var sensitivity_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/SensitivityRow/SensitivityLabel")
-@onready var fov_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/FovRow/FovSlider")
-@onready var fov_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/FovRow/FovLabel")
+
+@onready var btn_title_settings: Button = get_node_or_null("TitleScreenUI/Center/Panel/VBox/BtnTitleSettings")
+@onready var btn_lobby_settings: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/TopBar/LeftControls/BtnLobbySettings")
+@onready var btn_preset_low: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetLow")
+@onready var btn_preset_med: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetMed")
+@onready var btn_preset_high: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetHigh")
+@onready var preset_sub_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetSubLabel")
+@onready var scale_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/ScaleRow/ScaleLabel")
+@onready var scale_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/ScaleRow/ScaleSlider")
+@onready var shadows_check: CheckButton = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/ShadowsRow/ShadowsCheck")
+@onready var glow_check: CheckButton = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/GlowRow/GlowCheck")
+@onready var fps_limit_option: OptionButton = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FpsLimitRow/FpsLimitOption")
+@onready var aa_option: OptionButton = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/AaRow/AaOption")
+@onready var fps_counter_check: CheckButton = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FpsCounterRow/FpsCounterCheck")
+
+@onready var volume_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow/VolumeSlider")
+@onready var volume_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow/VolumeLabel")
+@onready var sensitivity_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow/SensitivitySlider")
+@onready var sensitivity_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow/SensitivityLabel")
+@onready var fov_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow/FovSlider")
+@onready var fov_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow/FovLabel")
 @onready var btn_close_settings: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/BtnCloseSettings")
+@onready var fps_label: Label = get_node_or_null("FpsOverlay/FpsLabel")
 
 func _enter_tree() -> void:
 	_init_node_references()
@@ -387,13 +418,29 @@ func _init_node_references() -> void:
 	if not btn_pause_lobby: btn_pause_lobby = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnPauseLobby")
 	if not btn_pause_quit: btn_pause_quit = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnPauseQuit")
 	if not settings_panel: settings_panel = get_node_or_null("PauseUI/SettingsPanel")
-	if not volume_slider: volume_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/VolumeRow/VolumeSlider")
-	if not volume_label: volume_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/VolumeRow/VolumeLabel")
-	if not sensitivity_slider: sensitivity_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/SensitivityRow/SensitivitySlider")
-	if not sensitivity_label: sensitivity_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/SensitivityRow/SensitivityLabel")
-	if not fov_slider: fov_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/FovRow/FovSlider")
-	if not fov_label: fov_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/FovRow/FovLabel")
+
+	if not btn_title_settings: btn_title_settings = get_node_or_null("TitleScreenUI/Center/Panel/VBox/BtnTitleSettings")
+	if not btn_lobby_settings: btn_lobby_settings = get_node_or_null("LobbyUI/Panel/VBoxContainer/TopBar/LeftControls/BtnLobbySettings")
+	if not btn_preset_low: btn_preset_low = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetLow")
+	if not btn_preset_med: btn_preset_med = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetMed")
+	if not btn_preset_high: btn_preset_high = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetHigh")
+	if not preset_sub_label: preset_sub_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetSubLabel")
+	if not scale_label: scale_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/ScaleRow/ScaleLabel")
+	if not scale_slider: scale_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/ScaleRow/ScaleSlider")
+	if not shadows_check: shadows_check = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/ShadowsRow/ShadowsCheck")
+	if not glow_check: glow_check = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/GlowRow/GlowCheck")
+	if not fps_limit_option: fps_limit_option = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FpsLimitRow/FpsLimitOption")
+	if not aa_option: aa_option = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/AaRow/AaOption")
+	if not fps_counter_check: fps_counter_check = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FpsCounterRow/FpsCounterCheck")
+
+	if not volume_slider: volume_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow/VolumeSlider")
+	if not volume_label: volume_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow/VolumeLabel")
+	if not sensitivity_slider: sensitivity_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow/SensitivitySlider")
+	if not sensitivity_label: sensitivity_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow/SensitivityLabel")
+	if not fov_slider: fov_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow/FovSlider")
+	if not fov_label: fov_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow/FovLabel")
 	if not btn_close_settings: btn_close_settings = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/BtnCloseSettings")
+	if not fps_label: fps_label = get_node_or_null("FpsOverlay/FpsLabel")
 
 func _ready() -> void:
 	# Lock orientation to landscape on mobile / handheld devices
@@ -402,6 +449,7 @@ func _ready() -> void:
 
 	_init_node_references()
 	_load_player_outfit()
+	_load_settings()
 
 	var run_test := false
 	for arg in OS.get_cmdline_args():
@@ -425,7 +473,7 @@ func _ready() -> void:
 	# Display local IP for hotspot hosting
 	var ips := NetworkManager.get_local_ip_addresses()
 	if hotspot_info_label:
-		hotspot_info_label.text = "Local IP: " + ips[0] + " (Port 7777)"
+		hotspot_info_label.text = "Ang iyong IP: " + ips[0]
 	if ip_input and (ip_input.text.is_empty() or ip_input.text == "127.0.0.1"):
 		ip_input.text = ips[0]
 
@@ -516,20 +564,41 @@ func _setup_ui_signals() -> void:
 	if btn_resume:
 		btn_resume.pressed.connect(func(): set_paused(false))
 	if btn_settings:
-		btn_settings.pressed.connect(func():
-			if pause_panel: pause_panel.visible = false
-			if settings_panel: settings_panel.visible = true
-		)
+		btn_settings.pressed.connect(func(): _open_settings("PAUSE"))
+	if btn_title_settings:
+		btn_title_settings.pressed.connect(func(): _open_settings("TITLE"))
+	if btn_lobby_settings:
+		btn_lobby_settings.pressed.connect(func(): _open_settings("LOBBY"))
 	if btn_close_settings:
-		btn_close_settings.pressed.connect(func():
-			if settings_panel: settings_panel.visible = false
-			if pause_panel: pause_panel.visible = true
-		)
+		btn_close_settings.pressed.connect(_close_settings)
 	if btn_pause_lobby:
 		btn_pause_lobby.pressed.connect(_on_btn_pause_lobby_pressed)
 	if btn_pause_quit:
 		btn_pause_quit.pressed.connect(func(): get_tree().quit())
 
+	# Quick Graphics Presets
+	if btn_preset_low:
+		btn_preset_low.pressed.connect(func(): _apply_preset(1))
+	if btn_preset_med:
+		btn_preset_med.pressed.connect(func(): _apply_preset(2))
+	if btn_preset_high:
+		btn_preset_high.pressed.connect(func(): _apply_preset(3))
+
+	# Detailed Graphics Controls
+	if scale_slider:
+		scale_slider.value_changed.connect(_on_render_scale_changed)
+	if shadows_check:
+		shadows_check.toggled.connect(_on_shadows_toggled)
+	if glow_check:
+		glow_check.toggled.connect(_on_glow_toggled)
+	if fps_limit_option:
+		fps_limit_option.item_selected.connect(_on_fps_limit_selected)
+	if aa_option:
+		aa_option.item_selected.connect(_on_aa_selected)
+	if fps_counter_check:
+		fps_counter_check.toggled.connect(_on_fps_counter_toggled)
+
+	# Audio & Controls
 	if volume_slider:
 		volume_slider.value_changed.connect(_on_volume_changed)
 	if sensitivity_slider:
@@ -757,7 +826,7 @@ func _update_mode_ui() -> void:
 				btn_mode_toggle.modulate = Color(0.4, 0.8, 1.0)
 
 func _on_btn_net_mode_toggle_pressed() -> void:
-	current_host_net_type = ((int(current_host_net_type) + 1) % 3) as HostNetType
+	current_host_net_type = ((int(current_host_net_type) + 1) % 2) as HostNetType
 	_update_host_net_mode_ui()
 
 func _update_host_net_mode_ui() -> void:
@@ -770,34 +839,26 @@ func _update_host_net_mode_ui() -> void:
 	var local_ip := ips[0] if not ips.is_empty() else "127.0.0.1"
 
 	match current_host_net_type:
-		HostNetType.ONLINE_WEBRTC:
+		HostNetType.ONLINE:
 			if btn_net_mode_toggle:
-				btn_net_mode_toggle.text = "🌐 ONLINE (WebRTC - Kahit Saang Internet)"
+				btn_net_mode_toggle.text = "🌐 ONLINE (Kahit Saang Internet o Data)"
 				btn_net_mode_toggle.add_theme_color_override("font_color", Color(0.35, 0.95, 0.72))
 			if host_address_row:
 				host_address_row.visible = false
 			if host_address_input:
 				host_address_input.text = ""
 			if host_status_label:
-				host_status_label.text = "🌐 Online WebRTC: Makakasali kahit sino sa internet (kahit magkaibang Wi-Fi o mobile data)!"
-		HostNetType.LOCAL_LAN:
+				host_status_label.text = "🌐 Online: Makakapaglaro kahit sino saan mang panig ng bansa gamit ang Wi-Fi o Mobile Data."
+		HostNetType.HOTSPOT:
 			if btn_net_mode_toggle:
-				btn_net_mode_toggle.text = "🏠 LOCAL LAN (Parehong Wi-Fi / Hotspot)"
+				btn_net_mode_toggle.text = "📡 HOTSPOT (Magkasama sa Iisang Wi-Fi)"
 				btn_net_mode_toggle.add_theme_color_override("font_color", Color(1.0, 0.85, 0.25))
 			if host_address_row:
-				host_address_row.visible = true
+				host_address_row.visible = false
 			if host_address_input:
 				host_address_input.text = local_ip
 			if host_status_label:
-				host_status_label.text = "🏠 Local LAN: Para sa mga kalaro na nakakonekta sa iisang Wi-Fi router o phone hotspot."
-		HostNetType.CUSTOM_TUNNEL:
-			if btn_net_mode_toggle:
-				btn_net_mode_toggle.text = "🔗 PLAYIT.GG / CUSTOM TUNNEL (IP & Port)"
-				btn_net_mode_toggle.add_theme_color_override("font_color", Color(0.45, 0.8, 1.0))
-			if host_address_row:
-				host_address_row.visible = true
-			if host_status_label:
-				host_status_label.text = "🔗 PlayIt.gg / Custom: Ilagay ang iyong custom tunnel domain (hal. playit.gg) o port forward."
+				host_status_label.text = "📡 Hotspot: Para sa magkakatabi na nakakonekta sa iisang Wi-Fi o Phone Hotspot nang walang internet."
 
 func _setup_round_timer() -> void:
 	match current_mode:
@@ -843,19 +904,22 @@ func _on_btn_host_pressed() -> void:
 	if port_input and port_input.text.strip_edges().is_valid_int():
 		port = port_input.text.strip_edges().to_int()
 
+	var ips := NetworkManager.get_local_ip_addresses()
+	var local_ip := ips[0] if not ips.is_empty() else "127.0.0.1"
+
 	var err := network_manager.create_game(pname, port)
 	if err != OK:
-		hotspot_info_label.text = "❌ Failed to create server sa Port %d!\n(Baka may ibang app na gumagamit nito)" % port
+		hotspot_info_label.text = "❌ Nabigo sa pagbukas ng Hotspot server!"
 		return
 
-	hotspot_info_label.text = "🟢 Server Active sa Port %d!\nI-forward sa PlayIt.gg o ipamigay ang Local IP sa kalaro." % port
+	hotspot_info_label.text = "🟢 Bukas ang Hotspot Room!\nIpa-type sa kalaro ang IP na: %s" % local_ip
 	btn_host.disabled = true
 	btn_join.disabled = true
 	btn_cancel.visible = true
 	btn_start_match.visible = true
 	_switch_right_tab(LobbyTab.ROOM_ACTIVE)
 	if active_room_title:
-		active_room_title.text = "🏠 LOCAL HOTSPOT ROOM (Port %d)" % port
+		active_room_title.text = "📡 HOTSPOT ROOM (%s)" % local_ip
 
 func _on_btn_join_pressed() -> void:
 	var pname := name_input.text.strip_edges() if name_input else "Bata"
@@ -883,19 +947,19 @@ func _on_btn_join_pressed() -> void:
 	if target.is_empty():
 		target = "127.0.0.1"
 
-	hotspot_info_label.text = "⏳ Kumukonekta sa %s:%d...\n(Pakihintay ang PlayIt.gg / Host)" % [target, port]
+	hotspot_info_label.text = "⏳ Kumukonekta sa Host (%s)..." % target
 	btn_host.disabled = true
 	btn_join.disabled = true
 	btn_cancel.visible = true
 	_switch_right_tab(LobbyTab.ROOM_ACTIVE)
 	if active_room_title:
-		active_room_title.text = "🏠 LOBBY: %s:%d" % [target, port]
+		active_room_title.text = "📡 HOTSPOT LOBBY: %s" % target
 	if btn_start_match:
 		btn_start_match.visible = false
 
 	var err := network_manager.join_game(target, pname, port)
 	if err != OK:
-		hotspot_info_label.text = "❌ Error connecting to %s:%d." % [target, port]
+		hotspot_info_label.text = "❌ Hindi makakonekta sa %s." % target
 		btn_host.disabled = false
 		btn_join.disabled = false
 		btn_cancel.visible = false
@@ -912,7 +976,7 @@ func _on_btn_cancel_pressed() -> void:
 	_switch_right_tab(LobbyTab.BROWSE)
 	_fetch_supabase_lobbies()
 	var ips := NetworkManager.get_local_ip_addresses()
-	hotspot_info_label.text = "Local IP: " + ips[0] + " (Port 7777)\nPara sa Online: Gamitin ang PlayIt.gg Domain + Port"
+	hotspot_info_label.text = "Ang iyong IP: " + ips[0]
 	player_list_label.text = "Mga Kasali: (Naghihintay...)"
 
 # ==============================================================================
@@ -940,14 +1004,14 @@ func _fetch_supabase_lobbies() -> void:
 	if not supabase_manager.is_configured():
 		if empty_notice_label:
 			empty_notice_label.visible = true
-			empty_notice_label.text = "ℹ️ Hindi makakonekta sa Supabase matchmaking server.\n(Maaaring gamitin ang [DIRECT / SOLO] para sa LAN/Offline Hotspot)."
+			empty_notice_label.text = "ℹ️ Hindi makakonekta sa matchmaking server.\n(Maaaring gamitin ang [📡 HOTSPOT / SOLO] para sa Wi-Fi o Offline laro)."
 		if lobbies_status_label:
-			lobbies_status_label.text = "Offline Matchmaking"
+			lobbies_status_label.text = "Offline"
 		return
 
 	if empty_notice_label:
 		empty_notice_label.visible = true
-		empty_notice_label.text = "⏳ Hinahanap ang mga bukas na laro sa Supabase..."
+		empty_notice_label.text = "⏳ Hinahanap ang mga bukas na laro..."
 	if lobbies_status_label:
 		lobbies_status_label.text = "Naghahanap..."
 
@@ -1010,13 +1074,13 @@ func _on_supabase_lobbies_fetched(lobbies: Array) -> void:
 		var m_name: String = str(lobby.get("game_mode", "Pasa-Taya"))
 
 		if is_online_webrtc:
-			title_lbl.text = "🌐 " + str(lobby.get("name", "Kalye Room")) + "  [ONLINE P2P]"
+			title_lbl.text = "🌐 " + str(lobby.get("name", "Kalye Room")) + "  [ONLINE]"
 			title_lbl.add_theme_color_override("font_color", Color(0.35, 0.95, 1.0))
 		elif addr_str.begins_with("192.168.") or addr_str.begins_with("10.") or addr_str.begins_with("172.") or addr_str == "127.0.0.1":
-			title_lbl.text = "🏠 " + str(lobby.get("name", "Kalye Room")) + "  [LOCAL LAN]"
+			title_lbl.text = "📡 " + str(lobby.get("name", "Kalye Room")) + "  [HOTSPOT]"
 			title_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.25))
 		else:
-			title_lbl.text = "⚡ " + str(lobby.get("name", "Kalye Room")) + "  [SERVER/TUNNEL]"
+			title_lbl.text = "🌐 " + str(lobby.get("name", "Kalye Room")) + "  [ONLINE]"
 			title_lbl.add_theme_color_override("font_color", Color(0.45, 0.85, 1.0))
 		title_lbl.add_theme_font_size_override("font_size", 13)
 		info_vbox.add_child(title_lbl)
@@ -1025,9 +1089,9 @@ func _on_supabase_lobbies_fetched(lobbies: Array) -> void:
 		if is_online_webrtc:
 			sub_lbl.text = "👤 Host: %s | 🎮 %s | 🌐 Kahit Saang Internet / Mobile Data" % [h_name, m_name]
 		elif addr_str.begins_with("192.168.") or addr_str.begins_with("10.") or addr_str.begins_with("172.") or addr_str == "127.0.0.1":
-			sub_lbl.text = "👤 Host: %s | 🎮 %s | 🏠 Parehong Wi-Fi Lamang" % [h_name, m_name]
+			sub_lbl.text = "👤 Host: %s | 🎮 %s | 📡 Iisang Wi-Fi o Hotspot" % [h_name, m_name]
 		else:
-			sub_lbl.text = "👤 Host: %s | 🎮 %s | 🔗 %s" % [h_name, m_name, addr_str]
+			sub_lbl.text = "👤 Host: %s | 🎮 %s | 🌐 Online Room" % [h_name, m_name]
 		sub_lbl.add_theme_color_override("font_color", Color(0.65, 0.82, 0.95))
 		sub_lbl.add_theme_font_size_override("font_size", 11)
 		info_vbox.add_child(sub_lbl)
@@ -1117,11 +1181,11 @@ func _join_supabase_lobby(lobby: Dictionary) -> void:
 		if active_room_title:
 			active_room_title.text = "🌐 Kumukonekta sa Online Lobby: %s..." % room_name
 		if hotspot_info_label:
-			hotspot_info_label.text = "⏳ Kumukonekta sa WebRTC Online P2P (%s)..." % room_name
+			hotspot_info_label.text = "⏳ Kumukonekta sa Online Room (%s)..." % room_name
 		var err := network_manager.join_webrtc_game(lobby_id, pname, supabase_manager.supabase_url, supabase_manager.supabase_anon_key)
 		if err != OK:
 			if hotspot_info_label:
-				hotspot_info_label.text = "❌ Nabigo sa pagsali sa WebRTC Lobby: %s" % room_name
+				hotspot_info_label.text = "❌ Nabigo sa pagsali sa Online Room: %s" % room_name
 			_switch_right_tab(LobbyTab.BROWSE)
 		return
 
@@ -1162,21 +1226,17 @@ func _on_btn_create_supabase_room_pressed() -> void:
 		MatchMode.INFECTION: mode_name = "Hawaan"
 		MatchMode.CLASSIC_TAG: mode_name = "Klasikong Taya"
 
-	# Decide mode: Default is ONLINE_WEBRTC!
-	var is_webrtc := (current_host_net_type == HostNetType.ONLINE_WEBRTC)
-	if current_host_net_type == HostNetType.CUSTOM_TUNNEL:
-		is_webrtc = (custom_addr.is_empty() or custom_addr.to_lower() == "webrtc" or custom_addr.to_lower() == "online")
+	var is_online := (current_host_net_type == HostNetType.ONLINE)
 
-	if is_webrtc:
-		# WebRTC Online Room: Register to Supabase first, then activate WebRTC server upon registration confirmation
+	if is_online:
 		if host_status_label:
-			host_status_label.text = "⏳ Inirerehistro ang WebRTC Online Room sa Supabase..."
+			host_status_label.text = "⏳ Inihahanda ang Online Room..."
 		if supabase_manager:
 			supabase_manager.register_lobby(rname, pname, "webrtc", 0, mode_name)
 
 		_switch_right_tab(LobbyTab.ROOM_ACTIVE)
 		if active_room_title:
-			active_room_title.text = "🌐 ONLINE ROOM: %s [WebRTC P2P]" % rname
+			active_room_title.text = "🌐 ONLINE ROOM: %s" % rname
 		if btn_start_match:
 			btn_start_match.visible = true
 			btn_start_match.disabled = true
@@ -1187,27 +1247,22 @@ func _on_btn_create_supabase_room_pressed() -> void:
 			btn_cancel.text = "❌ ISARA ANG ROOM"
 		return
 
-	# LAN or Custom Tunnel:
-	var best_addr := "127.0.0.1"
-	if current_host_net_type == HostNetType.LOCAL_LAN:
-		var ips := NetworkManager.get_local_ip_addresses()
-		best_addr = ips[0] if not ips.is_empty() else "127.0.0.1"
-	else:
-		if supabase_manager:
-			best_addr = supabase_manager.get_best_host_address(custom_addr)
+	# Hotspot Room:
+	var ips := NetworkManager.get_local_ip_addresses()
+	var local_ip := ips[0] if not ips.is_empty() else "127.0.0.1"
 
 	var err := network_manager.create_game(pname, port)
 	if err != OK:
 		if host_status_label:
-			host_status_label.text = "❌ Nabigo sa paggawa ng server sa Port %d!" % port
+			host_status_label.text = "❌ Nabigo sa pagbukas ng Hotspot Room!"
 		return
 
 	if supabase_manager:
-		supabase_manager.register_lobby(rname, pname, best_addr, port, mode_name)
+		supabase_manager.register_lobby(rname, pname, local_ip, port, mode_name)
 
 	_switch_right_tab(LobbyTab.ROOM_ACTIVE)
 	if active_room_title:
-		active_room_title.text = "🏠 IYONG ROOM: %s (%s:%d)" % [rname, best_addr, port]
+		active_room_title.text = "📡 HOTSPOT ROOM: %s (%s)" % [rname, local_ip]
 	if btn_start_match:
 		btn_start_match.visible = true
 		btn_start_match.disabled = true
@@ -1229,19 +1284,19 @@ func _on_supabase_lobby_created(lobby_info: Dictionary) -> void:
 		var err := network_manager.create_webrtc_game(pname, lobby_id, supabase_manager.supabase_url, supabase_manager.supabase_anon_key)
 		if err == OK:
 			if host_status_label:
-				host_status_label.text = "🟢 Aktibo ang WebRTC Online Room sa Supabase! (Makakasali kahit sino sa internet)"
+				host_status_label.text = "🟢 Handa na ang Online Room! (Makakasali na ang mga kalaro sa Internet o Data)"
 			print("[GameManager] WebRTC host listening on lobby: ", lobby_id)
 		else:
 			if host_status_label:
-				host_status_label.text = "❌ Bigo sa pag-initialize ng WebRTC: %d" % err
+				host_status_label.text = "❌ Bigo sa pagbukas ng Online Room: %d" % err
 	else:
 		if host_status_label:
-			host_status_label.text = "🟢 Aktibo ang room sa Supabase Matchmaking Directory!"
+			host_status_label.text = "🟢 Handa na ang Hotspot Room! (Pwedeng sumali ang mga nasa parehong Wi-Fi)"
 
 func _on_supabase_create_failed(error_message: String) -> void:
 	print("[GameManager] Failed to register to Supabase: ", error_message)
 	if host_status_label:
-		host_status_label.text = "⚠️ Bigo sa Supabase: " + error_message
+		host_status_label.text = "⚠️ Hindi maikonekta ang room: " + error_message
 
 func _on_btn_solo_pressed() -> void:
 	_init_node_references()
@@ -1442,6 +1497,12 @@ func _spawn_single_player(int_pid: int, spawn_idx: int = 0) -> PlayerController:
 			player_instance.model.apply_preset(char_type)
 			player_instance.model.set_player_color(COLOR_OPTIONS[color_idx % COLOR_OPTIONS.size()]["color"])
 
+	if player_instance.is_local_human():
+		player_instance.mouse_sensitivity = float(settings_data.get("sensitivity", 2.5)) * 0.001
+		player_instance.base_fov = float(settings_data.get("fov", 75.0))
+		if player_instance.camera:
+			player_instance.camera.fov = player_instance.base_fov
+
 	return player_instance
 
 func _spawn_all_players() -> void:
@@ -1489,9 +1550,7 @@ func _input(event: InputEvent) -> void:
 	if current_state == GameState.PLAYING:
 		if event is InputEventKey and event.is_pressed() and not event.is_echo() and event.keycode == KEY_ESCAPE:
 			if settings_panel and settings_panel.visible:
-				settings_panel.visible = false
-				if pause_panel:
-					pause_panel.visible = true
+				_close_settings()
 			else:
 				toggle_pause()
 			get_viewport().set_input_as_handled()
@@ -1499,6 +1558,8 @@ func _input(event: InputEvent) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if current_state == GameState.TITLE:
+		if settings_panel and settings_panel.visible:
+			return
 		if event is InputEventKey and event.pressed:
 			if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER or event.keycode == KEY_SPACE:
 				_on_btn_enter_title_pressed()
@@ -1508,6 +1569,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 func _process(delta: float) -> void:
+	if fps_label and fps_label.visible:
+		fps_label.text = "FPS: %d" % Engine.get_frames_per_second()
 	if current_state == GameState.TITLE:
 		if btn_enter_title:
 			var pulse := 0.88 + 0.12 * sin(Time.get_ticks_msec() * 0.005)
@@ -1787,7 +1850,241 @@ func set_paused(paused: bool) -> void:
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
-func _on_volume_changed(val: float) -> void:
+func _load_settings() -> void:
+	var is_mobile := DisplayServer.is_touchscreen_available() or OS.has_feature("mobile")
+	if is_mobile:
+		settings_data = {
+			"preset": 1, # Default Low on mobile/tablets for smooth 60 FPS
+			"render_scale": 0.60,
+			"shadows": false,
+			"glow": false,
+			"max_fps": 60,
+			"anti_aliasing": 0,
+			"show_fps": false,
+			"volume": 1.0,
+			"sensitivity": 2.5,
+			"fov": 75.0
+		}
+	else:
+		settings_data = {
+			"preset": 2, # Balanced on desktop
+			"render_scale": 0.75,
+			"shadows": true,
+			"glow": false,
+			"max_fps": 60,
+			"anti_aliasing": 1,
+			"show_fps": false,
+			"volume": 1.0,
+			"sensitivity": 2.5,
+			"fov": 75.0
+		}
+
+	var cfg := ConfigFile.new()
+	var err := cfg.load(SETTINGS_SAVE_PATH)
+	if err == OK:
+		settings_data["preset"] = cfg.get_value("graphics", "preset", settings_data["preset"])
+		settings_data["render_scale"] = cfg.get_value("graphics", "render_scale", settings_data["render_scale"])
+		settings_data["shadows"] = cfg.get_value("graphics", "shadows", settings_data["shadows"])
+		settings_data["glow"] = cfg.get_value("graphics", "glow", settings_data["glow"])
+		settings_data["max_fps"] = cfg.get_value("graphics", "max_fps", settings_data["max_fps"])
+		settings_data["anti_aliasing"] = cfg.get_value("graphics", "anti_aliasing", settings_data["anti_aliasing"])
+		settings_data["show_fps"] = cfg.get_value("graphics", "show_fps", settings_data["show_fps"])
+		settings_data["volume"] = cfg.get_value("audio", "volume", settings_data["volume"])
+		settings_data["sensitivity"] = cfg.get_value("controls", "sensitivity", settings_data["sensitivity"])
+		settings_data["fov"] = cfg.get_value("controls", "fov", settings_data["fov"])
+
+	apply_graphics_settings()
+	_sync_settings_ui()
+
+func _save_settings() -> void:
+	var cfg := ConfigFile.new()
+	cfg.set_value("graphics", "preset", settings_data.get("preset", 2))
+	cfg.set_value("graphics", "render_scale", settings_data.get("render_scale", 0.75))
+	cfg.set_value("graphics", "shadows", settings_data.get("shadows", true))
+	cfg.set_value("graphics", "glow", settings_data.get("glow", false))
+	cfg.set_value("graphics", "max_fps", settings_data.get("max_fps", 60))
+	cfg.set_value("graphics", "anti_aliasing", settings_data.get("anti_aliasing", 0))
+	cfg.set_value("graphics", "show_fps", settings_data.get("show_fps", false))
+	cfg.set_value("audio", "volume", settings_data.get("volume", 1.0))
+	cfg.set_value("controls", "sensitivity", settings_data.get("sensitivity", 2.5))
+	cfg.set_value("controls", "fov", settings_data.get("fov", 75.0))
+	cfg.save(SETTINGS_SAVE_PATH)
+
+func apply_graphics_settings() -> void:
+	# 1. 3D Viewport Resolution Scale
+	var r_scale: float = clamp(float(settings_data.get("render_scale", 0.75)), 0.5, 1.0)
+	get_viewport().scaling_3d_scale = r_scale
+	get_viewport().scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+
+	# 2. Sun Shadows
+	var shadows_on: bool = bool(settings_data.get("shadows", true))
+	var sun = get_node_or_null("KalyeMap/SunLight") as DirectionalLight3D
+	if sun:
+		sun.shadow_enabled = shadows_on
+		if shadows_on:
+			sun.directional_shadow_max_distance = 60.0 if int(settings_data.get("preset", 0)) <= 2 else 150.0
+
+	# 3. Glow & Bloom
+	var glow_on: bool = bool(settings_data.get("glow", false))
+	var env_node = get_node_or_null("KalyeMap/WorldEnvironment") as WorldEnvironment
+	if env_node and env_node.environment:
+		env_node.environment.glow_enabled = glow_on
+
+	# 4. Engine FPS Cap
+	var target_fps: int = int(settings_data.get("max_fps", 60))
+	Engine.max_fps = target_fps
+
+	# 5. Anti-Aliasing
+	var aa_mode: int = int(settings_data.get("anti_aliasing", 0))
+	get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if aa_mode == 1 else Viewport.SCREEN_SPACE_AA_DISABLED
+
+	# 6. Live FPS Counter
+	var show_fps: bool = bool(settings_data.get("show_fps", false))
+	if fps_label:
+		fps_label.visible = show_fps
+
+	# 7. Volume, Sensitivity & FOV
+	_apply_audio_volume(float(settings_data.get("volume", 1.0)))
+	_apply_sensitivity(float(settings_data.get("sensitivity", 2.5)))
+	_apply_fov(float(settings_data.get("fov", 75.0)))
+
+func _apply_preset(preset_idx: int) -> void:
+	match preset_idx:
+		1: # Mababa (Low / Tipid)
+			settings_data["preset"] = 1
+			settings_data["render_scale"] = 0.60
+			settings_data["shadows"] = false
+			settings_data["glow"] = false
+			settings_data["max_fps"] = 60
+			settings_data["anti_aliasing"] = 0
+		2: # Balanse (Medium)
+			settings_data["preset"] = 2
+			settings_data["render_scale"] = 0.75
+			settings_data["shadows"] = true
+			settings_data["glow"] = false
+			settings_data["max_fps"] = 60
+			settings_data["anti_aliasing"] = 1
+		3: # Mataas (High / Maganda)
+			settings_data["preset"] = 3
+			settings_data["render_scale"] = 1.00
+			settings_data["shadows"] = true
+			settings_data["glow"] = true
+			settings_data["max_fps"] = 0 # Unlimited
+			settings_data["anti_aliasing"] = 1
+
+	apply_graphics_settings()
+	_sync_settings_ui()
+	_save_settings()
+
+func _sync_settings_ui() -> void:
+	var p: int = int(settings_data.get("preset", 0))
+	if btn_preset_low:
+		btn_preset_low.text = "👉 🚀 MABABA" if p == 1 else "🚀 MABABA (Tipid)"
+	if btn_preset_med:
+		btn_preset_med.text = "👉 ⚖️ BALANSE" if p == 2 else "⚖️ BALANSE"
+	if btn_preset_high:
+		btn_preset_high.text = "👉 ✨ MATAAS" if p == 3 else "✨ MATAAS"
+
+	var r_scale: float = float(settings_data.get("render_scale", 0.75))
+	if scale_slider:
+		scale_slider.set_value_no_signal(r_scale)
+	if scale_label:
+		var speed_desc := "Pinakamabilis" if r_scale <= 0.6 else ("Balanse" if r_scale <= 0.8 else "Mataas na Linaw")
+		scale_label.text = "📐 3D Resolution Scale: %d%% (%s)" % [int(r_scale * 100), speed_desc]
+
+	if shadows_check:
+		shadows_check.set_pressed_no_signal(bool(settings_data.get("shadows", true)))
+	if glow_check:
+		glow_check.set_pressed_no_signal(bool(settings_data.get("glow", false)))
+
+	var fps_cap: int = int(settings_data.get("max_fps", 60))
+	if fps_limit_option:
+		var idx: int = 0 if fps_cap == 30 else (1 if fps_cap == 60 else 2)
+		fps_limit_option.select(idx)
+
+	var aa_mode: int = int(settings_data.get("anti_aliasing", 0))
+	if aa_option:
+		aa_option.select(aa_mode)
+
+	if fps_counter_check:
+		fps_counter_check.set_pressed_no_signal(bool(settings_data.get("show_fps", false)))
+
+	if volume_slider:
+		volume_slider.set_value_no_signal(float(settings_data.get("volume", 1.0)))
+	if sensitivity_slider:
+		sensitivity_slider.set_value_no_signal(float(settings_data.get("sensitivity", 2.5)))
+	if fov_slider:
+		fov_slider.set_value_no_signal(float(settings_data.get("fov", 75.0)))
+
+func _open_settings(from_source: String) -> void:
+	settings_opened_from = from_source
+	if pause_ui:
+		pause_ui.visible = true
+	if pause_panel:
+		pause_panel.visible = false
+	if settings_panel:
+		settings_panel.visible = true
+	_sync_settings_ui()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+func _close_settings() -> void:
+	if settings_panel:
+		settings_panel.visible = false
+	if settings_opened_from == "PAUSE":
+		if is_game_paused and pause_panel:
+			pause_panel.visible = true
+		elif pause_ui:
+			pause_ui.visible = false
+			if current_state == GameState.PLAYING:
+				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	else:
+		if pause_ui:
+			pause_ui.visible = false
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+func _on_render_scale_changed(val: float) -> void:
+	settings_data["render_scale"] = val
+	settings_data["preset"] = 0
+	get_viewport().scaling_3d_scale = val
+	_sync_settings_ui()
+	_save_settings()
+
+func _on_shadows_toggled(toggled: bool) -> void:
+	settings_data["shadows"] = toggled
+	settings_data["preset"] = 0
+	var sun = get_node_or_null("KalyeMap/SunLight") as DirectionalLight3D
+	if sun:
+		sun.shadow_enabled = toggled
+	_sync_settings_ui()
+	_save_settings()
+
+func _on_glow_toggled(toggled: bool) -> void:
+	settings_data["glow"] = toggled
+	settings_data["preset"] = 0
+	var env_node = get_node_or_null("KalyeMap/WorldEnvironment") as WorldEnvironment
+	if env_node and env_node.environment:
+		env_node.environment.glow_enabled = toggled
+	_sync_settings_ui()
+	_save_settings()
+
+func _on_fps_limit_selected(idx: int) -> void:
+	var fps_val := 30 if idx == 0 else (60 if idx == 1 else 0)
+	settings_data["max_fps"] = fps_val
+	Engine.max_fps = fps_val
+	_save_settings()
+
+func _on_aa_selected(idx: int) -> void:
+	settings_data["anti_aliasing"] = idx
+	get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if idx == 1 else Viewport.SCREEN_SPACE_AA_DISABLED
+	_save_settings()
+
+func _on_fps_counter_toggled(toggled: bool) -> void:
+	settings_data["show_fps"] = toggled
+	if fps_label:
+		fps_label.visible = toggled
+	_save_settings()
+
+func _apply_audio_volume(val: float) -> void:
 	var bus_idx := AudioServer.get_bus_index("Master")
 	if bus_idx >= 0:
 		if val > 0.01:
@@ -1798,16 +2095,26 @@ func _on_volume_changed(val: float) -> void:
 	if volume_label:
 		volume_label.text = "🔊 Master Volume: %d%%" % int(val * 100)
 
-func _on_sensitivity_changed(val: float) -> void:
+func _on_volume_changed(val: float) -> void:
+	settings_data["volume"] = val
+	_apply_audio_volume(val)
+	_save_settings()
+
+func _apply_sensitivity(val: float) -> void:
 	var my_id := multiplayer.get_unique_id()
 	if players_container:
 		var my_node = players_container.get_node_or_null(str(my_id))
 		if my_node and "mouse_sensitivity" in my_node:
 			my_node.mouse_sensitivity = val * 0.001
 	if sensitivity_label:
-		sensitivity_label.text = "🖱️ Mouse Sensitivity: %.1f" % val
+		sensitivity_label.text = "🖱️ Mouse / Touch Sensitivity: %.1f" % val
 
-func _on_fov_changed(val: float) -> void:
+func _on_sensitivity_changed(val: float) -> void:
+	settings_data["sensitivity"] = val
+	_apply_sensitivity(val)
+	_save_settings()
+
+func _apply_fov(val: float) -> void:
 	var my_id := multiplayer.get_unique_id()
 	if players_container:
 		var my_node = players_container.get_node_or_null(str(my_id))
@@ -1818,6 +2125,11 @@ func _on_fov_changed(val: float) -> void:
 				my_node.camera.fov = val
 	if fov_label:
 		fov_label.text = "👁️ Field of View (FOV): %.0f°" % val
+
+func _on_fov_changed(val: float) -> void:
+	settings_data["fov"] = val
+	_apply_fov(val)
+	_save_settings()
 
 func _on_btn_pause_lobby_pressed() -> void:
 	set_paused(false)
@@ -1942,10 +2254,10 @@ func _run_automated_self_test() -> void:
 	var results: Array[String] = []
 	results.append("[SELF-TEST] Starting automated verification...")
 
-	# 1. Test PlayIt.gg IP & Port auto-parsing
-	results.append("[SELF-TEST] Testing PlayIt.gg address parsing...")
-	_on_ip_text_changed("taya-kalye.gl.at.ply.gg:34567")
-	if ip_input.text == "taya-kalye.gl.at.ply.gg" and port_input.text == "34567":
+	# 1. Test IP & Port auto-parsing
+	results.append("[SELF-TEST] Testing address parsing...")
+	_on_ip_text_changed("192.168.43.1:7777")
+	if ip_input.text == "192.168.43.1" and port_input.text == "7777":
 		results.append("[PASS] Auto-parsed host and port correctly: " + ip_input.text + ":" + port_input.text)
 	else:
 		results.append("[FAIL] Auto-parsing failed: ip=" + ip_input.text + ", port=" + port_input.text)
@@ -2091,6 +2403,42 @@ func _run_automated_self_test() -> void:
 		results.append("[PASS] Pause menu closed successfully.")
 	else:
 		results.append("[FAIL] Pause menu failed to close!")
+		_write_test_results(results, 1)
+		return
+
+	# 7b. Test Mobile Graphics Optimization & Presets
+	results.append("[SELF-TEST] Testing Mobile Graphics Optimization & Presets...")
+	_apply_preset(1) # Apply MABABA (Low / Performance)
+	var sun_node := get_node_or_null("KalyeMap/SunLight") as DirectionalLight3D
+	var env_node := get_node_or_null("KalyeMap/WorldEnvironment") as WorldEnvironment
+	if is_equal_approx(get_viewport().scaling_3d_scale, 0.60) and sun_node and not sun_node.shadow_enabled and env_node and not env_node.environment.glow_enabled:
+		results.append("[PASS] Mababa (Low) preset applied correctly: 3D scale=60%, shadows=OFF, glow=OFF.")
+	else:
+		results.append("[FAIL] Mababa preset failed to apply! scale=" + str(get_viewport().scaling_3d_scale))
+		_write_test_results(results, 1)
+		return
+
+	_apply_preset(2) # Switch to Balanse (Medium)
+	if is_equal_approx(get_viewport().scaling_3d_scale, 0.75) and sun_node and sun_node.shadow_enabled:
+		results.append("[PASS] Balanse (Medium) preset applied correctly: 3D scale=75%, shadows=ON.")
+	else:
+		results.append("[FAIL] Balanse preset failed to apply!")
+		_write_test_results(results, 1)
+		return
+
+	# Test Settings Modal Navigation
+	_open_settings("PAUSE")
+	if settings_panel and settings_panel.visible:
+		results.append("[PASS] Settings panel opened successfully.")
+	else:
+		results.append("[FAIL] Settings panel failed to open!")
+		_write_test_results(results, 1)
+		return
+	_close_settings()
+	if settings_panel and not settings_panel.visible:
+		results.append("[PASS] Settings panel closed successfully.")
+	else:
+		results.append("[FAIL] Settings panel failed to close!")
 		_write_test_results(results, 1)
 		return
 
@@ -2251,7 +2599,7 @@ func _run_automated_self_test() -> void:
 	results.append("[SELF-TEST] Testing WebRTC Online Peer Initialization & Cleanup...")
 	var rtc_err = network_manager.create_webrtc_game("HostDenn", "test_lobby_123", supabase_manager.supabase_url, supabase_manager.supabase_anon_key)
 	if rtc_err == OK and network_manager.connection_mode == "webrtc" and network_manager.multiplayer.has_multiplayer_peer():
-		results.append("[PASS] WebRTC host peer initialized successfully without PlayIt.gg!")
+		results.append("[PASS] WebRTC host peer initialized successfully!")
 	else:
 		results.append("[FAIL] WebRTC host peer initialization failed: %d" % rtc_err)
 		_write_test_results(results, 1)

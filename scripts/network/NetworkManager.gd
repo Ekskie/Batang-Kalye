@@ -110,7 +110,7 @@ func join_game(address: String, player_name: String, port: int = DEFAULT_PORT) -
 	last_join_ip = target_ip
 	last_join_port = port
 
-	# Resolve hostname if playit.gg domain is provided
+	# Resolve hostname if domain is provided
 	var resolved_address := target_ip
 	if not target_ip.is_valid_ip_address():
 		var dns_result := IP.resolve_hostname(target_ip, IP.TYPE_IPV4)

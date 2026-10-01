@@ -1,6 +1,6 @@
 [SELF-TEST] Starting automated verification...
-[SELF-TEST] Testing PlayIt.gg address parsing...
-[PASS] Auto-parsed host and port correctly: taya-kalye.gl.at.ply.gg:34567
+[SELF-TEST] Testing address parsing...
+[PASS] Auto-parsed host and port correctly: 192.168.43.1:7777
 [SELF-TEST] Spawning Solo Practice match...
 [PASS] Player 1 and Bot 99 spawned successfully.
 [SELF-TEST] Testing Powerup Gating...
@@ -10,7 +10,7 @@
 [PASS] Picked up Plastic Bottle: 🍾 Bote ng Tubig
 [PASS] Wrong bin rejected deposit; trash kept safely in hand.
 [PASS] Correct bin accepted trash! +30 score awarded (Total: 30).
-[PASS] Imagination Powerup Unlocked: 🏃 SUPER SPEED (Bilis-Alon)
+[PASS] Imagination Powerup Unlocked: ⚡ KIDLAT DASH (3x)
 [PASS] Kidlat Dash executed successfully with powerup! Charges left: 2
 [SELF-TEST] Testing Dual Stamina & Exhaustion System...
 [PASS] Sprint movement drains burst stamina (76.0/100) and endurance (92.5/100).
@@ -23,6 +23,11 @@
 [SELF-TEST] Testing Pause Menu...
 [PASS] Pause menu opened successfully.
 [PASS] Pause menu closed successfully.
+[SELF-TEST] Testing Mobile Graphics Optimization & Presets...
+[PASS] Mababa (Low) preset applied correctly: 3D scale=60%, shadows=OFF, glow=OFF.
+[PASS] Balanse (Medium) preset applied correctly: 3D scale=75%, shadows=ON.
+[PASS] Settings panel opened successfully.
+[PASS] Settings panel closed successfully.
 [SELF-TEST] Testing 8-Character Roster & Customization...
 [PASS] All 8 Pinoy Archetypes selected and applied successfully.
 [PASS] Modular outfit saved to config and reloaded successfully.
@@ -43,6 +48,6 @@ Score: 60
 [PASS] Switched back to Browse Tab successfully.
 [PASS] Supabase dynamic room cards (LAN & WebRTC Online P2P) rendered into lobby list successfully.
 [SELF-TEST] Testing WebRTC Online Peer Initialization & Cleanup...
-[PASS] WebRTC host peer initialized successfully without PlayIt.gg!
+[PASS] WebRTC host peer initialized successfully!
 [PASS] WebRTC peer and signaler cleaned up cleanly.
 [ALL TESTS PASSED] ZERO RUNTIME ERRORS DETECTED!

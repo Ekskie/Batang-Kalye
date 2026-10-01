@@ -157,7 +157,7 @@ func _on_ip_detected(_result: int, response_code: int, _headers: PackedStringArr
 			print("[SupabaseLobbyManager] Detected Public IP: ", detected_public_ip)
 
 func get_best_host_address(fallback_ip: String = "") -> String:
-	# If caller passed a custom IP or PlayIt domain, use it
+	# If caller passed a custom IP or domain, use it
 	var clean := fallback_ip.strip_edges()
 	if not clean.is_empty() and clean != "127.0.0.1" and clean != "localhost":
 		return clean

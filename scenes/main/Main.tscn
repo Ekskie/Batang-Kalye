@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://c515vpt0ygh45" path="res://scenes/ui/MaibaTayaUI.tscn" id="6_maiba_ui"]
 [ext_resource type="Script" uid="uid://bytm1u064jnxw" path="res://scripts/gameplay/NanayEvent.gd" id="7_nanay_event"]
 [ext_resource type="PackedScene" uid="uid://c8m8q44j5kd0q" path="res://scenes/player/CharacterModel.tscn" id="8_char_model"]
-[ext_resource type="Script" path="res://scripts/network/SupabaseLobbyManager.gd" id="9_supabase_mgr"]
+[ext_resource type="Script" uid="uid://dktlcbvk87myd" path="res://scripts/network/SupabaseLobbyManager.gd" id="9_supabase_mgr"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_title_card"]
 content_margin_left = 32.0
@@ -42,6 +42,22 @@ corner_radius_bottom_left = 14
 shadow_color = Color(1, 0.6, 0, 0.45)
 shadow_size = 10
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header_badge"]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+bg_color = Color(0.04, 0.08, 0.14, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.32, 0.48, 0.8)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lobby_bg"]
 content_margin_left = 20.0
 content_margin_top = 16.0
@@ -58,22 +74,6 @@ corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
 shadow_size = 16
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header_badge"]
-content_margin_left = 12.0
-content_margin_top = 4.0
-content_margin_right = 12.0
-content_margin_bottom = 4.0
-bg_color = Color(0.04, 0.08, 0.14, 0.95)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.18, 0.32, 0.48, 0.8)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_showroom_frame"]
 bg_color = Color(0.03, 0.05, 0.09, 0.95)
@@ -168,6 +168,30 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_active"]
+bg_color = Color(0.01, 0.52, 0.78, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+border_color = Color(0.4, 0.85, 1, 0.95)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_inactive"]
+bg_color = Color(0.06, 0.1, 0.16, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.14, 0.25, 0.38, 0.7)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_host_blue"]
 bg_color = Color(0.01, 0.52, 0.78, 1)
 border_width_left = 2
@@ -252,6 +276,22 @@ corner_radius_bottom_left = 12
 shadow_color = Color(1, 0.45, 0, 0.5)
 shadow_size = 8
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+content_margin_left = 14.0
+content_margin_top = 7.0
+content_margin_right = 14.0
+content_margin_bottom = 7.0
+bg_color = Color(0.045, 0.085, 0.15, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.12, 0.24, 0.38, 0.7)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_start"]
 bg_color = Color(0.95, 0.72, 0.1, 1)
 border_width_left = 2
@@ -324,96 +364,6 @@ corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
 shadow_color = Color(1, 0.7, 0, 0.35)
-shadow_size = 20
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
-content_margin_left = 14.0
-content_margin_top = 7.0
-content_margin_right = 14.0
-content_margin_bottom = 7.0
-bg_color = Color(0.045, 0.085, 0.15, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.12, 0.24, 0.38, 0.7)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_active"]
-bg_color = Color(0.01, 0.52, 0.78, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 2
-border_color = Color(0.4, 0.85, 1, 0.95)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_inactive"]
-bg_color = Color(0.06, 0.1, 0.16, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.14, 0.25, 0.38, 0.7)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_room_card"]
-content_margin_left = 12.0
-content_margin_top = 8.0
-content_margin_right = 12.0
-content_margin_bottom = 8.0
-bg_color = Color(0.05, 0.09, 0.16, 0.94)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.16, 0.32, 0.5, 0.8)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_badge_green"]
-content_margin_left = 8.0
-content_margin_top = 4.0
-content_margin_right = 8.0
-content_margin_bottom = 4.0
-bg_color = Color(0.04, 0.3, 0.18, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.2, 0.8, 0.45, 0.85)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal_bg"]
-content_margin_left = 24.0
-content_margin_top = 20.0
-content_margin_right = 24.0
-content_margin_bottom = 20.0
-bg_color = Color(0.04, 0.06, 0.1, 0.98)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0.7, 0.85, 0.9)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0, 0, 0, 0.7)
 shadow_size = 20
 
 [node name="Main" type="Node" unique_id=352156919]
@@ -517,6 +467,14 @@ theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_enter")
 text = "⚡ PINDUTIN ANG ENTER O I-TAP PARA PUMASOK SA LOBBY ➔"
 
+[node name="BtnTitleSettings" type="Button" parent="TitleScreenUI/Center/Panel/VBox" unique_id=1605562099]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 1, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_header_badge")
+text = "⚙️ MGA SETTING (Graphics, Audio & Controls)"
+
 [node name="PillsRow" type="HBoxContainer" parent="TitleScreenUI/Center/Panel/VBox" unique_id=757583456]
 layout_mode = 2
 theme_override_constants/separation = 12
@@ -597,9 +555,17 @@ theme_override_constants/separation = 8
 layout_mode = 2
 alignment = 1
 
-[node name="LeftSpacer" type="Control" parent="LobbyUI/Panel/VBoxContainer/TopBar" unique_id=1600918391]
+[node name="LeftControls" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/TopBar" unique_id=1600918391]
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
+
+[node name="BtnLobbySettings" type="Button" parent="LobbyUI/Panel/VBoxContainer/TopBar/LeftControls" unique_id=1600918399]
+custom_minimum_size = Vector2(130, 36)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_header_badge")
+text = "⚙️ SETTINGS"
 
 [node name="CenterTitleBox" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/TopBar" unique_id=1103216347]
 layout_mode = 2
@@ -634,7 +600,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_header_badge")
 [node name="BadgeLabel" type="RichTextLabel" parent="LobbyUI/Panel/VBoxContainer/TopBar/TopRightBadge" unique_id=1540575122]
 layout_mode = 2
 bbcode_enabled = true
-text = "[center][b][color=#FFD700]PH[/color] [color=#A0D2EB]8-PLAYER HOTSPOT & PLAYIT TAG[/color][/b][/center]"
+text = "[center][b][color=#FFD700]BATANG KALYE[/color] [color=#A0D2EB]ONLINE & HOTSPOT MULTIPLAYER[/color][/b][/center]"
 fit_content = true
 scroll_active = false
 
@@ -672,7 +638,7 @@ own_world_3d = true
 transparent_bg = true
 handle_input_locally = false
 size = Vector2i(486, 220)
-render_target_update_mode = 3
+render_target_update_mode = 0
 
 [node name="PreviewCamera" type="Camera3D" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PreviewFrame/PreviewViewportContainer/PreviewSubViewport" unique_id=982116168]
 transform = Transform3D(1, 0, 0, 0, 0.998135, 0.0610485, 0, -0.0610485, 0.998135, 0, 1.05, 3.3)
@@ -1030,7 +996,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_tab_inactive")
-text = "⚙️ DIRECT / SOLO"
+text = "📡 HOTSPOT / SOLO"
 
 [node name="BrowseSection" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole" unique_id=1848912118]
 layout_mode = 2
@@ -1072,7 +1038,7 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.5, 0.65, 0.8, 1)
 theme_override_font_sizes/font_size = 12
-text = "⏳ I-click ang [🔄 I-REFRESH] para makita ang mga bukas na laro sa Supabase!"
+text = "⏳ I-click ang [🔄 I-REFRESH] para makita ang mga bukas na laro sa Online!"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -1167,7 +1133,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.35, 0.95, 0.72, 1)
 theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
-text = "🌐 ONLINE (WebRTC - Kahit Saang Internet)"
+text = "🌐 ONLINE (Kahit Saang Internet o Data)"
 
 [node name="HostAddressRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection" unique_id=1848912136]
 visible = false
@@ -1192,7 +1158,7 @@ custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
-placeholder_text = "Blangko = WebRTC Online (o ilagay ang LAN IP/PlayIt)"
+placeholder_text = "Blangko = Online"
 alignment = 1
 
 [node name="PortEdit" type="LineEdit" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow" unique_id=1848912140]
@@ -1210,13 +1176,13 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
-text = "📡 BUKASAN ANG ROOM SA SUPABASE"
+text = "🚀 GUMAWA AT BUKSAN ANG ROOM"
 
 [node name="HostStatusLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection" unique_id=1848912142]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.48, 0.78, 0.92, 1)
 theme_override_font_sizes/font_size = 11
-text = "🌐 Default: WebRTC Online (Makakasali kahit sino sa internet nang walang PlayIt.gg!)"
+text = "🌐 Online: Makakapaglaro kahit sino saan mang panig ng bansa gamit ang Wi-Fi o Mobile Data."
 horizontal_alignment = 1
 
 [node name="DirectSection" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole" unique_id=1848912143]
@@ -1238,7 +1204,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_label_badge")
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.82, 0.95, 1)
 theme_override_font_sizes/font_size = 12
-text = "HOST IP / PORT"
+text = "HOTSPOT IP"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -1247,11 +1213,11 @@ custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
-text = "192.168.1.14"
-placeholder_text = "🌐 Host IP o PlayIt Domain"
+placeholder_text = "Ilagay ang IP ng nag-Hotspot..."
 alignment = 1
 
 [node name="PortEdit" type="LineEdit" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/ConnectionRow" unique_id=1241606477]
+visible = false
 custom_minimum_size = Vector2(80, 36)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
@@ -1266,7 +1232,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
-text = "📡 GUMAWA NG ROOM (Local LAN / Hotspot)"
+text = "📡 BUKASAN BILANG HOTSPOT HOST"
 
 [node name="BtnJoin" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection" unique_id=1975263909]
 custom_minimum_size = Vector2(0, 40)
@@ -1275,7 +1241,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_join_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_join_green_hover")
-text = "🔗 SUMALI SA ROOM (Direct IP)"
+text = "🔗 SUMALI SA HOTSPOT ROOM"
 
 [node name="BtnSolo" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection" unique_id=1729322062]
 custom_minimum_size = Vector2(0, 40)
@@ -1284,7 +1250,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_solo_orange")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_solo_orange_hover")
-text = "🎮 SOLO PRACTICE (Kasama ang mga Bot)"
+text = "🤖 MAG-ISA / PRACTICE (Kasama ang Bots)"
 
 [node name="InfoBox" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection" unique_id=1904928834]
 layout_mode = 2
@@ -1298,7 +1264,7 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.48, 0.78, 0.92, 1)
 theme_override_font_sizes/font_size = 11
-text = "Local IP: 192.168.1.14 (Port 7777)"
+text = "Ang iyong IP: 192.168.1.14"
 horizontal_alignment = 1
 
 [node name="BtnCopyIP" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/InfoBox/LocalIPRow" unique_id=1904928837]
@@ -1307,13 +1273,6 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
 text = "📋"
-
-[node name="PlayitLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/InfoBox" unique_id=1904928838]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.42, 0.58, 0.68, 1)
-theme_override_font_sizes/font_size = 11
-text = "Para sa Online: Gamitin ang Playit.gg Domain + Port"
-horizontal_alignment = 1
 
 [node name="RoomActiveSection" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole" unique_id=1848912144]
 visible = false
@@ -1565,24 +1524,24 @@ text = "🚪 LUMABAS SA LARO (Quit Game)"
 
 [node name="SettingsPanel" type="PanelContainer" parent="PauseUI" unique_id=1947730561]
 visible = false
-custom_minimum_size = Vector2(460, 420)
+custom_minimum_size = Vector2(560, 520)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -230.0
-offset_top = -210.0
-offset_right = 230.0
-offset_bottom = 210.0
+offset_left = -280.0
+offset_top = -260.0
+offset_right = 280.0
+offset_bottom = 260.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_lobby_bg")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PauseUI/SettingsPanel" unique_id=996433797]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="Title" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=1339272570]
@@ -1595,56 +1554,217 @@ horizontal_alignment = 1
 [node name="HSeparator" type="HSeparator" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=369862798]
 layout_mode = 2
 
-[node name="VolumeRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=1902377414]
+[node name="ScrollContainer" type="ScrollContainer" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=369862799]
+custom_minimum_size = Vector2(0, 380)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ScrollContent" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer" unique_id=369862800]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="PresetHeader" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862801]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+theme_override_font_sizes/font_size = 14
+text = "🎮 MABILISANG GRAPHICS PRESET:"
+
+[node name="PresetRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862802]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnPresetLow" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow" unique_id=369862803]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_solo_orange")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_solo_orange_hover")
+text = "🚀 MABABA (Tipid)"
+
+[node name="BtnPresetMed" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow" unique_id=369862804]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
+text = "⚖️ BALANSE"
+
+[node name="BtnPresetHigh" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow" unique_id=369862805]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_join_green")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_join_green_hover")
+text = "✨ MATAAS"
+
+[node name="PresetSubLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862806]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.82, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "💡 Inirerekomenda ang 'MABABA' para sa Realme 6 at Honor Pad 10 upang maalis ang lag!"
+
+[node name="HSep1" type="HSeparator" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862807]
 layout_mode = 2
 
-[node name="VolumeLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/VolumeRow" unique_id=559263539]
+[node name="GfxHeader" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862808]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "🖼️ DETALYADONG GRAPHICS (Custom Tuning):"
+
+[node name="ScaleRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862809]
+layout_mode = 2
+
+[node name="ScaleLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/ScaleRow" unique_id=369862810]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "📐 3D Render Scale: 75% (Mas mababa = mas mabilis)"
+
+[node name="ScaleSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/ScaleRow" unique_id=369862811]
+layout_mode = 2
+min_value = 0.5
+max_value = 1.0
+step = 0.05
+value = 0.75
+
+[node name="ShadowsRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862812]
+layout_mode = 2
+
+[node name="ShadowsCheck" type="CheckButton" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/ShadowsRow" unique_id=369862813]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+button_pressed = true
+text = "👥 Anino ng Araw (Sun Shadows - patayin para bumilis)"
+
+[node name="GlowRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862814]
+layout_mode = 2
+
+[node name="GlowCheck" type="CheckButton" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/GlowRow" unique_id=369862815]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "🌟 Glow & Bloom Effect (Liwanag)"
+
+[node name="FpsLimitRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862816]
+layout_mode = 2
+
+[node name="FpsLimitLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FpsLimitRow" unique_id=369862817]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "⚡ Limit sa Framerate (FPS):"
+
+[node name="FpsLimitOption" type="OptionButton" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FpsLimitRow" unique_id=369862818]
+custom_minimum_size = Vector2(170, 36)
+layout_mode = 2
+selected = 1
+item_count = 3
+popup/item_0/text = "30 FPS (Tipid Baterya)"
+popup/item_0/id = 0
+popup/item_1/text = "60 FPS (Makinis)"
+popup/item_1/id = 1
+popup/item_2/text = "Walang Limit"
+popup/item_2/id = 2
+
+[node name="AaRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862819]
+layout_mode = 2
+
+[node name="AaLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/AaRow" unique_id=369862820]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "🔍 Anti-Aliasing (Pakinis ng Gilid):"
+
+[node name="AaOption" type="OptionButton" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/AaRow" unique_id=369862821]
+custom_minimum_size = Vector2(170, 36)
+layout_mode = 2
+selected = 0
+item_count = 2
+popup/item_0/text = "Wala (Off - Pinakamabilis)"
+popup/item_0/id = 0
+popup/item_1/text = "FXAA (Mabilis)"
+popup/item_1/id = 1
+
+[node name="FpsCounterRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862822]
+layout_mode = 2
+
+[node name="FpsCounterCheck" type="CheckButton" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FpsCounterRow" unique_id=369862823]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "📊 Ipakita ang Live FPS Counter sa Laro"
+
+[node name="HSep2" type="HSeparator" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862824]
+layout_mode = 2
+
+[node name="AudioHeader" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862825]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "🔊 TUNOG AT KONTROL:"
+
+[node name="VolumeRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=1902377414]
+layout_mode = 2
+
+[node name="VolumeLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow" unique_id=559263539]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
 text = "🔊 Master Volume: 100%"
 
-[node name="VolumeSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/VolumeRow" unique_id=769251910]
+[node name="VolumeSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow" unique_id=769251910]
 layout_mode = 2
 max_value = 1.0
 step = 0.05
 value = 1.0
 
-[node name="SensitivityRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=892305881]
+[node name="SensitivityRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=892305881]
 layout_mode = 2
 
-[node name="SensitivityLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/SensitivityRow" unique_id=1029384756]
+[node name="SensitivityLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow" unique_id=1029384756]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "🖱️ Mouse Sensitivity: 2.5"
+text = "🖱️ Mouse / Touch Sensitivity: 2.5"
 
-[node name="SensitivitySlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/SensitivityRow" unique_id=192837465]
+[node name="SensitivitySlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow" unique_id=192837465]
 layout_mode = 2
 min_value = 0.5
 max_value = 10.0
 step = 0.1
 value = 2.5
 
-[node name="FovRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=192837466]
+[node name="FovRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=192837466]
 layout_mode = 2
 
-[node name="FovLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/FovRow" unique_id=192837467]
+[node name="FovLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow" unique_id=192837467]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
 text = "👁️ Field of View (FOV): 75°"
 
-[node name="FovSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/FovRow" unique_id=192837468]
+[node name="FovSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow" unique_id=192837468]
 layout_mode = 2
 min_value = 60.0
 max_value = 110.0
 value = 75.0
 
+[node name="HSeparatorBottom" type="HSeparator" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=369862826]
+layout_mode = 2
+
 [node name="BtnCloseSettings" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=192837469]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_join_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_join_green_hover")
-text = "◀ BUMALIK SA PAUSE MENU"
+text = "◀ ISARA AT ILAPAT (Save & Close)"
 
 [node name="GameOverUI" type="Control" parent="." unique_id=10928137]
 visible = false
@@ -1711,3 +1831,18 @@ theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_join_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_join_green_hover")
 text = "🔄 BUMALIK SA LOBBY"
+
+[node name="FpsOverlay" type="CanvasLayer" parent="." unique_id=981273461]
+layer = 120
+
+[node name="FpsLabel" type="Label" parent="FpsOverlay" unique_id=981273462]
+visible = false
+offset_left = 16.0
+offset_top = 14.0
+offset_right = 160.0
+offset_bottom = 38.0
+theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "FPS: 60"
