@@ -116,6 +116,10 @@ var selected_color_idx: int:
 enum LobbyTab { BROWSE, HOST, DIRECT, ROOM_ACTIVE }
 var current_lobby_tab: LobbyTab = LobbyTab.BROWSE
 
+enum HostNetType { ONLINE_WEBRTC, LOCAL_LAN, CUSTOM_TUNNEL }
+var current_host_net_type: HostNetType = HostNetType.ONLINE_WEBRTC
+var current_joined_room_name: String = "Kalye Room"
+
 const SupabaseLobbyManagerScript = preload("res://scripts/network/SupabaseLobbyManager.gd")
 @onready var supabase_manager: Node = get_node_or_null("SupabaseLobbyManager")
 @onready var lobby_ui: Control = get_node_or_null("LobbyUI")
@@ -141,6 +145,8 @@ const SupabaseLobbyManagerScript = preload("res://scripts/network/SupabaseLobbyM
 
 # Host Section elements
 @onready var room_name_input: LineEdit = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/RoomNameRow/RoomNameEdit")
+@onready var btn_net_mode_toggle: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/NetModeRow/BtnNetModeToggle")
+@onready var host_address_row: HBoxContainer = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow")
 @onready var host_address_input: LineEdit = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow/AddressEdit")
 @onready var host_port_input: LineEdit = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow/PortEdit")
 @onready var btn_create_supabase_room: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/BtnCreateSupabaseRoom")
@@ -253,6 +259,8 @@ func _init_node_references() -> void:
 
 	# Host Section elements
 	if not room_name_input: room_name_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/RoomNameRow/RoomNameEdit")
+	if not btn_net_mode_toggle: btn_net_mode_toggle = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/NetModeRow/BtnNetModeToggle")
+	if not host_address_row: host_address_row = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow")
 	if not host_address_input: host_address_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow/AddressEdit")
 	if not host_port_input: host_port_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow/PortEdit")
 	if not btn_create_supabase_room: btn_create_supabase_room = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/BtnCreateSupabaseRoom")
@@ -420,8 +428,6 @@ func _ready() -> void:
 		hotspot_info_label.text = "Local IP: " + ips[0] + " (Port 7777)"
 	if ip_input and (ip_input.text.is_empty() or ip_input.text == "127.0.0.1"):
 		ip_input.text = ips[0]
-	if host_address_input and host_address_input.text.is_empty():
-		host_address_input.text = ips[0]
 
 	_switch_right_tab(LobbyTab.BROWSE)
 	_update_lobby_player_list()
@@ -465,6 +471,9 @@ func _setup_ui_signals() -> void:
 		btn_refresh_lobbies.pressed.connect(_fetch_supabase_lobbies)
 	if btn_create_supabase_room:
 		btn_create_supabase_room.pressed.connect(_on_btn_create_supabase_room_pressed)
+	if btn_net_mode_toggle:
+		btn_net_mode_toggle.pressed.connect(_on_btn_net_mode_toggle_pressed)
+	_update_host_net_mode_ui()
 
 	if btn_host: btn_host.pressed.connect(_on_btn_host_pressed)
 	if btn_join: btn_join.pressed.connect(_on_btn_join_pressed)
@@ -747,6 +756,49 @@ func _update_mode_ui() -> void:
 				btn_mode_toggle.text = "🏃 KLASIKONG TAYA (POINTS MATCH)"
 				btn_mode_toggle.modulate = Color(0.4, 0.8, 1.0)
 
+func _on_btn_net_mode_toggle_pressed() -> void:
+	current_host_net_type = ((int(current_host_net_type) + 1) % 3) as HostNetType
+	_update_host_net_mode_ui()
+
+func _update_host_net_mode_ui() -> void:
+	if not btn_net_mode_toggle:
+		btn_net_mode_toggle = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/NetModeRow/BtnNetModeToggle")
+	if not host_address_row:
+		host_address_row = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow")
+
+	var ips := NetworkManager.get_local_ip_addresses()
+	var local_ip := ips[0] if not ips.is_empty() else "127.0.0.1"
+
+	match current_host_net_type:
+		HostNetType.ONLINE_WEBRTC:
+			if btn_net_mode_toggle:
+				btn_net_mode_toggle.text = "🌐 ONLINE (WebRTC - Kahit Saang Internet)"
+				btn_net_mode_toggle.add_theme_color_override("font_color", Color(0.35, 0.95, 0.72))
+			if host_address_row:
+				host_address_row.visible = false
+			if host_address_input:
+				host_address_input.text = ""
+			if host_status_label:
+				host_status_label.text = "🌐 Online WebRTC: Makakasali kahit sino sa internet (kahit magkaibang Wi-Fi o mobile data)!"
+		HostNetType.LOCAL_LAN:
+			if btn_net_mode_toggle:
+				btn_net_mode_toggle.text = "🏠 LOCAL LAN (Parehong Wi-Fi / Hotspot)"
+				btn_net_mode_toggle.add_theme_color_override("font_color", Color(1.0, 0.85, 0.25))
+			if host_address_row:
+				host_address_row.visible = true
+			if host_address_input:
+				host_address_input.text = local_ip
+			if host_status_label:
+				host_status_label.text = "🏠 Local LAN: Para sa mga kalaro na nakakonekta sa iisang Wi-Fi router o phone hotspot."
+		HostNetType.CUSTOM_TUNNEL:
+			if btn_net_mode_toggle:
+				btn_net_mode_toggle.text = "🔗 PLAYIT.GG / CUSTOM TUNNEL (IP & Port)"
+				btn_net_mode_toggle.add_theme_color_override("font_color", Color(0.45, 0.8, 1.0))
+			if host_address_row:
+				host_address_row.visible = true
+			if host_status_label:
+				host_status_label.text = "🔗 PlayIt.gg / Custom: Ilagay ang iyong custom tunnel domain (hal. playit.gg) o port forward."
+
 func _setup_round_timer() -> void:
 	match current_mode:
 		MatchMode.PASA_TAYA_ELIMINATION:
@@ -953,19 +1005,29 @@ func _on_supabase_lobbies_fetched(lobbies: Array) -> void:
 
 		var title_lbl := Label.new()
 		var is_online_webrtc := str(lobby.get("address", "")).strip_edges().to_lower() == "webrtc"
+		var addr_str: String = str(lobby.get("address", "")).strip_edges()
+		var h_name: String = str(lobby.get("host_name", "Host"))
+		var m_name: String = str(lobby.get("game_mode", "Pasa-Taya"))
+
 		if is_online_webrtc:
 			title_lbl.text = "🌐 " + str(lobby.get("name", "Kalye Room")) + "  [ONLINE P2P]"
-			title_lbl.add_theme_color_override("font_color", Color(0.35, 0.9, 1.0))
-		else:
-			title_lbl.text = "⚡ " + str(lobby.get("name", "Kalye Room"))
+			title_lbl.add_theme_color_override("font_color", Color(0.35, 0.95, 1.0))
+		elif addr_str.begins_with("192.168.") or addr_str.begins_with("10.") or addr_str.begins_with("172.") or addr_str == "127.0.0.1":
+			title_lbl.text = "🏠 " + str(lobby.get("name", "Kalye Room")) + "  [LOCAL LAN]"
 			title_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.25))
+		else:
+			title_lbl.text = "⚡ " + str(lobby.get("name", "Kalye Room")) + "  [SERVER/TUNNEL]"
+			title_lbl.add_theme_color_override("font_color", Color(0.45, 0.85, 1.0))
 		title_lbl.add_theme_font_size_override("font_size", 13)
 		info_vbox.add_child(title_lbl)
 
 		var sub_lbl := Label.new()
-		var h_name: String = str(lobby.get("host_name", "Host"))
-		var m_name: String = str(lobby.get("game_mode", "Pasa-Taya"))
-		sub_lbl.text = "👤 Host: %s | 🎮 %s" % [h_name, m_name]
+		if is_online_webrtc:
+			sub_lbl.text = "👤 Host: %s | 🎮 %s | 🌐 Kahit Saang Internet / Mobile Data" % [h_name, m_name]
+		elif addr_str.begins_with("192.168.") or addr_str.begins_with("10.") or addr_str.begins_with("172.") or addr_str == "127.0.0.1":
+			sub_lbl.text = "👤 Host: %s | 🎮 %s | 🏠 Parehong Wi-Fi Lamang" % [h_name, m_name]
+		else:
+			sub_lbl.text = "👤 Host: %s | 🎮 %s | 🔗 %s" % [h_name, m_name, addr_str]
 		sub_lbl.add_theme_color_override("font_color", Color(0.65, 0.82, 0.95))
 		sub_lbl.add_theme_font_size_override("font_size", 11)
 		info_vbox.add_child(sub_lbl)
@@ -1027,35 +1089,56 @@ func _join_supabase_lobby(lobby: Dictionary) -> void:
 	var host_name: String = str(lobby.get("host_name", "Host"))
 	var room_name: String = str(lobby.get("name", "Kalye Match"))
 	var lobby_id: String = str(lobby.get("id", ""))
+	current_joined_room_name = room_name
 
 	var pname := name_input.text.strip_edges() if name_input else "Bata"
 	if pname.is_empty():
 		pname = "Bata " + str(randi() % 100)
 
 	_switch_right_tab(LobbyTab.ROOM_ACTIVE)
-	if active_room_title:
-		active_room_title.text = "🏠 LOBBY: %s (Host: %s)" % [room_name, host_name]
 	if btn_start_match:
 		btn_start_match.visible = false
 	if btn_cancel:
 		btn_cancel.visible = true
-		btn_cancel.text = "❌ UMALIS SA ROOM"
+		btn_cancel.text = "❌ I-CANCEL"
+
+	# Initialize empty slot labels with connecting message
+	for i in range(8):
+		if i < slot_labels.size():
+			var lbl: Label = slot_labels[i]
+			if i == 0:
+				lbl.text = "Slot 1: ⏳ Kumukonekta kay %s (Host)..." % host_name
+				lbl.modulate = Color(1.0, 0.9, 0.4, 1.0)
+			else:
+				lbl.text = "Slot %d: (Empty)" % (i + 1)
+				lbl.modulate = Color(0.45, 0.55, 0.68, 0.8)
 
 	if target_address.to_lower() == "webrtc":
-		hotspot_info_label.text = "⏳ Kumukonekta sa WebRTC Online P2P (%s)..." % room_name
 		if active_room_title:
-			active_room_title.text = "🌐 ONLINE LOBBY: %s (Host: %s)" % [room_name, host_name]
+			active_room_title.text = "🌐 Kumukonekta sa Online Lobby: %s..." % room_name
+		if hotspot_info_label:
+			hotspot_info_label.text = "⏳ Kumukonekta sa WebRTC Online P2P (%s)..." % room_name
 		var err := network_manager.join_webrtc_game(lobby_id, pname, supabase_manager.supabase_url, supabase_manager.supabase_anon_key)
 		if err != OK:
-			hotspot_info_label.text = "❌ Nabigo sa pagsali sa WebRTC Lobby: %s" % room_name
+			if hotspot_info_label:
+				hotspot_info_label.text = "❌ Nabigo sa pagsali sa WebRTC Lobby: %s" % room_name
 			_switch_right_tab(LobbyTab.BROWSE)
 		return
 
-	hotspot_info_label.text = "⏳ Kumukonekta sa %s (%s:%d)..." % [room_name, target_address, target_port]
+	# LAN or Direct ENet
+	var is_private_ip := target_address.begins_with("192.168.") or target_address.begins_with("10.") or target_address.begins_with("172.") or target_address == "127.0.0.1"
+	if active_room_title:
+		active_room_title.text = "🏠 Kumukonekta sa Local Lobby: %s..." % room_name
+	if hotspot_info_label:
+		if is_private_ip:
+			hotspot_info_label.text = "⏳ Kumukonekta sa Local IP %s:%d...\n(Paalala: Kailangang pareho kayo ng Wi-Fi o Hotspot ng Host!)" % [target_address, target_port]
+		else:
+			hotspot_info_label.text = "⏳ Kumukonekta sa %s:%d..." % [target_address, target_port]
 
 	var err := network_manager.join_game(target_address, pname, target_port)
 	if err != OK:
-		hotspot_info_label.text = "❌ Hindi makakonekta sa %s:%d" % [target_address, target_port]
+		if hotspot_info_label:
+			hotspot_info_label.text = "❌ Hindi makakonekta sa %s:%d" % [target_address, target_port]
 		_switch_right_tab(LobbyTab.BROWSE)
 
 func _on_btn_create_supabase_room_pressed() -> void:
@@ -1072,13 +1155,17 @@ func _on_btn_create_supabase_room_pressed() -> void:
 		port = host_port_input.text.strip_edges().to_int()
 
 	var custom_addr := host_address_input.text.strip_edges() if host_address_input else ""
-	var is_webrtc := custom_addr.is_empty() or custom_addr.to_lower() == "webrtc" or custom_addr.to_lower() == "online"
 
 	var mode_name := "Pasa-Taya"
 	match current_mode:
 		MatchMode.PASA_TAYA_ELIMINATION: mode_name = "Pasa-Taya"
 		MatchMode.INFECTION: mode_name = "Hawaan"
 		MatchMode.CLASSIC_TAG: mode_name = "Klasikong Taya"
+
+	# Decide mode: Default is ONLINE_WEBRTC!
+	var is_webrtc := (current_host_net_type == HostNetType.ONLINE_WEBRTC)
+	if current_host_net_type == HostNetType.CUSTOM_TUNNEL:
+		is_webrtc = (custom_addr.is_empty() or custom_addr.to_lower() == "webrtc" or custom_addr.to_lower() == "online")
 
 	if is_webrtc:
 		# WebRTC Online Room: Register to Supabase first, then activate WebRTC server upon registration confirmation
@@ -1092,15 +1179,22 @@ func _on_btn_create_supabase_room_pressed() -> void:
 			active_room_title.text = "🌐 ONLINE ROOM: %s [WebRTC P2P]" % rname
 		if btn_start_match:
 			btn_start_match.visible = true
+			btn_start_match.disabled = true
+			btn_start_match.text = "🎮 SIMULAN ANG LARO (Naghihintay ng kalaro...)"
+			btn_start_match.modulate = Color(0.9, 0.9, 0.6, 0.9)
 		if btn_cancel:
 			btn_cancel.visible = true
 			btn_cancel.text = "❌ ISARA ANG ROOM"
 		return
 
-	# LAN / PlayIt.gg ENet server:
+	# LAN or Custom Tunnel:
 	var best_addr := "127.0.0.1"
-	if supabase_manager:
-		best_addr = supabase_manager.get_best_host_address(custom_addr)
+	if current_host_net_type == HostNetType.LOCAL_LAN:
+		var ips := NetworkManager.get_local_ip_addresses()
+		best_addr = ips[0] if not ips.is_empty() else "127.0.0.1"
+	else:
+		if supabase_manager:
+			best_addr = supabase_manager.get_best_host_address(custom_addr)
 
 	var err := network_manager.create_game(pname, port)
 	if err != OK:
@@ -1113,9 +1207,12 @@ func _on_btn_create_supabase_room_pressed() -> void:
 
 	_switch_right_tab(LobbyTab.ROOM_ACTIVE)
 	if active_room_title:
-		active_room_title.text = "🏠 IYONG ROOM: %s (Port %d)" % [rname, port]
+		active_room_title.text = "🏠 IYONG ROOM: %s (%s:%d)" % [rname, best_addr, port]
 	if btn_start_match:
 		btn_start_match.visible = true
+		btn_start_match.disabled = true
+		btn_start_match.text = "🎮 SIMULAN ANG LARO (Naghihintay ng kalaro...)"
+		btn_start_match.modulate = Color(0.9, 0.9, 0.6, 0.9)
 	if btn_cancel:
 		btn_cancel.visible = true
 		btn_cancel.text = "❌ ISARA ANG ROOM"
@@ -1747,14 +1844,27 @@ func _on_join_success() -> void:
 	btn_host.disabled = true
 	btn_join.disabled = true
 	btn_cancel.visible = true
+	btn_cancel.text = "❌ UMALIS SA ROOM"
 	btn_start_match.visible = false
-	hotspot_info_label.text = "✅ Nakakonekta sa Host! (%s:%d)\nNaghihintay na simulan ng Host..." % [network_manager.last_join_ip, network_manager.last_join_port]
+	if active_room_title:
+		active_room_title.text = "🏠 LOBBY: %s" % current_joined_room_name
+	if hotspot_info_label:
+		hotspot_info_label.text = "✅ Nakakonekta sa Host! Naghihintay na simulan ng Host ang laro..."
+	_update_lobby_player_list()
 
 func _on_join_failed() -> void:
 	btn_host.disabled = false
 	btn_join.disabled = false
 	btn_cancel.visible = false
-	hotspot_info_label.text = "❌ Connection failed sa %s:%d!\nPakisuri kung tama ang PlayIt.gg IP/Domain at Port." % [network_manager.last_join_ip, network_manager.last_join_port]
+	btn_start_match.visible = false
+	_switch_right_tab(LobbyTab.BROWSE)
+	if empty_notice_label:
+		empty_notice_label.visible = true
+		empty_notice_label.text = "❌ Hindi nakakonekta sa Host!\n• Kung Online Room: Maaaring offline na ang Host o nagkaroon ng network delay. I-refresh at subukan ulit.\n• Kung Local Room: Siguraduhing magkapareho kayo ng Wi-Fi o Hotspot ng Host."
+	if lobbies_status_label:
+		lobbies_status_label.text = "Bigo ang Koneksyon"
+	if hotspot_info_label:
+		hotspot_info_label.text = "❌ Bigo sa pagkonekta sa host."
 
 func _on_server_disconnected() -> void:
 	_set_game_state(GameState.LOBBY)
@@ -1762,7 +1872,13 @@ func _on_server_disconnected() -> void:
 	btn_join.disabled = false
 	btn_cancel.visible = false
 	btn_start_match.visible = false
-	hotspot_info_label.text = "⚠️ Na-disconnect mula sa Server."
+	_switch_right_tab(LobbyTab.BROWSE)
+	_fetch_supabase_lobbies()
+	if empty_notice_label:
+		empty_notice_label.visible = true
+		empty_notice_label.text = "⚠️ Na-disconnect mula sa Server / Host."
+	if hotspot_info_label:
+		hotspot_info_label.text = "⚠️ Na-disconnect mula sa Server."
 	_update_lobby_player_list()
 
 func _update_lobby_player_list() -> void:
@@ -1775,6 +1891,21 @@ func _update_lobby_player_list() -> void:
 	if supabase_manager and supabase_manager.is_hosting_lobby:
 		supabase_manager.update_lobby(max(1, count), false)
 
+	# Start Match button dynamic status
+	if btn_start_match:
+		if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+			btn_start_match.visible = true
+			if count >= 2:
+				btn_start_match.disabled = false
+				btn_start_match.text = "🎮 SIMULAN ANG LARO (%d PLAYERS READY)" % count
+				btn_start_match.modulate = Color(1.0, 1.0, 1.0, 1.0)
+			else:
+				btn_start_match.disabled = false
+				btn_start_match.text = "🎮 SIMULAN ANG LARO (Naghihintay ng kalaro...)"
+				btn_start_match.modulate = Color(0.9, 0.9, 0.6, 0.9)
+		else:
+			btn_start_match.visible = false
+
 	var pids := network_manager.players.keys()
 	if pids.is_empty():
 		var local_name := name_input.text.strip_edges() if name_input and not name_input.text.is_empty() else "Dennrick"
@@ -1782,8 +1913,12 @@ func _update_lobby_player_list() -> void:
 			if i < slot_labels.size():
 				var lbl: Label = slot_labels[i]
 				if i == 0:
-					lbl.text = "Slot 1: " + local_name
-					lbl.modulate = Color(0.95, 0.98, 1.0, 1.0)
+					if network_manager.is_host:
+						lbl.text = "Slot 1: " + local_name + " 👑"
+						lbl.modulate = Color(0.95, 0.98, 1.0, 1.0)
+					else:
+						lbl.text = "Slot 1: ⏳ Kumukonekta sa Host..."
+						lbl.modulate = Color(1.0, 0.9, 0.4, 1.0)
 				else:
 					lbl.text = "Slot %d: (Empty)" % (i + 1)
 					lbl.modulate = Color(0.45, 0.55, 0.68, 0.8)
@@ -1795,8 +1930,8 @@ func _update_lobby_player_list() -> void:
 			if i < pids.size():
 				var pid: int = pids[i]
 				var pinfo: Dictionary = network_manager.players[pid]
-				var is_host: bool = (pid == 1)
-				var tag := " 👑" if is_host else ""
+				var is_h: bool = (pid == 1)
+				var tag := " 👑" if is_h else ""
 				lbl.text = "Slot %d: %s%s" % [i + 1, pinfo.get("name", "Player"), tag]
 				lbl.modulate = Color(0.95, 0.98, 1.0, 1.0)
 			else:

@@ -202,6 +202,8 @@ var footstep_timer: float = 0.0
 # Network sync targets for remote peers
 var target_position: Vector3 = Vector3.ZERO
 var target_rotation_y: float = 0.0
+var remote_horizontal_speed: float = 0.0
+var remote_is_on_floor: bool = true
 
 func _ready() -> void:
 	add_to_group("players")
@@ -471,7 +473,8 @@ func _physics_process(delta: float) -> void:
 		# Send sync data to peers
 		if multiplayer.has_multiplayer_peer():
 			var rot_y: float = model.rotation.y if model else 0.0
-			rpc("sync_transform", global_position, rot_y, velocity.length(), is_on_floor(), is_sliding, is_dashing)
+			var h_spd_sync: float = Vector2(velocity.x, velocity.z).length()
+			rpc("sync_transform", global_position, rot_y, h_spd_sync, is_on_floor(), is_sliding, is_dashing)
 	else:
 		_process_remote_interpolation(delta)
 
@@ -480,15 +483,24 @@ func _physics_process(delta: float) -> void:
 		squash_current = squash_current.lerp(squash_target, delta * 15.0)
 		squash_target = squash_target.lerp(Vector3.ONE, delta * 8.0)
 		model.scale = model_base_scale * squash_current
-		var horizontal_speed: float = Vector2(velocity.x, velocity.z).length()
-		var current_max: float = sprint_speed if is_sprinting else walk_speed
+		var horizontal_speed: float
+		var current_floor: bool
+		if is_local_human():
+			horizontal_speed = Vector2(velocity.x, velocity.z).length()
+			current_floor = is_on_floor()
+		else:
+			horizontal_speed = remote_horizontal_speed
+			current_floor = remote_is_on_floor
+
+		var current_max: float = sprint_speed if (is_sprinting or horizontal_speed > 8.0) else walk_speed
 		model.is_sliding = is_sliding
 		model.is_dashing = is_dashing
 		model.has_superspeed = (active_powerup == PowerupType.SUPER_SPEED)
-		model.animate(delta, horizontal_speed, is_on_floor(), current_max)
+		model.animate(delta, horizontal_speed, current_floor, current_max)
 
 	if slide_dust:
-		slide_dust.emitting = (is_sliding or (is_dashing and is_on_floor()))
+		var floor_check: bool = is_on_floor() if is_local_human() else remote_is_on_floor
+		slide_dust.emitting = (is_sliding or (is_dashing and floor_check))
 
 	# Anime speed lines juice for local player
 	if is_local_human():
@@ -1164,6 +1176,9 @@ func spawn_hit_vfx_rpc(pos: Vector3) -> void:
 
 func _process_remote_interpolation(delta: float) -> void:
 	global_position = global_position.lerp(target_position, delta * 18.0)
+	if global_position.distance_to(target_position) < 0.05:
+		remote_horizontal_speed = move_toward(remote_horizontal_speed, 0.0, delta * 20.0)
+
 	if model:
 		model.rotation.y = lerp_angle(model.rotation.y, target_rotation_y, delta * 18.0)
 		if tag_area:
@@ -1179,9 +1194,11 @@ func play_tag_anim_rpc() -> void:
 		model.trigger_tag_animation()
 
 @rpc("unreliable")
-func sync_transform(pos: Vector3, rot_y: float, _speed: float, _floor: bool, remote_slide: bool, remote_dash: bool) -> void:
+func sync_transform(pos: Vector3, rot_y: float, speed_val: float, floor_val: bool, remote_slide: bool, remote_dash: bool) -> void:
 	target_position = pos
 	target_rotation_y = rot_y
+	remote_horizontal_speed = speed_val
+	remote_is_on_floor = floor_val
 	is_sliding = remote_slide
 	is_dashing = remote_dash
 

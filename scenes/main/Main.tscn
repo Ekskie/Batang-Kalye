@@ -1143,7 +1143,34 @@ theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
 text = "💣 PASA-TAYA (CRAB GAME ELIMINATION)"
 
+[node name="NetModeRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection" unique_id=1848912150]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="NetModeBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/NetModeRow" unique_id=1848912151]
+custom_minimum_size = Vector2(130, 36)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_label_badge")
+
+[node name="NetModeBadgeLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/NetModeRow/NetModeBadge" unique_id=1848912152]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.82, 0.95, 1)
+theme_override_font_sizes/font_size = 12
+text = "URI NG ROOM"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BtnNetModeToggle" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/NetModeRow" unique_id=1848912153]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.35, 0.95, 0.72, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
+text = "🌐 ONLINE (WebRTC - Kahit Saang Internet)"
+
 [node name="HostAddressRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection" unique_id=1848912136]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 8
 

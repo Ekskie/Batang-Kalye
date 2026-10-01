@@ -13,9 +13,32 @@ signal connection_failed(reason: String)
 signal disconnected()
 
 const PHOENIX_HEARTBEAT_INTERVAL: float = 25.0 # seconds
-const STUN_SERVERS: Array = [
-	{"urls": ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"]}
+const ICE_SERVERS: Array = [
+	{
+		"urls": [
+			"stun:stun.relay.metered.ca:80",
+			"stun:stun.l.google.com:19302",
+			"stun:stun1.l.google.com:19302",
+			"stun:stun.cloudflare.com:3478"
+		]
+	},
+	{
+		"urls": ["turn:global.relay.metered.ca:80"],
+		"username": "c005cec00b993188ae15012c",
+		"credential": "hsORAEitSfnZX2re"
+	},
+	{
+		"urls": ["turn:global.relay.metered.ca:443"],
+		"username": "c005cec00b993188ae15012c",
+		"credential": "hsORAEitSfnZX2re"
+	},
+	{
+		"urls": ["turn:global.relay.metered.ca:3478"],
+		"username": "c005cec00b993188ae15012c",
+		"credential": "hsORAEitSfnZX2re"
+	}
 ]
+const STUN_SERVERS: Array = ICE_SERVERS
 
 var ws: WebSocketPeer = WebSocketPeer.new()
 var supabase_url: String = ""

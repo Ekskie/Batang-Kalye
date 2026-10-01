@@ -16,6 +16,8 @@ const MAX_PLAYERS: int = 8
 var peer: MultiplayerPeer = null
 var connection_mode: String = "enet" # "enet" or "webrtc"
 var webrtc_peers: Dictionary = {} # peer_id: WebRTCPeerConnection
+var webrtc_has_remote_description: Dictionary = {} # peer_id: bool
+var pending_ice_candidates: Dictionary = {} # peer_id: Array[Dictionary]
 var signaler: Node = null # WebRTCSignaler instance
 var current_webrtc_lobby_id: String = ""
 
@@ -195,11 +197,11 @@ func join_webrtc_game(lobby_id: String, player_name: String, supabase_url: Strin
 
 	_setup_signaler(supabase_url, supabase_key, lobby_id, client_id)
 
-	# Safety connection timeout timer (18s)
-	get_tree().create_timer(18.0).timeout.connect(func():
+	# Safety connection timeout timer (30s to allow TURN relay allocation on mobile data)
+	get_tree().create_timer(30.0).timeout.connect(func():
 		if connection_mode == "webrtc" and not is_host:
 			if multiplayer.multiplayer_peer == peer and not multiplayer.get_peers().has(1):
-				print("[NetworkManager] WebRTC join timed out after 18 seconds")
+				print("[NetworkManager] WebRTC join timed out after 30 seconds")
 				leave_game()
 				join_failed.emit()
 	)
@@ -215,6 +217,7 @@ func _setup_signaler(supabase_url: String, supabase_key: String, lobby_id: Strin
 	signaler = WebRTCSignalerScript.new()
 	add_child(signaler)
 	signaler.topic_joined.connect(_on_signaler_topic_joined)
+	signaler.peer_announced.connect(_on_signaler_peer_announced)
 	signaler.signal_received.connect(_on_signaler_signal_received)
 	signaler.connection_failed.connect(func(reason):
 		print("[NetworkManager] WebRTCSignaler failed: ", reason)
@@ -229,13 +232,28 @@ func _on_signaler_topic_joined() -> void:
 	if not is_host:
 		_create_client_peer_connection(1)
 
+func _on_signaler_peer_announced(from_peer: int) -> void:
+	print("[NetworkManager] Peer %d announced presence on signaling topic." % from_peer)
+	if not is_host and from_peer == 1:
+		# Host is active on the channel; ensure offer is created and dispatched
+		if not webrtc_has_remote_description.get(1, false):
+			print("[NetworkManager Client] Host announced presence, sending offer...")
+			_create_client_peer_connection(1)
+
 func _create_client_peer_connection(target_peer_id: int) -> void:
+	if webrtc_peers.has(target_peer_id):
+		var old_conn: WebRTCPeerConnection = webrtc_peers[target_peer_id]
+		if old_conn:
+			old_conn.close()
+		webrtc_peers.erase(target_peer_id)
+		webrtc_has_remote_description.erase(target_peer_id)
+
 	var conn := WebRTCPeerConnection.new()
-	var err := conn.initialize({
-		"iceServers": WebRTCSignalerScript.STUN_SERVERS
+	var init_err := conn.initialize({
+		"iceServers": WebRTCSignalerScript.ICE_SERVERS
 	})
-	if err != OK:
-		push_error("[NetworkManager] Failed to init client WebRTCPeerConnection: %d" % err)
+	if init_err != OK:
+		push_error("[NetworkManager] Failed to init client WebRTCPeerConnection: %d" % init_err)
 		return
 
 	conn.session_description_created.connect(func(type, sdp):
@@ -244,9 +262,10 @@ func _create_client_peer_connection(target_peer_id: int) -> void:
 			signaler.send_signal(target_peer_id, "offer", {"type": type, "sdp": sdp})
 	)
 
-	conn.ice_candidate_created.connect(func(media, index, name):
+	conn.ice_candidate_created.connect(func(cand_media, cand_index, cand_name):
+		print("[NetworkManager Client] ICE candidate gathered: ", cand_name)
 		if signaler:
-			signaler.send_signal(target_peer_id, "candidate", {"media": media, "index": index, "name": name})
+			signaler.send_signal(target_peer_id, "candidate", {"media": cand_media, "index": cand_index, "name": cand_name})
 	)
 
 	webrtc_peers[target_peer_id] = conn
@@ -254,6 +273,73 @@ func _create_client_peer_connection(target_peer_id: int) -> void:
 		peer.add_peer(conn, target_peer_id)
 
 	conn.create_offer()
+
+func _is_unreachable_private_candidate(cand_str: String) -> bool:
+	if not "typ host" in cand_str:
+		return false
+
+	var parts := cand_str.split(" ")
+	if parts.size() <= 4:
+		return false
+	var ip := parts[4]
+
+	var is_private := false
+	if ip.begins_with("10.") or ip.begins_with("192.168.") or ip.begins_with("127.") or ip.begins_with("100."):
+		is_private = true
+	elif ip.begins_with("172."):
+		var octets := ip.split(".")
+		if octets.size() > 1:
+			var second := int(octets[1])
+			if second >= 16 and second <= 31:
+				is_private = true
+
+	if not is_private:
+		return false
+
+	# If remote host is on the exact same local subnet (e.g. both on same 192.168.1.x Wi-Fi), allow it
+	var my_ips := IP.get_local_addresses()
+	for local_ip in my_ips:
+		if local_ip.count(".") == 3 and ip.count(".") == 3:
+			var local_prefix := local_ip.substr(0, local_ip.rfind("."))
+			var remote_prefix := ip.substr(0, ip.rfind("."))
+			if local_prefix == remote_prefix:
+				return false
+
+	return true
+
+func _handle_incoming_candidate(from_peer: int, data: Dictionary) -> void:
+	var cand_name: String = str(data.get("name", ""))
+	var cand_media: String = str(data.get("media", ""))
+	var cand_index: int = int(data.get("index", 0))
+
+	if _is_unreachable_private_candidate(cand_name):
+		print("[NetworkManager] Skipping unreachable private candidate from peer %d: %s" % [from_peer, cand_name])
+		return
+
+	print("[NetworkManager] Received valid ICE candidate from peer %d: %s" % [from_peer, cand_name])
+	if webrtc_peers.has(from_peer) and webrtc_has_remote_description.get(from_peer, false):
+		var conn: WebRTCPeerConnection = webrtc_peers[from_peer]
+		var add_err := conn.add_ice_candidate(cand_media, cand_index, cand_name)
+		print("[NetworkManager] Added ICE candidate for peer %d (res=%d)" % [from_peer, add_err])
+	else:
+		if not pending_ice_candidates.has(from_peer):
+			pending_ice_candidates[from_peer] = []
+		pending_ice_candidates[from_peer].append(data)
+		print("[NetworkManager] Queued pending candidate for peer %d (total: %d)" % [from_peer, pending_ice_candidates[from_peer].size()])
+
+func _flush_pending_ice_candidates(peer_id: int) -> void:
+	if webrtc_peers.has(peer_id) and pending_ice_candidates.has(peer_id):
+		var conn: WebRTCPeerConnection = webrtc_peers[peer_id]
+		var candidates: Array = pending_ice_candidates[peer_id]
+		print("[NetworkManager] Flushing %d pending ICE candidates for peer %d" % [candidates.size(), peer_id])
+		for c in candidates:
+			var c_name: String = str(c.get("name", ""))
+			if _is_unreachable_private_candidate(c_name):
+				print("[NetworkManager] Skipping unreachable pending candidate: ", c_name)
+				continue
+			var add_err := conn.add_ice_candidate(str(c.get("media", "")), int(c.get("index", 0)), c_name)
+			print("[NetworkManager] Flushed candidate (res=%d): %s" % [add_err, c_name])
+		pending_ice_candidates.erase(peer_id)
 
 func _on_signaler_signal_received(from_peer: int, _to_peer: int, sig_type: String, data: Dictionary) -> void:
 	if is_host:
@@ -265,27 +351,29 @@ func _on_signaler_signal_received(from_peer: int, _to_peer: int, sig_type: Strin
 			else:
 				conn = WebRTCPeerConnection.new()
 				conn.initialize({
-					"iceServers": WebRTCSignalerScript.STUN_SERVERS
+					"iceServers": WebRTCSignalerScript.ICE_SERVERS
 				})
 				conn.session_description_created.connect(func(type, sdp):
 					conn.set_local_description(type, sdp)
 					if signaler:
 						signaler.send_signal(from_peer, "answer", {"type": type, "sdp": sdp})
 				)
-				conn.ice_candidate_created.connect(func(media, index, name):
+				conn.ice_candidate_created.connect(func(cand_media, cand_index, cand_name):
+					print("[NetworkManager Host] ICE candidate gathered: ", cand_name)
 					if signaler:
-						signaler.send_signal(from_peer, "candidate", {"media": media, "index": index, "name": name})
+						signaler.send_signal(from_peer, "candidate", {"media": cand_media, "index": cand_index, "name": cand_name})
 				)
 				webrtc_peers[from_peer] = conn
 				if peer is WebRTCMultiplayerPeer:
 					peer.add_peer(conn, from_peer)
 
 			conn.set_remote_description(data.get("type", "offer"), data.get("sdp", ""))
+			webrtc_has_remote_description[from_peer] = true
+			_flush_pending_ice_candidates(from_peer)
 
 		elif sig_type == "candidate":
-			if webrtc_peers.has(from_peer):
-				var conn: WebRTCPeerConnection = webrtc_peers[from_peer]
-				conn.add_ice_candidate(data.get("media", ""), int(data.get("index", 0)), data.get("name", ""))
+			print("[NetworkManager Host] Received candidate signal from peer %d" % from_peer)
+			_handle_incoming_candidate(from_peer, data)
 
 	else:
 		if sig_type == "answer" and from_peer == 1:
@@ -293,11 +381,12 @@ func _on_signaler_signal_received(from_peer: int, _to_peer: int, sig_type: Strin
 			if webrtc_peers.has(1):
 				var conn: WebRTCPeerConnection = webrtc_peers[1]
 				conn.set_remote_description(data.get("type", "answer"), data.get("sdp", ""))
+				webrtc_has_remote_description[1] = true
+				_flush_pending_ice_candidates(1)
 
 		elif sig_type == "candidate" and from_peer == 1:
-			if webrtc_peers.has(1):
-				var conn: WebRTCPeerConnection = webrtc_peers[1]
-				conn.add_ice_candidate(data.get("media", ""), int(data.get("index", 0)), data.get("name", ""))
+			print("[NetworkManager Client] Received candidate signal from host")
+			_handle_incoming_candidate(from_peer, data)
 
 func set_local_outfit(outfit: Dictionary) -> void:
 	local_outfit = outfit.duplicate()
@@ -348,6 +437,8 @@ func _cleanup_peers() -> void:
 		if conn:
 			conn.close()
 	webrtc_peers.clear()
+	webrtc_has_remote_description.clear()
+	pending_ice_candidates.clear()
 	if peer:
 		peer.close()
 		multiplayer.multiplayer_peer = null
