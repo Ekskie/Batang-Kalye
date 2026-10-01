@@ -58,6 +58,20 @@ func _on_sprint_toggled(button_pressed: bool) -> void:
 	else:
 		btn_sprint.text = "🏃 SPRINT"
 
+func set_sprint_disabled(disabled: bool) -> void:
+	if btn_sprint:
+		if disabled:
+			btn_sprint.button_pressed = false
+			is_sprinting = false
+			btn_sprint.text = "💨 HINGAL"
+			btn_sprint.modulate = Color(1.0, 0.4, 0.4, 0.6)
+			btn_sprint.disabled = true
+		else:
+			if btn_sprint.disabled:
+				btn_sprint.disabled = false
+				btn_sprint.modulate = Color(1.0, 1.0, 1.0, 1.0)
+				btn_sprint.text = "🏃 SPRINT"
+
 func _on_camera_zone_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		if event.pressed and camera_touch_id == -1:
@@ -102,12 +116,12 @@ func update_powerup_buttons(powerup_type: int, dash_charges: int) -> void:
 			btn_jump.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 # --- Contextual Interaction Prompt for Mobile ---
-func set_interact_prompt(is_visible: bool, icon: String, action_text: String) -> void:
+func set_interact_prompt(p_visible: bool, icon: String, action_text: String) -> void:
 	if btn_interact:
-		btn_interact.visible = is_visible
-		if is_visible:
+		btn_interact.visible = p_visible
+		if p_visible:
 			btn_interact.text = "%s %s" % [icon, action_text]
 
-func set_drop_button_visible(is_visible: bool) -> void:
+func set_drop_button_visible(p_visible: bool) -> void:
 	if btn_drop:
-		btn_drop.visible = is_visible
+		btn_drop.visible = p_visible

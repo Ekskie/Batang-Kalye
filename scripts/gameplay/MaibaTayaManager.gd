@@ -47,7 +47,9 @@ func _resolve_choices(player_ids: Array) -> void:
 	var up_group: Array = []
 	var down_group: Array = []
 
-	for pid in player_choices.keys():
+	for pid in player_ids:
+		if not player_choices.has(pid):
+			player_choices[pid] = randi() % 2
 		if player_choices[pid] == HandGesture.PALM_UP:
 			up_group.append(pid)
 		else:
@@ -66,7 +68,10 @@ func _resolve_choices(player_ids: Array) -> void:
 		elif down_group.size() > 0:
 			selected_taya_id = down_group.pick_random()
 		else:
-			selected_taya_id = player_ids.pick_random()
+			selected_taya_id = player_ids.pick_random() if not player_ids.is_empty() else 1
+
+	if selected_taya_id == -1 and not player_ids.is_empty():
+		selected_taya_id = player_ids.pick_random()
 
 	var taya_name: String = "Player %d" % selected_taya_id
 	var net_manager = get_node_or_null("/root/Main/NetworkManager")
@@ -75,9 +80,11 @@ func _resolve_choices(player_ids: Array) -> void:
 
 	rpc("client_announce_taya", selected_taya_id, taya_name)
 
-@rpc("any_peer", "reliable")
+@rpc("any_peer", "call_local", "reliable")
 func submit_hand_choice(choice: int) -> void:
 	var sender_id := multiplayer.get_remote_sender_id()
+	if sender_id == 0:
+		sender_id = multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
 	player_choices[sender_id] = choice
 
 @rpc("call_local", "reliable")

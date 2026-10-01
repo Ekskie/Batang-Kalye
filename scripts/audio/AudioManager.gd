@@ -17,6 +17,19 @@ var sfx_drop: AudioStreamWAV
 var sfx_dog_bark: AudioStreamWAV
 var sfx_stun: AudioStreamWAV
 var sfx_danger: AudioStreamWAV
+var sfx_tick: AudioStreamWAV
+var sfx_elimination: AudioStreamWAV
+var sfx_whistle: AudioStreamWAV
+var sfx_jump: AudioStreamWAV
+var sfx_land: AudioStreamWAV
+var sfx_slide: AudioStreamWAV
+var sfx_dash: AudioStreamWAV
+var sfx_step_asphalt: AudioStreamWAV
+var sfx_step_water: AudioStreamWAV
+var sfx_tag_boom: AudioStreamWAV
+var sfx_score_ding: AudioStreamWAV
+var sfx_pant: AudioStreamWAV
+var sfx_recover_breath: AudioStreamWAV
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -39,6 +52,19 @@ func _synthesize_all_sfx() -> void:
 	sfx_dog_bark = _create_dog_bark(0.22, 0.7)
 	sfx_stun = _create_sweep_tone(600.0, 250.0, 0.35, 0.6)
 	sfx_danger = _create_heartbeat(0.25, 0.6)
+	sfx_tick = _create_clock_tick(0.04, 0.7)
+	sfx_elimination = _create_explosion_boom(0.65, 0.85)
+	sfx_whistle = _create_whistle(0.35, 0.65)
+	sfx_jump = _create_sweep_tone(220.0, 520.0, 0.12, 0.5)
+	sfx_land = _create_noise_hit(0.14, 0.6)
+	sfx_slide = _create_slide_sound(0.25, 0.45)
+	sfx_dash = _create_sweep_tone(950.0, 240.0, 0.16, 0.7)
+	sfx_step_asphalt = _create_sweep_tone(200.0, 100.0, 0.04, 0.25)
+	sfx_step_water = _create_noise_hit(0.08, 0.35)
+	sfx_tag_boom = _create_explosion_boom(0.45, 0.9)
+	sfx_score_ding = _create_arpeggio([587.33, 880.0, 1174.66], 0.06, 0.75)
+	sfx_pant = _create_pant_sound(0.24, 0.6)
+	sfx_recover_breath = _create_sweep_tone(300.0, 600.0, 0.22, 0.45)
 
 func play_sfx(stream: AudioStreamWAV, pitch_scale: float = 1.0) -> void:
 	if not stream or audio_players.is_empty():
@@ -76,7 +102,86 @@ func play_stun() -> void:
 func play_danger() -> void:
 	play_sfx(sfx_danger, 1.0)
 
+func play_tick() -> void:
+	play_sfx(sfx_tick, randf_range(0.98, 1.02))
+
+func play_elimination() -> void:
+	play_sfx(sfx_elimination, 1.0)
+
+func play_whistle() -> void:
+	play_sfx(sfx_whistle, 1.0)
+
+func play_jump() -> void:
+	play_sfx(sfx_jump, randf_range(0.95, 1.1))
+
+func play_land(speed: float = 5.0) -> void:
+	var pitch: float = clampf(1.2 - (speed / 30.0), 0.7, 1.2)
+	play_sfx(sfx_land, pitch)
+
+func play_slide() -> void:
+	play_sfx(sfx_slide, randf_range(0.95, 1.05))
+
+func play_dash() -> void:
+	play_sfx(sfx_dash, randf_range(0.98, 1.12))
+
+func play_footstep(in_water: bool = false) -> void:
+	if in_water:
+		play_sfx(sfx_step_water, randf_range(0.85, 1.2))
+	else:
+		play_sfx(sfx_step_asphalt, randf_range(0.85, 1.2))
+
+func play_tag_boom() -> void:
+	play_sfx(sfx_tag_boom, 1.0)
+
+func play_score_ding() -> void:
+	play_sfx(sfx_score_ding, 1.0)
+
+func play_pant() -> void:
+	play_sfx(sfx_pant, randf_range(0.95, 1.08))
+
+func play_recover_breath() -> void:
+	play_sfx(sfx_recover_breath, 1.0)
+
 # --- Procedural Waveform Generators ---
+func _create_pant_sound(duration: float, volume: float = 0.5) -> AudioStreamWAV:
+	var sample_rate: int = 22050
+	var num_samples: int = int(sample_rate * duration)
+	var data := PackedByteArray()
+	data.resize(num_samples)
+
+	for i in range(num_samples):
+		var t: float = float(i) / float(num_samples)
+		var envelope: float = sin(t * PI)
+		var noise: float = randf_range(-0.75, 0.75)
+		var s: float = noise * envelope * volume
+		data[i] = int(clampf((s + 1.0) * 127.5, 0.0, 255.0))
+
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_8_BITS
+	wav.mix_rate = sample_rate
+	wav.data = data
+	return wav
+func _create_slide_sound(duration: float, volume: float = 0.5) -> AudioStreamWAV:
+	var sample_rate: int = 22050
+	var num_samples: int = int(sample_rate * duration)
+	var data := PackedByteArray()
+	data.resize(num_samples)
+
+	var phase: float = 0.0
+	for i in range(num_samples):
+		var t: float = float(i) / float(num_samples)
+		var freq: float = lerp(450.0, 180.0, t)
+		phase += 2.0 * PI * freq / sample_rate
+		var noise: float = randf_range(-0.55, 0.55)
+		var envelope: float = sin(t * PI)
+		var s: float = (noise * 0.7 + sin(phase) * 0.3) * envelope * volume
+		data[i] = int(clamp((s + 1.0) * 127.5, 0.0, 255.0))
+
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_8_BITS
+	wav.mix_rate = sample_rate
+	wav.data = data
+	return wav
 func _create_sweep_tone(start_freq: float, end_freq: float, duration: float, volume: float = 0.5) -> AudioStreamWAV:
 	var sample_rate: int = 22050
 	var num_samples: int = int(sample_rate * duration)
@@ -212,3 +317,75 @@ func _create_heartbeat(duration: float, volume: float = 0.5) -> AudioStreamWAV:
 	wav.mix_rate = sample_rate
 	wav.data = data
 	return wav
+
+func _create_clock_tick(duration: float, volume: float = 0.5) -> AudioStreamWAV:
+	var sample_rate: int = 22050
+	var num_samples: int = int(sample_rate * duration)
+	var data := PackedByteArray()
+	data.resize(num_samples)
+
+	var phase: float = 0.0
+	for i in range(num_samples):
+		var t: float = float(i) / float(num_samples)
+		var freq: float = 2400.0 - t * 1400.0
+		phase += 2.0 * PI * freq / sample_rate
+		var envelope: float = exp(-t * 28.0)
+		var noise: float = randf_range(-0.35, 0.35) * exp(-t * 35.0)
+		var s: float = (sin(phase) * 0.7 + noise * 0.3) * envelope * volume
+		data[i] = int(clamp((s + 1.0) * 127.5, 0.0, 255.0))
+
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_8_BITS
+	wav.mix_rate = sample_rate
+	wav.data = data
+	return wav
+
+func _create_explosion_boom(duration: float, volume: float = 0.5) -> AudioStreamWAV:
+	var sample_rate: int = 22050
+	var num_samples: int = int(sample_rate * duration)
+	var data := PackedByteArray()
+	data.resize(num_samples)
+
+	var phase: float = 0.0
+	for i in range(num_samples):
+		var t: float = float(i) / float(num_samples)
+		var freq: float = lerp(160.0, 28.0, t * t)
+		phase += 2.0 * PI * freq / sample_rate
+		var envelope: float = (1.0 - t) * (1.0 - t)
+		var noise: float = randf_range(-0.55, 0.55) * (1.0 - t * 0.8)
+		var s: float = (sin(phase) * 0.5 + noise * 0.5) * envelope * volume
+		data[i] = int(clamp((s + 1.0) * 127.5, 0.0, 255.0))
+
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_8_BITS
+	wav.mix_rate = sample_rate
+	wav.data = data
+	return wav
+
+func _create_whistle(duration: float, volume: float = 0.5) -> AudioStreamWAV:
+	var sample_rate: int = 22050
+	var num_samples: int = int(sample_rate * duration)
+	var data := PackedByteArray()
+	data.resize(num_samples)
+
+	var phase: float = 0.0
+	for i in range(num_samples):
+		var t: float = float(i) / float(num_samples)
+		# Fast trill/warble characteristic of a referee whistle
+		var warble: float = sin(t * 110.0) * 220.0
+		var freq: float = 2750.0 + warble
+		phase += 2.0 * PI * freq / sample_rate
+		# Two short bursts (peep-peep)
+		var burst: float = 1.0
+		if t > 0.42 and t < 0.55:
+			burst = 0.1
+		var envelope: float = sin(t * PI) * burst
+		var s: float = sin(phase) * envelope * volume
+		data[i] = int(clamp((s + 1.0) * 127.5, 0.0, 255.0))
+
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_8_BITS
+	wav.mix_rate = sample_rate
+	wav.data = data
+	return wav
+

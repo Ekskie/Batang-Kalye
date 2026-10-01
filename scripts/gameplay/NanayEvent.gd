@@ -44,6 +44,7 @@ func setup(gm: GameManager, pc: Node3D) -> void:
 	mat.emission_energy_multiplier = 1.5
 	cyl.material = mat
 	mesh_inst.mesh = cyl
+	mesh_inst.material_override = mat
 	home_marker.add_child(mesh_inst)
 
 	event_label = Label3D.new()
@@ -86,7 +87,7 @@ func _try_start_event() -> void:
 	for child in players_container.get_children():
 		if child is PlayerController:
 			var pc: PlayerController = child as PlayerController
-			if pc.current_role == PlayerController.Role.RUNNER:
+			if not pc.is_eliminated and pc.current_role == PlayerController.Role.RUNNER:
 				if not sent_home_ids.has(pc.player_id):
 					if not pc.is_stunned:
 						eligible.append(pc)

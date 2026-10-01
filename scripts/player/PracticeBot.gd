@@ -5,6 +5,9 @@ var ai_wander_target: Vector3 = Vector3.ZERO
 var ai_repath_timer: float = 0.0
 var ai_jump_timer: float = 0.0
 
+func _init() -> void:
+	is_bot = true
+
 func _ready() -> void:
 	super._ready()
 	# Bots are locally controlled by the server / single player practice
@@ -15,6 +18,10 @@ func _ready() -> void:
 	_pick_new_wander_target()
 
 func _physics_process(delta: float) -> void:
+	if is_eliminated:
+		velocity = Vector3.ZERO
+		return
+
 	# Run base timers and immunity
 	_update_timers(delta)
 	ai_repath_timer -= delta
@@ -26,10 +33,16 @@ func _physics_process(delta: float) -> void:
 	else:
 		_process_chaser_ai(delta)
 
-	# Update visual animations
+	var is_moving := (velocity.length() > 0.2)
+	_process_stamina(delta, is_moving)
+
+	# Update visual animations & squash deformation
 	var horizontal_speed: float = Vector2(velocity.x, velocity.z).length()
 	var current_max: float = sprint_speed if is_sprinting else walk_speed
 	if model:
+		squash_current = squash_current.lerp(squash_target, delta * 15.0)
+		squash_target = squash_target.lerp(Vector3.ONE, delta * 8.0)
+		model.scale = model_base_scale * squash_current
 		model.is_sliding = is_sliding
 		model.is_dashing = is_dashing
 		model.has_superspeed = false
@@ -41,7 +54,7 @@ func _process_runner_ai(delta: float) -> void:
 	var min_dist: float = 999.0
 
 	for p in get_tree().get_nodes_in_group("players"):
-		if p is PlayerController and p != self and p.current_role == Role.TAYA:
+		if p is PlayerController and p != self and p.current_role == Role.TAYA and not p.is_eliminated:
 			var d := global_position.distance_to(p.global_position)
 			if d < min_dist:
 				min_dist = d
@@ -74,7 +87,7 @@ func _process_chaser_ai(delta: float) -> void:
 	var min_dist: float = 999.0
 
 	for p in get_tree().get_nodes_in_group("players"):
-		if p is PlayerController and p != self and p.current_role == Role.RUNNER and not p.is_immune:
+		if p is PlayerController and p != self and p.current_role == Role.RUNNER and not p.is_immune and not p.is_eliminated:
 			var d := global_position.distance_to(p.global_position)
 			if d < min_dist:
 				min_dist = d
@@ -106,7 +119,14 @@ func _apply_bot_movement(move_dir: Vector3, delta: float) -> void:
 	if not is_on_floor():
 		velocity.y += fall_gravity * delta
 
-	var target_spd: float = sprint_speed if is_sprinting else walk_speed
+	var target_spd: float = walk_speed
+	if is_exhausted:
+		target_spd = exhausted_speed
+	elif is_sprinting and burst_stamina > 0.0:
+		target_spd = sprint_speed
+	else:
+		is_sprinting = false
+
 	if current_role == Role.TAYA:
 		target_spd *= 1.05
 
@@ -132,4 +152,4 @@ func _pick_new_wander_target() -> void:
 		if sps.size() > 0:
 			ai_wander_target = sps.pick_random().global_position
 			return
-	ai_wander_target = Vector3(randf_range(-10, 10), 0.5, randf_range(-20, 20))
+	ai_wander_target = Vector3(randf_range(-42, 42), 0.5, randf_range(-42, 42))

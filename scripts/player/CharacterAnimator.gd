@@ -130,14 +130,21 @@ const FOOTWEAR_OPTIONS: Array[Dictionary] = [
 ]
 
 const COLOR_OPTIONS: Array[Dictionary] = [
-	{ "name": "Asul (Electric Blue)", "color": Color(0.18, 0.58, 0.95, 1.0) },
-	{ "name": "Pula (Tapang Red)", "color": Color(0.92, 0.22, 0.18, 1.0) },
-	{ "name": "Berde (Luntiang Green)", "color": Color(0.18, 0.78, 0.38, 1.0) },
-	{ "name": "Dilaw (Sun Yellow)", "color": Color(0.98, 0.85, 0.12, 1.0) },
-	{ "name": "Kahel (Cyber Orange)", "color": Color(1.0, 0.52, 0.08, 1.0) },
-	{ "name": "Lila (Fiesta Purple)", "color": Color(0.72, 0.28, 0.95, 1.0) },
-	{ "name": "Teal (Kanto Cyan)", "color": Color(0.15, 0.82, 0.82, 1.0) },
-	{ "name": "Rosas (Bata Pink)", "color": Color(0.95, 0.28, 0.65, 1.0) }
+	{ "name": "⚪ Puting Sando (Clean White)", "color": Color(0.95, 0.95, 0.95, 1.0) },
+	{ "name": "🔵 Asul Kanto (Classic Navy)", "color": Color(0.18, 0.28, 0.48, 1.0) },
+	{ "name": "🔴 Pulang Liga (Barangay Red)", "color": Color(0.72, 0.16, 0.16, 1.0) },
+	{ "name": "🔘 Kulay Abo (Heather Grey)", "color": Color(0.52, 0.54, 0.56, 1.0) },
+	{ "name": "⚫ Itim Kanto (Charcoal Black)", "color": Color(0.16, 0.17, 0.19, 1.0) },
+	{ "name": "🩳 Kulay Kaki (Khaki Cargo)", "color": Color(0.60, 0.50, 0.38, 1.0) },
+	{ "name": "🌿 Berdeng Army (Muted Olive)", "color": Color(0.28, 0.38, 0.26, 1.0) },
+	{ "name": "🟡 Dilaw Pambahay (Sun Gold)", "color": Color(0.90, 0.74, 0.20, 1.0) }
+]
+
+const SKIN_TONES: Array[Dictionary] = [
+	{ "name": "🇵🇭 Kayumanggi (Natural Tan)", "color": Color(0.85, 0.62, 0.44, 1.0) },
+	{ "name": "☀️ Moreno (Sun-Baked Bronze)", "color": Color(0.74, 0.50, 0.34, 1.0) },
+	{ "name": "🌾 Mestizo (Warm Fair)", "color": Color(0.92, 0.72, 0.56, 1.0) },
+	{ "name": "🪵 Matapang na Moreno (Deep Warm)", "color": Color(0.64, 0.42, 0.27, 1.0) }
 ]
 
 const CHARACTER_NAMES: Array[String] = [
@@ -161,6 +168,8 @@ const CHARACTER_NAMES: Array[String] = [
 # Active Customization State
 var current_archetype: int = 0
 var current_base_char: int = 0 # 0: Tsuna, 1: Kalbo, 2: Original
+var current_skin_idx: int = 0
+var current_skin_color: Color = Color(0.85, 0.62, 0.44, 1.0)
 var current_hair: int = 0
 var current_headwear: int = 0
 var current_body: int = 0
@@ -229,7 +238,14 @@ var held_anchor_base_y: float = 0.70
 # Modular Accessory Nodes Map: model -> { "head": BoneAttachment3D, ... }
 var modular_attachments: Dictionary = {}
 
+func _init_model_references() -> void:
+	if not model_tsuna: model_tsuna = get_node_or_null("ModelTsuna")
+	if not model_kalbo: model_kalbo = get_node_or_null("ModelKalbo")
+	if not model_bata: model_bata = get_node_or_null("ModelBata")
+	if not model_original: model_original = get_node_or_null("ModelOriginal")
+
 func _ready() -> void:
+	_init_model_references()
 	if held_item_anchor:
 		held_anchor_base_y = held_item_anchor.position.y
 
@@ -237,7 +253,20 @@ func _ready() -> void:
 	apply_preset(current_archetype)
 	set_held_trash(-1)
 
+func _exit_tree() -> void:
+	if is_taya:
+		is_taya = false
+	if taya_flame_particles:
+		taya_flame_particles.emitting = false
+	if taya_aura:
+		taya_aura.visible = false
+	if active_mesh:
+		active_mesh.material_override = null
+	if body_mesh:
+		body_mesh.material_override = null
+
 func _setup_modular_accessories() -> void:
+	_init_model_references()
 	for m in [model_tsuna, model_kalbo]:
 		if not m:
 			continue
@@ -251,6 +280,7 @@ func _setup_modular_accessories() -> void:
 		var head_attach := BoneAttachment3D.new()
 		head_attach.name = "Attach_Head"
 		head_attach.bone_name = "mixamorig_Head"
+		head_attach.bone_idx = skel.find_bone("mixamorig_Head")
 		skel.add_child(head_attach)
 		attach_dict["head"] = head_attach
 		_build_head_accessories(head_attach)
@@ -259,6 +289,7 @@ func _setup_modular_accessories() -> void:
 		var chest_attach := BoneAttachment3D.new()
 		chest_attach.name = "Attach_Chest"
 		chest_attach.bone_name = "mixamorig_Spine2"
+		chest_attach.bone_idx = skel.find_bone("mixamorig_Spine2")
 		skel.add_child(chest_attach)
 		attach_dict["chest"] = chest_attach
 		_build_chest_accessories(chest_attach)
@@ -267,6 +298,7 @@ func _setup_modular_accessories() -> void:
 		var l_foot := BoneAttachment3D.new()
 		l_foot.name = "Attach_LFoot"
 		l_foot.bone_name = "mixamorig_LeftFoot"
+		l_foot.bone_idx = skel.find_bone("mixamorig_LeftFoot")
 		skel.add_child(l_foot)
 		attach_dict["l_foot"] = l_foot
 		_build_foot_accessories(l_foot, true)
@@ -274,6 +306,7 @@ func _setup_modular_accessories() -> void:
 		var r_foot := BoneAttachment3D.new()
 		r_foot.name = "Attach_RFoot"
 		r_foot.bone_name = "mixamorig_RightFoot"
+		r_foot.bone_idx = skel.find_bone("mixamorig_RightFoot")
 		skel.add_child(r_foot)
 		attach_dict["r_foot"] = r_foot
 		_build_foot_accessories(r_foot, false)
@@ -297,6 +330,7 @@ func _build_head_accessories(parent: Node3D) -> void:
 		var sm := SphereMesh.new()
 		sm.radius = 0.012
 		sm.height = 0.024
+		sm.material = toon_black
 		bun.mesh = sm
 		bun.material_override = toon_black
 		bun.position = Vector3(side * 0.024, 0.012, -0.005)
@@ -306,6 +340,7 @@ func _build_head_accessories(parent: Node3D) -> void:
 		var cm := CapsuleMesh.new()
 		cm.radius = 0.009
 		cm.height = 0.035
+		cm.material = toon_black
 		tail.mesh = cm
 		tail.material_override = toon_black
 		tail.position = Vector3(side * 0.028, -0.008, -0.008)
@@ -317,10 +352,11 @@ func _build_head_accessories(parent: Node3D) -> void:
 		var tm := TorusMesh.new()
 		tm.inner_radius = 0.006
 		tm.outer_radius = 0.011
-		tie.mesh = tm
 		var tie_mat := StandardMaterial3D.new()
 		tie_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
 		tie_mat.albedo_color = Color(0.95, 0.2, 0.4, 1.0)
+		tm.material = tie_mat
+		tie.mesh = tm
 		tie.material_override = tie_mat
 		tie.position = Vector3(side * 0.025, 0.006, -0.006)
 		pigtails.add_child(tie)
@@ -334,6 +370,7 @@ func _build_head_accessories(parent: Node3D) -> void:
 	var b_mesh := SphereMesh.new()
 	b_mesh.radius = 0.023
 	b_mesh.height = 0.028
+	b_mesh.material = toon_black
 	buzz.mesh = b_mesh
 	buzz.material_override = toon_black
 	buzz.position = Vector3(0, 0.012, -0.002)
@@ -347,6 +384,7 @@ func _build_head_accessories(parent: Node3D) -> void:
 	var th_mesh := SphereMesh.new()
 	th_mesh.radius = 0.024
 	th_mesh.height = 0.030
+	th_mesh.material = toon_black
 	top_hair.mesh = th_mesh
 	top_hair.material_override = toon_black
 	top_hair.position = Vector3(0, 0.013, -0.003)
@@ -357,6 +395,7 @@ func _build_head_accessories(parent: Node3D) -> void:
 		var fm := CapsuleMesh.new()
 		fm.radius = 0.008
 		fm.height = 0.038
+		fm.material = toon_black
 		fringe.mesh = fm
 		fringe.material_override = toon_black
 		fringe.position = Vector3(side * 0.022, -0.004, 0.008)
@@ -369,18 +408,26 @@ func _build_head_accessories(parent: Node3D) -> void:
 	snapback.name = "Acc_Snapback"
 	snapback.visible = false
 
+	var cap_mat := StandardMaterial3D.new()
+	cap_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	cap_mat.albedo_color = Color(0.85, 0.2, 0.2, 1.0)
+
 	var crown := MeshInstance3D.new()
 	var c_mesh := SphereMesh.new()
 	c_mesh.radius = 0.025
 	c_mesh.height = 0.028
+	c_mesh.material = cap_mat
 	crown.mesh = c_mesh
+	crown.material_override = cap_mat
 	crown.position = Vector3(0, 0.015, -0.004)
 	snapback.add_child(crown)
 
 	var visor := MeshInstance3D.new()
 	var v_box := BoxMesh.new()
 	v_box.size = Vector3(0.028, 0.003, 0.022)
+	v_box.material = cap_mat
 	visor.mesh = v_box
+	visor.material_override = cap_mat
 	visor.position = Vector3(0, 0.018, -0.024) # Points backwards
 	visor.rotation.x = deg_to_rad(-16.0)
 	snapback.add_child(visor)
@@ -390,18 +437,27 @@ func _build_head_accessories(parent: Node3D) -> void:
 	var bandana := Node3D.new()
 	bandana.name = "Acc_Bandana"
 	bandana.visible = false
+
+	var band_mat := StandardMaterial3D.new()
+	band_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	band_mat.albedo_color = Color(0.9, 0.15, 0.15, 1.0)
+
 	var band := MeshInstance3D.new()
 	var tm_band := TorusMesh.new()
 	tm_band.inner_radius = 0.021
 	tm_band.outer_radius = 0.025
+	tm_band.material = band_mat
 	band.mesh = tm_band
+	band.material_override = band_mat
 	band.position = Vector3(0, 0.008, 0.002)
 	bandana.add_child(band)
 
 	var knot := MeshInstance3D.new()
 	var k_box := BoxMesh.new()
 	k_box.size = Vector3(0.015, 0.015, 0.008)
+	k_box.material = band_mat
 	knot.mesh = k_box
+	knot.material_override = band_mat
 	knot.position = Vector3(0, 0.008, -0.024)
 	bandana.add_child(knot)
 	parent.add_child(bandana)
@@ -413,10 +469,11 @@ func _build_head_accessories(parent: Node3D) -> void:
 	var sb_mesh := TorusMesh.new()
 	sb_mesh.inner_radius = 0.021
 	sb_mesh.outer_radius = 0.025
-	sweatband.mesh = sb_mesh
 	var sb_mat := StandardMaterial3D.new()
 	sb_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
 	sb_mat.albedo_color = Color(0.96, 0.96, 0.96, 1.0)
+	sb_mesh.material = sb_mat
+	sweatband.mesh = sb_mesh
 	sweatband.material_override = sb_mat
 	sweatband.position = Vector3(0, 0.009, 0.002)
 	parent.add_child(sweatband)
@@ -441,6 +498,7 @@ func _build_chest_accessories(parent: Node3D) -> void:
 	var l_flap := MeshInstance3D.new()
 	var lf_mesh := BoxMesh.new()
 	lf_mesh.size = Vector3(0.015, 0.055, 0.004)
+	lf_mesh.material = towel_mat
 	l_flap.mesh = lf_mesh
 	l_flap.material_override = towel_mat
 	l_flap.position = Vector3(-0.016, -0.015, 0.016)
@@ -450,6 +508,7 @@ func _build_chest_accessories(parent: Node3D) -> void:
 	var r_flap := MeshInstance3D.new()
 	var rf_mesh := BoxMesh.new()
 	rf_mesh.size = Vector3(0.015, 0.055, 0.004)
+	rf_mesh.material = towel_mat
 	r_flap.mesh = rf_mesh
 	r_flap.material_override = towel_mat
 	r_flap.position = Vector3(0.016, -0.015, 0.016)
@@ -459,6 +518,7 @@ func _build_chest_accessories(parent: Node3D) -> void:
 	var l_str := MeshInstance3D.new()
 	var ls_mesh := BoxMesh.new()
 	ls_mesh.size = Vector3(0.015, 0.006, 0.005)
+	ls_mesh.material = stripe_mat
 	l_str.mesh = ls_mesh
 	l_str.material_override = stripe_mat
 	l_str.position = Vector3(-0.016, -0.036, 0.0165)
@@ -467,6 +527,7 @@ func _build_chest_accessories(parent: Node3D) -> void:
 	var r_str := MeshInstance3D.new()
 	var rs_mesh := BoxMesh.new()
 	rs_mesh.size = Vector3(0.015, 0.006, 0.005)
+	rs_mesh.material = stripe_mat
 	r_str.mesh = rs_mesh
 	r_str.material_override = stripe_mat
 	r_str.position = Vector3(0.016, -0.036, 0.0165)
@@ -487,7 +548,7 @@ func _build_chest_accessories(parent: Node3D) -> void:
 	badge.scale = Vector3(0.03, 0.03, 0.03)
 	parent.add_child(badge)
 
-func _build_foot_accessories(parent: Node3D, is_left: bool) -> void:
+func _build_foot_accessories(parent: Node3D, _is_left: bool) -> void:
 	# A. Spartan Slippers (Asul Sole / Puti Strap)
 	var spartan := Node3D.new()
 	spartan.name = "Acc_Spartan"
@@ -504,6 +565,7 @@ func _build_foot_accessories(parent: Node3D, is_left: bool) -> void:
 	var sole := MeshInstance3D.new()
 	var sm := BoxMesh.new()
 	sm.size = Vector3(0.015, 0.004, 0.032)
+	sm.material = sole_mat
 	sole.mesh = sm
 	sole.material_override = sole_mat
 	sole.position = Vector3(0, -0.006, 0.006)
@@ -512,6 +574,7 @@ func _build_foot_accessories(parent: Node3D, is_left: bool) -> void:
 	var strap := MeshInstance3D.new()
 	var stm := BoxMesh.new()
 	stm.size = Vector3(0.016, 0.005, 0.012)
+	stm.material = strap_mat
 	strap.mesh = stm
 	strap.material_override = strap_mat
 	strap.position = Vector3(0, -0.002, 0.008)
@@ -534,6 +597,7 @@ func _build_foot_accessories(parent: Node3D, is_left: bool) -> void:
 	var i_sole := MeshInstance3D.new()
 	var ism := BoxMesh.new()
 	ism.size = Vector3(0.016, 0.005, 0.034)
+	ism.material = i_sole_mat
 	i_sole.mesh = ism
 	i_sole.material_override = i_sole_mat
 	i_sole.position = Vector3(0, -0.006, 0.006)
@@ -542,6 +606,7 @@ func _build_foot_accessories(parent: Node3D, is_left: bool) -> void:
 	var i_strap := MeshInstance3D.new()
 	var istm := BoxMesh.new()
 	istm.size = Vector3(0.017, 0.006, 0.014)
+	istm.material = i_strap_mat
 	i_strap.mesh = istm
 	i_strap.material_override = i_strap_mat
 	i_strap.position = Vector3(0, -0.001, 0.008)
@@ -559,6 +624,7 @@ func _build_foot_accessories(parent: Node3D, is_left: bool) -> void:
 
 	var sl_mesh := BoxMesh.new()
 	sl_mesh.size = Vector3(0.016, 0.007, 0.034)
+	sl_mesh.material = sl_mat
 	var sl_inst := MeshInstance3D.new()
 	sl_inst.mesh = sl_mesh
 	sl_inst.material_override = sl_mat
@@ -577,10 +643,11 @@ func apply_preset(idx: int) -> void:
 		p.get("headwear", 0),
 		p.get("body", 0),
 		p.get("footwear", 0),
-		p.get("color", idx % COLOR_OPTIONS.size())
+		p.get("color", idx % COLOR_OPTIONS.size()),
+		p.get("skin", 0)
 	)
 
-func set_modular_outfit(base_char: int, hair: int, headwear: int, body: int, footwear: int, col_idx: int) -> void:
+func set_modular_outfit(base_char: int, hair: int, headwear: int, body: int, footwear: int, col_idx: int, skin_idx: int = 0) -> void:
 	current_base_char = base_char
 	current_hair = hair
 	current_headwear = headwear
@@ -588,10 +655,12 @@ func set_modular_outfit(base_char: int, hair: int, headwear: int, body: int, foo
 	current_footwear = footwear
 	current_color_idx = col_idx % COLOR_OPTIONS.size()
 	current_player_color = COLOR_OPTIONS[current_color_idx]["color"]
+	current_skin_idx = skin_idx % SKIN_TONES.size()
+	current_skin_color = SKIN_TONES[current_skin_idx]["color"]
 
 	# Set base model
 	set_character(current_base_char)
-	set_player_color(current_player_color)
+	_apply_active_mesh_color(current_player_color)
 
 	# Update modular accessories on active model
 	_update_modular_visuals()
@@ -607,7 +676,9 @@ func _update_modular_visuals() -> void:
 	var r_foot: Node3D = attaches.get("r_foot")
 
 	# Native Tsuna hair toggle
-	var tsuna_hair := active_model.get_node_or_null("Armature/Skeleton3D/hair_001") as MeshInstance3D
+	var tsuna_hair := active_model.get_node_or_null("Armature/Skeleton3D/hair") as MeshInstance3D
+	if not tsuna_hair:
+		tsuna_hair = active_model.get_node_or_null("Armature/Skeleton3D/hair_001") as MeshInstance3D
 	if tsuna_hair:
 		tsuna_hair.visible = (current_hair == 0 and current_base_char == 0)
 
@@ -629,7 +700,6 @@ func _update_modular_visuals() -> void:
 			snapback.visible = (current_headwear == 1)
 			if snapback.visible:
 				var c_mat := StandardMaterial3D.new()
-				c_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
 				c_mat.albedo_color = current_player_color
 				for child in snapback.get_children():
 					if child is MeshInstance3D:
@@ -638,7 +708,6 @@ func _update_modular_visuals() -> void:
 			bandana.visible = (current_headwear == 3)
 			if bandana.visible:
 				var b_mat := StandardMaterial3D.new()
-				b_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
 				b_mat.albedo_color = Color(0.85, 0.15, 0.15, 1.0)
 				for child in bandana.get_children():
 					if child is MeshInstance3D:
@@ -668,6 +737,7 @@ func get_outfit_data() -> Dictionary:
 	return {
 		"archetype": current_archetype,
 		"base": current_base_char,
+		"skin": current_skin_idx,
 		"hair": current_hair,
 		"headwear": current_headwear,
 		"body": current_body,
@@ -687,10 +757,12 @@ func apply_outfit_dict(d: Dictionary) -> void:
 		d.get("headwear", 0),
 		d.get("body", 0),
 		d.get("footwear", 0),
-		d.get("color", 0)
+		d.get("color", 0),
+		d.get("skin", 0)
 	)
 
 func set_character(char_type: int) -> void:
+	_init_model_references()
 	current_character_type = char_type as CharacterType
 	current_base_char = char_type
 
@@ -709,7 +781,13 @@ func set_character(char_type: int) -> void:
 				model_tsuna.visible = true
 				active_model = model_tsuna
 				active_anim = model_tsuna.get_node_or_null("AnimationPlayer")
-				active_mesh = model_tsuna.get_node_or_null("Armature/Skeleton3D/base_body_001")
+				active_mesh = model_tsuna.get_node_or_null("Armature/Skeleton3D/base_body")
+				if not active_mesh:
+					active_mesh = model_tsuna.get_node_or_null("Armature/Skeleton3D/base_body_001")
+				var th = model_tsuna.get_node_or_null("Armature/Skeleton3D/hair")
+				if not th:
+					th = model_tsuna.get_node_or_null("Armature/Skeleton3D/hair_001")
+				if th: th.visible = true
 			is_skeletal = true
 			model_base_rot_y = PI
 
@@ -719,6 +797,8 @@ func set_character(char_type: int) -> void:
 				active_model = model_kalbo
 				active_anim = model_kalbo.get_node_or_null("AnimationPlayer")
 				active_mesh = model_kalbo.get_node_or_null("Armature/Skeleton3D/base_body_001")
+				if not active_mesh:
+					active_mesh = model_kalbo.get_node_or_null("Armature/Skeleton3D/base_body")
 			is_skeletal = true
 			model_base_rot_y = PI
 
@@ -736,7 +816,9 @@ func set_character(char_type: int) -> void:
 				model_tsuna.visible = true
 				active_model = model_tsuna
 				active_anim = model_tsuna.get_node_or_null("AnimationPlayer")
-				active_mesh = model_tsuna.get_node_or_null("Armature/Skeleton3D/base_body_001")
+				active_mesh = model_tsuna.get_node_or_null("Armature/Skeleton3D/base_body")
+				if not active_mesh:
+					active_mesh = model_tsuna.get_node_or_null("Armature/Skeleton3D/base_body_001")
 			is_skeletal = true
 			model_base_rot_y = PI
 
@@ -757,7 +839,7 @@ func set_character(char_type: int) -> void:
 			active_anim.play("idle")
 
 	# Refresh materials on newly active model
-	set_player_color(current_player_color)
+	_apply_active_mesh_color(current_player_color)
 	_update_taya_visuals()
 
 func _update_taya_visuals() -> void:
@@ -784,15 +866,30 @@ func set_player_color(col: Color) -> void:
 		_apply_active_mesh_color(col)
 
 func _apply_active_mesh_color(col: Color) -> void:
-	var custom_mat := StandardMaterial3D.new()
-	custom_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
-	custom_mat.specular_mode = BaseMaterial3D.SPECULAR_TOON
-	custom_mat.albedo_color = col
-	custom_mat.roughness = 0.45
-	if active_mesh:
-		active_mesh.material_override = custom_mat
+	if active_mesh and active_mesh.mesh:
+		active_mesh.material_override = null
+		var surface_count: int = active_mesh.mesh.get_surface_count()
+		if surface_count > 0:
+			# Surface 0: Human Skin
+			var skin_mat := StandardMaterial3D.new()
+			skin_mat.albedo_color = current_skin_color
+			skin_mat.roughness = 0.68
+			active_mesh.set_surface_override_material(0, skin_mat)
+
+		if surface_count > 1:
+			# Surface 1: Shorts / Clothing
+			var clothes_mat := StandardMaterial3D.new()
+			clothes_mat.albedo_color = col
+			clothes_mat.roughness = 0.5
+			active_mesh.set_surface_override_material(1, clothes_mat)
+
 	if body_mesh:
-		body_mesh.material_override = custom_mat
+		body_mesh.material_override = null
+		if body_mesh.mesh and body_mesh.mesh.get_surface_count() > 0:
+			var b_mat := StandardMaterial3D.new()
+			b_mat.albedo_color = col
+			b_mat.roughness = 0.5
+			body_mesh.set_surface_override_material(0, b_mat)
 
 func set_held_trash(trash_type: int) -> void:
 	held_trash_type = trash_type

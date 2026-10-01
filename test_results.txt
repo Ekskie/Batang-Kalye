@@ -10,8 +10,12 @@
 [PASS] Picked up Plastic Bottle: 🍾 Bote ng Tubig
 [PASS] Wrong bin rejected deposit; trash kept safely in hand.
 [PASS] Correct bin accepted trash! +30 score awarded (Total: 30).
-[PASS] Imagination Powerup Unlocked: 🦘 DOUBLE JUMP (Luksong-Tinik)
+[PASS] Imagination Powerup Unlocked: 🏃 SUPER SPEED (Bilis-Alon)
 [PASS] Kidlat Dash executed successfully with powerup! Charges left: 2
+[SELF-TEST] Testing Dual Stamina & Exhaustion System...
+[PASS] Sprint movement drains burst stamina (76.0/100) and endurance (92.5/100).
+[PASS] Exhaustion triggered when endurance reaches 0; sprint locked out.
+[PASS] Exhaustion cleared after catching breath above threshold (36.2/100).
 [SELF-TEST] Testing Tagging mechanism...
  - Post-tag P1 Role: 0 (Expected RUNNER: 0)
  - Post-tag Bot Role: 1 (Expected TAYA: 1)
@@ -22,8 +26,23 @@
 [SELF-TEST] Testing 8-Character Roster & Customization...
 [PASS] All 8 Pinoy Archetypes selected and applied successfully.
 [PASS] Modular outfit saved to config and reloaded successfully.
+[SELF-TEST] Testing Bot Elimination & Spectator Isolation...
+[PASS] Bot 99 eliminated without hijacking human player spectator mode.
+[PASS] Human player successfully tagged living Bot 98 without locking onto dead Bot 99.
+[SELF-TEST] Testing Human Player Elimination & Spectator Mode...
+[PASS] Human player spectator camera tracks target and switches targets correctly.
+[SELF-TEST] Testing Multiplayer Match Flow & Start Match...
+[PASS] Multiplayer match flow started cleanly with 2 players; alive_player_ids populated without type error.
 [PASS] Game over reached. Winner: 📢 "HOY MGA BATA! UMUWI NA KAYO, GABI NA!"
 
-🏆 PANALO: Dennrick! 🏆
-Score: 30
+🏆 PANALO: HostPlayer! 🏆
+Score: 60
+[SELF-TEST] Testing Supabase Matchmaking & Tab Switching...
+[PASS] Switched to Host Tab successfully.
+[PASS] Switched to Direct Tab successfully.
+[PASS] Switched back to Browse Tab successfully.
+[PASS] Supabase dynamic room cards (LAN & WebRTC Online P2P) rendered into lobby list successfully.
+[SELF-TEST] Testing WebRTC Online Peer Initialization & Cleanup...
+[PASS] WebRTC host peer initialized successfully without PlayIt.gg!
+[PASS] WebRTC peer and signaler cleaned up cleanly.
 [ALL TESTS PASSED] ZERO RUNTIME ERRORS DETECTED!

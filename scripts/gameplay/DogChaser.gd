@@ -60,6 +60,8 @@ func _find_closest_player() -> void:
 	for player in players_container.get_children():
 		if player is PlayerController:
 			var pc: PlayerController = player as PlayerController
+			if pc.is_eliminated:
+				continue
 			if pc.current_role != PlayerController.Role.RUNNER:
 				continue
 			if pc.is_stunned:

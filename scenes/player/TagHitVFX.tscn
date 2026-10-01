@@ -11,6 +11,7 @@ emission = Color(1, 0.5, 0.1, 1)
 emission_energy_multiplier = 4.0
 
 [sub_resource type="TorusMesh" id="TorusMesh_ring"]
+material = SubResource("StandardMaterial3D_spark")
 inner_radius = 0.6
 outer_radius = 0.9
 

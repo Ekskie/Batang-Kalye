@@ -63,20 +63,26 @@ func update_pointer(camera: Camera3D, target: Node3D, target_is_taya: bool, loca
 				reticle_icon.modulate = Color(1.0, 0.2, 0.1)
 				reticle_label.text = "🔥 HAMPASIN MO! (%.1fm)" % dist
 				reticle_label.modulate = Color(1.0, 0.9, 0.2)
+				reticle.pivot_offset = reticle.size * 0.5
+				var pulse := 1.0 + 0.14 * sin(Time.get_ticks_msec() * 0.016)
+				reticle.scale = Vector2.ONE * pulse
 			else:
 				reticle_icon.text = "🎯"
 				reticle_icon.modulate = Color(0.2, 0.8, 1.0)
 				reticle_label.text = "%s (%.1fm)" % [target_name, dist]
 				reticle_label.modulate = Color(1.0, 1.0, 1.0)
+				reticle.scale = Vector2.ONE
 		else:
 			# Player is Runner watching Taya
 			reticle_icon.text = "⚠️ [TAYA]"
 			reticle_icon.modulate = Color(1.0, 0.2, 0.1)
 			reticle_label.text = "%s (%.1fm)" % [target_name, dist]
 			reticle_label.modulate = Color(1.0, 0.4, 0.4)
+			reticle.scale = Vector2.ONE
 	else:
 		# Off-screen arrow pointing to target
 		reticle.visible = false
+		reticle.scale = Vector2.ONE
 		offscreen_indicator.visible = true
 
 		var dir_to_target := screen_pos - screen_center
@@ -103,5 +109,8 @@ func update_pointer(camera: Camera3D, target: Node3D, target_is_taya: bool, loca
 		if not local_is_taya and dist <= 9.0:
 			warning_banner.visible = true
 			warning_label.text = "⚠️ DELIKADO! MALAPIT NA ANG TAYA: %.1fm 💨" % dist
+			warning_banner.pivot_offset = warning_banner.size * 0.5
+			var warn_pulse := 1.0 + 0.06 * sin(Time.get_ticks_msec() * 0.02)
+			warning_banner.scale = Vector2.ONE * warn_pulse
 		else:
 			warning_banner.visible = false

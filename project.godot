@@ -19,6 +19,11 @@ config/icon="res://icon.svg"
 
 AudioManager="*res://scripts/audio/AudioManager.gd"
 
+[batang_kalye]
+
+network/supabase_url="https://edzrwxnsjpljgnzhzwwz.supabase.co"
+network/supabase_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkenJ3eG5zanBsamduemh6d3d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4NDgxMDEsImV4cCI6MjEwNjQyNDEwMX0.8YEmkZPmwo4RIT7y4ZpFfzYazq125SspsOIkhemFyek"
+
 [display]
 
 window/size/viewport_width=1280
@@ -27,7 +32,7 @@ window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
-window/handheld/orientation=6
+window/handheld/orientation=4
 
 [input]
 
@@ -100,7 +105,7 @@ drop_trash={
 
 [input_devices]
 
-pointing/emulate_mouse_from_touch=false
+pointing/emulate_touch_from_mouse=true
 
 [physics]
 
@@ -110,4 +115,5 @@ pointing/emulate_mouse_from_touch=false
 
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="mobile"
+renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true

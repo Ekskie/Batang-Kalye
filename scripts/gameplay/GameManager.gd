@@ -10,40 +10,70 @@ enum GameState {
 }
 
 enum MatchMode {
-	CLASSIC_TAG, # Traditional "Walang Bawian" - Taya transfers, chaser becomes runner!
-	INFECTION    # "Hawaan" - Taya stays Taya, runners infected become Taya!
+	PASA_TAYA_ELIMINATION = 0, # Crab Game Elimination / Bomb Tag ("Pasa-Taya: Matira Matibay")
+	INFECTION = 1,             # "Hawaan: Zombie Tag" - Outbreak survival
+	CLASSIC_TAG = 2            # "Walang Bawian: Points Tag" - Continuous survival & recycle points
 }
 
-@export var current_mode: MatchMode = MatchMode.CLASSIC_TAG
-@export var match_duration: float = 180.0 # 3 minutes
+@export var current_mode: MatchMode = MatchMode.PASA_TAYA_ELIMINATION
+@export var match_duration: float = 45.0 # Round timer
 var match_timer: float = 0.0
 var current_state: GameState = GameState.TITLE
 var is_game_paused: bool = false
 var player_scene: PackedScene = preload("res://scenes/player/Player.tscn")
+var bot_scene: PackedScene = preload("res://scenes/player/PracticeBot.tscn")
+
+# Tournament & Elimination State (Crab Game)
+var current_round: int = 1
+var alive_player_ids: Array[int] = []
+var eliminated_player_ids: Array[int] = []
+var is_intermission: bool = false
+var intermission_timer: float = 0.0
+var last_tick_second: int = -1
 
 func is_infection() -> bool:
 	return current_mode == MatchMode.INFECTION
 
+func is_elimination() -> bool:
+	return current_mode == MatchMode.PASA_TAYA_ELIMINATION
+
+func is_server_or_solo() -> bool:
+	if network_manager and network_manager.is_solo_practice:
+		return true
+	if multiplayer.has_multiplayer_peer():
+		return multiplayer.is_server()
+	return true
+
+func _get_mode_display_name() -> String:
+	match current_mode:
+		MatchMode.PASA_TAYA_ELIMINATION:
+			return "Pasa-Taya"
+		MatchMode.INFECTION:
+			return "Hawaan"
+		MatchMode.CLASSIC_TAG:
+			return "Walang Bawian"
+	return "Taya-Tayaan"
+
 const COLOR_OPTIONS: Array[Dictionary] = [
-	{ "name": "Asul (Electric Blue)", "color": Color(0.18, 0.58, 0.95, 1.0) },
-	{ "name": "Pula (Tapang Red)", "color": Color(0.92, 0.22, 0.18, 1.0) },
-	{ "name": "Berde (Luntiang Green)", "color": Color(0.18, 0.78, 0.38, 1.0) },
-	{ "name": "Dilaw (Sun Yellow)", "color": Color(0.98, 0.85, 0.12, 1.0) },
-	{ "name": "Kahel (Cyber Orange)", "color": Color(1.0, 0.52, 0.08, 1.0) },
-	{ "name": "Lila (Fiesta Purple)", "color": Color(0.72, 0.28, 0.95, 1.0) },
-	{ "name": "Teal (Kanto Cyan)", "color": Color(0.15, 0.82, 0.82, 1.0) },
-	{ "name": "Rosas (Bata Pink)", "color": Color(0.95, 0.28, 0.65, 1.0) }
+	{ "name": "⚪ Puting Sando (Clean White)", "color": Color(0.95, 0.95, 0.95, 1.0) },
+	{ "name": "🔵 Asul Kanto (Classic Navy)", "color": Color(0.18, 0.28, 0.48, 1.0) },
+	{ "name": "🔴 Pulang Liga (Barangay Red)", "color": Color(0.72, 0.16, 0.16, 1.0) },
+	{ "name": "🔘 Kulay Abo (Heather Grey)", "color": Color(0.52, 0.54, 0.56, 1.0) },
+	{ "name": "⚫ Itim Kanto (Charcoal Black)", "color": Color(0.16, 0.17, 0.19, 1.0) },
+	{ "name": "🩳 Kulay Kaki (Khaki Cargo)", "color": Color(0.60, 0.50, 0.38, 1.0) },
+	{ "name": "🌿 Berdeng Army (Muted Olive)", "color": Color(0.28, 0.38, 0.26, 1.0) },
+	{ "name": "🟡 Dilaw Pambahay (Sun Gold)", "color": Color(0.90, 0.74, 0.20, 1.0) }
 ]
 
 const PLAYER_COLORS: Array[Color] = [
-	Color(0.18, 0.58, 0.95, 1.0),
-	Color(0.92, 0.22, 0.18, 1.0),
-	Color(0.18, 0.78, 0.38, 1.0),
-	Color(0.98, 0.85, 0.12, 1.0),
-	Color(1.0, 0.52, 0.08, 1.0),
-	Color(0.72, 0.28, 0.95, 1.0),
-	Color(0.15, 0.82, 0.82, 1.0),
-	Color(0.95, 0.28, 0.65, 1.0)
+	Color(0.95, 0.95, 0.95, 1.0),
+	Color(0.18, 0.28, 0.48, 1.0),
+	Color(0.72, 0.16, 0.16, 1.0),
+	Color(0.52, 0.54, 0.56, 1.0),
+	Color(0.16, 0.17, 0.19, 1.0),
+	Color(0.60, 0.50, 0.38, 1.0),
+	Color(0.28, 0.38, 0.26, 1.0),
+	Color(0.90, 0.74, 0.20, 1.0)
 ]
 
 const SAVE_PATH: String = "user://player_customization.cfg"
@@ -56,6 +86,7 @@ var current_headwear: int = 0
 var current_body: int = 0
 var current_footwear: int = 0
 var current_color_idx: int = 0
+var current_skin_idx: int = 0
 
 var selected_char_idx: int:
 	get: return current_archetype
@@ -69,6 +100,7 @@ var selected_color_idx: int:
 @onready var network_manager: NetworkManager = get_node_or_null("NetworkManager")
 @onready var maiba_manager: MaibaTayaManager = get_node_or_null("MaibaTayaManager")
 @onready var map_node: Node3D = get_node_or_null("KalyeMap")
+@onready var lobby_camera: Camera3D = get_node_or_null("LobbyCamera3D")
 @onready var players_container: Node3D = get_node_or_null("Players")
 @onready var hud: HUD = get_node_or_null("HUD")
 @onready var maiba_ui: MaibaTayaUI = get_node_or_null("MaibaTayaUI")
@@ -80,20 +112,56 @@ var selected_color_idx: int:
 @onready var title_ui: Control = get_node_or_null("TitleScreenUI")
 @onready var btn_enter_title: Button = get_node_or_null("TitleScreenUI/Center/Panel/VBox/BtnEnterTitle")
 
-# Lobby UI elements
+# Lobby UI elements & Supabase Matchmaking
+enum LobbyTab { BROWSE, HOST, DIRECT, ROOM_ACTIVE }
+var current_lobby_tab: LobbyTab = LobbyTab.BROWSE
+
+const SupabaseLobbyManagerScript = preload("res://scripts/network/SupabaseLobbyManager.gd")
+@onready var supabase_manager: Node = get_node_or_null("SupabaseLobbyManager")
 @onready var lobby_ui: Control = get_node_or_null("LobbyUI")
 @onready var name_input: LineEdit = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/NameRow/NameEdit")
-@onready var ip_input: LineEdit = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/ConnectionRow/IPEdit")
-@onready var port_input: LineEdit = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/ConnectionRow/PortEdit")
-@onready var btn_host: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnHost")
-@onready var btn_join: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnJoin")
-@onready var btn_cancel: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnCancel")
-@onready var btn_solo: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnSolo")
-@onready var btn_start_match: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnStartMatch")
-@onready var slots_header: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/SlotsHeader")
-@onready var player_list_label: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/SlotsHeader")
-@onready var hotspot_info_label: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/InfoBox/LocalIPRow/HotspotInfoLabel")
-@onready var btn_copy_ip: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/InfoBox/LocalIPRow/BtnCopyIP")
+
+# Tab row buttons
+@onready var btn_tab_browse: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/TabRow/BtnTabBrowse")
+@onready var btn_tab_host: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/TabRow/BtnTabHost")
+@onready var btn_tab_direct: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/TabRow/BtnTabDirect")
+
+# Main Console Sections
+@onready var browse_section: Control = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection")
+@onready var host_section: Control = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection")
+@onready var direct_section: Control = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection")
+@onready var room_active_section: Control = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection")
+
+# Browse Section elements
+@onready var lobbies_status_label: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/BrowseHeaderRow/LobbiesStatusLabel")
+@onready var btn_refresh_lobbies: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/BrowseHeaderRow/BtnRefreshLobbies")
+@onready var lobby_list_container: VBoxContainer = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/LobbyScroll/LobbyListContainer")
+@onready var empty_notice_label: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/LobbyScroll/LobbyListContainer/EmptyNoticeLabel")
+@onready var btn_quick_host: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/BtnQuickHost")
+
+# Host Section elements
+@onready var room_name_input: LineEdit = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/RoomNameRow/RoomNameEdit")
+@onready var host_address_input: LineEdit = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow/AddressEdit")
+@onready var host_port_input: LineEdit = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow/PortEdit")
+@onready var btn_create_supabase_room: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/BtnCreateSupabaseRoom")
+@onready var host_status_label: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostStatusLabel")
+
+# Direct / Solo Section elements
+@onready var ip_input: LineEdit = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/ConnectionRow/IPEdit")
+@onready var port_input: LineEdit = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/ConnectionRow/PortEdit")
+@onready var btn_host: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/BtnHost")
+@onready var btn_join: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/BtnJoin")
+@onready var btn_solo: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/BtnSolo")
+@onready var hotspot_info_label: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/InfoBox/LocalIPRow/HotspotInfoLabel")
+@onready var btn_copy_ip: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/InfoBox/LocalIPRow/BtnCopyIP")
+
+# Room Active Section elements
+@onready var active_room_title: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/ActiveRoomTitle")
+@onready var btn_cancel: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/BtnCancel")
+@onready var btn_start_match: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/BtnStartMatch")
+@onready var btn_mode_toggle: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/ModeRow/BtnModeToggle")
+@onready var slots_header: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsHeader")
+@onready var player_list_label: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsHeader")
 var slot_labels: Array[Label] = []
 
 # Character Customization & 3D Showroom UI elements
@@ -146,12 +214,15 @@ func _init_node_references() -> void:
 	if not network_manager: network_manager = get_node_or_null("NetworkManager")
 	if not maiba_manager: maiba_manager = get_node_or_null("MaibaTayaManager")
 	if not map_node: map_node = get_node_or_null("KalyeMap")
+	if not lobby_camera: lobby_camera = get_node_or_null("LobbyCamera3D")
 	if not players_container: players_container = get_node_or_null("Players")
 	if not hud: hud = get_node_or_null("HUD")
 	if not maiba_ui: maiba_ui = get_node_or_null("MaibaTayaUI")
 	if not game_over_ui: game_over_ui = get_node_or_null("GameOverUI")
 	if not winner_label: winner_label = get_node_or_null("GameOverUI/Panel/VBoxContainer/WinnerLabel")
 	if not nanay_event: nanay_event = get_node_or_null("NanayEvent")
+
+	if not supabase_manager: supabase_manager = get_node_or_null("SupabaseLobbyManager")
 
 	if not title_ui: title_ui = get_node_or_null("TitleScreenUI")
 	if not btn_enter_title: btn_enter_title = get_node_or_null("TitleScreenUI/Center/Panel/VBox/BtnEnterTitle")
@@ -162,30 +233,94 @@ func _init_node_references() -> void:
 	if not name_input:
 		name_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/NameEdit")
 
+	# Tab row buttons
+	if not btn_tab_browse: btn_tab_browse = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/TabRow/BtnTabBrowse")
+	if not btn_tab_host: btn_tab_host = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/TabRow/BtnTabHost")
+	if not btn_tab_direct: btn_tab_direct = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/TabRow/BtnTabDirect")
+
+	# Main Console Sections
+	if not browse_section: browse_section = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection")
+	if not host_section: host_section = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection")
+	if not direct_section: direct_section = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection")
+	if not room_active_section: room_active_section = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection")
+
+	# Browse Section elements
+	if not lobbies_status_label: lobbies_status_label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/BrowseHeaderRow/LobbiesStatusLabel")
+	if not btn_refresh_lobbies: btn_refresh_lobbies = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/BrowseHeaderRow/BtnRefreshLobbies")
+	if not lobby_list_container: lobby_list_container = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/LobbyScroll/LobbyListContainer")
+	if not empty_notice_label: empty_notice_label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/LobbyScroll/LobbyListContainer/EmptyNoticeLabel")
+	if not btn_quick_host: btn_quick_host = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/BtnQuickHost")
+
+	# Host Section elements
+	if not room_name_input: room_name_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/RoomNameRow/RoomNameEdit")
+	if not host_address_input: host_address_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow/AddressEdit")
+	if not host_port_input: host_port_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow/PortEdit")
+	if not btn_create_supabase_room: btn_create_supabase_room = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/BtnCreateSupabaseRoom")
+	if not host_status_label: host_status_label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostStatusLabel")
+
+	# Direct / Solo Section elements
+	if not ip_input:
+		ip_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/ConnectionRow/IPEdit")
 	if not ip_input:
 		ip_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/ConnectionRow/IPEdit")
 	if not ip_input:
 		ip_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/ConnectionBox/IPEdit")
 
 	if not port_input:
+		port_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/ConnectionRow/PortEdit")
+	if not port_input:
 		port_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/ConnectionRow/PortEdit")
 	if not port_input:
 		port_input = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/ConnectionBox/PortEdit")
 
-	if not btn_host: btn_host = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnHost")
-	if not btn_join: btn_join = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnJoin")
-	if not btn_cancel: btn_cancel = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnCancel")
-	if not btn_solo: btn_solo = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnSolo")
-	if not btn_start_match: btn_start_match = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnStartMatch")
+	if not btn_host:
+		btn_host = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/BtnHost")
+	if not btn_host:
+		btn_host = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnHost")
 
+	if not btn_join:
+		btn_join = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/BtnJoin")
+	if not btn_join:
+		btn_join = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnJoin")
+
+	if not btn_solo:
+		btn_solo = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/BtnSolo")
+	if not btn_solo:
+		btn_solo = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnSolo")
+
+	if not hotspot_info_label:
+		hotspot_info_label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/InfoBox/LocalIPRow/HotspotInfoLabel")
 	if not hotspot_info_label:
 		hotspot_info_label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/InfoBox/LocalIPRow/HotspotInfoLabel")
 	if not hotspot_info_label:
 		hotspot_info_label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HotspotInfoLabel")
 
 	if not btn_copy_ip:
+		btn_copy_ip = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/InfoBox/LocalIPRow/BtnCopyIP")
+	if not btn_copy_ip:
 		btn_copy_ip = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/InfoBox/LocalIPRow/BtnCopyIP")
 
+	# Room Active Section elements
+	if not active_room_title:
+		active_room_title = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/ActiveRoomTitle")
+
+	if not btn_cancel:
+		btn_cancel = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/BtnCancel")
+	if not btn_cancel:
+		btn_cancel = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnCancel")
+
+	if not btn_start_match:
+		btn_start_match = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/BtnStartMatch")
+	if not btn_start_match:
+		btn_start_match = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BtnStartMatch")
+
+	if not btn_mode_toggle:
+		btn_mode_toggle = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/ModeRow/BtnModeToggle")
+	if not btn_mode_toggle:
+		btn_mode_toggle = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/ModeRow/BtnModeToggle")
+
+	if not slots_header:
+		slots_header = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsHeader")
 	if not slots_header:
 		slots_header = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/SlotsHeader")
 	if not player_list_label:
@@ -194,7 +329,9 @@ func _init_node_references() -> void:
 	# Collect 8 Slot labels
 	slot_labels.clear()
 	for i in range(1, 9):
-		var lbl: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/SlotsGrid/Slot" + str(i) + "/Label")
+		var lbl: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid/Slot" + str(i) + "/Label")
+		if not lbl:
+			lbl = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/SlotsGrid/Slot" + str(i) + "/Label")
 		if lbl:
 			slot_labels.append(lbl)
 
@@ -251,6 +388,10 @@ func _init_node_references() -> void:
 	if not btn_close_settings: btn_close_settings = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/BtnCloseSettings")
 
 func _ready() -> void:
+	# Lock orientation to landscape on mobile / handheld devices
+	if DisplayServer.has_feature(DisplayServer.FEATURE_ORIENTATION):
+		DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_LANDSCAPE)
+
 	_init_node_references()
 	_load_player_outfit()
 
@@ -279,7 +420,10 @@ func _ready() -> void:
 		hotspot_info_label.text = "Local IP: " + ips[0] + " (Port 7777)"
 	if ip_input and (ip_input.text.is_empty() or ip_input.text == "127.0.0.1"):
 		ip_input.text = ips[0]
+	if host_address_input and host_address_input.text.is_empty():
+		host_address_input.text = ips[0]
 
+	_switch_right_tab(LobbyTab.BROWSE)
 	_update_lobby_player_list()
 
 	if run_test:
@@ -290,17 +434,45 @@ func _setup_network_signals() -> void:
 	network_manager.join_success.connect(_on_join_success)
 	network_manager.join_failed.connect(_on_join_failed)
 	network_manager.player_list_updated.connect(_update_lobby_player_list)
+	network_manager.player_registered.connect(_on_player_registered_midgame)
 	network_manager.server_disconnected.connect(_on_server_disconnected)
+
+	if supabase_manager:
+		supabase_manager.lobbies_fetched.connect(_on_supabase_lobbies_fetched)
+		supabase_manager.fetch_failed.connect(_on_supabase_fetch_failed)
+		supabase_manager.lobby_created.connect(_on_supabase_lobby_created)
+		supabase_manager.create_failed.connect(_on_supabase_create_failed)
 
 func _setup_ui_signals() -> void:
 	if btn_enter_title:
 		btn_enter_title.pressed.connect(_on_btn_enter_title_pressed)
+
+	# Tab switching buttons
+	if btn_tab_browse:
+		btn_tab_browse.pressed.connect(func():
+			_switch_right_tab(LobbyTab.BROWSE)
+			_fetch_supabase_lobbies()
+		)
+	if btn_tab_host:
+		btn_tab_host.pressed.connect(func(): _switch_right_tab(LobbyTab.HOST))
+	if btn_tab_direct:
+		btn_tab_direct.pressed.connect(func(): _switch_right_tab(LobbyTab.DIRECT))
+	if btn_quick_host:
+		btn_quick_host.pressed.connect(func(): _switch_right_tab(LobbyTab.HOST))
+
+	# Browse & Room creation buttons
+	if btn_refresh_lobbies:
+		btn_refresh_lobbies.pressed.connect(_fetch_supabase_lobbies)
+	if btn_create_supabase_room:
+		btn_create_supabase_room.pressed.connect(_on_btn_create_supabase_room_pressed)
 
 	if btn_host: btn_host.pressed.connect(_on_btn_host_pressed)
 	if btn_join: btn_join.pressed.connect(_on_btn_join_pressed)
 	if btn_cancel: btn_cancel.pressed.connect(_on_btn_cancel_pressed)
 	if btn_solo: btn_solo.pressed.connect(_on_btn_solo_pressed)
 	if btn_start_match: btn_start_match.pressed.connect(_on_btn_start_match_pressed)
+	if btn_mode_toggle: btn_mode_toggle.pressed.connect(_on_btn_mode_toggle_pressed)
+	_update_mode_ui()
 	if ip_input:
 		ip_input.text_changed.connect(_on_ip_text_changed)
 	if name_input:
@@ -364,6 +536,8 @@ func _setup_ui_signals() -> void:
 
 func _on_btn_enter_title_pressed() -> void:
 	_set_game_state(GameState.LOBBY)
+	_switch_right_tab(LobbyTab.BROWSE)
+	_fetch_supabase_lobbies()
 
 func _on_btn_copy_ip_pressed() -> void:
 	var ips := NetworkManager.get_local_ip_addresses()
@@ -430,6 +604,7 @@ func _select_preset(idx: int) -> void:
 	current_body = p.get("body", 0)
 	current_footwear = p.get("footwear", 0)
 	current_color_idx = p.get("color", idx % COLOR_OPTIONS.size())
+	current_skin_idx = p.get("skin", 0)
 	_update_customization_ui()
 	_save_player_outfit()
 
@@ -441,7 +616,8 @@ func _get_current_outfit_dict() -> Dictionary:
 		"headwear": current_headwear,
 		"body": current_body,
 		"footwear": current_footwear,
-		"color": current_color_idx
+		"color": current_color_idx,
+		"skin": current_skin_idx
 	}
 
 func _save_player_outfit() -> void:
@@ -455,6 +631,7 @@ func _save_player_outfit() -> void:
 	cfg.set_value("outfit", "body", current_body)
 	cfg.set_value("outfit", "footwear", current_footwear)
 	cfg.set_value("outfit", "color", current_color_idx)
+	cfg.set_value("outfit", "skin", current_skin_idx)
 	cfg.save(SAVE_PATH)
 
 func _load_player_outfit() -> void:
@@ -471,6 +648,7 @@ func _load_player_outfit() -> void:
 			current_body = cfg.get_value("outfit", "body", 0)
 			current_footwear = cfg.get_value("outfit", "footwear", 0)
 			current_color_idx = cfg.get_value("outfit", "color", 0)
+			current_skin_idx = cfg.get_value("outfit", "skin", 0)
 			return
 	_select_preset(0)
 
@@ -503,7 +681,8 @@ func _update_customization_ui() -> void:
 			current_headwear,
 			current_body,
 			current_footwear,
-			current_color_idx
+			current_color_idx,
+			current_skin_idx
 		)
 
 	if network_manager:
@@ -539,6 +718,50 @@ func _on_player_sent_home(pid: int, pname: String) -> void:
 	if hud:
 		hud.show_tag_banner("NANAY", pname)
 		hud.update_scoreboard(network_manager.players)
+
+func _on_btn_mode_toggle_pressed() -> void:
+	current_mode = ((int(current_mode) + 1) % 3) as MatchMode
+	_update_mode_ui()
+	_setup_round_timer()
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		rpc("sync_match_mode", int(current_mode))
+
+@rpc("any_peer", "call_local", "reliable")
+func sync_match_mode(mode_idx: int) -> void:
+	current_mode = mode_idx as MatchMode
+	_update_mode_ui()
+	_setup_round_timer()
+
+func _update_mode_ui() -> void:
+	if not btn_mode_toggle:
+		btn_mode_toggle = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/ModeRow/BtnModeToggle")
+	if btn_mode_toggle:
+		match current_mode:
+			MatchMode.PASA_TAYA_ELIMINATION:
+				btn_mode_toggle.text = "💣 PASA-TAYA (CRAB GAME ELIMINATION)"
+				btn_mode_toggle.modulate = Color(1.0, 0.85, 0.2)
+			MatchMode.INFECTION:
+				btn_mode_toggle.text = "☣️ HAWAAN (INFECTION TAG)"
+				btn_mode_toggle.modulate = Color(0.3, 1.0, 0.4)
+			MatchMode.CLASSIC_TAG:
+				btn_mode_toggle.text = "🏃 KLASIKONG TAYA (POINTS MATCH)"
+				btn_mode_toggle.modulate = Color(0.4, 0.8, 1.0)
+
+func _setup_round_timer() -> void:
+	match current_mode:
+		MatchMode.PASA_TAYA_ELIMINATION:
+			if current_round == 1:
+				match_duration = 45.0
+			elif current_round == 2:
+				match_duration = 35.0
+			else:
+				match_duration = 25.0
+		MatchMode.INFECTION:
+			match_duration = 60.0
+		MatchMode.CLASSIC_TAG:
+			match_duration = 180.0
+	match_timer = match_duration
+	last_tick_second = -1
 
 func _on_ip_text_changed(new_text: String) -> void:
 	if not ip_input:
@@ -578,6 +801,9 @@ func _on_btn_host_pressed() -> void:
 	btn_join.disabled = true
 	btn_cancel.visible = true
 	btn_start_match.visible = true
+	_switch_right_tab(LobbyTab.ROOM_ACTIVE)
+	if active_room_title:
+		active_room_title.text = "🏠 LOCAL HOTSPOT ROOM (Port %d)" % port
 
 func _on_btn_join_pressed() -> void:
 	var pname := name_input.text.strip_edges() if name_input else "Bata"
@@ -609,6 +835,11 @@ func _on_btn_join_pressed() -> void:
 	btn_host.disabled = true
 	btn_join.disabled = true
 	btn_cancel.visible = true
+	_switch_right_tab(LobbyTab.ROOM_ACTIVE)
+	if active_room_title:
+		active_room_title.text = "🏠 LOBBY: %s:%d" % [target, port]
+	if btn_start_match:
+		btn_start_match.visible = false
 
 	var err := network_manager.join_game(target, pname, port)
 	if err != OK:
@@ -616,52 +847,356 @@ func _on_btn_join_pressed() -> void:
 		btn_host.disabled = false
 		btn_join.disabled = false
 		btn_cancel.visible = false
+		_switch_right_tab(LobbyTab.DIRECT)
 
 func _on_btn_cancel_pressed() -> void:
+	if supabase_manager and supabase_manager.is_hosting_lobby:
+		supabase_manager.delete_lobby()
 	network_manager.leave_game()
 	btn_host.disabled = false
 	btn_join.disabled = false
 	btn_cancel.visible = false
 	btn_start_match.visible = false
+	_switch_right_tab(LobbyTab.BROWSE)
+	_fetch_supabase_lobbies()
 	var ips := NetworkManager.get_local_ip_addresses()
 	hotspot_info_label.text = "Local IP: " + ips[0] + " (Port 7777)\nPara sa Online: Gamitin ang PlayIt.gg Domain + Port"
 	player_list_label.text = "Mga Kasali: (Naghihintay...)"
 
+# ==============================================================================
+# TAB SWITCHING & SUPABASE LOBBY BROWSER
+# ==============================================================================
+
+func _switch_right_tab(tab: LobbyTab) -> void:
+	current_lobby_tab = tab
+	if browse_section: browse_section.visible = (tab == LobbyTab.BROWSE)
+	if host_section: host_section.visible = (tab == LobbyTab.HOST)
+	if direct_section: direct_section.visible = (tab == LobbyTab.DIRECT)
+	if room_active_section: room_active_section.visible = (tab == LobbyTab.ROOM_ACTIVE)
+
+	# Modulate tab buttons to indicate active tab
+	if btn_tab_browse:
+		btn_tab_browse.modulate = Color(1.0, 1.0, 1.0, 1.0) if tab == LobbyTab.BROWSE else Color(0.65, 0.75, 0.88, 0.75)
+	if btn_tab_host:
+		btn_tab_host.modulate = Color(1.0, 1.0, 1.0, 1.0) if tab == LobbyTab.HOST else Color(0.65, 0.75, 0.88, 0.75)
+	if btn_tab_direct:
+		btn_tab_direct.modulate = Color(1.0, 1.0, 1.0, 1.0) if tab == LobbyTab.DIRECT else Color(0.65, 0.75, 0.88, 0.75)
+
+func _fetch_supabase_lobbies() -> void:
+	if not supabase_manager:
+		return
+	if not supabase_manager.is_configured():
+		if empty_notice_label:
+			empty_notice_label.visible = true
+			empty_notice_label.text = "ℹ️ Hindi makakonekta sa Supabase matchmaking server.\n(Maaaring gamitin ang [DIRECT / SOLO] para sa LAN/Offline Hotspot)."
+		if lobbies_status_label:
+			lobbies_status_label.text = "Offline Matchmaking"
+		return
+
+	if empty_notice_label:
+		empty_notice_label.visible = true
+		empty_notice_label.text = "⏳ Hinahanap ang mga bukas na laro sa Supabase..."
+	if lobbies_status_label:
+		lobbies_status_label.text = "Naghahanap..."
+
+	supabase_manager.fetch_lobbies()
+
+func _on_supabase_lobbies_fetched(lobbies: Array) -> void:
+	if not lobby_list_container:
+		return
+
+	# Remove any existing dynamically generated room cards
+	for child in lobby_list_container.get_children():
+		if child != empty_notice_label:
+			child.queue_free()
+
+	if lobbies.is_empty():
+		if empty_notice_label:
+			empty_notice_label.visible = true
+			empty_notice_label.text = "Walang nahanap na bukas na lobby sa ngayon.\nI-click ang [➕ GUMAWA] para ikaw ang mag-host ng laro!"
+		if lobbies_status_label:
+			lobbies_status_label.text = "Aktibong Lobbies: 0"
+		return
+
+	if empty_notice_label:
+		empty_notice_label.visible = false
+	if lobbies_status_label:
+		lobbies_status_label.text = "Aktibong Lobbies: %d nahanap" % lobbies.size()
+
+	for lobby in lobbies:
+		if not lobby is Dictionary:
+			continue
+
+		var card := PanelContainer.new()
+		var card_style := StyleBoxFlat.new()
+		card_style.bg_color = Color(0.05, 0.09, 0.16, 0.94)
+		card_style.border_width_left = 1
+		card_style.border_width_top = 1
+		card_style.border_width_right = 1
+		card_style.border_width_bottom = 1
+		card_style.border_color = Color(0.16, 0.32, 0.5, 0.8)
+		card_style.set_corner_radius_all(8)
+		card_style.content_margin_left = 10
+		card_style.content_margin_top = 6
+		card_style.content_margin_right = 10
+		card_style.content_margin_bottom = 6
+		card.add_theme_stylebox_override("panel", card_style)
+
+		var hbox := HBoxContainer.new()
+		hbox.set("theme_override_constants/separation", 8)
+		card.add_child(hbox)
+
+		var info_vbox := VBoxContainer.new()
+		info_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		info_vbox.set("theme_override_constants/separation", 2)
+		hbox.add_child(info_vbox)
+
+		var title_lbl := Label.new()
+		var is_online_webrtc := str(lobby.get("address", "")).strip_edges().to_lower() == "webrtc"
+		if is_online_webrtc:
+			title_lbl.text = "🌐 " + str(lobby.get("name", "Kalye Room")) + "  [ONLINE P2P]"
+			title_lbl.add_theme_color_override("font_color", Color(0.35, 0.9, 1.0))
+		else:
+			title_lbl.text = "⚡ " + str(lobby.get("name", "Kalye Room"))
+			title_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.25))
+		title_lbl.add_theme_font_size_override("font_size", 13)
+		info_vbox.add_child(title_lbl)
+
+		var sub_lbl := Label.new()
+		var h_name: String = str(lobby.get("host_name", "Host"))
+		var m_name: String = str(lobby.get("game_mode", "Pasa-Taya"))
+		sub_lbl.text = "👤 Host: %s | 🎮 %s" % [h_name, m_name]
+		sub_lbl.add_theme_color_override("font_color", Color(0.65, 0.82, 0.95))
+		sub_lbl.add_theme_font_size_override("font_size", 11)
+		info_vbox.add_child(sub_lbl)
+
+		var count_badge := PanelContainer.new()
+		var badge_style := StyleBoxFlat.new()
+		badge_style.bg_color = Color(0.04, 0.3, 0.18, 0.9)
+		badge_style.border_width_left = 1
+		badge_style.border_width_top = 1
+		badge_style.border_width_right = 1
+		badge_style.border_width_bottom = 1
+		badge_style.border_color = Color(0.2, 0.8, 0.45, 0.85)
+		badge_style.set_corner_radius_all(6)
+		badge_style.content_margin_left = 6
+		badge_style.content_margin_top = 3
+		badge_style.content_margin_right = 6
+		badge_style.content_margin_bottom = 3
+		count_badge.add_theme_stylebox_override("panel", badge_style)
+		count_badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+
+		var count_lbl := Label.new()
+		count_lbl.text = "👥 %d/%d" % [int(lobby.get("player_count", 1)), int(lobby.get("max_players", 8))]
+		count_lbl.add_theme_color_override("font_color", Color(0.4, 1.0, 0.6))
+		count_lbl.add_theme_font_size_override("font_size", 11)
+		count_badge.add_child(count_lbl)
+		hbox.add_child(count_badge)
+
+		var join_btn := Button.new()
+		join_btn.text = "🎮 SUMALI"
+		join_btn.custom_minimum_size = Vector2(85, 32)
+		join_btn.add_theme_font_size_override("font_size", 12)
+		join_btn.add_theme_color_override("font_color", Color(1, 1, 1))
+
+		var btn_style := StyleBoxFlat.new()
+		btn_style.bg_color = Color(0.06, 0.71, 0.51, 1)
+		btn_style.border_width_left = 1
+		btn_style.border_width_top = 1
+		btn_style.border_width_right = 1
+		btn_style.border_width_bottom = 1
+		btn_style.border_color = Color(0.35, 0.95, 0.72, 0.9)
+		btn_style.set_corner_radius_all(8)
+		join_btn.add_theme_stylebox_override("normal", btn_style)
+
+		join_btn.pressed.connect(_join_supabase_lobby.bind(lobby))
+		hbox.add_child(join_btn)
+
+		lobby_list_container.add_child(card)
+
+func _on_supabase_fetch_failed(error_message: String) -> void:
+	if empty_notice_label:
+		empty_notice_label.visible = true
+		empty_notice_label.text = "❌ " + error_message
+	if lobbies_status_label:
+		lobbies_status_label.text = "Fetch Error"
+
+func _join_supabase_lobby(lobby: Dictionary) -> void:
+	var target_address: String = str(lobby.get("address", "127.0.0.1")).strip_edges()
+	var target_port: int = int(lobby.get("port", NetworkManager.DEFAULT_PORT))
+	var host_name: String = str(lobby.get("host_name", "Host"))
+	var room_name: String = str(lobby.get("name", "Kalye Match"))
+	var lobby_id: String = str(lobby.get("id", ""))
+
+	var pname := name_input.text.strip_edges() if name_input else "Bata"
+	if pname.is_empty():
+		pname = "Bata " + str(randi() % 100)
+
+	_switch_right_tab(LobbyTab.ROOM_ACTIVE)
+	if active_room_title:
+		active_room_title.text = "🏠 LOBBY: %s (Host: %s)" % [room_name, host_name]
+	if btn_start_match:
+		btn_start_match.visible = false
+	if btn_cancel:
+		btn_cancel.visible = true
+		btn_cancel.text = "❌ UMALIS SA ROOM"
+
+	if target_address.to_lower() == "webrtc":
+		hotspot_info_label.text = "⏳ Kumukonekta sa WebRTC Online P2P (%s)..." % room_name
+		if active_room_title:
+			active_room_title.text = "🌐 ONLINE LOBBY: %s (Host: %s)" % [room_name, host_name]
+		var err := network_manager.join_webrtc_game(lobby_id, pname, supabase_manager.supabase_url, supabase_manager.supabase_anon_key)
+		if err != OK:
+			hotspot_info_label.text = "❌ Nabigo sa pagsali sa WebRTC Lobby: %s" % room_name
+			_switch_right_tab(LobbyTab.BROWSE)
+		return
+
+	hotspot_info_label.text = "⏳ Kumukonekta sa %s (%s:%d)..." % [room_name, target_address, target_port]
+
+	var err := network_manager.join_game(target_address, pname, target_port)
+	if err != OK:
+		hotspot_info_label.text = "❌ Hindi makakonekta sa %s:%d" % [target_address, target_port]
+		_switch_right_tab(LobbyTab.BROWSE)
+
+func _on_btn_create_supabase_room_pressed() -> void:
+	var pname := name_input.text.strip_edges() if name_input else "Kuya Denn"
+	if pname.is_empty():
+		pname = "Kuya Denn"
+
+	var rname := room_name_input.text.strip_edges() if room_name_input else ""
+	if rname.is_empty():
+		rname = pname + "'s Tambayan"
+
+	var port := NetworkManager.DEFAULT_PORT
+	if host_port_input and host_port_input.text.strip_edges().is_valid_int():
+		port = host_port_input.text.strip_edges().to_int()
+
+	var custom_addr := host_address_input.text.strip_edges() if host_address_input else ""
+	var is_webrtc := custom_addr.is_empty() or custom_addr.to_lower() == "webrtc" or custom_addr.to_lower() == "online"
+
+	var mode_name := "Pasa-Taya"
+	match current_mode:
+		MatchMode.PASA_TAYA_ELIMINATION: mode_name = "Pasa-Taya"
+		MatchMode.INFECTION: mode_name = "Hawaan"
+		MatchMode.CLASSIC_TAG: mode_name = "Klasikong Taya"
+
+	if is_webrtc:
+		# WebRTC Online Room: Register to Supabase first, then activate WebRTC server upon registration confirmation
+		if host_status_label:
+			host_status_label.text = "⏳ Inirerehistro ang WebRTC Online Room sa Supabase..."
+		if supabase_manager:
+			supabase_manager.register_lobby(rname, pname, "webrtc", 0, mode_name)
+
+		_switch_right_tab(LobbyTab.ROOM_ACTIVE)
+		if active_room_title:
+			active_room_title.text = "🌐 ONLINE ROOM: %s [WebRTC P2P]" % rname
+		if btn_start_match:
+			btn_start_match.visible = true
+		if btn_cancel:
+			btn_cancel.visible = true
+			btn_cancel.text = "❌ ISARA ANG ROOM"
+		return
+
+	# LAN / PlayIt.gg ENet server:
+	var best_addr := "127.0.0.1"
+	if supabase_manager:
+		best_addr = supabase_manager.get_best_host_address(custom_addr)
+
+	var err := network_manager.create_game(pname, port)
+	if err != OK:
+		if host_status_label:
+			host_status_label.text = "❌ Nabigo sa paggawa ng server sa Port %d!" % port
+		return
+
+	if supabase_manager:
+		supabase_manager.register_lobby(rname, pname, best_addr, port, mode_name)
+
+	_switch_right_tab(LobbyTab.ROOM_ACTIVE)
+	if active_room_title:
+		active_room_title.text = "🏠 IYONG ROOM: %s (Port %d)" % [rname, port]
+	if btn_start_match:
+		btn_start_match.visible = true
+	if btn_cancel:
+		btn_cancel.visible = true
+		btn_cancel.text = "❌ ISARA ANG ROOM"
+
+func _on_supabase_lobby_created(lobby_info: Dictionary) -> void:
+	var lobby_id := str(lobby_info.get("id", ""))
+	var address := str(lobby_info.get("address", "")).strip_edges().to_lower()
+	print("[GameManager] Supabase lobby registered: ", lobby_id)
+
+	if address == "webrtc":
+		var pname := name_input.text.strip_edges() if name_input else "Kuya Denn"
+		if pname.is_empty():
+			pname = "Kuya Denn"
+		var err := network_manager.create_webrtc_game(pname, lobby_id, supabase_manager.supabase_url, supabase_manager.supabase_anon_key)
+		if err == OK:
+			if host_status_label:
+				host_status_label.text = "🟢 Aktibo ang WebRTC Online Room sa Supabase! (Makakasali kahit sino sa internet)"
+			print("[GameManager] WebRTC host listening on lobby: ", lobby_id)
+		else:
+			if host_status_label:
+				host_status_label.text = "❌ Bigo sa pag-initialize ng WebRTC: %d" % err
+	else:
+		if host_status_label:
+			host_status_label.text = "🟢 Aktibo ang room sa Supabase Matchmaking Directory!"
+
+func _on_supabase_create_failed(error_message: String) -> void:
+	print("[GameManager] Failed to register to Supabase: ", error_message)
+	if host_status_label:
+		host_status_label.text = "⚠️ Bigo sa Supabase: " + error_message
+
 func _on_btn_solo_pressed() -> void:
 	_init_node_references()
+	if network_manager:
+		network_manager.is_solo_practice = true
 	var pname := name_input.text.strip_edges() if name_input else "Dennrick (Solo)"
 	if pname.is_empty():
 		pname = "Dennrick (Solo)"
 	network_manager.create_game(pname)
 	_spawn_all_players()
 
-	# Also spawn a PracticeBot runner so the player can chase and tag it!
-	var bot_scene: PackedScene = preload("res://scenes/player/PracticeBot.tscn")
-	var bot: PracticeBot = bot_scene.instantiate()
-	bot.name = "99"
-	bot.player_id = 99
-	bot.player_name = "Kalbo (Bot)"
-	bot.current_role = PlayerController.Role.RUNNER
+	# In solo practice tournament, spawn 3 bots: Kalbo (99), Totoy (98), Nene (97)
+	var bot_configs := [
+		{ "id": 99, "name": "Kalbo (Bot)", "preset": 1, "color": 2, "pos_idx": 1 },
+		{ "id": 98, "name": "Totoy (Bot)", "preset": 2, "color": 1, "pos_idx": 2 },
+		{ "id": 97, "name": "Nene (Bot)", "preset": 3, "color": 3, "pos_idx": 3 }
+	]
 
-	var spawn_points := map_node.get_node("SpawnPoints").get_children()
-	if spawn_points.size() > 1:
-		bot.position = spawn_points[1].global_position
-	else:
-		bot.position = Vector3(0, 0.5, 6)
-	players_container.add_child(bot)
-	if bot.model:
-		bot.model.apply_preset(1) # Archetype 1: 🥊 Kalbo
-		bot.model.set_player_color(COLOR_OPTIONS[2]["color"]) # Green runner
+	var spawn_points: Array = []
+	if map_node and map_node.has_node("SpawnPoints"):
+		spawn_points = map_node.get_node("SpawnPoints").get_children()
 
-	# Register bot in network players for scoreboard
-	network_manager.players[99] = {
-		"name": "Kalbo (Bot)",
-		"score": 0,
-		"role": 0,
-		"character": 1,
-		"color_idx": 2,
-		"outfit": CharacterAnimator.ARCHETYPES[1]
-	}
+	alive_player_ids = [1]
+	eliminated_player_ids.clear()
+	current_round = 1
+
+	for b_cfg in bot_configs:
+		alive_player_ids.append(b_cfg["id"])
+		var bot: PracticeBot = bot_scene.instantiate()
+		bot.name = str(b_cfg["id"])
+		bot.player_id = b_cfg["id"]
+		bot.player_name = b_cfg["name"]
+		bot.current_role = PlayerController.Role.RUNNER
+
+		if spawn_points.size() > b_cfg["pos_idx"]:
+			bot.position = spawn_points[b_cfg["pos_idx"]].global_position
+		else:
+			bot.position = Vector3(b_cfg["pos_idx"] * 3.0 - 5.0, 0.5, 6)
+
+		players_container.add_child(bot)
+		if bot.model:
+			bot.model.apply_preset(b_cfg["preset"])
+			bot.model.set_player_color(COLOR_OPTIONS[b_cfg["color"] % COLOR_OPTIONS.size()]["color"])
+
+		network_manager.players[b_cfg["id"]] = {
+			"name": b_cfg["name"],
+			"score": 0,
+			"role": 0,
+			"character": b_cfg["preset"],
+			"color_idx": b_cfg["color"],
+			"outfit": CharacterAnimator.ARCHETYPES[b_cfg["preset"]]
+		}
 
 	# In solo practice, start player as Taya immediately to test chasing & tagging
 	var local_p: PlayerController = players_container.get_node_or_null("1")
@@ -671,8 +1206,12 @@ func _on_btn_solo_pressed() -> void:
 		if local_p.model:
 			local_p.model.apply_outfit_dict(_get_current_outfit_dict())
 
+	_setup_round_timer()
 	_set_game_state(GameState.PLAYING)
-	match_timer = match_duration
+	if Engine.has_singleton("AudioManager"):
+		AudioManager.play_whistle()
+	elif has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").play_whistle()
 
 func notify_tag_event(chaser_id: int, target_id: int) -> void:
 	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
@@ -688,15 +1227,19 @@ func sync_tag_event(chaser_id: int, target_id: int) -> void:
 	if network_manager.players.has(chaser_id):
 		network_manager.players[chaser_id]["score"] += 50
 		chaser_name = network_manager.players[chaser_id].get("name", "Chaser")
-		if current_mode == MatchMode.CLASSIC_TAG:
+		if current_mode != MatchMode.INFECTION:
 			network_manager.players[chaser_id]["role"] = 0 # Former chaser becomes runner!
 
 	if network_manager.players.has(target_id):
 		network_manager.players[target_id]["role"] = 1 # Target becomes Taya!
 		target_name = network_manager.players[target_id].get("name", "Runner")
 
-	hud.update_scoreboard(network_manager.players)
-	hud.show_tag_banner(chaser_name, target_name)
+	if hud:
+		hud.update_scoreboard(network_manager.players)
+		if current_mode == MatchMode.PASA_TAYA_ELIMINATION:
+			hud.show_tag_banner(chaser_name, "PASA KAY " + target_name)
+		else:
+			hud.show_tag_banner(chaser_name, target_name)
 
 func award_recycle_points(pid: int, pts: int = 30) -> void:
 	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
@@ -720,12 +1263,23 @@ func sync_start_match() -> void:
 	_start_match_flow()
 
 func _start_match_flow() -> void:
+	current_round = 1
+	eliminated_player_ids.clear()
+	alive_player_ids.clear()
+	for pid in network_manager.players.keys():
+		alive_player_ids.append(int(pid))
+	if alive_player_ids.is_empty():
+		alive_player_ids.append(multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1)
+	is_intermission = false
+
+	if supabase_manager and supabase_manager.is_hosting_lobby:
+		supabase_manager.update_lobby(network_manager.players.size(), true)
+
 	_spawn_all_players()
 	_set_game_state(GameState.MAIBA_TAYA)
 
-	if multiplayer.is_server():
-		var pids := network_manager.players.keys()
-		maiba_manager.start_selection(pids)
+	if is_server_or_solo():
+		maiba_manager.start_selection(alive_player_ids)
 
 func _on_taya_decided(taya_id: int, taya_name: String) -> void:
 	var my_id := multiplayer.get_unique_id()
@@ -737,49 +1291,102 @@ func _on_taya_decided(taya_id: int, taya_name: String) -> void:
 		if player_node is PlayerController:
 			if player_node.player_id == taya_id:
 				player_node.current_role = PlayerController.Role.TAYA
+				if network_manager.players.has(taya_id):
+					network_manager.players[taya_id]["role"] = 1
 			else:
 				player_node.current_role = PlayerController.Role.RUNNER
+				if network_manager.players.has(player_node.player_id):
+					network_manager.players[player_node.player_id]["role"] = 0
 
 	# Begin match after 2 seconds
 	get_tree().create_timer(2.0).timeout.connect(func():
 		_set_game_state(GameState.PLAYING)
-		match_timer = match_duration
+		_setup_round_timer()
+		if Engine.has_singleton("AudioManager"):
+			AudioManager.play_whistle()
+		elif has_node("/root/AudioManager"):
+			get_node("/root/AudioManager").play_whistle()
 	)
+
+func _spawn_single_player(int_pid: int, spawn_idx: int = 0) -> PlayerController:
+	if players_container.has_node(str(int_pid)):
+		return players_container.get_node(str(int_pid)) as PlayerController
+
+	var pinfo: Dictionary = network_manager.players[int_pid] if network_manager.players.has(int_pid) else network_manager.players.get(str(int_pid), {})
+	var player_instance: PlayerController
+	if int_pid in [97, 98, 99]:
+		player_instance = bot_scene.instantiate()
+	else:
+		player_instance = player_scene.instantiate()
+
+	player_instance.name = str(int_pid)
+	player_instance.player_id = int_pid
+	player_instance.player_name = pinfo.get("name", "Player %d" % int_pid)
+
+	# Spawn point
+	var spawn_points: Array = []
+	if map_node and map_node.has_node("SpawnPoints"):
+		spawn_points = map_node.get_node("SpawnPoints").get_children()
+	var spawn_pos: Vector3 = Vector3(0, 1, 0)
+	if spawn_points.size() > 0:
+		var sp: Marker3D = spawn_points[spawn_idx % spawn_points.size()]
+		spawn_pos = sp.global_position
+	player_instance.position = spawn_pos
+
+	players_container.add_child(player_instance)
+
+	# Character model & modular outfit customization
+	if player_instance.model:
+		if pinfo.has("outfit") and pinfo["outfit"] is Dictionary and not pinfo["outfit"].is_empty():
+			player_instance.model.apply_outfit_dict(pinfo["outfit"])
+		else:
+			var char_type: int = pinfo.get("character", selected_char_idx if int_pid == 1 else 0)
+			var color_idx: int = pinfo.get("color_idx", selected_color_idx if int_pid == 1 else (spawn_idx % COLOR_OPTIONS.size()))
+			player_instance.model.apply_preset(char_type)
+			player_instance.model.set_player_color(COLOR_OPTIONS[color_idx % COLOR_OPTIONS.size()]["color"])
+
+	return player_instance
 
 func _spawn_all_players() -> void:
 	# Clear existing players
 	for child in players_container.get_children():
 		child.queue_free()
 
-	var spawn_points := map_node.get_node("SpawnPoints").get_children()
-	var spawn_idx := 0
-
+	var sorted_pids: Array[int] = []
 	for pid in network_manager.players.keys():
-		var pinfo = network_manager.players[pid]
-		var player_instance: PlayerController = player_scene.instantiate()
-		player_instance.name = str(pid)
-		player_instance.player_id = pid
-		player_instance.player_name = pinfo.get("name", "Player")
+		sorted_pids.append(int(pid))
+	sorted_pids.sort()
 
-		# Spawn point
-		var spawn_pos: Vector3 = Vector3(0, 1, 0)
-		if spawn_points.size() > 0:
-			var sp: Marker3D = spawn_points[spawn_idx % spawn_points.size()]
-			spawn_pos = sp.global_position
-			spawn_idx += 1
-		player_instance.position = spawn_pos
+	for idx in range(sorted_pids.size()):
+		_spawn_single_player(sorted_pids[idx], idx)
 
-		players_container.add_child(player_instance)
+func _on_player_registered_midgame(new_pid: int) -> void:
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server() and current_state in [GameState.PLAYING, GameState.MAIBA_TAYA]:
+		# Broadcast spawn to all peers and sync match state to the newcomer
+		rpc("sync_spawn_new_player", new_pid)
+		rpc_id(new_pid, "sync_late_join_match", int(current_state), current_round, match_timer, int(current_mode), network_manager.players)
 
-		# Character model & modular outfit customization
-		if player_instance.model:
-			if pinfo.has("outfit") and pinfo["outfit"] is Dictionary and not pinfo["outfit"].is_empty():
-				player_instance.model.apply_outfit_dict(pinfo["outfit"])
-			else:
-				var char_type: int = pinfo.get("character", selected_char_idx if pid == 1 else 0)
-				var color_idx: int = pinfo.get("color_idx", selected_color_idx if pid == 1 else (spawn_idx % COLOR_OPTIONS.size()))
-				player_instance.model.apply_preset(char_type)
-				player_instance.model.set_player_color(COLOR_OPTIONS[color_idx % COLOR_OPTIONS.size()]["color"])
+@rpc("call_local", "reliable")
+func sync_spawn_new_player(pid: int) -> void:
+	_spawn_single_player(pid, players_container.get_child_count())
+	if not alive_player_ids.has(pid):
+		alive_player_ids.append(pid)
+	if hud:
+		hud.update_scoreboard(network_manager.players)
+		var pname: String = network_manager.players.get(pid, {}).get("name", "Player %d" % pid)
+		hud.show_toast_notification("👋 Sumali sa laro: %s!" % pname, true)
+
+@rpc("authority", "reliable")
+func sync_late_join_match(state: int, round_num: int, timer_left: float, mode: int, all_players: Dictionary) -> void:
+	network_manager.players = all_players
+	current_mode = mode as MatchMode
+	current_round = round_num
+	match_timer = timer_left
+	alive_player_ids.clear()
+	for pid in all_players.keys():
+		alive_player_ids.append(int(pid))
+	_spawn_all_players()
+	_set_game_state(state as GameState)
 
 func _input(event: InputEvent) -> void:
 	if current_state == GameState.PLAYING:
@@ -814,9 +1421,27 @@ func _process(delta: float) -> void:
 			preview_char.animate(delta, 0.0, true, 7.0)
 	elif current_state == GameState.PLAYING:
 		if not is_game_paused:
+			if is_intermission:
+				intermission_timer -= delta
+				if hud:
+					hud.update_intermission_timer(intermission_timer)
+				if is_server_or_solo() and intermission_timer <= 0.0:
+					_start_next_round()
+				return
+
 			match_timer -= delta
 			if hud:
 				hud.update_match_timer(match_timer)
+
+			# Sound ticking when timer is critical (under 10s)
+			if match_timer <= 10.0 and match_timer > 0.0:
+				var sec := int(match_timer)
+				if sec != last_tick_second:
+					last_tick_second = sec
+					if Engine.has_singleton("AudioManager"):
+						AudioManager.play_tick()
+					elif has_node("/root/AudioManager"):
+						get_node("/root/AudioManager").play_tick()
 
 			# Update local player hud
 			var my_id := multiplayer.get_unique_id()
@@ -825,25 +1450,190 @@ func _process(delta: float) -> void:
 				hud.update_role_display(my_node.current_role == PlayerController.Role.TAYA)
 				hud.update_score(my_node.survival_time, my_node.tag_count, my_node.current_role == PlayerController.Role.TAYA)
 
+			# Infection early win condition check: if 0 runners left
+			if current_mode == MatchMode.INFECTION and is_server_or_solo():
+				var alive_runners: int = 0
+				for p in players_container.get_children():
+					if p is PlayerController and not p.is_eliminated and p.current_role == PlayerController.Role.RUNNER:
+						alive_runners += 1
+				if alive_runners == 0:
+					if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+						rpc("sync_infection_game_over", true)
+					else:
+						sync_infection_game_over(true)
+					return
+
 			if hud:
 				hud.update_scoreboard(network_manager.players)
+				hud.update_round_badge(current_round, _get_mode_display_name(), alive_player_ids.size(), network_manager.players.size())
 
-			if multiplayer.is_server() and match_timer <= 0.0:
+			if is_server_or_solo() and match_timer <= 0.0:
+				_on_round_timer_expired()
+
+func _on_round_timer_expired() -> void:
+	match current_mode:
+		MatchMode.CLASSIC_TAG:
+			if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
 				rpc("sync_game_over")
+			else:
+				sync_game_over()
+		MatchMode.INFECTION:
+			var runners_left: int = 0
+			for p in players_container.get_children():
+				if p is PlayerController and not p.is_eliminated and p.current_role == PlayerController.Role.RUNNER:
+					runners_left += 1
+			var taya_won: bool = (runners_left == 0)
+			if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+				rpc("sync_infection_game_over", taya_won)
+			else:
+				sync_infection_game_over(taya_won)
+		MatchMode.PASA_TAYA_ELIMINATION:
+			var eliminated_id: int = -1
+			for p in players_container.get_children():
+				if p is PlayerController and not p.is_eliminated and p.current_role == PlayerController.Role.TAYA:
+					eliminated_id = p.player_id
+					break
+			if eliminated_id == -1 and not alive_player_ids.is_empty():
+				eliminated_id = alive_player_ids.pick_random()
+
+			if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+				rpc("sync_round_elimination", current_round, eliminated_id)
+			else:
+				sync_round_elimination(current_round, eliminated_id)
+
+@rpc("call_local", "reliable")
+func sync_round_elimination(round_num: int, eliminated_id: int) -> void:
+	var elim_name := "Player %d" % eliminated_id
+	if network_manager.players.has(eliminated_id):
+		elim_name = network_manager.players[eliminated_id].get("name", elim_name)
+		network_manager.players[eliminated_id]["eliminated"] = true
+
+	alive_player_ids.erase(eliminated_id)
+	eliminated_player_ids.append(eliminated_id)
+
+	if Engine.has_singleton("AudioManager"):
+		AudioManager.play_elimination()
+	elif has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").play_elimination()
+
+	var elim_node: PlayerController = players_container.get_node_or_null(str(eliminated_id)) as PlayerController
+	if elim_node:
+		elim_node.set_eliminated(true)
+		if elim_node.is_bot:
+			elim_node.global_position = Vector3(0, -50, 0)
+
+	var my_id := multiplayer.get_unique_id()
+	if my_id == eliminated_id:
+		if hud:
+			hud.show_toast_notification("💥 NA-TAYA KA! IKAW AY ELIMINADO! (Nanonood na)", false)
+	else:
+		if hud:
+			hud.show_tag_banner("ELIMINADO!", elim_name)
+
+	# Check tournament win condition
+	if alive_player_ids.size() <= 1:
+		var winner_id: int = alive_player_ids[0] if alive_player_ids.size() == 1 else -1
+		sync_tournament_winner(winner_id)
+		return
+
+	# Transition to Intermission before next round
+	is_intermission = true
+	intermission_timer = 4.0
+	if hud:
+		hud.show_round_intermission(round_num + 1, elim_name, alive_player_ids.size())
+
+func _start_next_round() -> void:
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		rpc("sync_next_round_start", current_round + 1)
+	else:
+		sync_next_round_start(current_round + 1)
+
+@rpc("call_local", "reliable")
+func sync_next_round_start(next_round: int) -> void:
+	current_round = next_round
+	is_intermission = false
+	_setup_round_timer()
+
+	var spawn_points: Array = []
+	if map_node and map_node.has_node("SpawnPoints"):
+		spawn_points = map_node.get_node("SpawnPoints").get_children()
+	var sp_idx := 0
+	for pid in alive_player_ids:
+		var pnode: PlayerController = players_container.get_node_or_null(str(pid)) as PlayerController
+		if pnode:
+			if spawn_points.size() > 0:
+				pnode.global_position = spawn_points[sp_idx % spawn_points.size()].global_position
+				sp_idx += 1
+			pnode.velocity = Vector3.ZERO
+			pnode.is_stunned = false
+			pnode.is_immune = false
+			pnode.current_role = PlayerController.Role.RUNNER
+
+	# Pick random new Taya among alive players
+	if is_server_or_solo():
+		var new_taya_id: int = alive_player_ids.pick_random()
+		if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+			rpc("sync_assign_taya", new_taya_id)
+		else:
+			sync_assign_taya(new_taya_id)
+
+	if Engine.has_singleton("AudioManager"):
+		AudioManager.play_whistle()
+	elif has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").play_whistle()
+
+	if hud:
+		hud.hide_round_intermission()
+		hud.show_toast_notification("📢 ROUND %d: TAKBUHAN NA!" % current_round, true)
+
+@rpc("call_local", "reliable")
+func sync_assign_taya(taya_id: int) -> void:
+	for p in players_container.get_children():
+		if p is PlayerController:
+			if p.is_eliminated:
+				continue
+			if p.player_id == taya_id:
+				p.current_role = PlayerController.Role.TAYA
+				if network_manager.players.has(taya_id):
+					network_manager.players[taya_id]["role"] = 1
+			else:
+				p.current_role = PlayerController.Role.RUNNER
+				if network_manager.players.has(p.player_id):
+					network_manager.players[p.player_id]["role"] = 0
+	if hud:
+		hud.update_scoreboard(network_manager.players)
+
+@rpc("call_local", "reliable")
+func sync_tournament_winner(winner_id: int) -> void:
+	_set_game_state(GameState.GAME_OVER)
+	var winner_name: String = "Kampeon"
+	if network_manager.players.has(winner_id):
+		winner_name = network_manager.players[winner_id].get("name", "Kampeon")
+	winner_label.text = "👑 ULTIMATE BATANG KALYE CHAMPION! 👑\n\n🏆 PANALO: %s! 🏆\nNalampasan ang lahat ng Rounds sa Crab Game Elimination!" % winner_name
+
+@rpc("call_local", "reliable")
+func sync_infection_game_over(taya_won: bool) -> void:
+	_set_game_state(GameState.GAME_OVER)
+	if taya_won:
+		winner_label.text = "🧟 LAHAT NAHAWAAN NA! 🧟\n\n🏆 PANALO ANG MGA TAYA! 🏆\nWala nang nakaligtas na Runner sa kalye!"
+	else:
+		winner_label.text = "👟 NAKALIGTAS ANG MGA RUNNER! 👟\n\n🏆 PANALO ANG MGA RUNNER! 🏆\nMatagumpay na nakaligtas sa outbreak bago naubos ang oras!"
 
 @rpc("call_local", "reliable")
 func sync_game_over() -> void:
 	_set_game_state(GameState.GAME_OVER)
-	# Determine highest survival runner or top chaser
 	var best_name := ""
 	var best_score := -1.0
-	for player_node in players_container.get_children():
-		if player_node is PlayerController:
-			var player: PlayerController = player_node as PlayerController
-			var final_score: float = player.survival_time + (float(player.tag_count) * 30.0)
-			if final_score > best_score:
-				best_score = final_score
-				best_name = player.player_name
+	for pid in network_manager.players.keys():
+		var pinfo = network_manager.players[pid]
+		var player_node: PlayerController = players_container.get_node_or_null(str(pid)) as PlayerController
+		var surv_time: float = player_node.survival_time if player_node else 0.0
+		var tag_pts: float = (float(player_node.tag_count) * 30.0) if player_node else 0.0
+		var stored_score: float = float(pinfo.get("score", 0))
+		var total_calc_score: float = surv_time + tag_pts + stored_score
+		if total_calc_score > best_score:
+			best_score = total_calc_score
+			best_name = pinfo.get("name", "Player")
 
 	winner_label.text = "📢 \"HOY MGA BATA! UMUWI NA KAYO, GABI NA!\"\n\n🏆 PANALO: %s! 🏆\nScore: %.0f" % [best_name, best_score]
 
@@ -857,8 +1647,25 @@ func _set_game_state(new_state: GameState) -> void:
 	if pause_ui: pause_ui.visible = false
 	is_game_paused = false
 
+	if lobby_camera:
+		var has_local_cam := false
+		for p in players_container.get_children():
+			if p is PlayerController and p.is_local_human() and p.camera:
+				has_local_cam = true
+				if new_state in [GameState.MAIBA_TAYA, GameState.PLAYING]:
+					p.camera.current = true
+				break
+		lobby_camera.current = (new_state in [GameState.TITLE, GameState.LOBBY, GameState.GAME_OVER]) or (not has_local_cam)
+
 	if new_state == GameState.LOBBY or new_state == GameState.TITLE:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		is_intermission = false
+		current_round = 1
+		eliminated_player_ids.clear()
+		alive_player_ids.clear()
+		if hud:
+			hud.hide_spectator_bar()
+			hud.hide_round_intermission()
 		for child in players_container.get_children():
 			child.queue_free()
 		if nanay_event:
@@ -964,6 +1771,9 @@ func _update_lobby_player_list() -> void:
 		slots_header.text = "👥 MGA MANLALARO (%d / 8 PLAYERS)" % count
 	elif player_list_label:
 		player_list_label.text = "👥 MGA MANLALARO (%d / 8 PLAYERS)" % count
+
+	if supabase_manager and supabase_manager.is_hosting_lobby:
+		supabase_manager.update_lobby(max(1, count), false)
 
 	var pids := network_manager.players.keys()
 	if pids.is_empty():
@@ -1082,6 +1892,38 @@ func _run_automated_self_test() -> void:
 		_write_test_results(results, 1)
 		return
 
+	# 5b. Test Dual Stamina & Exhaustion System
+	results.append("[SELF-TEST] Testing Dual Stamina & Exhaustion System...")
+	p1.burst_stamina = 100.0
+	p1.endurance_stamina = 100.0
+	p1.is_exhausted = false
+	p1.is_sprinting = true
+	p1._process_stamina(1.0, true)
+	if p1.burst_stamina < 100.0 and p1.endurance_stamina < 100.0:
+		results.append("[PASS] Sprint movement drains burst stamina (%.1f/100) and endurance (%.1f/100)." % [p1.burst_stamina, p1.endurance_stamina])
+	else:
+		results.append("[FAIL] Sprint movement did not drain stamina!")
+		_write_test_results(results, 1)
+		return
+
+	p1.endurance_stamina = 0.0
+	p1._process_stamina(0.1, true)
+	if p1.is_exhausted and not p1.is_sprinting:
+		results.append("[PASS] Exhaustion triggered when endurance reaches 0; sprint locked out.")
+	else:
+		results.append("[FAIL] Exhaustion was not triggered!")
+		_write_test_results(results, 1)
+		return
+
+	p1.endurance_stamina = 35.0
+	p1._process_stamina(0.1, false)
+	if not p1.is_exhausted:
+		results.append("[PASS] Exhaustion cleared after catching breath above threshold (%.1f/100)." % p1.endurance_stamina)
+	else:
+		results.append("[FAIL] Exhaustion did not clear above threshold!")
+		_write_test_results(results, 1)
+		return
+
 	# 6. Test Tagging
 	p1.global_position = bot.global_position + Vector3(0, 0, 1.5)
 	p1.current_role = PlayerController.Role.TAYA
@@ -1143,12 +1985,154 @@ func _run_automated_self_test() -> void:
 		_write_test_results(results, 1)
 		return
 
-	# 9. End match
+	# 9. Test Bot Elimination & Spectator Isolation
+	results.append("[SELF-TEST] Testing Bot Elimination & Spectator Isolation...")
+	var bot98: PracticeBot = players_container.get_node_or_null("98") as PracticeBot
+	sync_round_elimination(1, 99)
+	if p1.is_eliminated:
+		results.append("[FAIL] Human player 1 was mistakenly eliminated when bot 99 was eliminated!")
+		_write_test_results(results, 1)
+		return
+	if hud and hud.spectator_bar and hud.spectator_bar.visible:
+		results.append("[FAIL] Spectator bar showed up on living human player screen when bot was eliminated!")
+		_write_test_results(results, 1)
+		return
+	results.append("[PASS] Bot 99 eliminated without hijacking human player spectator mode.")
+
+	# Verify human player can tag remaining alive bot (98) and ignores dead bot (99)
+	if bot98:
+		p1.tag_cooldown = 0.0
+		p1.current_role = PlayerController.Role.TAYA
+		bot98.current_role = PlayerController.Role.RUNNER
+		bot98.is_immune = false
+		p1.global_position = bot98.global_position + Vector3(0, 0, 1.2)
+		p1._try_tag()
+		if bot98.current_role == PlayerController.Role.TAYA:
+			results.append("[PASS] Human player successfully tagged living Bot 98 without locking onto dead Bot 99.")
+		else:
+			results.append("[FAIL] Tagging living bot failed after another bot was eliminated!")
+			_write_test_results(results, 1)
+			return
+
+	# Verify human player elimination and spectator cycling
+	results.append("[SELF-TEST] Testing Human Player Elimination & Spectator Mode...")
+	p1.set_eliminated(true)
+	if not p1.is_eliminated:
+		results.append("[FAIL] Human player failed to enter eliminated state!")
+		_write_test_results(results, 1)
+		return
+	if hud and hud.spectator_bar and not hud.spectator_bar.visible:
+		results.append("[FAIL] Spectator bar did not show when human player died!")
+		_write_test_results(results, 1)
+		return
+	if not p1.spectating_target or p1.spectating_target.is_eliminated:
+		results.append("[FAIL] Spectating target invalid or was an eliminated player!")
+		_write_test_results(results, 1)
+		return
+	var _initial_target := p1.spectating_target
+	p1._cycle_spectate_target(1)
+	if p1.camera_mount:
+		var cam_dist: float = p1.camera_mount.global_position.distance_to(p1.spectating_target.global_position)
+		if cam_dist > 5.0:
+			results.append("[FAIL] Camera mount did not follow spectated target (dist=" + str(cam_dist) + ")!")
+			_write_test_results(results, 1)
+			return
+	results.append("[PASS] Human player spectator camera tracks target and switches targets correctly.")
+	p1.set_eliminated(false)
+
+	# 10. Test Multiplayer Match Flow & Start Match
+	results.append("[SELF-TEST] Testing Multiplayer Match Flow & Start Match...")
+	network_manager.players.clear()
+	network_manager.players[1] = { "name": "HostPlayer", "score": 0, "role": 0, "character": 0, "color_idx": 0, "outfit": {} }
+	network_manager.players[2] = { "name": "ClientPlayer2", "score": 0, "role": 0, "character": 1, "color_idx": 1, "outfit": {} }
+	_start_match_flow()
+	if alive_player_ids.size() == 2 and players_container.has_node("1") and players_container.has_node("2"):
+		results.append("[PASS] Multiplayer match flow started cleanly with 2 players; alive_player_ids populated without type error.")
+	else:
+		results.append("[FAIL] Multiplayer match flow failed to initialize alive players!")
+		_write_test_results(results, 1)
+		return
+
+	# 11. End match
 	sync_game_over()
 	results.append("[PASS] Game over reached. Winner: " + winner_label.text)
+
+	# 12. Test Supabase Matchmaking & Tabbed Lobby Setup
+	results.append("[SELF-TEST] Testing Supabase Matchmaking & Tab Switching...")
+	_switch_right_tab(LobbyTab.HOST)
+	if host_section and host_section.visible and not browse_section.visible:
+		results.append("[PASS] Switched to Host Tab successfully.")
+	else:
+		results.append("[FAIL] Host tab switching failed!")
+		_write_test_results(results, 1)
+		return
+
+	_switch_right_tab(LobbyTab.DIRECT)
+	if direct_section and direct_section.visible and not host_section.visible:
+		results.append("[PASS] Switched to Direct Tab successfully.")
+	else:
+		results.append("[FAIL] Direct tab switching failed!")
+		_write_test_results(results, 1)
+		return
+
+	_switch_right_tab(LobbyTab.BROWSE)
+	if browse_section and browse_section.visible and not direct_section.visible:
+		results.append("[PASS] Switched back to Browse Tab successfully.")
+	else:
+		results.append("[FAIL] Browse tab switching failed!")
+		_write_test_results(results, 1)
+		return
+
+	# Test Supabase dynamic card rendering (both LAN and WebRTC Online)
+	var mock_lobby_lan: Dictionary = {
+		"id": "test-uuid-1234",
+		"name": "Bata Kalye LAN Match",
+		"host_name": "Dennrick",
+		"address": "127.0.0.1",
+		"port": 7777,
+		"player_count": 2,
+		"max_players": 8,
+		"game_mode": "Pasa-Taya"
+	}
+	var mock_lobby_webrtc: Dictionary = {
+		"id": "test-uuid-5678",
+		"name": "Bata Kalye Online Match",
+		"host_name": "Dennrick",
+		"address": "webrtc",
+		"port": 0,
+		"player_count": 1,
+		"max_players": 8,
+		"game_mode": "Klasikong Taya"
+	}
+	_on_supabase_lobbies_fetched([mock_lobby_lan, mock_lobby_webrtc])
+	if lobby_list_container and lobby_list_container.get_child_count() > 2:
+		results.append("[PASS] Supabase dynamic room cards (LAN & WebRTC Online P2P) rendered into lobby list successfully.")
+	else:
+		results.append("[FAIL] Supabase room cards failed to render!")
+		_write_test_results(results, 1)
+		return
+
+	# 13. Test WebRTC Online Peer Initialization & Cleanup
+	results.append("[SELF-TEST] Testing WebRTC Online Peer Initialization & Cleanup...")
+	var rtc_err = network_manager.create_webrtc_game("HostDenn", "test_lobby_123", supabase_manager.supabase_url, supabase_manager.supabase_anon_key)
+	if rtc_err == OK and network_manager.connection_mode == "webrtc" and network_manager.multiplayer.has_multiplayer_peer():
+		results.append("[PASS] WebRTC host peer initialized successfully without PlayIt.gg!")
+	else:
+		results.append("[FAIL] WebRTC host peer initialization failed: %d" % rtc_err)
+		_write_test_results(results, 1)
+		return
+
+	network_manager.leave_game()
+	if network_manager.connection_mode == "enet" and not network_manager.multiplayer.has_multiplayer_peer():
+		results.append("[PASS] WebRTC peer and signaler cleaned up cleanly.")
+	else:
+		results.append("[FAIL] WebRTC peer cleanup failed!")
+		_write_test_results(results, 1)
+		return
+
 	results.append("[ALL TESTS PASSED] ZERO RUNTIME ERRORS DETECTED!")
 	for child in players_container.get_children():
-		child.free()
+		child.queue_free()
 	_write_test_results(results, 0)
 
 func _write_test_results(lines: Array[String], exit_code: int) -> void:
