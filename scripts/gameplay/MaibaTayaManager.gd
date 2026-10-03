@@ -6,8 +6,8 @@ signal countdown_step(step_text: String)
 signal hand_choice_requested(time_limit: float)
 
 enum HandGesture {
-	PALM_UP = 0,   # Puti / Ibabaw 🖐️
-	PALM_DOWN = 1  # Itim / Ilalim 🤚
+	PALM_UP = 0,   # Puti / Ibabaw
+	PALM_DOWN = 1  # Itim / Ilalim
 }
 
 var player_choices: Dictionary = {} # peer_id: HandGesture
@@ -28,7 +28,7 @@ func _run_chant_sequence(player_ids: Array) -> void:
 	await get_tree().create_timer(0.9).timeout
 	rpc("client_show_chant", "BA...")
 	await get_tree().create_timer(0.9).timeout
-	rpc("client_show_chant", "TAYA! 🖐️ / 🤚")
+	rpc("client_show_chant", "TAYA! (PILI NA!)")
 	rpc("client_request_choice", 2.0)
 
 	await get_tree().create_timer(2.2).timeout

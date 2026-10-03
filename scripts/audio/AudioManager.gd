@@ -30,6 +30,13 @@ var sfx_tag_boom: AudioStreamWAV
 var sfx_score_ding: AudioStreamWAV
 var sfx_pant: AudioStreamWAV
 var sfx_recover_breath: AudioStreamWAV
+var sfx_tsinelas_throw: AudioStreamWAV
+var sfx_tsinelas_slap: AudioStreamWAV
+var sfx_banana_slip: AudioStreamWAV
+var sfx_drum_hide: AudioStreamWAV
+var sfx_drum_clang: AudioStreamWAV
+var sfx_chalk_puff: AudioStreamWAV
+var sfx_ice_candy: AudioStreamWAV
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -65,6 +72,13 @@ func _synthesize_all_sfx() -> void:
 	sfx_score_ding = _create_arpeggio([587.33, 880.0, 1174.66], 0.06, 0.75)
 	sfx_pant = _create_pant_sound(0.24, 0.6)
 	sfx_recover_breath = _create_sweep_tone(300.0, 600.0, 0.22, 0.45)
+	sfx_tsinelas_throw = _create_sweep_tone(900.0, 320.0, 0.12, 0.55)
+	sfx_tsinelas_slap = _create_noise_hit(0.18, 0.95)
+	sfx_banana_slip = _create_slide_whistle(0.38, 0.75)
+	sfx_drum_hide = _create_dual_thud(130.0, 80.0, 0.22, 0.6)
+	sfx_drum_clang = _create_gong_clang(0.45, 0.85)
+	sfx_chalk_puff = _create_sweep_tone(600.0, 150.0, 0.16, 0.5)
+	sfx_ice_candy = _create_arpeggio([523.25, 659.25, 783.99, 1046.5, 1318.51], 0.05, 0.8)
 
 func play_sfx(stream: AudioStreamWAV, pitch_scale: float = 1.0) -> void:
 	if not stream or audio_players.is_empty():
@@ -141,6 +155,27 @@ func play_pant() -> void:
 
 func play_recover_breath() -> void:
 	play_sfx(sfx_recover_breath, 1.0)
+
+func play_tsinelas_throw() -> void:
+	play_sfx(sfx_tsinelas_throw, randf_range(0.95, 1.1))
+
+func play_tsinelas_slap() -> void:
+	play_sfx(sfx_tsinelas_slap, randf_range(0.9, 1.15))
+
+func play_banana_slip() -> void:
+	play_sfx(sfx_banana_slip, randf_range(0.95, 1.05))
+
+func play_drum_hide() -> void:
+	play_sfx(sfx_drum_hide, 1.0)
+
+func play_drum_clang() -> void:
+	play_sfx(sfx_drum_clang, 1.0)
+
+func play_chalk_puff() -> void:
+	play_sfx(sfx_chalk_puff, randf_range(0.9, 1.1))
+
+func play_ice_candy() -> void:
+	play_sfx(sfx_ice_candy, 1.0)
 
 # --- Procedural Waveform Generators ---
 func _create_pant_sound(duration: float, volume: float = 0.5) -> AudioStreamWAV:
@@ -389,3 +424,49 @@ func _create_whistle(duration: float, volume: float = 0.5) -> AudioStreamWAV:
 	wav.data = data
 	return wav
 
+func _create_slide_whistle(duration: float, volume: float = 0.5) -> AudioStreamWAV:
+	var sample_rate: int = 22050
+	var num_samples: int = int(sample_rate * duration)
+	var data := PackedByteArray()
+	data.resize(num_samples)
+
+	var phase: float = 0.0
+	for i in range(num_samples):
+		var t: float = float(i) / float(num_samples)
+		# Rising cartoon slide up then quick downward drop
+		var freq: float = 400.0 + sin(t * PI * 0.7) * 900.0
+		phase += 2.0 * PI * freq / sample_rate
+		var envelope: float = (1.0 - t * 0.2) if t < 0.8 else (1.0 - t) * 5.0
+		var s: float = sin(phase) * envelope * volume
+		data[i] = int(clamp((s + 1.0) * 127.5, 0.0, 255.0))
+
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_8_BITS
+	wav.mix_rate = sample_rate
+	wav.data = data
+	return wav
+
+func _create_gong_clang(duration: float, volume: float = 0.5) -> AudioStreamWAV:
+	var sample_rate: int = 22050
+	var num_samples: int = int(sample_rate * duration)
+	var data := PackedByteArray()
+	data.resize(num_samples)
+
+	var phase1: float = 0.0
+	var phase2: float = 0.0
+	var phase3: float = 0.0
+	for i in range(num_samples):
+		var t: float = float(i) / float(num_samples)
+		phase1 += 2.0 * PI * 180.0 / sample_rate
+		phase2 += 2.0 * PI * 290.0 / sample_rate
+		phase3 += 2.0 * PI * 510.0 / sample_rate
+		var envelope: float = exp(-t * 8.0)
+		var noise: float = randf_range(-0.3, 0.3) * exp(-t * 25.0)
+		var s: float = (sin(phase1) * 0.4 + sin(phase2) * 0.3 + sin(phase3) * 0.2 + noise * 0.1) * envelope * volume
+		data[i] = int(clamp((s + 1.0) * 127.5, 0.0, 255.0))
+
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_8_BITS
+	wav.mix_rate = sample_rate
+	wav.data = data
+	return wav

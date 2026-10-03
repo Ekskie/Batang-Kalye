@@ -55,6 +55,30 @@ func _process(_delta: float) -> void:
 			if conn:
 				conn.poll()
 
+func start_solo_practice(player_name: String) -> Error:
+	local_player_name = player_name
+	is_host = true
+	is_solo_practice = true
+	connection_mode = "offline"
+
+	_cleanup_peers()
+
+	var offline_peer := OfflineMultiplayerPeer.new()
+	peer = offline_peer
+	multiplayer.multiplayer_peer = peer
+	players.clear()
+	players[1] = {
+		"name": local_player_name,
+		"score": 0,
+		"role": 0,
+		"character": local_outfit.get("base", local_character_type),
+		"color_idx": local_outfit.get("color", local_color_index),
+		"outfit": local_outfit
+	}
+	server_created.emit()
+	player_list_updated.emit()
+	return OK
+
 func create_game(player_name: String, port: int = DEFAULT_PORT) -> Error:
 	local_player_name = player_name
 	is_host = true
@@ -440,7 +464,8 @@ func _cleanup_peers() -> void:
 	webrtc_has_remote_description.clear()
 	pending_ice_candidates.clear()
 	if peer:
-		peer.close()
+		if peer.has_method("close"):
+			peer.close()
 		multiplayer.multiplayer_peer = null
 		peer = null
 

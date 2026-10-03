@@ -46,6 +46,16 @@ extends Control
 @onready var trash_type_label: Label = get_node_or_null("BottomBar/InventorySlot/Margin/VBox/TrashType")
 @onready var drop_hint_label: Label = get_node_or_null("BottomBar/InventorySlot/Margin/VBox/DropHint")
 
+# Street Items Slot & Hiding Panel
+@onready var street_item_slot: PanelContainer = get_node_or_null("BottomBar/StreetItemSlot")
+@onready var street_item_icon: Label = get_node_or_null("BottomBar/StreetItemSlot/Margin/VBox/ItemIcon")
+@onready var street_item_name: Label = get_node_or_null("BottomBar/StreetItemSlot/Margin/VBox/ItemName")
+@onready var street_item_hint: Label = get_node_or_null("BottomBar/StreetItemSlot/Margin/VBox/ItemHint")
+
+@onready var hiding_panel: PanelContainer = get_node_or_null("HidingPanel")
+@onready var hiding_timer_bar: ProgressBar = get_node_or_null("HidingPanel/Margin/VBox/HidingTimerBar")
+@onready var hiding_label: Label = get_node_or_null("HidingPanel/Margin/VBox/HidingLabel")
+
 @onready var powerup_panel: PanelContainer = get_node_or_null("BottomBar/PowerupSlot")
 @onready var powerup_icon_label: Label = get_node_or_null("BottomBar/PowerupSlot/Margin/VBox/PowerupIcon")
 @onready var powerup_label: Label = get_node_or_null("BottomBar/PowerupSlot/Margin/VBox/PowerupLabel")
@@ -94,6 +104,7 @@ func _ready() -> void:
 	_init_deck_styles()
 
 	if btn_hud_pause:
+		_apply_button_squash(btn_hud_pause)
 		btn_hud_pause.pressed.connect(func():
 			var main_node = get_node_or_null("/root/Main")
 			if main_node and main_node.has_method("toggle_pause"):
@@ -114,31 +125,45 @@ func _ready() -> void:
 	if intermission_banner:
 		intermission_banner.visible = false
 
+func _apply_button_squash(btn: Button) -> void:
+	if not btn:
+		return
+	btn.pivot_offset = btn.size * 0.5
+	btn.button_down.connect(func():
+		var t := create_tween()
+		t.tween_property(btn, "scale", Vector2(0.92, 0.92), 0.06).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	)
+	btn.button_up.connect(func():
+		var t := create_tween()
+		t.tween_property(btn, "scale", Vector2.ONE, 0.16).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	)
+
 	update_speed_lines(0.0)
 	_update_inventory_display(-1)
+	_set_crosshair_throwable_mode(false)
 
 func _init_deck_styles() -> void:
 	deck_style_runner = StyleBoxFlat.new()
-	deck_style_runner.bg_color = Color(0.04, 0.07, 0.12, 0.92)
-	deck_style_runner.border_width_left = 2
-	deck_style_runner.border_width_top = 2
-	deck_style_runner.border_width_right = 2
-	deck_style_runner.border_width_bottom = 2
-	deck_style_runner.border_color = Color(0.18, 0.85, 0.65, 0.9)
-	deck_style_runner.set_corner_radius_all(16)
-	deck_style_runner.shadow_color = Color(0.05, 0.4, 0.25, 0.3)
-	deck_style_runner.shadow_size = 10
+	deck_style_runner.bg_color = Color(0.05, 0.06, 0.09, 0.85)
+	deck_style_runner.border_width_left = 1
+	deck_style_runner.border_width_top = 1
+	deck_style_runner.border_width_right = 1
+	deck_style_runner.border_width_bottom = 1
+	deck_style_runner.border_color = Color(1.0, 1.0, 1.0, 0.4)
+	deck_style_runner.set_corner_radius_all(20)
+	deck_style_runner.shadow_color = Color(0, 0, 0, 0.5)
+	deck_style_runner.shadow_size = 8
 
 	deck_style_taya = StyleBoxFlat.new()
-	deck_style_taya.bg_color = Color(0.08, 0.04, 0.06, 0.94)
+	deck_style_taya.bg_color = Color(0.14, 0.04, 0.06, 0.9)
 	deck_style_taya.border_width_left = 2
 	deck_style_taya.border_width_top = 2
 	deck_style_taya.border_width_right = 2
 	deck_style_taya.border_width_bottom = 2
-	deck_style_taya.border_color = Color(1.0, 0.25, 0.15, 0.95)
-	deck_style_taya.set_corner_radius_all(16)
-	deck_style_taya.shadow_color = Color(0.8, 0.1, 0.1, 0.4)
-	deck_style_taya.shadow_size = 14
+	deck_style_taya.border_color = Color(0.9, 0.2, 0.2, 0.95)
+	deck_style_taya.set_corner_radius_all(20)
+	deck_style_taya.shadow_color = Color(0.8, 0.1, 0.1, 0.35)
+	deck_style_taya.shadow_size = 12
 
 func update_speed_lines(intensity: float) -> void:
 	if speed_lines and speed_lines.material:
@@ -163,6 +188,17 @@ func trigger_hit_flash(color: Color = Color(1, 1, 1, 0.65), duration: float = 0.
 		crosshair_tween = create_tween()
 		crosshair_tween.tween_property(crosshair, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
+func _set_crosshair_throwable_mode(active: bool) -> void:
+	for tick in crosshair_ticks:
+		if is_instance_valid(tick):
+			tick.visible = active
+	if crosshair_dot:
+		crosshair_dot.color = Color(1.0, 0.9, 0.3, 0.95) if active else Color(1.0, 1.0, 1.0, 0.85)
+	if crosshair:
+		var target_scale := Vector2(1.2, 1.2) if active else Vector2.ONE
+		var t := create_tween()
+		t.tween_property(crosshair, "scale", target_scale, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
 func update_role_display(is_taya: bool) -> void:
 	var role_changed := (is_taya != is_taya_local)
 	is_taya_local = is_taya
@@ -184,22 +220,22 @@ func update_role_display(is_taya: bool) -> void:
 			t.tween_property(role_badge, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 		if is_taya:
-			role_badge.text = "🔥 TAYA"
-			role_badge.modulate = Color(1.0, 0.3, 0.15)
+			role_badge.text = "TAYA"
+			role_badge.modulate = Color(1.0, 0.2, 0.35)
 		else:
-			role_badge.text = "👟 RUNNER"
-			role_badge.modulate = Color(0.25, 0.95, 0.45)
+			role_badge.text = "LIGTAS"
+			role_badge.modulate = Color(0.2, 0.95, 0.5)
 
 func update_score(survival_seconds: float, tags: int, is_taya: bool) -> void:
 	if score_label:
 		if is_taya:
-			score_label.text = "🏆 %d HAMPAS" % tags
+			score_label.text = "%d HAMPAS" % tags
 			score_label.modulate = Color(1.0, 0.85, 0.2)
 			if prev_tags != -1 and tags > prev_tags:
 				_pulse_score_label()
 			prev_tags = tags
 		else:
-			score_label.text = "⏱️ %.1fs" % survival_seconds
+			score_label.text = "%.1fs" % survival_seconds
 			score_label.modulate = Color(0.85, 0.95, 1.0)
 
 func _pulse_score_label() -> void:
@@ -250,14 +286,14 @@ func _pulse_timer_label() -> void:
 func update_round_badge(round_num: int, _mode_name: String, alive_count: int, total_count: int) -> void:
 	if round_label:
 		if alive_count <= 2 and total_count > 2:
-			round_label.text = "🏆 FINALS (1v1)"
+			round_label.text = "FINALS (1v1)"
 			round_label.modulate = Color(1.0, 0.35, 0.2)
 		else:
-			round_label.text = "🥊 ROUND %d" % round_num
+			round_label.text = "ROUND %d" % round_num
 			round_label.modulate = Color(1.0, 0.85, 0.2)
 
 	if alive_label:
-		alive_label.text = "👥 %d BUHAY" % alive_count
+		alive_label.text = "%d BUHAY" % alive_count
 		if alive_count <= 2:
 			alive_label.modulate = Color(1.0, 0.35, 0.25)
 		else:
@@ -275,7 +311,7 @@ func show_spectator_bar(target_name: String) -> void:
 	if spectator_bar:
 		spectator_bar.visible = true
 	if spectator_label:
-		spectator_label.text = "👁️ NANONOOD KAY: %s   |   [SPACE / CLICK / A-D] Palitan" % target_name.to_upper()
+		spectator_label.text = "NANONOOD KAY: %s   |   [SPACE / CLICK / A-D] Palitan" % target_name.to_upper()
 
 func hide_spectator_bar() -> void:
 	if spectator_bar:
@@ -290,7 +326,7 @@ func show_round_intermission(next_round: int, eliminated_name: String, remaining
 		t.tween_property(intermission_banner, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 	if intermission_title:
-		intermission_title.text = "💥 NA-TAYA SI %s! ELIMINADO NA!" % eliminated_name.to_upper()
+		intermission_title.text = "NA-TAYA SI %s! ELIMINADO NA!" % eliminated_name.to_upper()
 	if intermission_sub:
 		intermission_sub.text = "%d bata na lang ang natitira sa kalye!\nSusunod na Round %d sa loob ng ilang sandali..." % [remaining_count, next_round]
 
@@ -318,11 +354,11 @@ func update_scoreboard(players_data: Dictionary) -> void:
 		var p_name: String = str(pinfo.get("name", "Player"))
 		var p_score: int = int(pinfo.get("score", 0))
 
-		var status_icon := "👟 "
+		var status_icon := ""
 		if is_p_taya:
-			status_icon = "🔥 "
+			status_icon = "[TAYA] "
 		elif is_sent_home:
-			status_icon = "🏠 "
+			status_icon = "[UMUWI] "
 
 		item.text = "%s%-10s %d" % [status_icon, p_name, p_score]
 		item.add_theme_font_size_override("font_size", 12)
@@ -400,7 +436,7 @@ func _update_inventory_display(trash_type: int) -> void:
 	if trash_type == -1:
 		# Empty state
 		if trash_icon_label:
-			trash_icon_label.text = "📭"
+			trash_icon_label.text = ""
 			trash_icon_label.modulate = Color(0.6, 0.6, 0.6, 0.4)
 		if trash_type_label:
 			trash_type_label.text = "WALANG LAMAN"
@@ -410,24 +446,19 @@ func _update_inventory_display(trash_type: int) -> void:
 		inventory_slot.modulate = Color(0.8, 0.8, 0.8, 0.6)
 	else:
 		# Item carried!
-		var icon: String = "📦"
 		var tname: String = "BASURA"
 		match trash_type:
 			0:
-				icon = "🍾"
 				tname = "BOTE"
 			1:
-				icon = "🥫"
 				tname = "LATA"
 			2:
-				icon = "🍌"
 				tname = "SAGING"
 			3:
-				icon = "🍬"
 				tname = "KENDI"
 
 		if trash_icon_label:
-			trash_icon_label.text = icon
+			trash_icon_label.text = ""
 			trash_icon_label.modulate = Color(1.0, 1.0, 1.0, 1.0)
 		if trash_type_label:
 			trash_type_label.text = tname
@@ -445,6 +476,80 @@ func _update_inventory_display(trash_type: int) -> void:
 		inv_tween.tween_property(inventory_slot, "scale", Vector2(1.2, 1.2), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		inv_tween.tween_property(inventory_slot, "scale", Vector2.ONE, 0.12)
 
+# --- Street Items Slot & Hiding Display ---
+func on_street_item_changed(item_type: int, _item_name: String, count: int) -> void:
+	if not street_item_slot:
+		return
+
+	if item_type == -1 or count <= 0:
+		_set_crosshair_throwable_mode(false)
+		if street_item_icon: street_item_icon.text = ""
+		if street_item_name:
+			street_item_name.text = "WALANG GAMIT"
+			street_item_name.modulate = Color(0.6, 0.6, 0.6, 0.5)
+		if street_item_hint:
+			street_item_hint.visible = false
+		street_item_slot.modulate = Color(0.8, 0.8, 0.8, 0.6)
+	else:
+		_set_crosshair_throwable_mode(item_type == 0 or item_type == 3)
+		var iname := "GAMIT"
+		var icon := "🎒"
+		var hint := "[R-CLICK] GAMIT"
+		var col := Color(1.0, 1.0, 1.0)
+
+		match item_type:
+			0: # TSINELAS
+				iname = "TSINELAS (%dx)" % count if count > 1 else "TSINELAS"
+				icon = "🩴"
+				hint = "[R-CLICK] BATO"
+				col = Color(0.3, 0.85, 1.0)
+			1: # SAGING
+				iname = "SAGING (%dx)" % count if count > 1 else "SAGING"
+				icon = "🍌"
+				hint = "[R-CLICK] BITAW"
+				col = Color(1.0, 0.9, 0.2)
+			2: # WHISTLE
+				iname = "SIPOL"
+				icon = "📢"
+				hint = "[R-CLICK] REVEAL"
+				col = Color(1.0, 0.35, 0.35)
+			3: # CHALK_BAG
+				iname = "CHALK DUST"
+				icon = "🌫️"
+				hint = "[R-CLICK] BATO"
+				col = Color(0.95, 0.95, 1.0)
+			4: # ICE_CANDY
+				iname = "ICE CANDY"
+				icon = "🍧"
+				hint = "[R-CLICK] SIPSIP"
+				col = Color(1.0, 0.45, 0.8)
+
+		if street_item_icon:
+			street_item_icon.text = icon
+		if street_item_name:
+			street_item_name.text = iname
+			street_item_name.modulate = col
+		if street_item_hint:
+			street_item_hint.text = hint
+			street_item_hint.visible = true
+
+		street_item_slot.modulate = Color.WHITE
+
+		var tw := create_tween()
+		tw.tween_property(street_item_slot, "scale", Vector2(1.2, 1.2), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(street_item_slot, "scale", Vector2.ONE, 0.12)
+
+func on_hiding_state_changed(is_hiding: bool, time_left: float) -> void:
+	if not hiding_panel:
+		return
+	hiding_panel.visible = is_hiding
+	if is_hiding:
+		if hiding_timer_bar:
+			hiding_timer_bar.value = time_left
+		if hiding_label:
+			hiding_label.text = "NAGTATAGO (%.1fs) [SPACE: LABAS]" % time_left
+			hiding_label.modulate = Color(1.0, 0.35, 0.35) if time_left < 3.0 else Color(0.3, 0.9, 1.0)
+
 # --- Imagination Powerup Slot ---
 func on_powerup_changed(powerup_type: int, duration_left: float, charges: int) -> void:
 	if not powerup_panel:
@@ -455,27 +560,21 @@ func on_powerup_changed(powerup_type: int, duration_left: float, charges: int) -
 		return
 
 	powerup_panel.visible = true
-	var p_icon := "✨"
 	var p_desc := "IMAGINATION"
 	match powerup_type:
 		1:
-			p_icon = "⚡"
 			p_desc = "KIDLAT DASH (%dx)" % charges
 		2:
-			p_icon = "🏃"
 			p_desc = "SUPER SPEED (%.0fs)" % duration_left
 		3:
-			p_icon = "🦘"
 			p_desc = "2x JUMP (%.0fs)" % duration_left
 		4:
-			p_icon = "🌊"
 			p_desc = "WATER RUN (%.0fs)" % duration_left
 		5:
-			p_icon = "🧗"
 			p_desc = "WALL RUN (%.0fs)" % duration_left
 
 	if powerup_icon_label:
-		powerup_icon_label.text = p_icon
+		powerup_icon_label.text = ""
 	if powerup_label:
 		powerup_label.text = p_desc
 
@@ -490,14 +589,14 @@ func on_danger_detected(is_danger: bool, distance: float) -> void:
 
 	danger_overlay.visible = true
 	if danger_label:
-		danger_label.text = "⚠️ TAYA MALAPIT! (%.0fm)" % distance
+		danger_label.text = "TAYA MALAPIT! (%.0fm)" % distance
 
 # --- Tag & Nanay Announcements ---
 func show_tag_banner(chaser_name: String, target_name: String) -> void:
 	if not tag_banner or not tag_banner_label:
 		return
 
-	tag_banner_label.text = "💥 %s NA-TAYA SI %s!\nWALANG BAWIAN!" % [chaser_name.to_upper(), target_name.to_upper()]
+	tag_banner_label.text = "%s NA-TAYA SI %s!\nWALANG BAWIAN!" % [chaser_name.to_upper(), target_name.to_upper()]
 	tag_banner.visible = true
 	tag_banner.scale = Vector2(0.5, 0.5)
 	tag_banner.modulate.a = 1.0
@@ -507,7 +606,7 @@ func show_tag_banner(chaser_name: String, target_name: String) -> void:
 
 	banner_tween = create_tween()
 	banner_tween.tween_property(tag_banner, "scale", Vector2(1.15, 1.15), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	banner_tween.tween_property(tag_banner, "scale", Vector2(1.0, 1.0), 0.1)
+	banner_tween.tween_property(tag_banner, "scale", Vector2.ONE, 0.1)
 	banner_tween.tween_interval(2.0)
 	banner_tween.tween_property(tag_banner, "modulate:a", 0.0, 0.35)
 	banner_tween.tween_callback(func(): tag_banner.visible = false)
@@ -540,7 +639,7 @@ func show_nanay_alert(pname: String) -> void:
 	if not toast_panel or not toast_label:
 		return
 
-	toast_label.text = "🏠 HOY %s! UMUWI KA NA!\nPINAPAUWI KA NI NANAY!" % pname.to_upper()
+	toast_label.text = "HOY %s! UMUWI KA NA!\nPINAPAUWI KA NI NANAY!" % pname.to_upper()
 	toast_panel.visible = true
 	toast_panel.scale = Vector2(0.5, 0.5)
 	toast_panel.modulate = Color(1.0, 0.7, 0.1, 1.0)

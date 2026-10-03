@@ -4,14 +4,15 @@ extends Node3D
 enum CharacterType {
 	TSUNA = 0,
 	KALBO = 1,
-	ORIGINAL = 2,
-	BATA = 3
+	TOTOY = 2,
+	ORIGINAL = 3,
+	BATA = 4
 }
 
 const ARCHETYPES: Array[Dictionary] = [
 	{
 		"id": 0,
-		"name": "⚡ Tsuna",
+		"name": "Tsuna",
 		"title": "Anime Kid",
 		"base": 0,
 		"hair": 0,
@@ -22,7 +23,7 @@ const ARCHETYPES: Array[Dictionary] = [
 	},
 	{
 		"id": 1,
-		"name": "🥊 Kalbo",
+		"name": "Kalbo",
 		"title": "Street Brawler",
 		"base": 1,
 		"hair": 1,
@@ -33,18 +34,18 @@ const ARCHETYPES: Array[Dictionary] = [
 	},
 	{
 		"id": 2,
-		"name": "🏃 Totoy",
+		"name": "Totoy",
 		"title": "Sando Runner",
-		"base": 1,
-		"hair": 3,
+		"base": 2,
+		"hair": 0,
 		"headwear": 0,
-		"body": 1,
+		"body": 0,
 		"footwear": 0,
 		"color": 2
 	},
 	{
 		"id": 3,
-		"name": "👧 Nene",
+		"name": "Nene",
 		"title": "Liksi Kid",
 		"base": 0,
 		"hair": 2,
@@ -55,7 +56,7 @@ const ARCHETYPES: Array[Dictionary] = [
 	},
 	{
 		"id": 4,
-		"name": "🧢 Tisoy",
+		"name": "Tisoy",
 		"title": "Pormang Kanto",
 		"base": 0,
 		"hair": 0,
@@ -66,7 +67,7 @@ const ARCHETYPES: Array[Dictionary] = [
 	},
 	{
 		"id": 5,
-		"name": "🏀 Baldo",
+		"name": "Baldo",
 		"title": "Basketbolista",
 		"base": 1,
 		"hair": 1,
@@ -77,7 +78,7 @@ const ARCHETYPES: Array[Dictionary] = [
 	},
 	{
 		"id": 6,
-		"name": "🧣 Nonoy",
+		"name": "Nonoy",
 		"title": "Pawisin",
 		"base": 1,
 		"hair": 3,
@@ -88,7 +89,7 @@ const ARCHETYPES: Array[Dictionary] = [
 	},
 	{
 		"id": 7,
-		"name": "🎀 Kikay",
+		"name": "Kikay",
 		"title": "Bibbo",
 		"base": 0,
 		"hair": 4,
@@ -100,62 +101,62 @@ const ARCHETYPES: Array[Dictionary] = [
 ]
 
 const HAIR_OPTIONS: Array[Dictionary] = [
-	{ "name": "⚡ Spiky Anime" },
-	{ "name": "🥊 Kalbo (Kintab)" },
-	{ "name": "👧 Twin Pigtails" },
-	{ "name": "✂️ Buzz Cut" },
-	{ "name": "🎀 Bob Cut" }
+	{ "name": "Spiky Anime" },
+	{ "name": "Kalbo (Kintab)" },
+	{ "name": "Twin Pigtails" },
+	{ "name": "Buzz Cut" },
+	{ "name": "Bob Cut" }
 ]
 
 const HEADWEAR_OPTIONS: Array[Dictionary] = [
-	{ "name": "🚫 Wala (None)" },
-	{ "name": "🧢 Baligtad na Snapback" },
-	{ "name": "🧣 Good Morning Towel" },
-	{ "name": "🥷 Bandana sa Noo" },
-	{ "name": "🏀 Athletic Sweatband" }
+	{ "name": "Wala (None)" },
+	{ "name": "Baligtad na Snapback" },
+	{ "name": "Good Morning Towel" },
+	{ "name": "Bandana sa Noo" },
+	{ "name": "Athletic Sweatband" }
 ]
 
 const BODY_OPTIONS: Array[Dictionary] = [
-	{ "name": "👕 Street T-Shirt" },
-	{ "name": "🏀 Sando #23 (Liga)" },
-	{ "name": "🏠 Striped Pambahay" },
-	{ "name": "🎽 Sleeveless Sando" }
+	{ "name": "Street T-Shirt" },
+	{ "name": "Sando #23 (Liga)" },
+	{ "name": "Striped Pambahay" },
+	{ "name": "Sleeveless Sando" }
 ]
 
 const FOOTWEAR_OPTIONS: Array[Dictionary] = [
-	{ "name": "🩴 Spartan (Asul/Puti)" },
-	{ "name": "🔴 Islander (Pula)" },
-	{ "name": "👟 Black Rubber Slide" },
-	{ "name": "👣 Paang Hubad (Barefoot)" }
+	{ "name": "Spartan (Asul/Puti)" },
+	{ "name": "Islander (Pula)" },
+	{ "name": "Black Rubber Slide" },
+	{ "name": "Paang Hubad (Barefoot)" }
 ]
 
 const COLOR_OPTIONS: Array[Dictionary] = [
-	{ "name": "⚪ Puting Sando (Clean White)", "color": Color(0.95, 0.95, 0.95, 1.0) },
-	{ "name": "🔵 Asul Kanto (Classic Navy)", "color": Color(0.18, 0.28, 0.48, 1.0) },
-	{ "name": "🔴 Pulang Liga (Barangay Red)", "color": Color(0.72, 0.16, 0.16, 1.0) },
-	{ "name": "🔘 Kulay Abo (Heather Grey)", "color": Color(0.52, 0.54, 0.56, 1.0) },
-	{ "name": "⚫ Itim Kanto (Charcoal Black)", "color": Color(0.16, 0.17, 0.19, 1.0) },
-	{ "name": "🩳 Kulay Kaki (Khaki Cargo)", "color": Color(0.60, 0.50, 0.38, 1.0) },
-	{ "name": "🌿 Berdeng Army (Muted Olive)", "color": Color(0.28, 0.38, 0.26, 1.0) },
-	{ "name": "🟡 Dilaw Pambahay (Sun Gold)", "color": Color(0.90, 0.74, 0.20, 1.0) }
+	{ "name": "Puting Sando (Clean White)", "color": Color(0.95, 0.95, 0.95, 1.0) },
+	{ "name": "Asul Kanto (Classic Navy)", "color": Color(0.18, 0.28, 0.48, 1.0) },
+	{ "name": "Pulang Liga (Barangay Red)", "color": Color(0.72, 0.16, 0.16, 1.0) },
+	{ "name": "Kulay Abo (Heather Grey)", "color": Color(0.52, 0.54, 0.56, 1.0) },
+	{ "name": "Itim Kanto (Charcoal Black)", "color": Color(0.16, 0.17, 0.19, 1.0) },
+	{ "name": "Kulay Kaki (Khaki Cargo)", "color": Color(0.60, 0.50, 0.38, 1.0) },
+	{ "name": "Berdeng Army (Muted Olive)", "color": Color(0.28, 0.38, 0.26, 1.0) },
+	{ "name": "Dilaw Pambahay (Sun Gold)", "color": Color(0.90, 0.74, 0.20, 1.0) }
 ]
 
 const SKIN_TONES: Array[Dictionary] = [
-	{ "name": "🇵🇭 Kayumanggi (Natural Tan)", "color": Color(0.85, 0.62, 0.44, 1.0) },
-	{ "name": "☀️ Moreno (Sun-Baked Bronze)", "color": Color(0.74, 0.50, 0.34, 1.0) },
-	{ "name": "🌾 Mestizo (Warm Fair)", "color": Color(0.92, 0.72, 0.56, 1.0) },
-	{ "name": "🪵 Matapang na Moreno (Deep Warm)", "color": Color(0.64, 0.42, 0.27, 1.0) }
+	{ "name": "Kayumanggi (Natural Tan)", "color": Color(0.85, 0.62, 0.44, 1.0) },
+	{ "name": "Moreno (Sun-Baked Bronze)", "color": Color(0.74, 0.50, 0.34, 1.0) },
+	{ "name": "Mestizo (Warm Fair)", "color": Color(0.92, 0.72, 0.56, 1.0) },
+	{ "name": "Matapang na Moreno (Deep Warm)", "color": Color(0.64, 0.42, 0.27, 1.0) }
 ]
 
 const CHARACTER_NAMES: Array[String] = [
-	"⚡ Tsuna (Anime Kid)",
-	"🥊 Kalbo (Street Brawler)",
-	"🏃 Totoy (Sando Runner)",
-	"👧 Nene (Liksi Kid)",
-	"🧢 Tisoy (Pormang Kanto)",
-	"🏀 Baldo (Basketbolista)",
-	"🧣 Nonoy (Pawisin)",
-	"🎀 Kikay (Bibbo)"
+	"Tsuna (Anime Kid)",
+	"Kalbo (Street Brawler)",
+	"Totoy (Sando Runner)",
+	"Nene (Liksi Kid)",
+	"Tisoy (Pormang Kanto)",
+	"Baldo (Basketbolista)",
+	"Nonoy (Pawisin)",
+	"Kikay (Bibbo)"
 ]
 
 @export var is_taya: bool = false:
@@ -187,6 +188,7 @@ var current_character_type: int = CharacterType.TSUNA
 # Model container references
 @onready var model_tsuna: Node3D = get_node_or_null("ModelTsuna")
 @onready var model_kalbo: Node3D = get_node_or_null("ModelKalbo")
+@onready var model_totoy: Node3D = get_node_or_null("ModelTotoy")
 @onready var model_bata: Node3D = get_node_or_null("ModelBata")
 @onready var model_original: Node3D = get_node_or_null("ModelOriginal")
 
@@ -238,11 +240,25 @@ var held_anchor_base_y: float = 0.70
 # Modular Accessory Nodes Map: model -> { "head": BoneAttachment3D, ... }
 var modular_attachments: Dictionary = {}
 
+# Node3D property compatibility for tweening / tinting
+var modulate: Color = Color.WHITE
+
 func _init_model_references() -> void:
 	if not model_tsuna: model_tsuna = get_node_or_null("ModelTsuna")
 	if not model_kalbo: model_kalbo = get_node_or_null("ModelKalbo")
+	if not model_totoy: model_totoy = get_node_or_null("ModelTotoy")
 	if not model_bata: model_bata = get_node_or_null("ModelBata")
 	if not model_original: model_original = get_node_or_null("ModelOriginal")
+
+	if not model_totoy and ResourceLoader.exists("res://assets/models/Totoy.glb"):
+		var totoy_scene = load("res://assets/models/Totoy.glb") as PackedScene
+		if totoy_scene:
+			model_totoy = totoy_scene.instantiate() as Node3D
+			model_totoy.name = "ModelTotoy"
+			model_totoy.scale = Vector3(-25.0, 25.0, -25.0)
+			model_totoy.position = Vector3.ZERO
+			model_totoy.visible = false
+			add_child(model_totoy)
 
 func _ready() -> void:
 	_init_model_references()
@@ -267,7 +283,7 @@ func _exit_tree() -> void:
 
 func _setup_modular_accessories() -> void:
 	_init_model_references()
-	for m in [model_tsuna, model_kalbo]:
+	for m in [model_tsuna, model_kalbo, model_totoy]:
 		if not m:
 			continue
 		var skel: Skeleton3D = m.get_node_or_null("Armature/Skeleton3D")
@@ -279,8 +295,13 @@ func _setup_modular_accessories() -> void:
 		# 1. Head Attachment
 		var head_attach := BoneAttachment3D.new()
 		head_attach.name = "Attach_Head"
-		head_attach.bone_name = "mixamorig_Head"
-		head_attach.bone_idx = skel.find_bone("mixamorig_Head")
+		var b_head_name = "mixamorig_Head"
+		var b_head_idx = skel.find_bone("mixamorig_Head")
+		if b_head_idx == -1:
+			b_head_name = "mixamorig:Head"
+			b_head_idx = skel.find_bone("mixamorig:Head")
+		head_attach.bone_name = b_head_name
+		head_attach.bone_idx = b_head_idx
 		skel.add_child(head_attach)
 		attach_dict["head"] = head_attach
 		_build_head_accessories(head_attach)
@@ -288,8 +309,13 @@ func _setup_modular_accessories() -> void:
 		# 2. Chest Attachment (mixamorig_Spine2)
 		var chest_attach := BoneAttachment3D.new()
 		chest_attach.name = "Attach_Chest"
-		chest_attach.bone_name = "mixamorig_Spine2"
-		chest_attach.bone_idx = skel.find_bone("mixamorig_Spine2")
+		var b_chest_name = "mixamorig_Spine2"
+		var b_chest_idx = skel.find_bone("mixamorig_Spine2")
+		if b_chest_idx == -1:
+			b_chest_name = "mixamorig:Spine2"
+			b_chest_idx = skel.find_bone("mixamorig:Spine2")
+		chest_attach.bone_name = b_chest_name
+		chest_attach.bone_idx = b_chest_idx
 		skel.add_child(chest_attach)
 		attach_dict["chest"] = chest_attach
 		_build_chest_accessories(chest_attach)
@@ -297,16 +323,26 @@ func _setup_modular_accessories() -> void:
 		# 3. Feet Attachments (mixamorig_LeftFoot & RightFoot)
 		var l_foot := BoneAttachment3D.new()
 		l_foot.name = "Attach_LFoot"
-		l_foot.bone_name = "mixamorig_LeftFoot"
-		l_foot.bone_idx = skel.find_bone("mixamorig_LeftFoot")
+		var b_lfoot_name = "mixamorig_LeftFoot"
+		var b_lfoot_idx = skel.find_bone("mixamorig_LeftFoot")
+		if b_lfoot_idx == -1:
+			b_lfoot_name = "mixamorig:LeftFoot"
+			b_lfoot_idx = skel.find_bone("mixamorig:LeftFoot")
+		l_foot.bone_name = b_lfoot_name
+		l_foot.bone_idx = b_lfoot_idx
 		skel.add_child(l_foot)
 		attach_dict["l_foot"] = l_foot
 		_build_foot_accessories(l_foot, true)
 
 		var r_foot := BoneAttachment3D.new()
 		r_foot.name = "Attach_RFoot"
-		r_foot.bone_name = "mixamorig_RightFoot"
-		r_foot.bone_idx = skel.find_bone("mixamorig_RightFoot")
+		var b_rfoot_name = "mixamorig_RightFoot"
+		var b_rfoot_idx = skel.find_bone("mixamorig_RightFoot")
+		if b_rfoot_idx == -1:
+			b_rfoot_name = "mixamorig:RightFoot"
+			b_rfoot_idx = skel.find_bone("mixamorig:RightFoot")
+		r_foot.bone_name = b_rfoot_name
+		r_foot.bone_idx = b_rfoot_idx
 		skel.add_child(r_foot)
 		attach_dict["r_foot"] = r_foot
 		_build_foot_accessories(r_foot, false)
@@ -679,8 +715,15 @@ func _update_modular_visuals() -> void:
 	var tsuna_hair := active_model.get_node_or_null("Armature/Skeleton3D/hair") as MeshInstance3D
 	if not tsuna_hair:
 		tsuna_hair = active_model.get_node_or_null("Armature/Skeleton3D/hair_001") as MeshInstance3D
-	if tsuna_hair:
-		tsuna_hair.visible = (current_hair == 0 and current_base_char == 0)
+	if tsuna_hair and current_base_char == 0:
+		tsuna_hair.visible = (current_hair == 0)
+
+	# Native Totoy hair toggle
+	var totoy_hair := active_model.get_node_or_null("Armature/Skeleton3D/hair_001") as MeshInstance3D
+	if not totoy_hair:
+		totoy_hair = active_model.get_node_or_null("Armature/Skeleton3D/hair.001") as MeshInstance3D
+	if totoy_hair and current_base_char == CharacterType.TOTOY:
+		totoy_hair.visible = (current_hair == 0 or current_hair == 3)
 
 	# 1. Hair Slot
 	if head:
@@ -688,7 +731,7 @@ func _update_modular_visuals() -> void:
 		var buzz = head.get_node_or_null("Acc_BuzzCut")
 		var bob = head.get_node_or_null("Acc_BobCut")
 		if pigtails: pigtails.visible = (current_hair == 2)
-		if buzz: buzz.visible = (current_hair == 3)
+		if buzz: buzz.visible = (current_hair == 3 and current_base_char != CharacterType.TOTOY)
 		if bob: bob.visible = (current_hair == 4)
 
 	# 2. Headwear Slot
@@ -720,7 +763,7 @@ func _update_modular_visuals() -> void:
 		var towel = chest.get_node_or_null("Acc_Towel")
 		var j23 = chest.get_node_or_null("Acc_Jersey23")
 		if towel: towel.visible = (current_headwear == 2)
-		if j23: j23.visible = (current_body == 1)
+		if j23: j23.visible = (current_body == 1 and current_base_char != CharacterType.TOTOY)
 
 	# 4. Footwear Slot
 	for f in [l_foot, r_foot]:
@@ -769,6 +812,7 @@ func set_character(char_type: int) -> void:
 	# Hide all models first
 	if model_tsuna: model_tsuna.visible = false
 	if model_kalbo: model_kalbo.visible = false
+	if model_totoy: model_totoy.visible = false
 	if model_bata: model_bata.visible = false
 	if model_original: model_original.visible = false
 	if body_mesh and body_mesh.get_parent() == self: body_mesh.visible = false
@@ -802,6 +846,30 @@ func set_character(char_type: int) -> void:
 			is_skeletal = true
 			model_base_rot_y = PI
 
+		CharacterType.TOTOY:
+			if model_totoy:
+				model_totoy.visible = true
+				active_model = model_totoy
+				active_anim = model_totoy.get_node_or_null("AnimationPlayer")
+				active_mesh = model_totoy.get_node_or_null("Armature/Skeleton3D/base_body_001")
+				if not active_mesh:
+					active_mesh = model_totoy.get_node_or_null("Armature/Skeleton3D/base_body.001")
+				if not active_mesh:
+					active_mesh = model_totoy.get_node_or_null("Armature/Skeleton3D/base_body")
+				if not active_mesh:
+					var skel = model_totoy.get_node_or_null("Armature/Skeleton3D")
+					if skel:
+						for c in skel.get_children():
+							if c is MeshInstance3D and ("base_body" in c.name or "Body" in c.name):
+								active_mesh = c
+								break
+				var th = model_totoy.get_node_or_null("Armature/Skeleton3D/hair_001")
+				if not th:
+					th = model_totoy.get_node_or_null("Armature/Skeleton3D/hair.001")
+				if th: th.visible = true
+			is_skeletal = true
+			model_base_rot_y = PI
+
 		CharacterType.ORIGINAL:
 			if model_original:
 				model_original.visible = true
@@ -827,16 +895,36 @@ func set_character(char_type: int) -> void:
 
 	# Configure skeletal animation loops
 	if active_anim:
-		for a_name in ["idle", "jogging", "running", "narutoRun"]:
+		# Auto-alias animations if named with _Armature suffix or capitalized (e.g. from Blender export)
+		var lib_list: Array[StringName] = active_anim.get_animation_library_list()
+		for lib_name in lib_list:
+			var lib: AnimationLibrary = active_anim.get_animation_library(lib_name)
+			if lib:
+				var candidate_names: Array[String] = ["idle", "jogging", "running", "narutoRun", "jump", "punching", "t-pose", "slip"]
+				for a_name: String in candidate_names:
+					var suffixed: String = a_name + "_Armature"
+					if lib.has_animation(suffixed) and not lib.has_animation(a_name):
+						lib.add_animation(a_name, lib.get_animation(suffixed))
+					var cap_name: String = a_name.capitalize()
+					if lib.has_animation(cap_name) and not lib.has_animation(a_name):
+						lib.add_animation(a_name, lib.get_animation(cap_name))
+
+		var loop_anims: Array[String] = ["idle", "jogging", "running", "narutoRun", "idle_Armature", "jogging_Armature", "running_Armature", "narutoRun_Armature"]
+		for a_name: String in loop_anims:
 			if active_anim.has_animation(a_name):
-				var a := active_anim.get_animation(a_name)
-				a.loop_mode = Animation.LOOP_LINEAR
-		for a_name in ["jump", "punching"]:
+				var a: Animation = active_anim.get_animation(a_name)
+				if a:
+					a.loop_mode = Animation.LOOP_LINEAR
+
+		var non_loop_anims: Array[String] = ["jump", "punching", "jump_Armature", "punching_Armature", "slip", "Slip"]
+		for a_name: String in non_loop_anims:
 			if active_anim.has_animation(a_name):
-				var a := active_anim.get_animation(a_name)
-				a.loop_mode = Animation.LOOP_NONE
-		if active_anim.has_animation("idle"):
-			active_anim.play("idle")
+				var a: Animation = active_anim.get_animation(a_name)
+				if a:
+					a.loop_mode = Animation.LOOP_NONE
+
+		if _has_anim("idle"):
+			_play_anim("idle")
 
 	# Refresh materials on newly active model
 	_apply_active_mesh_color(current_player_color)
@@ -857,7 +945,19 @@ func _update_taya_visuals() -> void:
 			active_mesh.material_override = taya_mat
 		if body_mesh:
 			body_mesh.material_override = taya_mat
+		if active_model and active_model == model_totoy:
+			var parts_taya: Array[String] = ["Shirt_001", "Shirt.001", "short_001", "short.001", "hair_001", "hair.001", "face_001", "face.001"]
+			for part: String in parts_taya:
+				var p_node: MeshInstance3D = active_model.get_node_or_null("Armature/Skeleton3D/" + part) as MeshInstance3D
+				if p_node:
+					p_node.material_override = taya_mat
 	else:
+		if active_model and active_model == model_totoy:
+			var parts_clear: Array[String] = ["Shirt_001", "Shirt.001", "short_001", "short.001", "hair_001", "hair.001", "face_001", "face.001"]
+			for part: String in parts_clear:
+				var p_node: MeshInstance3D = active_model.get_node_or_null("Armature/Skeleton3D/" + part) as MeshInstance3D
+				if p_node:
+					p_node.material_override = null
 		_apply_active_mesh_color(current_player_color)
 
 func set_player_color(col: Color) -> void:
@@ -883,6 +983,16 @@ func _apply_active_mesh_color(col: Color) -> void:
 			clothes_mat.roughness = 0.5
 			active_mesh.set_surface_override_material(1, clothes_mat)
 
+	if active_model and active_model == model_totoy:
+		var shirt = active_model.get_node_or_null("Armature/Skeleton3D/Shirt_001") as MeshInstance3D
+		if not shirt:
+			shirt = active_model.get_node_or_null("Armature/Skeleton3D/Shirt.001") as MeshInstance3D
+		if shirt:
+			var s_mat := StandardMaterial3D.new()
+			s_mat.albedo_color = col
+			s_mat.roughness = 0.5
+			shirt.material_override = s_mat
+
 	if body_mesh:
 		body_mesh.material_override = null
 		if body_mesh.mesh and body_mesh.mesh.get_surface_count() > 0:
@@ -901,11 +1011,35 @@ func set_held_trash(trash_type: int) -> void:
 	if held_peel: held_peel.visible = (trash_type == 2)
 	if held_wrapper: held_wrapper.visible = (trash_type == 3)
 
+func _has_anim(anim_name: String) -> bool:
+	if not active_anim:
+		return false
+	return active_anim.has_animation(anim_name) or active_anim.has_animation(anim_name + "_Armature") or active_anim.has_animation(anim_name.capitalize())
+
+func _get_anim_name(anim_name: String) -> String:
+	if not active_anim:
+		return anim_name
+	if active_anim.has_animation(anim_name):
+		return anim_name
+	if active_anim.has_animation(anim_name + "_Armature"):
+		return anim_name + "_Armature"
+	if active_anim.has_animation(anim_name.capitalize()):
+		return anim_name.capitalize()
+	return anim_name
+
+func _play_anim(anim_name: String, custom_blend: float = -1.0) -> void:
+	if not active_anim:
+		return
+	var target: String = _get_anim_name(anim_name)
+	if active_anim.has_animation(target):
+		if active_anim.current_animation != target:
+			active_anim.play(target, custom_blend)
+
 func trigger_tag_animation() -> void:
 	is_tag_swinging = true
 	tag_swing_timer = tag_swing_duration
-	if active_anim and active_anim.has_animation("punching"):
-		active_anim.play("punching", 0.08)
+	if active_anim and _has_anim("punching"):
+		_play_anim("punching", 0.08)
 		active_anim.speed_scale = 2.2 # Snappy 0.4s tag punch strike
 
 func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed: float) -> void:
@@ -913,39 +1047,32 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 
 	# 1. Skeletal Character Animation
 	if is_skeletal and active_anim:
-		if is_tag_swinging and active_anim.has_animation("punching"):
+		if is_tag_swinging and _has_anim("punching"):
 			pass
 		elif not is_on_floor:
-			if active_anim.has_animation("jump"):
-				if active_anim.current_animation != "jump":
-					active_anim.play("jump", 0.12)
+			if _has_anim("jump"):
+				_play_anim("jump", 0.12)
 				active_anim.speed_scale = 1.2
 			elif horizontal_speed > 3.0:
-				if active_anim.current_animation != "jogging":
-					active_anim.play("jogging", 0.2)
+				_play_anim("jogging", 0.2)
 				active_anim.speed_scale = 0.8
 			else:
-				if active_anim.current_animation != "idle":
-					active_anim.play("idle", 0.2)
+				_play_anim("idle", 0.2)
 				active_anim.speed_scale = 0.8
 		else:
 			if horizontal_speed > 0.3:
-				if using_naruto and active_anim.has_animation("narutoRun"):
-					if active_anim.current_animation != "narutoRun":
-						active_anim.play("narutoRun", 0.15)
+				if using_naruto and _has_anim("narutoRun"):
+					_play_anim("narutoRun", 0.15)
 					active_anim.speed_scale = clamp(horizontal_speed / 11.5, 1.0, 2.4)
-				elif horizontal_speed > 8.0 and active_anim.has_animation("running"):
-					if active_anim.current_animation != "running":
-						active_anim.play("running", 0.15)
+				elif horizontal_speed > 8.0 and _has_anim("running"):
+					_play_anim("running", 0.15)
 					active_anim.speed_scale = clamp(horizontal_speed / 11.5, 0.85, 1.8)
-				elif active_anim.has_animation("jogging"):
-					if active_anim.current_animation != "jogging":
-						active_anim.play("jogging", 0.15)
+				elif _has_anim("jogging"):
+					_play_anim("jogging", 0.15)
 					active_anim.speed_scale = clamp(horizontal_speed / 7.0, 0.75, 1.4)
 			else:
-				if active_anim.has_animation("idle"):
-					if active_anim.current_animation != "idle":
-						active_anim.play("idle", 0.25)
+				if _has_anim("idle"):
+					_play_anim("idle", 0.25)
 					active_anim.speed_scale = 1.0
 
 	# 2. Original Procedural Animation (Batang Kalye Retro Model)

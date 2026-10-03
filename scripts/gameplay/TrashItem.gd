@@ -118,25 +118,25 @@ func _update_visuals() -> void:
 func get_item_icon() -> String:
 	match trash_type:
 		TrashType.PLASTIC_BOTTLE:
-			return "🍾"
+			return "[BOTE]"
 		TrashType.TIN_CAN:
-			return "🥫"
+			return "[LATA]"
 		TrashType.BANANA_PEEL:
-			return "🍌"
+			return "[SAGING]"
 		TrashType.CANDY_WRAPPER:
-			return "🍬"
-	return "📦"
+			return "[KENDI]"
+	return "[BASURA]"
 
 func get_item_name() -> String:
 	match trash_type:
 		TrashType.PLASTIC_BOTTLE:
-			return "🍾 Bote ng Tubig"
+			return "Bote ng Tubig"
 		TrashType.TIN_CAN:
-			return "🥫 Lata ng Sardinas"
+			return "Lata ng Sardinas"
 		TrashType.BANANA_PEEL:
-			return "🍌 Balat ng Saging"
+			return "Balat ng Saging"
 		TrashType.CANDY_WRAPPER:
-			return "🍬 Balat ng Kendi"
+			return "Balat ng Kendi"
 	return "Basura"
 
 func get_bin_category() -> BinCategory:

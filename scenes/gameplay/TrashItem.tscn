@@ -1,6 +1,6 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene format=3 uid="uid://byp5gk1jwp01n"]
 
-[ext_resource type="Script" path="res://scripts/gameplay/TrashItem.gd" id="1_trash"]
+[ext_resource type="Script" uid="uid://dy6hsk3kk2cwr" path="res://scripts/gameplay/TrashItem.gd" id="1_trash"]
 [ext_resource type="Material" path="res://assets/materials/mat_bottle_plastic.tres" id="2_bottle"]
 [ext_resource type="Material" path="res://assets/materials/mat_tin_can.tres" id="3_can"]
 [ext_resource type="Material" path="res://assets/materials/mat_banana_peel.tres" id="4_peel"]
@@ -34,13 +34,13 @@ size = Vector3(0.28, 0.08, 0.32)
 material = ExtResource("5_wrap")
 size = Vector3(0.24, 0.06, 0.16)
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_pickup"]
-radius = 2.2
-
 [sub_resource type="TorusMesh" id="TorusMesh_ring"]
 material = ExtResource("7_highlight")
 inner_radius = 0.45
 outer_radius = 0.65
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_pickup"]
+radius = 2.2
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sparkle"]
 shading_mode = 0
@@ -51,71 +51,71 @@ material = SubResource("StandardMaterial3D_sparkle")
 radius = 0.06
 height = 0.12
 
-[node name="TrashItem" type="Node3D"]
+[node name="TrashItem" type="Node3D" unique_id=1603039124]
 script = ExtResource("1_trash")
 
-[node name="VisualRoot" type="Node3D" parent="."]
+[node name="VisualRoot" type="Node3D" parent="." unique_id=1597706509]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
 
-[node name="BottleMesh" type="Node3D" parent="VisualRoot"]
+[node name="BottleMesh" type="Node3D" parent="VisualRoot" unique_id=1917397989]
 
-[node name="Body" type="MeshInstance3D" parent="VisualRoot/BottleMesh"]
+[node name="Body" type="MeshInstance3D" parent="VisualRoot/BottleMesh" unique_id=72765651]
 mesh = SubResource("CylinderMesh_bottle")
 
-[node name="Cap" type="MeshInstance3D" parent="VisualRoot/BottleMesh"]
+[node name="Cap" type="MeshInstance3D" parent="VisualRoot/BottleMesh" unique_id=448642195]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22, 0)
 mesh = SubResource("CylinderMesh_cap")
 
-[node name="CanMesh" type="Node3D" parent="VisualRoot"]
+[node name="CanMesh" type="Node3D" parent="VisualRoot" unique_id=269116149]
 visible = false
 
-[node name="Body" type="MeshInstance3D" parent="VisualRoot/CanMesh"]
+[node name="Body" type="MeshInstance3D" parent="VisualRoot/CanMesh" unique_id=1810619538]
 mesh = SubResource("CylinderMesh_can")
 
-[node name="PeelMesh" type="Node3D" parent="VisualRoot"]
+[node name="PeelMesh" type="Node3D" parent="VisualRoot" unique_id=648612287]
 visible = false
 
-[node name="Body" type="MeshInstance3D" parent="VisualRoot/PeelMesh"]
+[node name="Body" type="MeshInstance3D" parent="VisualRoot/PeelMesh" unique_id=1838040368]
 mesh = SubResource("BoxMesh_peel")
 
-[node name="WrapperMesh" type="Node3D" parent="VisualRoot"]
+[node name="WrapperMesh" type="Node3D" parent="VisualRoot" unique_id=390775496]
 visible = false
 
-[node name="Body" type="MeshInstance3D" parent="VisualRoot/WrapperMesh"]
+[node name="Body" type="MeshInstance3D" parent="VisualRoot/WrapperMesh" unique_id=401659739]
 mesh = SubResource("BoxMesh_wrap")
 
-[node name="HighlightRing" type="MeshInstance3D" parent="."]
+[node name="HighlightRing" type="MeshInstance3D" parent="." unique_id=721724400]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
 visible = false
 mesh = SubResource("TorusMesh_ring")
 
-[node name="Area3D" type="Area3D" parent="."]
+[node name="Area3D" type="Area3D" parent="." unique_id=142287230]
 collision_layer = 4
 collision_mask = 2
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=77734202]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
 shape = SubResource("SphereShape3D_pickup")
 
-[node name="Label3D" type="Label3D" parent="."]
+[node name="Label3D" type="Label3D" parent="." unique_id=273807081]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
 billboard = 1
-text = "🍾"
+modulate = Color(1, 0.95, 0.5, 1)
+text = "[BASURA]"
 font_size = 26
 outline_size = 8
-modulate = Color(1, 0.95, 0.5, 1)
 
-[node name="PickupParticles" type="CPUParticles3D" parent="."]
+[node name="PickupParticles" type="CPUParticles3D" parent="." unique_id=139056925]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
 emitting = false
-one_shot = true
-explosiveness = 0.9
 amount = 18
 lifetime = 0.5
+one_shot = true
+explosiveness = 0.9
 mesh = SubResource("SphereMesh_sparkle")
 direction = Vector3(0, 1, 0)
 spread = 70.0
-gravity = Vector3(0, -3.0, 0)
+gravity = Vector3(0, -3, 0)
 initial_velocity_min = 2.0
 initial_velocity_max = 4.0
 scale_amount_min = 0.6

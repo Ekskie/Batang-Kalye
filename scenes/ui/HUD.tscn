@@ -4,226 +4,242 @@
 [ext_resource type="Material" path="res://assets/materials/mat_speed_lines.tres" id="2_speed_mat"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header_pill"]
-bg_color = Color(0.04, 0.07, 0.12, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.18, 0.38, 0.6, 0.85)
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.04, 0.05, 0.08, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.35)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_round_badge"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.06, 0.07, 0.1, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.3)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_alive_badge"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.06, 0.07, 0.1, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.3)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pill"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0, 0, 0, 0.45)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.8)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_player_deck_runner"]
+bg_color = Color(0.05, 0.06, 0.09, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.4)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stamina_bg"]
+bg_color = Color(0.04, 0.05, 0.08, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.2)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stamina_burst"]
+bg_color = Color(1, 0.82, 0.15, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stamina_endurance"]
+bg_color = Color(0.35, 0.85, 1, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_scoreboard"]
+bg_color = Color(0.04, 0.05, 0.08, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.25)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prompt"]
+bg_color = Color(0.04, 0.05, 0.08, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.8)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.04, 0.05, 0.08, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.25)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_powerup_card"]
+bg_color = Color(0.04, 0.05, 0.08, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.35)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_danger_pill"]
+bg_color = Color(0.18, 0.04, 0.06, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9, 0.25, 0.25, 0.9)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.7, 0.1, 0.1, 0.4)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
+bg_color = Color(0.05, 0.06, 0.09, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.3)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
+bg_color = Color(0.05, 0.06, 0.09, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.4)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_spectator"]
+bg_color = Color(0.04, 0.05, 0.08, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.25)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
 shadow_color = Color(0, 0, 0, 0.45)
-shadow_size = 6
+shadow_size = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_round_badge"]
-bg_color = Color(0.08, 0.08, 0.14, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 0.82, 0.2, 0.85)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(1, 0.7, 0, 0.2)
-shadow_size = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_alive_badge"]
-bg_color = Color(0.04, 0.12, 0.08, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.15, 0.9, 0.5, 0.85)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0, 0.8, 0.4, 0.2)
-shadow_size = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pill"]
-bg_color = Color(0.08, 0.12, 0.18, 0.9)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.25, 0.7, 1, 0.8)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0, 0, 0, 0.35)
-shadow_size = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_player_deck_runner"]
-bg_color = Color(0.04, 0.07, 0.12, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.18, 0.85, 0.65, 0.9)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0.05, 0.4, 0.25, 0.3)
-shadow_size = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stamina_bg"]
-bg_color = Color(0.02, 0.04, 0.08, 0.92)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_intermission"]
+bg_color = Color(0.04, 0.05, 0.08, 0.94)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.15, 0.22, 0.35, 0.6)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stamina_burst"]
-bg_color = Color(1, 0.82, 0.18, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stamina_endurance"]
-bg_color = Color(0.2, 0.85, 1, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_scoreboard"]
-bg_color = Color(0.04, 0.07, 0.12, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.18, 0.4, 0.65, 0.85)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0, 0, 0, 0.4)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prompt"]
-bg_color = Color(0.05, 0.07, 0.12, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 0.85, 0.2, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(1, 0.75, 0, 0.35)
-shadow_size = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
-bg_color = Color(0.05, 0.08, 0.13, 0.9)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.2, 0.75, 1, 0.85)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0, 0, 0, 0.45)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_powerup_card"]
-bg_color = Color(0.09, 0.05, 0.15, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.78, 0.35, 1, 0.95)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(0.7, 0.2, 1, 0.35)
-shadow_size = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_danger_pill"]
-bg_color = Color(0.75, 0.08, 0.08, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 0.4, 0.3, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(1, 0, 0, 0.5)
-shadow_size = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
-bg_color = Color(0.05, 0.14, 0.1, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.2, 0.95, 0.5, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.4)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_banner"]
-bg_color = Color(0.07, 0.08, 0.14, 0.95)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 0.82, 0.2, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(1, 0.6, 0, 0.4)
-shadow_size = 12
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_spectator"]
-bg_color = Color(0.04, 0.07, 0.13, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.2, 0.75, 1, 0.85)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+border_color = Color(1, 1, 1, 0.35)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
 shadow_color = Color(0, 0, 0, 0.6)
-shadow_size = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_intermission"]
-bg_color = Color(0.04, 0.07, 0.13, 0.97)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 0.35, 0.2, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(1, 0.2, 0.1, 0.45)
-shadow_size = 18
+shadow_size = 16
 
 [node name="HUD" type="Control"]
 layout_mode = 3
@@ -261,11 +277,11 @@ theme_override_constants/margin_right = 14
 
 [node name="RoundLabel" type="Label" parent="TopBar/RoundContainer/Margin"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 0.95, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.2, 0.04, 0.3, 1)
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 14
-text = "🥊 ROUND 1 • PASA-TAYA"
+text = "ROUND 1: PASA-TAYA"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -277,10 +293,10 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_header_pill")
 
 [node name="TimerLabel" type="Label" parent="TopBar/TimerContainer"]
 layout_mode = 2
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.18, 0.04, 0.3, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 24
-text = "⏱️ 03:00"
+text = "03:00"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -296,20 +312,20 @@ theme_override_constants/margin_right = 14
 
 [node name="AliveLabel" type="Label" parent="TopBar/AliveContainer/Margin"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.25, 0.35, 1)
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 14
-text = "👥 8 BUHAY"
+text = "8 BUHAY"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="BtnHudPause" type="Button" parent="TopBar"]
-custom_minimum_size = Vector2(46, 44)
+custom_minimum_size = Vector2(64, 44)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pill")
-text = "⏸️"
+text = "PAUSE"
 
 [node name="PlayerDeck" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -338,21 +354,21 @@ theme_override_constants/separation = 10
 
 [node name="RoleBadge" type="Label" parent="PlayerDeck/Margin/VBox/RoleRow"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.95, 0.45, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.2, 0.95, 0.5, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.02, 0.18, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
-text = "👟 RUNNER"
+text = "LIGTAS"
 
 [node name="VSeparator" type="VSeparator" parent="PlayerDeck/Margin/VBox/RoleRow"]
 layout_mode = 2
 
 [node name="ScoreLabel" type="Label" parent="PlayerDeck/Margin/VBox/RoleRow"]
 layout_mode = 2
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.02, 0.18, 1)
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 16
-text = "⏱️ 0.0s"
+text = "0.0s"
 
 [node name="ExhaustedWarning" type="Label" parent="PlayerDeck/Margin/VBox"]
 visible = false
@@ -361,7 +377,7 @@ theme_override_colors/font_color = Color(1, 0.25, 0.2, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 11
-text = "⚠️ HINGAL NA! MAGPAHINGA MUNA 💨"
+text = "HINGAL NA! MAGPAHINGA MUNA"
 horizontal_alignment = 1
 
 [node name="BurstHeader" type="HBoxContainer" parent="PlayerDeck/Margin/VBox"]
@@ -374,7 +390,7 @@ theme_override_colors/font_color = Color(1, 0.85, 0.25, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 11
-text = "⚡ HATAW (SPRINT)"
+text = "HATAW (SPRINT)"
 
 [node name="BurstValue" type="Label" parent="PlayerDeck/Margin/VBox/BurstHeader"]
 layout_mode = 2
@@ -403,7 +419,7 @@ theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 11
-text = "🫁 HANGIN (ENDURANCE)"
+text = "HANGIN (ENDURANCE)"
 
 [node name="EnduranceValue" type="Label" parent="PlayerDeck/Margin/VBox/EnduranceHeader"]
 layout_mode = 2
@@ -546,7 +562,7 @@ theme_override_constants/separation = 4
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
 theme_override_font_sizes/font_size = 12
-text = "👥 MGA BATA"
+text = "MGA BATA"
 
 [node name="HSeparator" type="HSeparator" parent="ScoreboardPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -584,14 +600,14 @@ alignment = 1
 
 [node name="PromptIcon" type="Label" parent="ContextualPrompt/Margin/HBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 26
-text = "🥫"
+theme_override_font_sizes/font_size = 20
+text = ""
 
 [node name="PromptAction" type="Label" parent="ContextualPrompt/Margin/HBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95, 0.3, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 5
+theme_override_colors/font_color = Color(0.18, 0.04, 0.3, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
 theme_override_font_sizes/font_size = 18
 text = "[E] PULUTIN"
 
@@ -602,9 +618,9 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -140.0
+offset_left = -210.0
 offset_top = -115.0
-offset_right = 140.0
+offset_right = 210.0
 offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 0
@@ -632,8 +648,8 @@ alignment = 1
 
 [node name="TrashIcon" type="Label" parent="BottomBar/InventorySlot/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "📭"
+theme_override_font_sizes/font_size = 16
+text = ""
 horizontal_alignment = 1
 
 [node name="TrashType" type="Label" parent="BottomBar/InventorySlot/Margin/VBox"]
@@ -648,6 +664,45 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.4, 0.3, 1)
 theme_override_font_sizes/font_size = 11
 text = "[Q] BITAW"
+horizontal_alignment = 1
+
+[node name="StreetItemSlot" type="PanelContainer" parent="BottomBar"]
+custom_minimum_size = Vector2(120, 95)
+layout_mode = 2
+pivot_offset = Vector2(60, 47)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="BottomBar/StreetItemSlot"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="VBox" type="VBoxContainer" parent="BottomBar/StreetItemSlot/Margin"]
+layout_mode = 2
+alignment = 1
+
+[node name="ItemIcon" type="Label" parent="BottomBar/StreetItemSlot/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = ""
+horizontal_alignment = 1
+
+[node name="ItemName" type="Label" parent="BottomBar/StreetItemSlot/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "WALANG GAMIT"
+horizontal_alignment = 1
+
+[node name="ItemHint" type="Label" parent="BottomBar/StreetItemSlot/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 10
+text = "[R-CLICK] BATO"
 horizontal_alignment = 1
 
 [node name="PowerupSlot" type="PanelContainer" parent="BottomBar"]
@@ -671,8 +726,8 @@ alignment = 1
 
 [node name="PowerupIcon" type="Label" parent="BottomBar/PowerupSlot/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
-text = "⚡"
+theme_override_font_sizes/font_size = 18
+text = ""
 horizontal_alignment = 1
 
 [node name="PowerupLabel" type="Label" parent="BottomBar/PowerupSlot/Margin/VBox"]
@@ -681,6 +736,49 @@ theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
 theme_override_font_sizes/font_size = 12
 text = "KIDLAT DASH"
 horizontal_alignment = 1
+
+[node name="HidingPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -115.0
+offset_top = 80.0
+offset_right = 115.0
+offset_bottom = 145.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="Margin" type="MarginContainer" parent="HidingPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="HidingPanel/Margin"]
+layout_mode = 2
+alignment = 1
+
+[node name="HidingLabel" type="Label" parent="HidingPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "NAGTATAGO (8.0s)"
+horizontal_alignment = 1
+
+[node name="HidingTimerBar" type="ProgressBar" parent="HidingPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+max_value = 8.0
+value = 8.0
+show_percentage = false
+theme_override_styles/fill = SubResource("StyleBoxFlat_stamina_burst")
 
 [node name="DangerOverlay" type="Control" parent="."]
 visible = false
@@ -711,7 +809,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.4, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 14
-text = "⚠️ TAYA MALAPIT! (10m)"
+text = "TAYA MALAPIT! (10m)"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -743,7 +841,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 15
-text = "🎉 TAMANG TAPON!"
+text = "TAMANG TAPON!"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -775,7 +873,7 @@ theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
-text = "💥 NA-TAYA SI JUAN!"
+text = "NA-TAYA SI JUAN!"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -839,7 +937,7 @@ theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 14
-text = "👁️ NANONOOD KAY: Kalbo (Bot)  |  [SPACE / CLICK / A-D] Palitan"
+text = "NANONOOD KAY: Kalbo (Bot)  |  [SPACE / CLICK / A-D] Palitan"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -878,7 +976,7 @@ theme_override_colors/font_color = Color(1, 0.35, 0.2, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 24
-text = "💥 ROUND 1 TAPOS NA!"
+text = "ROUND 1 TAPOS NA!"
 horizontal_alignment = 1
 
 [node name="Sub" type="Label" parent="IntermissionBanner/Margin/VBox"]

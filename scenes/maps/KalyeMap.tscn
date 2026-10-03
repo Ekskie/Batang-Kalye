@@ -27,6 +27,9 @@
 [ext_resource type="Material" path="res://assets/materials/mat_dog_fur.tres" id="25_dog_fur"]
 [ext_resource type="Script" uid="uid://cyu3c5f6ub22u" path="res://scripts/gameplay/DogChaser.gd" id="26_dog_script"]
 [ext_resource type="PackedScene" uid="uid://c888kmg8ma8uh" path="res://assets/models/Tindahan/Tindahan-ni-Mama.glb" id="27_0i5ci"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/StreetItem.tscn" id="28_street_item"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/HidingSpot.tscn" id="29_hiding_spot"]
+
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ph"]
 sky_top_color = Color(0.2, 0.48, 0.88, 1)
@@ -298,7 +301,7 @@ material = ExtResource("15_chalk")
 [node name="LblBuwan" type="Label3D" parent="Ground/PikoCourt/Buwan"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.02, 0)
 modulate = Color(0.95, 0.95, 0.95, 0.9)
-text = "🌕 BUWAN"
+text = "BUWAN"
 font_size = 20
 
 [node name="BarangayBasketballCourt" type="Node3D" parent="Ground"]
@@ -447,7 +450,7 @@ outline_size = 8
 [node name="SubSign" type="Label3D" parent="SariSariStore"]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 2.1, 2.25, 0)
 modulate = Color(0.9, 0.95, 1, 1)
-text = "❄️ ICE TUBIG • E-LOAD • SNACKS"
+text = "ICE TUBIG • E-LOAD • SNACKS"
 font_size = 16
 outline_size = 6
 
@@ -599,7 +602,7 @@ material = ExtResource("11_t_blu")
 
 [node name="Label" type="Label3D" parent="SegregationBins/BinRecyclable/VisualBin"]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.35, 0.2, 0)
-text = "🔵 RECYCLABLE
+text = "RECYCLABLE
 (LATA/BOTE)"
 font_size = 14
 outline_size = 4
@@ -637,7 +640,7 @@ material = ExtResource("12_t_grn")
 
 [node name="Label" type="Label3D" parent="SegregationBins/BinBiodegradable/VisualBin"]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.35, 0.2, 0)
-text = "🟢 NABUBULOK
+text = "NABUBULOK
 (ORGANIC)"
 font_size = 14
 outline_size = 4
@@ -675,7 +678,7 @@ material = ExtResource("13_t_yel")
 
 [node name="Label" type="Label3D" parent="SegregationBins/BinNonBio/VisualBin"]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.35, 0.2, 0)
-text = "🟡 DI-NABUBULOK
+text = "DI-NABUBULOK
 (PLASTIK)"
 font_size = 14
 outline_size = 4
@@ -918,7 +921,7 @@ material = ExtResource("3_wood")
 [node name="CanalSign" type="Label3D" parent="FloodedCanal"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.0, 1.2, 3.8)
 modulate = Color(1, 0.85, 0.2, 1)
-text = "⚠️ BABALA: BAHANG KALYE!
+text = "BABALA: BAHANG KALYE!
 (Water Run Area)"
 font_size = 15
 outline_size = 4
@@ -1016,7 +1019,7 @@ trash_type = 3
 [node name="NormalZoneLabel" type="Label3D" parent="ZoneLabels"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, -40)
 modulate = Color(0.3, 1, 0.4, 1)
-text = "🏠 GITNANG KALYE
+text = "GITNANG KALYE
 (Main Kalye Avenue)"
 font_size = 20
 outline_size = 6
@@ -1024,7 +1027,7 @@ outline_size = 6
 [node name="CourtZoneLabel" type="Label3D" parent="ZoneLabels"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 2.8, -22)
 modulate = Color(1, 0.85, 0.2, 1)
-text = "🏀 BARANGAY BASKETBALL COURT
+text = "BARANGAY BASKETBALL COURT
 (Spacious Running Field)"
 font_size = 20
 outline_size = 6
@@ -1032,7 +1035,7 @@ outline_size = 6
 [node name="FloodedZoneLabel" type="Label3D" parent="ZoneLabels"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 2.8, -18)
 modulate = Color(0.3, 0.7, 1, 1)
-text = "🌊 BAHANG KALYE
+text = "BAHANG KALYE
 (Water Hazard - Slowdown Zone)"
 font_size = 18
 outline_size = 5
@@ -1040,7 +1043,7 @@ outline_size = 5
 [node name="DangerZoneLabel" type="Label3D" parent="ZoneLabels"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 2.8, 22)
 modulate = Color(1, 0.3, 0.2, 1)
-text = "⚠️ MAPANGANIB NA KALYE!
+text = "MAPANGANIB NA KALYE!
 (Asong Gala Stun Patrol Area)"
 font_size = 18
 outline_size = 5
@@ -1060,7 +1063,7 @@ shape = SubResource("BoxShape3D_danger_road")
 [node name="DangerSign1" type="Label3D" parent="DangerousZone"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 1.8, -12)
 modulate = Color(1, 0.5, 0.1, 1)
-text = "🐕 MAINGAT! ASONG GALA!
+text = "MAINGAT! ASONG GALA!
 (Stun ka nito!)"
 font_size = 15
 outline_size = 4
@@ -1069,7 +1072,7 @@ outline_size = 4
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 1.8, -12)
 modulate = Color(1, 0.5, 0.1, 1)
 text = "BEWARE OF DOG!
-🐕 BANTAY PATROL"
+BANTAY PATROL"
 font_size = 15
 outline_size = 4
 
@@ -1113,7 +1116,7 @@ mesh = SubResource("SphereMesh_dog_head")
 [node name="DogLabel" type="Label3D" parent="DangerousZone/DogChaser"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 modulate = Color(1, 0.5, 0.1, 1)
-text = "🐕 BANTAY"
+text = "BANTAY"
 font_size = 14
 outline_size = 4
 
@@ -1122,3 +1125,48 @@ shape = SubResource("CapsuleShape3D_dog")
 
 [node name="Tindahan-ni-Mama" parent="." instance=ExtResource("27_0i5ci")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.0, 0.018, -25.0)
+
+[node name="StreetItems" type="Node3D" parent="."]
+
+[node name="ItemTsinelas1" parent="StreetItems" instance=ExtResource("28_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.0, 0.1, -10.0)
+item_type = 0
+
+[node name="ItemTsinelas2" parent="StreetItems" instance=ExtResource("28_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.0, 0.1, 5.0)
+item_type = 0
+
+[node name="ItemSaging1" parent="StreetItems" instance=ExtResource("28_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0, 0.1, 14.0)
+item_type = 1
+
+[node name="ItemSaging2" parent="StreetItems" instance=ExtResource("28_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.0, 0.1, -15.0)
+item_type = 1
+
+[node name="ItemWhistle1" parent="StreetItems" instance=ExtResource("28_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, 0.1, -2.0)
+item_type = 2
+
+[node name="ItemChalk1" parent="StreetItems" instance=ExtResource("28_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.0, 0.1, 15.0)
+item_type = 3
+
+[node name="ItemIceCandy1" parent="StreetItems" instance=ExtResource("28_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.0, 0.1, -20.0)
+item_type = 4
+
+[node name="HidingSpots" type="Node3D" parent="."]
+
+[node name="HidingDrum1" parent="HidingSpots" instance=ExtResource("29_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.0, 0.0, 8.0)
+spot_type = 0
+
+[node name="HidingDrum2" parent="HidingSpots" instance=ExtResource("29_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.0, 0.0, -12.0)
+spot_type = 0
+
+[node name="HidingBox1" parent="HidingSpots" instance=ExtResource("29_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.0, 0.0, -28.0)
+spot_type = 1
+

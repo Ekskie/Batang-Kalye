@@ -9,6 +9,8 @@ signal notification_displayed(message: String, is_success: bool)
 signal interactable_changed(has_target: bool, prompt_icon: String, prompt_action: String)
 signal danger_detected(is_danger: bool, distance: float)
 signal stamina_changed(burst_val: float, burst_max: float, endurance_val: float, endurance_max: float, is_exhausted: bool)
+signal street_item_changed(item_type: int, item_name: String, count: int)
+signal hiding_state_changed(is_hiding: bool, time_left: float)
 
 enum Role {
 	RUNNER = 0,
@@ -124,6 +126,13 @@ var exhaust_pant_timer: float = 0.0
 @export var immunity_time: float = 2.5
 const TAG_REACH: float = 4.2
 
+# Kalye Action Match Stats (for Leaderboard & Awards)
+var stats_tags: int = 0
+var stats_slips: int = 0
+var stats_recycled: int = 0
+var stats_hits: int = 0
+var stats_hiding_time: float = 0.0
+
 # State timers
 var camera_pitch: float = 0.0
 var camera_yaw: float = 0.0
@@ -143,6 +152,7 @@ var air_jumps_left: int = 0
 var tag_cooldown: float = 0.0
 var tag_cooldown_max: float = 0.6
 var current_immunity_timer: float = 0.0
+var power_reveal_timer: float = 0.0
 
 # Waste Segregation & Inventory
 var held_trash: int = -1
@@ -169,6 +179,17 @@ var nearby_interactables: Array[Node3D] = []
 var current_interactable: Node3D = null
 var danger_check_timer: float = 0.0
 var is_cursor_free: bool = false  # True when user pressed Escape to free cursor
+
+# Street Items, Traps & Hiding State
+var held_street_item: int = -1
+var held_street_item_name: String = ""
+var held_street_item_count: int = 0
+var is_hiding: bool = false
+var current_hiding_spot: Node3D = null
+var is_slipping: bool = false
+var slip_timer: float = 0.0
+var slip_velocity: Vector3 = Vector3.ZERO
+var chalk_blind_timer: float = 0.0
 
 # Tournament & Crab Game Elimination State
 var is_eliminated: bool = false
@@ -217,6 +238,7 @@ func _ready() -> void:
 	set_multiplayer_authority(player_id)
 	if name_label:
 		name_label.text = player_name
+		name_label.visible = false
 	target_position = global_position
 	target_rotation_y = model.rotation.y if model else 0.0
 	if model:
@@ -276,6 +298,11 @@ func _ready() -> void:
 			if hud_node.has_method("on_stamina_changed"):
 				stamina_changed.connect(hud_node.on_stamina_changed)
 				stamina_changed.emit(burst_stamina, burst_stamina_max, endurance_stamina, endurance_stamina_max, is_exhausted)
+			if hud_node.has_method("on_street_item_changed"):
+				street_item_changed.connect(hud_node.on_street_item_changed)
+				street_item_changed.emit(held_street_item, held_street_item_name, held_street_item_count)
+			if hud_node.has_method("on_hiding_state_changed"):
+				hiding_state_changed.connect(hud_node.on_hiding_state_changed)
 
 func _setup_mobile_ui() -> void:
 	if not mobile_ui:
@@ -286,6 +313,8 @@ func _setup_mobile_ui() -> void:
 	mobile_ui.slide_pressed.connect(func(): _try_slide())
 	mobile_ui.dash_pressed.connect(func(): _try_dash())
 	mobile_ui.tag_pressed.connect(func(): _try_tag())
+	if mobile_ui.has_signal("item_pressed"):
+		mobile_ui.item_pressed.connect(func(): use_current_item())
 	if mobile_ui.has_signal("interact_pressed"):
 		mobile_ui.interact_pressed.connect(func(): _try_interact())
 	if mobile_ui.has_signal("drop_pressed"):
@@ -294,6 +323,8 @@ func _setup_mobile_ui() -> void:
 		powerup_changed.connect(mobile_ui.on_powerup_changed)
 	if mobile_ui.has_method("update_powerup_buttons"):
 		mobile_ui.update_powerup_buttons(active_powerup, dash_charges_left)
+	if mobile_ui.has_method("set_tag_button_highlight"):
+		mobile_ui.set_tag_button_highlight(current_role == Role.TAYA)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_local_human():
@@ -340,6 +371,28 @@ func _unhandled_input(event: InputEvent) -> void:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		else:
 			_try_tag()
+
+	# Right-Click: Use/Throw street item
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		if not is_cursor_free and not is_paused and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+			use_current_item()
+			get_viewport().set_input_as_handled()
+			return
+
+	# Key inputs for Items & Hiding
+	if event is InputEventKey and event.pressed and not event.is_echo():
+		if event.keycode == KEY_G:
+			use_current_item()
+			get_viewport().set_input_as_handled()
+			return
+		elif event.keycode == KEY_E:
+			_try_interact()
+			get_viewport().set_input_as_handled()
+			return
+		elif event.keycode == KEY_SPACE and is_hiding:
+			exit_hiding_spot()
+			get_viewport().set_input_as_handled()
+			return
 
 	# Mouse look when captured (only when cursor is NOT free and game is not paused)
 	if not is_cursor_free and not is_paused and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and event is InputEventMouseMotion:
@@ -466,10 +519,30 @@ func _physics_process(delta: float) -> void:
 
 	_update_timers(delta)
 
+	if is_hiding:
+		stats_hiding_time += delta
+		velocity = Vector3.ZERO
+		if model: model.visible = false
+		if name_label: name_label.visible = false
+		_process_shake(delta)
+		return
+
+	if is_slipping:
+		velocity.x = slip_velocity.x
+		velocity.z = slip_velocity.z
+		if not is_on_floor():
+			velocity.y += fall_gravity * delta
+		move_and_slide()
+		if model:
+			squash_current = squash_current.lerp(Vector3(1.35, 0.4, 1.35), delta * 12.0)
+			model.scale = model_base_scale * squash_current
+		return
+
 	if is_local_human():
 		_process_authority_movement(delta)
 		_process_scoring(delta)
 		_update_tag_targeting()
+		_update_name_tags_proximity()
 		_update_camera_fov(delta)
 		_update_interactable_target()
 		_process_shake(delta)
@@ -478,10 +551,14 @@ func _physics_process(delta: float) -> void:
 			danger_check_timer = 0.25
 			_check_danger_proximity()
 		# Send sync data to peers
-		if multiplayer.has_multiplayer_peer():
-			var rot_y: float = model.rotation.y if model else 0.0
-			var h_spd_sync: float = Vector2(velocity.x, velocity.z).length()
-			rpc("sync_transform", global_position, rot_y, h_spd_sync, is_on_floor(), is_sliding, is_dashing)
+		if multiplayer.has_multiplayer_peer() and not is_solo_practice:
+			var is_active_match: bool = true
+			if main_node and "current_state" in main_node:
+				is_active_match = (int(main_node.current_state) == 1 or int(main_node.current_state) == 2)
+			if is_active_match:
+				var rot_y: float = model.rotation.y if model else 0.0
+				var h_spd_sync: float = Vector2(velocity.x, velocity.z).length()
+				rpc("sync_transform", global_position, rot_y, h_spd_sync, is_on_floor(), is_sliding, is_dashing)
 	else:
 		_process_remote_interpolation(delta)
 
@@ -529,6 +606,7 @@ func _update_timers(delta: float) -> void:
 	if slide_cooldown > 0.0: slide_cooldown -= delta
 	if dash_cooldown > 0.0: dash_cooldown -= delta
 	if jump_buffer_timer > 0.0: jump_buffer_timer -= delta
+	if power_reveal_timer > 0.0: power_reveal_timer -= delta
 
 	if current_immunity_timer > 0.0:
 		current_immunity_timer -= delta
@@ -542,7 +620,15 @@ func _update_timers(delta: float) -> void:
 			is_stunned = false
 			_update_role_state()
 			if is_local_human():
-				notification_displayed.emit("Okay na! Tumakbo na ulit! 🏃", true)
+				notification_displayed.emit("Okay na! Tumakbo na ulit!", true)
+
+	if is_slipping:
+		slip_timer -= delta
+		if slip_timer <= 0.0:
+			is_slipping = false
+
+	if chalk_blind_timer > 0.0:
+		chalk_blind_timer -= delta
 
 	# Imagination powerup countdown
 	if active_powerup != PowerupType.NONE:
@@ -566,13 +652,13 @@ func apply_stun(duration: float) -> void:
 	velocity = Vector3.ZERO
 	squash_current = Vector3(1.2, 0.7, 1.2)
 	if name_label:
-		name_label.text = "💫 NA-STUN! 💫"
-	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "🐶 ARF! NA-STUN! 💫", Color(1.0, 0.7, 0.2))
+		name_label.text = "NA-STUN!"
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "ARF! NA-STUN!", Color(1.0, 0.7, 0.2))
 	if is_local_human():
 		add_shake(0.7)
 		if Input.has_method("vibrate_handheld"):
 			Input.vibrate_handheld(200)
-		notification_displayed.emit("🐶 Kinagat ng aso!", false)
+		notification_displayed.emit("Kinagat ng aso!", false)
 
 func _process_authority_movement(delta: float) -> void:
 	# Decoupled camera tracking player smoothly
@@ -925,7 +1011,7 @@ func _try_dash() -> void:
 	# Dash requires imagination powerup!
 	if active_powerup != PowerupType.DASH or dash_charges_left <= 0:
 		if is_local_human():
-			notification_displayed.emit("🔒 Naka-lock ang Dash! Mag-recycle ng basura para ma-unlock!", false)
+			notification_displayed.emit("Naka-lock ang Dash! Mag-recycle ng basura para ma-unlock!", false)
 		return
 
 	dash_charges_left -= 1
@@ -954,7 +1040,7 @@ func _try_dash() -> void:
 		if main_node and main_node.hud and main_node.hud.has_method("trigger_hit_flash"):
 			main_node.hud.trigger_hit_flash(Color(0.2, 0.85, 1.0, 0.35), 0.2)
 
-	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 1.9, 0), "⚡ KIDLAT DASH!", Color(0.25, 0.9, 1.0))
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 1.9, 0), "KIDLAT DASH!", Color(0.25, 0.9, 1.0))
 
 	if is_local_human():
 		powerup_changed.emit(active_powerup, powerup_time_left, dash_charges_left)
@@ -990,9 +1076,9 @@ func _process_stamina(delta: float, is_moving: bool) -> void:
 				AudioManager.play_recover_breath()
 			elif has_node("/root/AudioManager"):
 				get_node("/root/AudioManager").play_recover_breath()
-			FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "💨 NAKAHINGA NA! 🏃", Color(0.3, 1.0, 0.6))
+			FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "NAKAHINGA NA!", Color(0.3, 1.0, 0.6))
 			if is_local_human():
-				notification_displayed.emit("Nakahinga na ulit! Pwede nang tumakbo! 🏃", true)
+				notification_displayed.emit("Nakahinga na ulit! Pwede nang tumakbo!", true)
 	else:
 		if is_sprinting and is_moving:
 			var burst_drain: float = burst_drain_rate * delta
@@ -1017,13 +1103,13 @@ func _process_stamina(delta: float, is_moving: bool) -> void:
 					AudioManager.play_pant()
 				elif has_node("/root/AudioManager"):
 					get_node("/root/AudioManager").play_pant()
-				FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "💨 HINGAL! PAGOD NA...", Color(1.0, 0.35, 0.2))
+				FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "HINGAL! PAGOD NA...", Color(1.0, 0.35, 0.2))
 				add_shake(0.35)
 				if is_local_human():
 					var main_node = get_node_or_null("/root/Main")
 					if main_node and main_node.hud and main_node.hud.has_method("trigger_hit_flash"):
 						main_node.hud.trigger_hit_flash(Color(0.8, 0.2, 0.2, 0.3), 0.35)
-					notification_displayed.emit("⚠️ HINGAL NA! Sobrang takbo, kailangan magpahinga!", false)
+					notification_displayed.emit("HINGAL NA! Sobrang takbo, kailangan magpahinga!", false)
 		else:
 			# Not sprinting
 			if stamina_regen_delay_timer > 0.0:
@@ -1042,7 +1128,7 @@ func _process_stamina(delta: float, is_moving: bool) -> void:
 							AudioManager.play_pant()
 						elif has_node("/root/AudioManager"):
 							get_node("/root/AudioManager").play_pant()
-						FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "💨 HINGAL! PAGOD NA...", Color(1.0, 0.35, 0.2))
+						FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "HINGAL! PAGOD NA...", Color(1.0, 0.35, 0.2))
 				else:
 					# Resting still — full recovery for both bars
 					burst_stamina = min(burst_stamina_max, burst_stamina + burst_recovery_idle * delta)
@@ -1071,9 +1157,13 @@ func _update_camera_fov(delta: float) -> void:
 
 	camera.fov = lerp(camera.fov, target_fov, delta * 8.0)
 
-# Tag Targeting and Pointer system
+# Tag Targeting and Pointer system (active only when power reveal is triggered)
 func _update_tag_targeting() -> void:
 	if not tag_pointer or not camera:
+		return
+
+	if not tag_pointer.is_power_revealed:
+		tag_pointer.update_pointer(camera, null, false, false)
 		return
 
 	var best_target: PlayerController = null
@@ -1105,6 +1195,31 @@ func _update_tag_targeting() -> void:
 
 	tag_pointer.update_pointer(camera, best_target, target_is_taya, is_hunting_runners)
 
+# Point-blank line-of-sight nametag check (under 2.2m when looking directly at player)
+func _update_name_tags_proximity() -> void:
+	var all_players = get_tree().get_nodes_in_group("players")
+	var cam_node: Node3D = camera if camera else self
+	var cam_fwd: Vector3 = -cam_node.global_transform.basis.z
+
+	for p in all_players:
+		if p is PlayerController and p != self:
+			if not p.name_label:
+				continue
+			if p.is_hiding or p.is_eliminated:
+				p.name_label.visible = false
+				continue
+			if p.power_reveal_timer > 0.0:
+				p.name_label.visible = true
+				continue
+
+			var dist := global_position.distance_to(p.global_position)
+			if dist <= 2.2:
+				var to_p: Vector3 = (p.global_position - cam_node.global_position).normalized()
+				var dot: float = cam_fwd.dot(to_p)
+				p.name_label.visible = (dot > 0.25)
+			else:
+				p.name_label.visible = false
+
 func _try_tag() -> void:
 	if tag_cooldown > 0.0:
 		return
@@ -1132,39 +1247,45 @@ func _try_tag() -> void:
 					min_dist = dist
 					target_to_tag = candidate
 
-	# Also check lock-on target from pointer if within tag reach
-	if not target_to_tag and tag_pointer and tag_pointer.current_target is PlayerController:
-		var tracked_p: PlayerController = tag_pointer.current_target as PlayerController
-		if tracked_p.current_role == Role.RUNNER and not tracked_p.is_immune and not tracked_p.is_eliminated:
-			if global_position.distance_to(tracked_p.global_position) <= TAG_REACH:
-				target_to_tag = tracked_p
-
 	if target_to_tag:
-		# Forward lunge towards target on tag
-		var lunge_dir := (target_to_tag.global_position - global_position).normalized()
-		lunge_dir.y = 0.0
-		velocity += lunge_dir * 5.5
-		squash_current = Vector3(0.85, 0.85, 1.3)
+		perform_tag_on(target_to_tag)
+	else:
+		# Check if Taya slapped a nearby hiding spot (Blue drum or Cardboard box)
+		var hiding_spots = get_tree().get_nodes_in_group("hiding_spots")
+		for spot in hiding_spots:
+			if spot.has_method("on_taya_slap") and global_position.distance_to(spot.global_position) <= TAG_REACH:
+				spot.call("on_taya_slap", self)
+				return
 
-		if is_local_human():
-			add_shake(0.4)
-			trigger_hit_stop(55.0)
-			var main_node = get_node_or_null("/root/Main")
-			if main_node and main_node.hud and main_node.hud.has_method("trigger_hit_flash"):
-				main_node.hud.trigger_hit_flash(Color(1.0, 0.85, 0.2, 0.45), 0.22)
-			if Input.has_method("vibrate_handheld"):
-				Input.vibrate_handheld(80)
+func perform_tag_on(target_to_tag: PlayerController) -> void:
+	if not target_to_tag or target_to_tag.is_immune or target_to_tag.is_eliminated:
+		return
 
-		# Spawn visual hit effect locally & popup score combat text
-		spawn_hit_vfx(target_to_tag.global_position + Vector3(0, 1.2, 0))
-		FloatingTextScript.spawn(get_parent(), target_to_tag.global_position + Vector3(0, 2.0, 0), "💥 HULI! +1", Color(1.0, 0.88, 0.2))
+	# Forward lunge towards target on tag
+	var lunge_dir := (target_to_tag.global_position - global_position).normalized()
+	lunge_dir.y = 0.0
+	velocity += lunge_dir * 5.5
+	squash_current = Vector3(0.85, 0.85, 1.3)
 
-		# Execute tag on server or locally
-		tagged_other_player.emit(target_to_tag.player_id)
-		if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
-			rpc_id(1, "request_tag_player", target_to_tag.player_id)
-		else:
-			_server_process_tag(player_id, target_to_tag.player_id)
+	if is_local_human():
+		add_shake(0.4)
+		trigger_hit_stop(55.0)
+		var main_node = get_node_or_null("/root/Main")
+		if main_node and main_node.hud and main_node.hud.has_method("trigger_hit_flash"):
+			main_node.hud.trigger_hit_flash(Color(1.0, 0.85, 0.2, 0.45), 0.22)
+		if Input.has_method("vibrate_handheld"):
+			Input.vibrate_handheld(80)
+
+	# Spawn visual hit effect locally & popup score combat text
+	spawn_hit_vfx(target_to_tag.global_position + Vector3(0, 1.2, 0))
+	FloatingTextScript.spawn(get_parent(), target_to_tag.global_position + Vector3(0, 2.0, 0), "HULI! +1", Color(1.0, 0.88, 0.2))
+
+	# Execute tag on server or locally
+	tagged_other_player.emit(target_to_tag.player_id)
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		rpc_id(1, "request_tag_player", target_to_tag.player_id)
+	else:
+		_server_process_tag(player_id, target_to_tag.player_id)
 
 func spawn_hit_vfx(pos: Vector3) -> void:
 	var vfx_scene: PackedScene = preload("res://scenes/player/TagHitVFX.tscn")
@@ -1233,6 +1354,7 @@ func _server_process_tag(chaser_id: int, target_id: int) -> void:
 		var dist: float = chaser_node.global_position.distance_to(target_node.global_position)
 		if dist <= (TAG_REACH + 1.8) and not target_node.is_immune and target_node.current_role == Role.RUNNER:
 			chaser_node.tag_count += 1
+			chaser_node.stats_tags += 1
 			# Broadcast hit visual effect to all clients
 			if multiplayer.has_multiplayer_peer():
 				rpc("spawn_hit_vfx_rpc", target_node.global_position + Vector3(0, 1.2, 0))
@@ -1276,7 +1398,7 @@ func apply_tagged(_chaser_id: int) -> void:
 		if Input.has_method("vibrate_handheld"):
 			Input.vibrate_handheld(150)
 
-	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "💥 NA-TAYA!", Color(1.0, 0.25, 0.25))
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "NA-TAYA!", Color(1.0, 0.25, 0.25))
 
 	set_role_rpc(Role.TAYA)
 	grant_immunity_rpc(immunity_time)
@@ -1301,12 +1423,8 @@ func _update_role_state() -> void:
 	if mobile_ui:
 		mobile_ui.set_tag_button_highlight(current_role == Role.TAYA)
 	if name_label:
-		if current_role == Role.TAYA:
-			name_label.text = "[TAYA] " + player_name
-			name_label.modulate = Color(1.0, 0.25, 0.2)
-		else:
-			name_label.text = player_name
-			name_label.modulate = Color(0.9, 0.9, 0.9)
+		name_label.text = player_name
+		name_label.modulate = Color(0.9, 0.9, 0.9)
 
 # --- Waste Segregation & Inventory System ---
 func has_trash() -> bool:
@@ -1334,6 +1452,7 @@ func deposit_trash(is_correct: bool, _bin_cat: int) -> void:
 		return
 
 	# Correct deposit!
+	stats_recycled += 1
 	held_trash = -1
 	held_trash_name = ""
 	held_trash_category = 0
@@ -1350,10 +1469,15 @@ func deposit_trash(is_correct: bool, _bin_cat: int) -> void:
 	elif has_node("/root/AudioManager"):
 		get_node("/root/AudioManager").play_score_ding()
 
-	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "✨ +30 SCORE! ♻️", Color(0.2, 1.0, 0.45))
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "+30 SCORE!", Color(0.2, 1.0, 0.45))
 
 	# Grant random powerup!
 	grant_random_powerup()
+
+	# Bonus Kalye Street Item reward upon segregating trash!
+	if held_street_item == -1:
+		var bonus_item: int = 0 if (randf() < 0.6) else 1
+		pickup_street_item(bonus_item, "Spartan Tsinelas" if bonus_item == 0 else "Balat ng Saging")
 
 	if is_local_human():
 		trash_changed.emit(-1, "", 0)
@@ -1412,7 +1536,7 @@ func clear_powerup() -> void:
 	if is_local_human():
 		powerup_changed.emit(active_powerup, 0.0, 0)
 		if was_active:
-			notification_displayed.emit("💨 Naglaho na ang kapangyarihan!", false)
+			notification_displayed.emit("Naglaho na ang kapangyarihan!", false)
 
 	if multiplayer.has_multiplayer_peer():
 		rpc("sync_powerup_state", 0)
@@ -1425,22 +1549,22 @@ func sync_powerup_state(p_type: int) -> void:
 func get_powerup_name() -> String:
 	match active_powerup:
 		PowerupType.DASH:
-			return "⚡ KIDLAT DASH (3x)"
+			return "KIDLAT DASH (3x)"
 		PowerupType.SUPER_SPEED:
-			return "🏃 SUPER SPEED (Bilis-Alon)"
+			return "SUPER SPEED (Bilis-Alon)"
 		PowerupType.DOUBLE_JUMP:
-			return "🦘 DOUBLE JUMP (Luksong-Tinik)"
+			return "DOUBLE JUMP (Luksong-Tinik)"
 		PowerupType.WATER_RUN:
-			return "🌊 WATER RUN (Lundag-Baha)"
+			return "WATER RUN (Lundag-Baha)"
 		PowerupType.WALL_RUN:
-			return "🧗 WALL RUN (Akyat-Pader)"
+			return "WALL RUN (Akyat-Pader)"
 	return "WALA"
 
 func set_in_water(in_water: bool) -> void:
 	is_in_water = in_water
 	if is_in_water and active_powerup == PowerupType.WATER_RUN:
 		if is_local_human():
-			notification_displayed.emit("🌊 WATER RUN! Tumatakbo sa ibabaw ng baha!", true)
+			notification_displayed.emit("WATER RUN! Tumatakbo sa ibabaw ng baha!", true)
 
 func _update_powerup_visuals() -> void:
 	if powerup_aura:
@@ -1481,6 +1605,17 @@ func sync_held_trash_rpc(t_type: int) -> void:
 
 # --- Contextual Interaction & Loot System ---
 func _try_interact() -> void:
+	if is_hiding:
+		exit_hiding_spot()
+		return
+
+	# Check hiding spots in proximity
+	var hiding_spots = get_tree().get_nodes_in_group("hiding_spots")
+	for spot in hiding_spots:
+		if spot.has_method("interact") and global_position.distance_to(spot.global_position) <= 2.2:
+			spot.call("interact", self)
+			return
+
 	_update_interactable_target()
 	if not is_instance_valid(current_interactable):
 		return
@@ -1545,13 +1680,13 @@ func _update_interactable_target() -> void:
 
 	current_interactable = best
 	if is_instance_valid(current_interactable):
-		var icon: String = "✨"
+		var icon: String = ""
 		var action: String = "INTERACT"
 		if current_interactable is TrashItem:
 			icon = current_interactable.get_item_icon()
 			action = "PULUTIN"
 		elif current_interactable is RecyclingBin:
-			icon = "🗑️"
+			icon = "[BIN]"
 			action = "IPASOK" if has_trash() else "BASURAHAN"
 		interactable_changed.emit(true, icon, action)
 		if mobile_ui and mobile_ui.has_method("set_interact_prompt"):
@@ -1562,7 +1697,7 @@ func _update_interactable_target() -> void:
 			mobile_ui.set_interact_prompt(false, "", "")
 
 func _check_danger_proximity() -> void:
-	if current_role != Role.RUNNER:
+	if current_role != Role.RUNNER or power_reveal_timer <= 0.0:
 		danger_detected.emit(false, 0.0)
 		return
 
@@ -1582,3 +1717,257 @@ func _check_danger_proximity() -> void:
 				get_node("/root/AudioManager").play_danger()
 	else:
 		danger_detected.emit(false, 0.0)
+
+# ==============================================================================
+# STREET ITEMS, COUNTERPLAY & HIDING MECHANICS
+# ==============================================================================
+
+func can_pickup_street_item(i_type: int) -> bool:
+	if is_eliminated or is_hiding:
+		return false
+	if held_street_item != -1 and held_street_item != i_type:
+		return false
+	if held_street_item == i_type and held_street_item_count >= 2:
+		return false
+	return true
+
+func pickup_street_item(i_type: int, i_name: String) -> void:
+	if held_street_item == i_type:
+		held_street_item_count = min(2, held_street_item_count + 1)
+	else:
+		held_street_item = i_type
+		held_street_item_name = i_name
+		held_street_item_count = 1
+
+	if is_local_human():
+		street_item_changed.emit(held_street_item, held_street_item_name, held_street_item_count)
+		if mobile_ui and mobile_ui.has_method("set_item_button_visible"):
+			mobile_ui.set_item_button_visible(true, i_name.substr(0, 7))
+		notification_displayed.emit("Nakuha: %s! [Right-Click / G para gamitin]" % i_name, true)
+
+func use_current_item() -> void:
+	if is_eliminated or is_stunned or is_hiding:
+		return
+	if held_street_item == -1 or held_street_item_count <= 0:
+		return
+
+	var used_type := held_street_item
+	held_street_item_count -= 1
+	if held_street_item_count <= 0:
+		held_street_item = -1
+		held_street_item_name = ""
+
+	if is_local_human():
+		street_item_changed.emit(held_street_item, held_street_item_name, held_street_item_count)
+		if mobile_ui and mobile_ui.has_method("set_item_button_visible"):
+			mobile_ui.set_item_button_visible(held_street_item != -1, held_street_item_name.substr(0, 7) if held_street_item != -1 else "BATO")
+
+	match used_type:
+		0: # TSINELAS (Spartan Flying Slipper)
+			_throw_tsinelas()
+		1: # SAGING (Banana Peel Trap)
+			_drop_banana()
+		2: # WHISTLE (Barangay Whistle Radar)
+			_blow_whistle()
+		3: # CHALK_BAG (Chalk Dust Bag)
+			_throw_chalk_bag()
+		4: # ICE_CANDY (Pampalakas)
+			_consume_ice_candy()
+
+	if multiplayer.has_multiplayer_peer() and is_local_human():
+		rpc("sync_use_item_rpc", used_type)
+
+@rpc("any_peer", "call_local", "reliable")
+func sync_use_item_rpc(used_type: int) -> void:
+	if not is_local_human():
+		match used_type:
+			0: _throw_tsinelas()
+			1: _drop_banana()
+			2: _blow_whistle()
+			3: _throw_chalk_bag()
+			4: _consume_ice_candy()
+
+func _throw_tsinelas() -> void:
+	var proj_scene: PackedScene = load("res://scenes/gameplay/ThrownProjectile.tscn")
+	if not proj_scene:
+		return
+
+	var aim_target: Vector3
+	if camera:
+		var space_state := get_world_3d().direct_space_state
+		var cam_pos := camera.global_position
+		var cam_forward := -camera.global_transform.basis.z
+		var ray_end := cam_pos + cam_forward * 50.0
+		var query := PhysicsRayQueryParameters3D.create(cam_pos, ray_end)
+		query.exclude = [get_rid()]
+		query.collision_mask = 1 | 2 # Environment & Players
+		var hit := space_state.intersect_ray(query)
+		if hit:
+			aim_target = hit.position
+		else:
+			aim_target = ray_end
+	else:
+		aim_target = global_position - global_transform.basis.z * 20.0 + Vector3(0, 1.2, 0)
+
+	var shoulder_offset := global_transform.basis * Vector3(0.35, 1.25, -0.2)
+	var start_pos := global_position + shoulder_offset
+	var dir := (aim_target - start_pos).normalized()
+
+	var proj: ThrownProjectile = proj_scene.instantiate() as ThrownProjectile
+	get_parent().add_child(proj)
+	proj.setup(ThrownProjectile.ProjectileType.TSINELAS, start_pos, dir, player_id, player_name)
+
+	if Engine.has_singleton("AudioManager"):
+		AudioManager.play_tsinelas_throw()
+	elif has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").play_tsinelas_throw()
+
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "BATO TSINELAS!", Color(0.3, 0.85, 1.0))
+
+func _drop_banana() -> void:
+	var trap_scene: PackedScene = load("res://scenes/gameplay/BananaTrap.tscn")
+	if not trap_scene:
+		return
+
+	var drop_pos := global_position - global_transform.basis.z * 1.2
+	var trap: BananaTrap = trap_scene.instantiate() as BananaTrap
+	get_parent().add_child(trap)
+	trap.setup(player_id, player_name, drop_pos)
+
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "BALAT NG SAGING!", Color(1.0, 0.9, 0.2))
+
+func _blow_whistle() -> void:
+	if Engine.has_singleton("AudioManager"):
+		AudioManager.play_whistle()
+	elif has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").play_whistle()
+
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.2, 0), "SIPOL! TAGO NA!", Color(1.0, 0.35, 0.35))
+	add_shake(0.35)
+
+	if tag_pointer:
+		tag_pointer.trigger_power_reveal(3.5)
+
+	# Reveal all other active players for 3.5s
+	for p in get_tree().get_nodes_in_group("players"):
+		if p is PlayerController and p != self and not p.is_eliminated:
+			if p.is_hiding:
+				p.exit_hiding_spot()
+			p.power_reveal_timer = 3.5
+			if p.name_label:
+				p.name_label.visible = true
+			FloatingTextScript.spawn(get_parent(), p.global_position + Vector3(0, 2.0, 0), "AY TAYA!", Color(1.0, 0.8, 0.2))
+			p.squash_current = Vector3(0.85, 1.25, 0.85)
+
+func _throw_chalk_bag() -> void:
+	var proj_scene: PackedScene = load("res://scenes/gameplay/ThrownProjectile.tscn")
+	if not proj_scene:
+		return
+
+	var aim_target: Vector3
+	if camera:
+		var space_state := get_world_3d().direct_space_state
+		var cam_pos := camera.global_position
+		var cam_forward := -camera.global_transform.basis.z
+		var ray_end := cam_pos + cam_forward * 50.0
+		var query := PhysicsRayQueryParameters3D.create(cam_pos, ray_end)
+		query.exclude = [get_rid()]
+		query.collision_mask = 1 | 2 # Environment & Players
+		var hit := space_state.intersect_ray(query)
+		if hit:
+			aim_target = hit.position
+		else:
+			aim_target = ray_end
+	else:
+		aim_target = global_position - global_transform.basis.z * 20.0 + Vector3(0, 1.2, 0)
+
+	var shoulder_offset := global_transform.basis * Vector3(0.35, 1.25, -0.2)
+	var start_pos := global_position + shoulder_offset
+	var dir := (aim_target - start_pos).normalized()
+
+	var proj: ThrownProjectile = proj_scene.instantiate() as ThrownProjectile
+	get_parent().add_child(proj)
+	proj.setup(ThrownProjectile.ProjectileType.CHALK_BAG, start_pos, dir, player_id, player_name)
+
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "CHALK DUST!", Color(0.95, 0.95, 1.0))
+
+func _consume_ice_candy() -> void:
+	burst_stamina = burst_stamina_max
+	endurance_stamina = endurance_stamina_max
+	is_exhausted = false
+
+	# Temporary adrenaline surge
+	set_powerup(PowerupType.SUPER_SPEED, 3.5)
+
+	if Engine.has_singleton("AudioManager"):
+		AudioManager.play_ice_candy()
+	elif has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").play_ice_candy()
+
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "ICE CANDY RUSH!", Color(1.0, 0.45, 0.8))
+
+func apply_slipper_stun(duration: float, attacker_name: String) -> void:
+	if is_immune or is_eliminated:
+		return
+	is_stunned = true
+	stun_timer = max(stun_timer, duration)
+	velocity = velocity * 0.15
+	squash_current = Vector3(1.3, 0.4, 1.3)
+	if Engine.has_singleton("AudioManager"):
+		AudioManager.play_stun()
+	elif has_node("/root/AudioManager"):
+		get_node("/root/AudioManager").play_stun()
+	add_shake(0.4)
+	if is_local_human():
+		notification_displayed.emit("SAPUL NG TSINELAS ni %s!" % attacker_name, false)
+
+func apply_banana_slip(planter_name: String) -> void:
+	if is_eliminated:
+		return
+	stats_slips += 1
+	is_slipping = true
+	slip_timer = 1.4
+	var move_dir := velocity.normalized()
+	if move_dir.length() < 0.2:
+		move_dir = -global_transform.basis.z
+	move_dir.y = 0.0
+	slip_velocity = move_dir * 14.0
+	velocity = slip_velocity
+	squash_current = Vector3(1.4, 0.35, 1.4)
+	add_shake(0.3)
+	if is_local_human():
+		notification_displayed.emit("NANDULAS SA SAGING ni %s!" % planter_name, false)
+
+func apply_chalk_blind(duration: float) -> void:
+	chalk_blind_timer = duration
+	if is_local_human():
+		notification_displayed.emit("NAPULING SA CHALK DUST!", false)
+		var main_node = get_node_or_null("/root/Main")
+		if main_node and main_node.hud and main_node.hud.has_method("trigger_hit_flash"):
+			main_node.hud.trigger_hit_flash(Color(0.9, 0.9, 0.95, 0.6), duration * 0.4)
+
+func enter_hiding_spot(spot: Node3D) -> void:
+	is_hiding = true
+	current_hiding_spot = spot
+	if model:
+		model.visible = false
+	if name_label:
+		name_label.visible = false
+	if is_local_human():
+		hiding_state_changed.emit(true, 8.0)
+		notification_displayed.emit("Nagtatago sa drum... Tahimik lang!", true)
+
+func exit_hiding_spot() -> void:
+	if not is_hiding:
+		return
+	is_hiding = false
+	if is_instance_valid(current_hiding_spot) and current_hiding_spot.has_method("eject_occupant"):
+		if current_hiding_spot.get("occupant") == self:
+			current_hiding_spot.call("eject_occupant", false)
+	current_hiding_spot = null
+	if model:
+		model.visible = true
+	if name_label:
+		name_label.visible = true
+	if is_local_human():
+		hiding_state_changed.emit(false, 0.0)

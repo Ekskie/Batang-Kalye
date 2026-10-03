@@ -5,8 +5,8 @@ signal joystick_moved(vector: Vector2)
 signal joystick_released()
 
 @export var max_range: float = 65.0
-@export var base_color: Color = Color(1.0, 1.0, 1.0, 0.25)
-@export var knob_color: Color = Color(1.0, 0.8, 0.2, 0.75)
+@export var base_color: Color = Color(0.08, 0.10, 0.15, 0.45)
+@export var knob_color: Color = Color(0.85, 0.88, 0.92, 0.55)
 @export var deadzone: float = 0.15
 
 var touch_id: int = -1
@@ -21,13 +21,13 @@ func _ready() -> void:
 
 func _draw() -> void:
 	var c := size * 0.5
-	# Outer base circle
+	# Outer base circle (translucent dark slate glass with subtle white rim)
 	draw_circle(c, max_range, base_color)
-	draw_arc(c, max_range, 0, TAU, 32, Color(1, 1, 1, 0.4), 2.0)
-	# Inner knob circle
+	draw_arc(c, max_range, 0, TAU, 36, Color(1.0, 1.0, 1.0, 0.22), 2.0)
+	# Inner knob circle (frosted glass with crisp rim)
 	var knob_center := center_pos if not is_active else current_pos
-	draw_circle(knob_center, max_range * 0.45, knob_color)
-	draw_arc(knob_center, max_range * 0.45, 0, TAU, 24, Color(1, 1, 1, 0.8), 2.0)
+	draw_circle(knob_center, max_range * 0.42, knob_color)
+	draw_arc(knob_center, max_range * 0.42, 0, TAU, 28, Color(1.0, 1.0, 1.0, 0.85), 2.0)
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:

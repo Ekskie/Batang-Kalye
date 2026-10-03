@@ -112,7 +112,7 @@ func sync_nanay_event(pid: int, pname: String) -> void:
 	if home_marker:
 		home_marker.visible = true
 	if event_label:
-		event_label.text = "🏠 UWI NA, %s!\nPINAPAUWI KA NI NANAY!" % pname.to_upper()
+		event_label.text = "UWI NA, %s!\nPINAPAUWI KA NI NANAY!" % pname.to_upper()
 
 	var local_id := multiplayer.get_unique_id()
 	if local_id == pid or not multiplayer.has_multiplayer_peer():
@@ -167,7 +167,7 @@ func sync_sent_home(pid: int, pname: String) -> void:
 	var local_id := multiplayer.get_unique_id()
 	if local_id == pid or not multiplayer.has_multiplayer_peer():
 		if game_manager and game_manager.hud:
-			game_manager.hud.show_toast_notification("🏠 Pinauwi ka ni Nanay! Hihintayin ka sa susunod na laro.", false)
+			game_manager.hud.show_toast_notification("Pinauwi ka ni Nanay! Hihintayin ka sa susunod na laro.", false)
 
 func clear_sent_home() -> void:
 	sent_home_ids.clear()

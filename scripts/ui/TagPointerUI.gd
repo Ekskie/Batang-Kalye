@@ -14,6 +14,9 @@ var is_target_taya: bool = false
 var in_tag_range: bool = false
 const TAG_RANGE: float = 4.2
 
+var is_power_revealed: bool = false
+var power_reveal_timer: float = 0.0
+
 func _ready() -> void:
 	visible = true
 	reticle.visible = false
@@ -21,12 +24,28 @@ func _ready() -> void:
 	if warning_banner:
 		warning_banner.visible = false
 
+func trigger_power_reveal(duration: float = 3.5) -> void:
+	is_power_revealed = true
+	power_reveal_timer = duration
+
+func _process(delta: float) -> void:
+	if is_power_revealed:
+		power_reveal_timer -= delta
+		if power_reveal_timer <= 0.0:
+			is_power_revealed = false
+			reticle.visible = false
+			offscreen_indicator.visible = false
+			if warning_banner:
+				warning_banner.visible = false
+
 func update_pointer(camera: Camera3D, target: Node3D, target_is_taya: bool, local_is_taya: bool) -> void:
-	if not camera or not is_instance_valid(target):
+	# Keep all reticles, distance markers, and banners hidden unless a power (e.g. Whistle) revealed players
+	if not is_power_revealed or not camera or not is_instance_valid(target):
 		reticle.visible = false
 		offscreen_indicator.visible = false
 		if warning_banner:
 			warning_banner.visible = false
+		current_target = null
 		return
 
 	current_target = target
@@ -59,25 +78,25 @@ func update_pointer(camera: Camera3D, target: Node3D, target_is_taya: bool, loca
 		if local_is_taya:
 			# Player is Taya hunting runner
 			if in_tag_range:
-				reticle_icon.text = "🎯 [TAG READY!]"
+				reticle_icon.text = "[TAG READY!]"
 				reticle_icon.modulate = Color(1.0, 0.2, 0.1)
-				reticle_label.text = "🔥 HAMPASIN MO! (%.1fm)" % dist
+				reticle_label.text = "HAMPASIN MO! (%.1fm)" % dist
 				reticle_label.modulate = Color(1.0, 0.9, 0.2)
 				reticle.pivot_offset = reticle.size * 0.5
 				var pulse := 1.0 + 0.14 * sin(Time.get_ticks_msec() * 0.016)
 				reticle.scale = Vector2.ONE * pulse
 			else:
-				reticle_icon.text = "🎯"
+				reticle_icon.text = "[NAKITA!]"
 				reticle_icon.modulate = Color(0.2, 0.8, 1.0)
 				reticle_label.text = "%s (%.1fm)" % [target_name, dist]
 				reticle_label.modulate = Color(1.0, 1.0, 1.0)
 				reticle.scale = Vector2.ONE
 		else:
-			# Player is Runner watching Taya
-			reticle_icon.text = "⚠️ [TAYA]"
-			reticle_icon.modulate = Color(1.0, 0.2, 0.1)
+			# Player is Runner - revealed opponent
+			reticle_icon.text = "[NAKITA!]"
+			reticle_icon.modulate = Color(1.0, 0.4, 0.2)
 			reticle_label.text = "%s (%.1fm)" % [target_name, dist]
-			reticle_label.modulate = Color(1.0, 0.4, 0.4)
+			reticle_label.modulate = Color(1.0, 0.8, 0.4)
 			reticle.scale = Vector2.ONE
 	else:
 		# Off-screen arrow pointing to target
@@ -97,18 +116,17 @@ func update_pointer(camera: Camera3D, target: Node3D, target_is_taya: bool, loca
 		var clamped_pos: Vector2 = screen_center + Vector2(cos(angle), sin(angle)) * edge_dist
 		offscreen_indicator.position = clamped_pos
 
-		var role_hint := "RUNNER" if local_is_taya else "TAYA"
-		offscreen_label.text = "%s: %.0fm" % [role_hint, dist]
+		offscreen_label.text = "%.0fm" % dist
 		if local_is_taya:
 			offscreen_indicator.modulate = Color(0.3, 0.85, 1.0) if not in_tag_range else Color(1.0, 0.3, 0.2)
 		else:
-			offscreen_indicator.modulate = Color(1.0, 0.25, 0.2)
+			offscreen_indicator.modulate = Color(1.0, 0.4, 0.2)
 
-	# Danger warning if runner and Taya is close
+	# Danger warning if runner and opponent is close during reveal
 	if warning_banner:
 		if not local_is_taya and dist <= 9.0:
 			warning_banner.visible = true
-			warning_label.text = "⚠️ DELIKADO! MALAPIT NA ANG TAYA: %.1fm 💨" % dist
+			warning_label.text = "BABALA! MALAPIT: %.1fm" % dist
 			warning_banner.pivot_offset = warning_banner.size * 0.5
 			var warn_pulse := 1.0 + 0.06 * sin(Time.get_ticks_msec() * 0.02)
 			warning_banner.scale = Vector2.ONE * warn_pulse

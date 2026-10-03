@@ -1,7 +1,119 @@
-[gd_scene load_steps=3 format=3 uid="uid://b2p3p5n7jkv11"]
+[gd_scene load_steps=10 format=3 uid="uid://b2p3p5n7jkv11"]
 
 [ext_resource type="Script" path="res://scripts/ui/MobileControls.gd" id="1_controls"]
 [ext_resource type="Script" path="res://scripts/ui/VirtualJoystick.gd" id="2_joystick"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_jump"]
+bg_color = Color(0.08, 0.1, 0.15, 0.62)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.98, 1, 0.35)
+corner_radius_top_left = 45
+corner_radius_top_right = 45
+corner_radius_bottom_right = 45
+corner_radius_bottom_left = 45
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_slide"]
+bg_color = Color(0.08, 0.1, 0.15, 0.62)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.98, 1, 0.3)
+corner_radius_top_left = 32
+corner_radius_top_right = 32
+corner_radius_bottom_right = 32
+corner_radius_bottom_left = 32
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_dash"]
+bg_color = Color(0.08, 0.1, 0.15, 0.62)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.98, 1, 0.3)
+corner_radius_top_left = 31
+corner_radius_top_right = 31
+corner_radius_bottom_right = 31
+corner_radius_bottom_left = 31
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_sprint"]
+bg_color = Color(0.08, 0.1, 0.15, 0.62)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.98, 1, 0.3)
+corner_radius_top_left = 25
+corner_radius_top_right = 25
+corner_radius_bottom_right = 25
+corner_radius_bottom_left = 25
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_tag"]
+bg_color = Color(0.72, 0.16, 0.18, 0.78)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.45, 0.45, 0.85)
+corner_radius_top_left = 37
+corner_radius_top_right = 37
+corner_radius_bottom_right = 37
+corner_radius_bottom_left = 37
+shadow_color = Color(0.5, 0.05, 0.05, 0.35)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_interact"]
+bg_color = Color(0.08, 0.1, 0.15, 0.78)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.85, 0.35, 0.8)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_drop"]
+bg_color = Color(0.08, 0.1, 0.15, 0.78)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.3, 0.3, 0.75)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_item"]
+bg_color = Color(0.12, 0.45, 0.85, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.85, 1, 0.9)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 26
+shadow_color = Color(0, 0, 0, 0.25)
+shadow_size = 4
 
 [node name="MobileControlsUI" type="Control"]
 layout_mode = 3
@@ -48,88 +160,16 @@ mouse_filter = 1
 
 [node name="ActionButtons" type="Control" parent="."]
 layout_mode = 1
-anchor_left = 0.65
-anchor_top = 0.55
+anchor_left = 0.55
+anchor_top = 0.45
 anchor_right = 0.98
 anchor_bottom = 0.96
 grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 2
 
-[node name="BtnTag" type="Button" parent="ActionButtons"]
-custom_minimum_size = Vector2(130, 70)
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -140.0
-offset_top = -75.0
-offset_right = 0.0
-offset_bottom = 0.0
-grow_horizontal = 0
-grow_vertical = 0
-focus_mode = 0
-theme_override_font_sizes/font_size = 18
-text = "🔥 HAMPAS"
-
 [node name="BtnJump" type="Button" parent="ActionButtons"]
-custom_minimum_size = Vector2(80, 70)
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -230.0
-offset_top = -75.0
-offset_right = -150.0
-offset_bottom = 0.0
-grow_horizontal = 0
-grow_vertical = 0
-focus_mode = 0
-theme_override_font_sizes/font_size = 18
-text = "🦘 TALON"
-
-[node name="BtnSlide" type="Button" parent="ActionButtons"]
-custom_minimum_size = Vector2(80, 70)
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -320.0
-offset_top = -75.0
-offset_right = -240.0
-offset_bottom = 0.0
-grow_horizontal = 0
-grow_vertical = 0
-focus_mode = 0
-theme_override_font_sizes/font_size = 16
-text = "🏂 DULAS"
-
-[node name="BtnDash" type="Button" parent="ActionButtons"]
-custom_minimum_size = Vector2(90, 50)
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -320.0
-offset_top = -135.0
-offset_right = -230.0
-offset_bottom = -85.0
-grow_horizontal = 0
-grow_vertical = 0
-focus_mode = 0
-theme_override_font_sizes/font_size = 16
-text = "⚡ DASH"
-
-[node name="BtnSprint" type="Button" parent="ActionButtons"]
-custom_minimum_size = Vector2(100, 50)
+custom_minimum_size = Vector2(86, 86)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -137,70 +177,175 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -110.0
-offset_top = -135.0
-offset_right = 0.0
-offset_bottom = -85.0
+offset_top = -110.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_jump")
+text = "TALON"
+
+[node name="BtnSlide" type="Button" parent="ActionButtons"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -188.0
+offset_top = -88.0
+offset_right = -124.0
+offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_slide")
+text = "DULAS"
+
+[node name="BtnSprint" type="Button" parent="ActionButtons"]
+custom_minimum_size = Vector2(74, 50)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -104.0
+offset_top = -178.0
+offset_right = -30.0
+offset_bottom = -128.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
 toggle_mode = true
-theme_override_font_sizes/font_size = 16
-text = "🏃 SPRINT"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sprint")
+text = "SPRINT"
 
-[node name="BtnPowerup" type="Button" parent="ActionButtons"]
-custom_minimum_size = Vector2(100, 50)
+[node name="BtnDash" type="Button" parent="ActionButtons"]
+custom_minimum_size = Vector2(62, 62)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -220.0
-offset_top = -135.0
-offset_right = -120.0
-offset_bottom = -85.0
+offset_left = -184.0
+offset_top = -166.0
+offset_right = -122.0
+offset_bottom = -104.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
-theme_override_font_sizes/font_size = 16
-text = "✨ GAMIT"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_dash")
+text = "DASH"
+
+[node name="BtnTag" type="Button" parent="ActionButtons"]
+visible = false
+custom_minimum_size = Vector2(74, 74)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -268.0
+offset_top = -112.0
+offset_right = -194.0
+offset_bottom = -38.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.7)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_tag")
+text = "HAMPAS"
 
 [node name="BtnInteract" type="Button" parent="ActionButtons"]
 visible = false
-custom_minimum_size = Vector2(140, 58)
+custom_minimum_size = Vector2(130, 48)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -280.0
-offset_top = -205.0
-offset_right = -140.0
-offset_bottom = -147.0
+offset_left = -250.0
+offset_top = -236.0
+offset_right = -120.0
+offset_bottom = -188.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
-theme_override_colors/font_color = Color(1, 0.92, 0.25, 1)
-theme_override_font_sizes/font_size = 17
-text = "🥫 PULUTIN"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_interact")
+text = "PULUTIN"
 
 [node name="BtnDrop" type="Button" parent="ActionButtons"]
 visible = false
-custom_minimum_size = Vector2(110, 50)
+custom_minimum_size = Vector2(100, 48)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -120.0
-offset_top = -200.0
+offset_left = -110.0
+offset_top = -236.0
 offset_right = -10.0
-offset_bottom = -150.0
+offset_bottom = -188.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
-theme_override_colors/font_color = Color(1, 0.45, 0.35, 1)
-theme_override_font_sizes/font_size = 15
-text = "📦 BITAW"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_drop")
+text = "BITAW"
+
+[node name="BtnItem" type="Button" parent="ActionButtons"]
+visible = false
+custom_minimum_size = Vector2(80, 52)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -272.0
+offset_top = -174.0
+offset_right = -192.0
+offset_bottom = -122.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.7)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_item")
+text = "BATO"
+

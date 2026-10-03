@@ -7,10 +7,10 @@
 [PASS] Double Jump locked by default (max_air_jumps = 0).
 [PASS] Dash locked by default without Imagination Powerup.
 [SELF-TEST] Testing Trash Pickup & Segregation...
-[PASS] Picked up Plastic Bottle: 🍾 Bote ng Tubig
+[PASS] Picked up Plastic Bottle: Bote ng Tubig
 [PASS] Wrong bin rejected deposit; trash kept safely in hand.
 [PASS] Correct bin accepted trash! +30 score awarded (Total: 30).
-[PASS] Imagination Powerup Unlocked: ⚡ KIDLAT DASH (3x)
+[PASS] Imagination Powerup Unlocked: SUPER SPEED (Bilis-Alon)
 [PASS] Kidlat Dash executed successfully with powerup! Charges left: 2
 [SELF-TEST] Testing Dual Stamina & Exhaustion System...
 [PASS] Sprint movement drains burst stamina (76.0/100) and endurance (92.5/100).
@@ -26,8 +26,13 @@
 [SELF-TEST] Testing Mobile Graphics Optimization & Presets...
 [PASS] Mababa (Low) preset applied correctly: 3D scale=60%, shadows=OFF, glow=OFF.
 [PASS] Balanse (Medium) preset applied correctly: 3D scale=75%, shadows=ON.
-[PASS] Settings panel opened successfully.
-[PASS] Settings panel closed successfully.
+[PASS] Main menu settings button opened settings modal successfully.
+[PASS] Settings modal closed cleanly back to main menu.
+[PASS] Pause menu settings button opened settings modal and concealed pause panel.
+[PASS] Settings modal closed cleanly back to pause panel.
+[PASS] Resume button unpaused game cleanly.
+[PASS] Lobby settings button opened settings modal successfully.
+[PASS] Settings modal closed cleanly back to lobby.
 [SELF-TEST] Testing 8-Character Roster & Customization...
 [PASS] All 8 Pinoy Archetypes selected and applied successfully.
 [PASS] Modular outfit saved to config and reloaded successfully.
@@ -38,16 +43,22 @@
 [PASS] Human player spectator camera tracks target and switches targets correctly.
 [SELF-TEST] Testing Multiplayer Match Flow & Start Match...
 [PASS] Multiplayer match flow started cleanly with 2 players; alive_player_ids populated without type error.
-[PASS] Game over reached. Winner: 📢 "HOY MGA BATA! UMUWI NA KAYO, GABI NA!"
-
-🏆 PANALO: HostPlayer! 🏆
-Score: 60
+[PASS] Game over reached. Winner: Completed
 [SELF-TEST] Testing Supabase Matchmaking & Tab Switching...
-[PASS] Switched to Host Tab successfully.
-[PASS] Switched to Direct Tab successfully.
+[PASS] Switched to Create Tab successfully.
+[PASS] Switched to Hotspot/Solo Tab successfully.
 [PASS] Switched back to Browse Tab successfully.
 [PASS] Supabase dynamic room cards (LAN & WebRTC Online P2P) rendered into lobby list successfully.
 [SELF-TEST] Testing WebRTC Online Peer Initialization & Cleanup...
 [PASS] WebRTC host peer initialized successfully!
 [PASS] WebRTC peer and signaler cleaned up cleanly.
+[SELF-TEST] Testing Street Items & Hiding Spots...
+[PASS] Spartan Tsinelas picked up successfully.
+[PASS] Spartan Tsinelas thrown successfully; inventory cleared.
+[PASS] Balat ng Saging deployed successfully.
+[PASS] Pito ng Barangay blown successfully with 0 errors.
+[PASS] Supot ng Chalk thrown successfully.
+[PASS] Ice Candy consumed successfully.
+[PASS] Entered hiding drum successfully; character model concealed.
+[PASS] Exited hiding drum successfully; model visible.
 [ALL TESTS PASSED] ZERO RUNTIME ERRORS DETECTED!

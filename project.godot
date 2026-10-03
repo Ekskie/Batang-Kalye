@@ -34,6 +34,11 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=4
 
+[gui]
+
+theme/custom="res://assets/themes/batang_kalye_theme.tres"
+theme/custom_font="res://assets/fonts/LilitaOne-Regular.ttf"
+
 [input]
 
 move_forward={
@@ -115,5 +120,4 @@ pointing/emulate_touch_from_mouse=true
 
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="mobile"
-renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true

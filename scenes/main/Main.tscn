@@ -6,91 +6,92 @@
 [ext_resource type="PackedScene" uid="uid://bvyg7u1g0xkps" path="res://scenes/maps/KalyeMap.tscn" id="4_map"]
 [ext_resource type="PackedScene" uid="uid://cx6g0q6m6101p" path="res://scenes/ui/HUD.tscn" id="5_hud"]
 [ext_resource type="PackedScene" uid="uid://c515vpt0ygh45" path="res://scenes/ui/MaibaTayaUI.tscn" id="6_maiba_ui"]
+[ext_resource type="Texture2D" uid="uid://bpndqeakdmjqj" path="res://assets/Background.jpg" id="7_3km4f"]
 [ext_resource type="Script" uid="uid://bytm1u064jnxw" path="res://scripts/gameplay/NanayEvent.gd" id="7_nanay_event"]
 [ext_resource type="PackedScene" uid="uid://c8m8q44j5kd0q" path="res://scenes/player/CharacterModel.tscn" id="8_char_model"]
+[ext_resource type="Texture2D" uid="uid://dq77gemlgsgkn" path="res://assets/Title.png" id="8_p5fgu"]
+[ext_resource type="StyleBox" uid="uid://cxo4i2gvgvqxk" path="res://assets/themes/BatangKalye_Theme.tres" id="8_qkm1d"]
 [ext_resource type="Script" uid="uid://dktlcbvk87myd" path="res://scripts/network/SupabaseLobbyManager.gd" id="9_supabase_mgr"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_title_card"]
-content_margin_left = 32.0
-content_margin_top = 28.0
-content_margin_right = 32.0
-content_margin_bottom = 28.0
-bg_color = Color(0.05, 0.07, 0.11, 0.92)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 0.82, 0.2, 0.9)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(1, 0.7, 0, 0.3)
-shadow_size = 16
+[ext_resource type="PackedScene" path="res://scenes/ui/GameOverUI.tscn" id="10_game_over_ui"]
+[ext_resource type="PackedScene" path="res://scenes/ui/LobbyUI.tscn" id="11_lobby_ui"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_enter"]
-bg_color = Color(0.92, 0.65, 0.1, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 0.95, 0.6, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-shadow_color = Color(1, 0.6, 0, 0.45)
-shadow_size = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header_badge"]
-content_margin_left = 12.0
-content_margin_top = 4.0
-content_margin_right = 12.0
-content_margin_bottom = 4.0
-bg_color = Color(0.04, 0.08, 0.14, 0.95)
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 14.0
+bg_color = Color(0, 0, 0, 0.37254903)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.18, 0.32, 0.48, 0.8)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3km4f"]
+content_margin_left = 16.0
+content_margin_top = 13.0
+content_margin_right = 16.0
+content_margin_bottom = 9.0
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lobby_bg"]
 content_margin_left = 20.0
 content_margin_top = 16.0
 content_margin_right = 20.0
 content_margin_bottom = 16.0
-bg_color = Color(0.045, 0.075, 0.12, 0.96)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.12, 0.48, 0.82, 0.85)
+bg_color = Color(0.04, 0.05, 0.08, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.25)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_size = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header_badge"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.06, 0.07, 0.1, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.3)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_showroom_frame"]
+bg_color = Color(0.04, 0.04, 0.07, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.2)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
-shadow_size = 16
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_showroom_frame"]
-bg_color = Color(0.03, 0.05, 0.09, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.12, 0.22, 0.35, 0.8)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pedestal"]
-albedo_color = Color(0.24, 0.26, 0.28, 1)
-metallic = 0.7
-roughness = 0.45
+albedo_color = Color(0.18, 0.19, 0.22, 1)
+metallic = 0.2
+roughness = 0.8
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_pedestal"]
 material = SubResource("StandardMaterial3D_pedestal")
@@ -99,271 +100,323 @@ bottom_radius = 0.9
 height = 0.08
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_cyan"]
-bg_color = Color(0, 0.705882, 0.847059, 1)
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0, 0, 0, 0.42)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.4, 0.9, 1, 0.85)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(1, 1, 1, 0.6)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_badge_dark"]
-content_margin_top = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0.04, 0.08, 0.14, 0.95)
+content_margin_top = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.05, 0.06, 0.09, 0.85)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.15, 0.3, 0.48, 0.75)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(1, 1, 1, 0.25)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_preset_btn"]
-content_margin_left = 4.0
-content_margin_top = 4.0
-content_margin_right = 4.0
-content_margin_bottom = 4.0
-bg_color = Color(0.05, 0.09, 0.15, 0.9)
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 8.0
+bg_color = Color(0, 0, 0, 0.4)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.14, 0.26, 0.4, 0.6)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_label_badge"]
-content_margin_left = 12.0
-content_margin_right = 12.0
-bg_color = Color(0.04, 0.08, 0.14, 0.95)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.15, 0.3, 0.48, 0.75)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input_navy"]
-content_margin_left = 10.0
-content_margin_right = 10.0
-bg_color = Color(0.06, 0.11, 0.19, 0.95)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.15, 0.32, 0.52, 0.8)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_active"]
-bg_color = Color(0.01, 0.52, 0.78, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 2
-border_color = Color(0.4, 0.85, 1, 0.95)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_inactive"]
-bg_color = Color(0.06, 0.1, 0.16, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.14, 0.25, 0.38, 0.7)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_host_blue"]
-bg_color = Color(0.01, 0.52, 0.78, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.35, 0.85, 1, 0.9)
+border_color = Color(1, 1, 1, 0.35)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-shadow_color = Color(0, 0.4, 0.8, 0.35)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_label_badge"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 6.0
+bg_color = Color(0.05, 0.06, 0.09, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.25)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input_navy"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0.04, 0.05, 0.08, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.3)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_active"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_inactive"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0, 0, 0, 0.35)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.3)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_host_blue"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0, 0, 0, 0.45)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.85)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_host_blue_hover"]
-bg_color = Color(0.02, 0.62, 0.92, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.65, 0.95, 1, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0.6, 1, 0.5)
-shadow_size = 8
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(1, 1, 1, 0.25)
+shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_join_green"]
-bg_color = Color(0.06, 0.71, 0.51, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.35, 0.95, 0.72, 0.9)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0.6, 0.3, 0.35)
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0, 0, 0, 0.45)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.9)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_join_green_hover"]
-bg_color = Color(0.08, 0.82, 0.58, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.65, 1, 0.85, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0.8, 0.4, 0.5)
-shadow_size = 8
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(1, 1, 1, 0.25)
+shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_solo_orange"]
-bg_color = Color(0.92, 0.42, 0.08, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 0.72, 0.35, 0.9)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.8, 0.3, 0, 0.35)
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0, 0, 0, 0.45)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.85)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_solo_orange_hover"]
-bg_color = Color(1, 0.5, 0.12, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 0.85, 0.55, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(1, 0.45, 0, 0.5)
-shadow_size = 8
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(1, 1, 1, 0.25)
+shadow_size = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
 content_margin_left = 14.0
-content_margin_top = 7.0
+content_margin_top = 8.0
 content_margin_right = 14.0
-content_margin_bottom = 7.0
-bg_color = Color(0.045, 0.085, 0.15, 0.9)
+content_margin_bottom = 8.0
+bg_color = Color(0.04, 0.05, 0.08, 0.85)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.12, 0.24, 0.38, 0.7)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+border_color = Color(1, 1, 1, 0.2)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_start"]
-bg_color = Color(0.95, 0.72, 0.1, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 0.92, 0.45, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(1, 0.65, 0, 0.4)
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 14.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(1, 1, 1, 0.2)
 shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_start_hover"]
-bg_color = Color(1, 0.8, 0.18, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 0.98, 0.7, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(1, 0.75, 0, 0.55)
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 14.0
+bg_color = Color(0.9, 0.9, 0.9, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(1, 1, 1, 0.3)
 shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_quit"]
-bg_color = Color(0.1, 0.14, 0.22, 0.95)
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+bg_color = Color(0.12, 0.04, 0.06, 0.85)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.28, 0.35, 0.48, 0.8)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 4
+border_color = Color(0.75, 0.2, 0.25, 0.85)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_quit_hover"]
-bg_color = Color(0.16, 0.22, 0.32, 1)
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+bg_color = Color(0.85, 0.2, 0.25, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.55, 0.72, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.4)
-shadow_size = 6
+border_color = Color(1, 0.3, 0.35, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gameover_card"]
 content_margin_left = 24.0
 content_margin_top = 20.0
 content_margin_right = 24.0
 content_margin_bottom = 20.0
-bg_color = Color(0.04, 0.07, 0.12, 0.96)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 0.82, 0.2, 0.95)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(1, 0.7, 0, 0.35)
+bg_color = Color(0.04, 0.05, 0.08, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.3)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.6)
 shadow_size = 20
 
 [node name="Main" type="Node" unique_id=352156919]
@@ -378,17 +431,15 @@ script = ExtResource("9_supabase_mgr")
 [node name="MaibaTayaManager" type="Node" parent="." unique_id=932133949]
 script = ExtResource("3_maiba_mgr")
 
-[node name="KalyeMap" parent="." unique_id=200617693 instance=ExtResource("4_map")]
-
-[node name="LobbyCamera3D" type="Camera3D" parent="." unique_id=987654321]
-transform = Transform3D(0.965926, -0.0669873, 0.249999, 0, 0.965926, 0.258819, -0.258819, -0.249999, 0.933013, 0, 3.5, 12)
-current = true
-fov = 65.0
-
 [node name="Players" type="Node3D" parent="." unique_id=973134979]
 
 [node name="NanayEvent" type="Node" parent="." unique_id=2110009937]
 script = ExtResource("7_nanay_event")
+
+[node name="KalyeMap" parent="." unique_id=200617693 instance=ExtResource("4_map")]
+
+[node name="LobbyCamera3D" type="Camera3D" parent="." unique_id=987654321]
+transform = Transform3D(0.965926, -0.0669873, 0.249999, 0, 0.965926, 0.258819, -0.258819, -0.249999, 0.933013, 0, 3.5, 12)
 
 [node name="TitleScreenUI" type="Control" parent="." unique_id=1775577993]
 layout_mode = 3
@@ -398,6 +449,13 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="TextureRect" type="TextureRect" parent="TitleScreenUI" unique_id=246541732]
+layout_mode = 0
+offset_right = 1278.0
+offset_bottom = 721.0
+texture = ExtResource("7_3km4f")
+expand_mode = 1
+
 [node name="Bg" type="ColorRect" parent="TitleScreenUI" unique_id=861350185]
 layout_mode = 1
 anchors_preset = 15
@@ -405,1021 +463,111 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.03, 0.04, 0.07, 0.94)
+color = Color(0.03137255, 0.039215688, 0.07058824, 0.7529412)
+
+[node name="TitleImg" type="TextureRect" parent="TitleScreenUI" unique_id=647681088]
+layout_mode = 0
+offset_left = 446.0
+offset_top = 96.0
+offset_right = 831.2094
+offset_bottom = 321.0
+texture = ExtResource("8_p5fgu")
+expand_mode = 1
 
 [node name="Center" type="CenterContainer" parent="TitleScreenUI" unique_id=1316102188]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 74.0
+offset_bottom = 74.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="PanelContainer" parent="TitleScreenUI/Center" unique_id=1993563503]
-custom_minimum_size = Vector2(740, 480)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_title_card")
-
-[node name="VBox" type="VBoxContainer" parent="TitleScreenUI/Center/Panel" unique_id=620957030]
+[node name="VBox" type="VBoxContainer" parent="TitleScreenUI/Center" unique_id=620957030]
 layout_mode = 2
 theme_override_constants/separation = 14
 alignment = 1
 
-[node name="Banderitas" type="Label" parent="TitleScreenUI/Center/Panel/VBox" unique_id=1351072562]
+[node name="Subtitle" type="Label" parent="TitleScreenUI/Center/VBox" unique_id=1402653337]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
-theme_override_font_sizes/font_size = 14
-text = "🚩 🔴 🟡 🔵 🟢 FIESTA SA KANTO 🔴 🟡 🔵 🟢 🚩"
-horizontal_alignment = 1
-
-[node name="Title" type="Label" parent="TitleScreenUI/Center/Panel/VBox" unique_id=324200624]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.9, 0.25, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 12
-theme_override_font_sizes/font_size = 46
-text = "🏃⚡ BATANG KALYE ⚡🏃"
-horizontal_alignment = 1
-
-[node name="Subtitle" type="Label" parent="TitleScreenUI/Center/Panel/VBox" unique_id=1402653337]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.078431375, 0.019607844, 0.14117648, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0)
 theme_override_font_sizes/font_size = 18
-text = "TAYAAN SA KANTO • 8-PLAYER CHAOTIC STREET TAG"
+text = "TAYAAN SA KANTO â€¢ 8-PLAYER CHAOTIC STREET TAG"
 horizontal_alignment = 1
 
-[node name="Tagline" type="Label" parent="TitleScreenUI/Center/Panel/VBox" unique_id=1865341234]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 1)
-theme_override_font_sizes/font_size = 13
-text = "Mag-explore, magpulot ng basura para magka-powerup, at tumakbo bago ka mahuli!"
-horizontal_alignment = 1
-
-[node name="HSeparator" type="HSeparator" parent="TitleScreenUI/Center/Panel/VBox" unique_id=1530726705]
-layout_mode = 2
-
-[node name="BtnEnterTitle" type="Button" parent="TitleScreenUI/Center/Panel/VBox" unique_id=1605562095]
+[node name="BtnEnterTitle" type="Button" parent="TitleScreenUI/Center/VBox" unique_id=1605562095]
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_enter")
-text = "⚡ PINDUTIN ANG ENTER O I-TAP PARA PUMASOK SA LOBBY ➔"
+theme_override_styles/pressed = SubResource("StyleBoxFlat_3km4f")
+theme_override_styles/hover = ExtResource("8_qkm1d")
+text = "PUMASOK SA LOBBY >"
 
-[node name="BtnTitleSettings" type="Button" parent="TitleScreenUI/Center/Panel/VBox" unique_id=1605562099]
+[node name="BtnTitleSettings" type="Button" parent="TitleScreenUI/Center/VBox" unique_id=1605562099]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.92, 1, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_header_badge")
-text = "⚙️ MGA SETTING (Graphics, Audio & Controls)"
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_enter")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_3km4f")
+theme_override_styles/hover = ExtResource("8_qkm1d")
+text = "SETTINGS / CONTROLS"
 
-[node name="PillsRow" type="HBoxContainer" parent="TitleScreenUI/Center/Panel/VBox" unique_id=757583456]
+[node name="PillsRow" type="HBoxContainer" parent="TitleScreenUI/Center/VBox" unique_id=757583456]
 layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="Pill1" type="Label" parent="TitleScreenUI/Center/Panel/VBox/PillsRow" unique_id=529653573]
+[node name="Pill1" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=529653573]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_colors/font_shadow_color = Color(1, 1, 1, 0)
+theme_override_colors/font_outline_color = Color(0.18039216, 0.039215688, 0.3019608, 0)
 theme_override_font_sizes/font_size = 12
-text = "🍾 Basura Segregation"
+text = "TAYA"
 
-[node name="Dot1" type="Label" parent="TitleScreenUI/Center/Panel/VBox/PillsRow" unique_id=1898806757]
+[node name="Dot1" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=1898806757]
 layout_mode = 2
-text = "•"
+text = "â€¢"
 
-[node name="Pill2" type="Label" parent="TitleScreenUI/Center/Panel/VBox/PillsRow" unique_id=1458544726]
+[node name="Pill2" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=1458544726]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.7, 0.2, 1)
+theme_override_colors/font_shadow_color = Color(0.078431375, 0.019607844, 0.14117648, 0)
+theme_override_colors/font_outline_color = Color(0.18039216, 0.039215688, 0.3019608, 0)
 theme_override_font_sizes/font_size = 12
-text = "⚡ Kidlat Dash & Powerups"
+text = "TAKBO"
 
-[node name="Dot2" type="Label" parent="TitleScreenUI/Center/Panel/VBox/PillsRow" unique_id=697553231]
+[node name="Dot2" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=697553231]
 layout_mode = 2
-text = "•"
+text = "â€¢"
 
-[node name="Pill3" type="Label" parent="TitleScreenUI/Center/Panel/VBox/PillsRow" unique_id=1497282446]
+[node name="Pill3" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=1497282446]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.9, 0.4, 1)
+theme_override_colors/font_shadow_color = Color(0.078431375, 0.019607844, 0.14117648, 0)
+theme_override_colors/font_outline_color = Color(0.18039216, 0.039215688, 0.3019608, 0)
 theme_override_font_sizes/font_size = 12
-text = "🏠 Tindahan & Bantay Aso"
+text = "HULI"
 
-[node name="Credits" type="Label" parent="TitleScreenUI/Center/Panel/VBox" unique_id=1579673086]
+[node name="Credits" type="Label" parent="TitleScreenUI/Center/VBox" unique_id=1579673086]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.6, 0.7, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.078431375, 0.019607844, 0.14117648, 0)
+theme_override_colors/font_outline_color = Color(0.18039216, 0.039215688, 0.3019608, 0)
 theme_override_font_sizes/font_size = 11
-text = "v1.2 • Team Fiery Fox • Philippine Street Games Archive"
+text = "Team Fiery Fox • Philippine Street Games"
 horizontal_alignment = 1
 
-[node name="LobbyUI" type="Control" parent="." unique_id=164774265]
+[node name="LobbyUI" parent="." unique_id=164774265 instance=ExtResource("11_lobby_ui")]
 visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="ColorRect" type="ColorRect" parent="LobbyUI" unique_id=274237818]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.04, 0.06, 0.1, 0.92)
-
-[node name="Panel" type="PanelContainer" parent="LobbyUI" unique_id=914080956]
-custom_minimum_size = Vector2(1080, 630)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -540.0
-offset_top = -315.0
-offset_right = 540.0
-offset_bottom = 315.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_lobby_bg")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="LobbyUI/Panel" unique_id=2023395334]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="TopBar" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer" unique_id=1569367080]
-layout_mode = 2
-alignment = 1
-
-[node name="LeftControls" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/TopBar" unique_id=1600918391]
-custom_minimum_size = Vector2(250, 0)
-layout_mode = 2
-
-[node name="BtnLobbySettings" type="Button" parent="LobbyUI/Panel/VBoxContainer/TopBar/LeftControls" unique_id=1600918399]
-custom_minimum_size = Vector2(130, 36)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_header_badge")
-text = "⚙️ SETTINGS"
-
-[node name="CenterTitleBox" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/TopBar" unique_id=1103216347]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 0
-alignment = 1
-
-[node name="Title" type="Label" parent="LobbyUI/Panel/VBoxContainer/TopBar/CenterTitleBox" unique_id=1103216348]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.76, 0.12, 1)
-theme_override_colors/font_shadow_color = Color(0.06, 0.03, 0.01, 0.8)
-theme_override_colors/font_outline_color = Color(0.12, 0.06, 0.02, 1)
-theme_override_constants/shadow_offset_y = 3
-theme_override_constants/outline_size = 14
-theme_override_font_sizes/font_size = 38
-text = "BATANG KALYE"
-horizontal_alignment = 1
-
-[node name="Subtitle" type="Label" parent="LobbyUI/Panel/VBoxContainer/TopBar/CenterTitleBox" unique_id=1103216349]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 13
-text = "TAMBAYAN SA KANTO"
-horizontal_alignment = 1
-
-[node name="TopRightBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/TopBar" unique_id=1540575121]
-custom_minimum_size = Vector2(250, 0)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_styles/panel = SubResource("StyleBoxFlat_header_badge")
-
-[node name="BadgeLabel" type="RichTextLabel" parent="LobbyUI/Panel/VBoxContainer/TopBar/TopRightBadge" unique_id=1540575122]
-layout_mode = 2
-bbcode_enabled = true
-text = "[center][b][color=#FFD700]BATANG KALYE[/color] [color=#A0D2EB]ONLINE & HOTSPOT MULTIPLAYER[/color][/b][/center]"
-fit_content = true
-scroll_active = false
-
-[node name="HSeparator" type="HSeparator" parent="LobbyUI/Panel/VBoxContainer" unique_id=980513966]
-layout_mode = 2
-
-[node name="MainColumns" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer" unique_id=886322110]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 16
-
-[node name="LeftShowroom" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns" unique_id=1689394906]
-custom_minimum_size = Vector2(490, 0)
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="ShowroomTitle" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom" unique_id=1029382009]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
-theme_override_font_sizes/font_size = 13
-text = "🥋 3D OUTFIT & KARAKTER SHOWROOM:"
-horizontal_alignment = 1
-
-[node name="PreviewFrame" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom" unique_id=161383333]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_showroom_frame")
-
-[node name="PreviewViewportContainer" type="SubViewportContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PreviewFrame" unique_id=161383334]
-custom_minimum_size = Vector2(486, 220)
-layout_mode = 2
-stretch = true
-
-[node name="PreviewSubViewport" type="SubViewport" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PreviewFrame/PreviewViewportContainer" unique_id=824931457]
-own_world_3d = true
-transparent_bg = true
-handle_input_locally = false
-size = Vector2i(486, 220)
-render_target_update_mode = 0
-
-[node name="PreviewCamera" type="Camera3D" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PreviewFrame/PreviewViewportContainer/PreviewSubViewport" unique_id=982116168]
-transform = Transform3D(1, 0, 0, 0, 0.998135, 0.0610485, 0, -0.0610485, 0.998135, 0, 1.05, 3.3)
-current = true
-fov = 38.0
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PreviewFrame/PreviewViewportContainer/PreviewSubViewport" unique_id=1899516977]
-transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 2, 4, 3)
-light_color = Color(1, 0.95, 0.85, 1)
-light_energy = 1.8
-
-[node name="Pedestal" type="MeshInstance3D" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PreviewFrame/PreviewViewportContainer/PreviewSubViewport" unique_id=1129460713]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.04, 0)
-mesh = SubResource("CylinderMesh_pedestal")
-
-[node name="PreviewChar" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PreviewFrame/PreviewViewportContainer/PreviewSubViewport" unique_id=1393785863 instance=ExtResource("8_char_model")]
-
-[node name="ModelRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom" unique_id=972390025]
-layout_mode = 2
-theme_override_constants/separation = 8
-alignment = 1
-
-[node name="BtnPrevChar" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/ModelRow" unique_id=227565303]
-custom_minimum_size = Vector2(46, 34)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_cyan")
-text = "◀"
-
-[node name="ModelBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/ModelRow" unique_id=972390026]
-custom_minimum_size = Vector2(280, 34)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_badge_dark")
-
-[node name="CharNameLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/ModelRow/ModelBadge" unique_id=1335421923]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
-theme_override_font_sizes/font_size = 13
-text = "⚡ TSUNA (SPIKY HAIR)"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BtnNextChar" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/ModelRow" unique_id=1739136634]
-custom_minimum_size = Vector2(46, 34)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_cyan")
-text = "▶"
-
-[node name="ColorRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom" unique_id=754509045]
-layout_mode = 2
-theme_override_constants/separation = 8
-alignment = 1
-
-[node name="BtnPrevColor" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/ColorRow" unique_id=1743589025]
-custom_minimum_size = Vector2(46, 34)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_cyan")
-text = "◀"
-
-[node name="ColorBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/ColorRow" unique_id=754509046]
-custom_minimum_size = Vector2(280, 34)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_badge_dark")
-
-[node name="ColorNameLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/ColorRow/ColorBadge" unique_id=1621365459]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.9, 0.2, 1)
-theme_override_font_sizes/font_size = 13
-text = "🟡 DILAW (SUN YELLOW)"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BtnNextColor" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/ColorRow" unique_id=2109008897]
-custom_minimum_size = Vector2(46, 34)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_cyan")
-text = "▶"
-
-[node name="PresetGrid" type="GridContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom" unique_id=1546777662]
-layout_mode = 2
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 6
-columns = 4
-
-[node name="BtnPreset1" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=1637879741]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "1: ⚡ Tsuna"
-
-[node name="BtnPreset2" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=1533445920]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "2: 🥊 Kalbo"
-
-[node name="BtnPreset3" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=32345634]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "3: 🏃 Totoy"
-
-[node name="BtnPreset4" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=1637967557]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "4: 👧 Nene"
-
-[node name="BtnPreset5" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=1512423227]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "5: 🧢 Tisoy"
-
-[node name="BtnPreset6" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=400899232]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "6: 🏀 Baldo"
-
-[node name="BtnPreset7" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=938220256]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "7: 🧣 Nonoy"
-
-[node name="BtnPreset8" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/PresetGrid" unique_id=114541734]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "8: 🎀 Kikay"
-
-[node name="SlotsGrid" type="GridContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom" unique_id=1849102401]
-layout_mode = 2
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 4
-columns = 2
-
-[node name="HairRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid" unique_id=1849102402]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
-
-[node name="BtnPrevHair" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HairRow" unique_id=1849102403]
-custom_minimum_size = Vector2(28, 26)
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "◀"
-
-[node name="HairBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HairRow" unique_id=1849102404]
-custom_minimum_size = Vector2(140, 26)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_badge_dark")
-
-[node name="HairLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HairRow/HairBadge" unique_id=1849102405]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 11
-text = "⚡ Spiky Anime"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BtnNextHair" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HairRow" unique_id=1849102406]
-custom_minimum_size = Vector2(28, 26)
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "▶"
-
-[node name="HeadRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid" unique_id=1849102407]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
-
-[node name="BtnPrevHead" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HeadRow" unique_id=1849102408]
-custom_minimum_size = Vector2(28, 26)
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "◀"
-
-[node name="HeadBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HeadRow" unique_id=1849102409]
-custom_minimum_size = Vector2(140, 26)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_badge_dark")
-
-[node name="HeadLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HeadRow/HeadBadge" unique_id=1849102410]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 11
-text = "🚫 Wala (None)"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BtnNextHead" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/HeadRow" unique_id=1849102411]
-custom_minimum_size = Vector2(28, 26)
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "▶"
-
-[node name="BodyRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid" unique_id=1849102412]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
-
-[node name="BtnPrevBody" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/BodyRow" unique_id=1849102413]
-custom_minimum_size = Vector2(28, 26)
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "◀"
-
-[node name="BodyBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/BodyRow" unique_id=1849102414]
-custom_minimum_size = Vector2(140, 26)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_badge_dark")
-
-[node name="BodyLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/BodyRow/BodyBadge" unique_id=1849102415]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 11
-text = "👕 Street T-Shirt"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BtnNextBody" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/BodyRow" unique_id=1849102416]
-custom_minimum_size = Vector2(28, 26)
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "▶"
-
-[node name="FootRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid" unique_id=1849102417]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
-
-[node name="BtnPrevFoot" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/FootRow" unique_id=1849102418]
-custom_minimum_size = Vector2(28, 26)
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "◀"
-
-[node name="FootBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/FootRow" unique_id=1849102419]
-custom_minimum_size = Vector2(140, 26)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_badge_dark")
-
-[node name="FootLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/FootRow/FootBadge" unique_id=1849102420]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.92, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 11
-text = "🩴 Spartan (Asul/Puti)"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BtnNextFoot" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/LeftShowroom/SlotsGrid/FootRow" unique_id=1849102421]
-custom_minimum_size = Vector2(28, 26)
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "▶"
-
-[node name="VSeparator" type="VSeparator" parent="LobbyUI/Panel/VBoxContainer/MainColumns" unique_id=898941989]
-layout_mode = 2
-
-[node name="RightConsole" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns" unique_id=1820899469]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 7
-
-[node name="ConsoleTitle" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole" unique_id=1485710020]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
-theme_override_font_sizes/font_size = 13
-text = "🎮 MATCHMAKING & LOBBY SETUP:"
-horizontal_alignment = 1
-
-[node name="NameRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole" unique_id=1848912110]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="NameBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/NameRow" unique_id=1848912112]
-custom_minimum_size = Vector2(130, 34)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_label_badge")
-
-[node name="NameBadgeLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/NameRow/NameBadge" unique_id=1848912113]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.82, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "PLAYER NAME"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="NameEdit" type="LineEdit" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/NameRow" unique_id=1848912111]
-custom_minimum_size = Vector2(0, 34)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
-text = "Dennrick"
-placeholder_text = "👤 Pangalan (e.g. Dennrick, Chris)"
-alignment = 1
-
-[node name="TabRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole" unique_id=1848912114]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="BtnTabBrowse" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/TabRow" unique_id=1848912115]
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_tab_active")
-text = "🌐 MGA LOBBY"
-
-[node name="BtnTabHost" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/TabRow" unique_id=1848912116]
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_tab_inactive")
-text = "➕ GUMAWA"
-
-[node name="BtnTabDirect" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/TabRow" unique_id=1848912117]
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_tab_inactive")
-text = "📡 HOTSPOT / SOLO"
-
-[node name="BrowseSection" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole" unique_id=1848912118]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="BrowseHeaderRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection" unique_id=1848912119]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="LobbiesStatusLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/BrowseHeaderRow" unique_id=1848912120]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.75, 0.85, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "Aktibong Lobbies: (Naghihintay...)"
-vertical_alignment = 1
-
-[node name="BtnRefreshLobbies" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/BrowseHeaderRow" unique_id=1848912121]
-custom_minimum_size = Vector2(100, 28)
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "🔄 I-REFRESH"
-
-[node name="LobbyScroll" type="ScrollContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection" unique_id=1848912123]
-custom_minimum_size = Vector2(0, 230)
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="LobbyListContainer" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/LobbyScroll" unique_id=1848912124]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="EmptyNoticeLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection/LobbyScroll/LobbyListContainer" unique_id=1848912125]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.5, 0.65, 0.8, 1)
-theme_override_font_sizes/font_size = 12
-text = "⏳ I-click ang [🔄 I-REFRESH] para makita ang mga bukas na laro sa Online!"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BtnQuickHost" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/BrowseSection" unique_id=1848912126]
-custom_minimum_size = Vector2(0, 38)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
-text = "➕ GUMAWA NG SARILING ROOM"
-
-[node name="HostSection" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole" unique_id=1848912127]
-visible = false
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="RoomNameRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection" unique_id=1848912128]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="RoomNameBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/RoomNameRow" unique_id=1848912129]
-custom_minimum_size = Vector2(130, 36)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_label_badge")
-
-[node name="RoomNameBadgeLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/RoomNameRow/RoomNameBadge" unique_id=1848912130]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.82, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "ROOM NAME"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="RoomNameEdit" type="LineEdit" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/RoomNameRow" unique_id=1848912131]
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
-text = "Tambayan ni Dennrick"
-placeholder_text = "Pangalan ng Room..."
-alignment = 1
-
-[node name="ModeRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection" unique_id=1848912132]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="ModeBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/ModeRow" unique_id=1848912133]
-custom_minimum_size = Vector2(130, 36)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_label_badge")
-
-[node name="ModeBadgeLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/ModeRow/ModeBadge" unique_id=1848912134]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.82, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "MATCH MODE"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BtnModeToggle" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/ModeRow" unique_id=1848912135]
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
-text = "💣 PASA-TAYA (CRAB GAME ELIMINATION)"
-
-[node name="NetModeRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection" unique_id=1848912150]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="NetModeBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/NetModeRow" unique_id=1848912151]
-custom_minimum_size = Vector2(130, 36)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_label_badge")
-
-[node name="NetModeBadgeLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/NetModeRow/NetModeBadge" unique_id=1848912152]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.82, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "URI NG ROOM"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BtnNetModeToggle" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/NetModeRow" unique_id=1848912153]
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.35, 0.95, 0.72, 1)
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
-text = "🌐 ONLINE (Kahit Saang Internet o Data)"
-
-[node name="HostAddressRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection" unique_id=1848912136]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="HostAddressBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow" unique_id=1848912137]
-custom_minimum_size = Vector2(130, 36)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_label_badge")
-
-[node name="HostAddressBadgeLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow/HostAddressBadge" unique_id=1848912138]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.82, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "HOST IP / PORT"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="AddressEdit" type="LineEdit" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow" unique_id=1848912139]
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
-placeholder_text = "Blangko = Online"
-alignment = 1
-
-[node name="PortEdit" type="LineEdit" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection/HostAddressRow" unique_id=1848912140]
-custom_minimum_size = Vector2(80, 36)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
-text = "7777"
-placeholder_text = "Port"
-alignment = 1
-
-[node name="BtnCreateSupabaseRoom" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection" unique_id=1848912141]
-custom_minimum_size = Vector2(0, 42)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
-text = "🚀 GUMAWA AT BUKSAN ANG ROOM"
-
-[node name="HostStatusLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/HostSection" unique_id=1848912142]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.48, 0.78, 0.92, 1)
-theme_override_font_sizes/font_size = 11
-text = "🌐 Online: Makakapaglaro kahit sino saan mang panig ng bansa gamit ang Wi-Fi o Mobile Data."
-horizontal_alignment = 1
-
-[node name="DirectSection" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole" unique_id=1848912143]
-visible = false
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 7
-
-[node name="ConnectionRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection" unique_id=124813773]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="IPBadge" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/ConnectionRow" unique_id=124813774]
-custom_minimum_size = Vector2(130, 36)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_label_badge")
-
-[node name="IPBadgeLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/ConnectionRow/IPBadge" unique_id=124813775]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.82, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "HOTSPOT IP"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="IPEdit" type="LineEdit" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/ConnectionRow" unique_id=441349029]
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
-placeholder_text = "Ilagay ang IP ng nag-Hotspot..."
-alignment = 1
-
-[node name="PortEdit" type="LineEdit" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/ConnectionRow" unique_id=1241606477]
-visible = false
-custom_minimum_size = Vector2(80, 36)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_input_navy")
-text = "7777"
-placeholder_text = "Port"
-alignment = 1
-
-[node name="BtnHost" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection" unique_id=1475763378]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
-text = "📡 BUKASAN BILANG HOTSPOT HOST"
-
-[node name="BtnJoin" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection" unique_id=1975263909]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_join_green")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_join_green_hover")
-text = "🔗 SUMALI SA HOTSPOT ROOM"
-
-[node name="BtnSolo" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection" unique_id=1729322062]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_solo_orange")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_solo_orange_hover")
-text = "🤖 MAG-ISA / PRACTICE (Kasama ang Bots)"
-
-[node name="InfoBox" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection" unique_id=1904928834]
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="LocalIPRow" type="HBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/InfoBox" unique_id=1904928836]
-layout_mode = 2
-alignment = 1
-
-[node name="HotspotInfoLabel" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/InfoBox/LocalIPRow" unique_id=1904928835]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.48, 0.78, 0.92, 1)
-theme_override_font_sizes/font_size = 11
-text = "Ang iyong IP: 192.168.1.14"
-horizontal_alignment = 1
-
-[node name="BtnCopyIP" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/DirectSection/InfoBox/LocalIPRow" unique_id=1904928837]
-custom_minimum_size = Vector2(28, 22)
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "📋"
-
-[node name="RoomActiveSection" type="VBoxContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole" unique_id=1848912144]
-visible = false
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="ActiveRoomTitle" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection" unique_id=1848912145]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.95, 0.7, 1)
-theme_override_font_sizes/font_size = 13
-text = "🏠 KASALUKUYANG ROOM: Dennrick's Tambayan"
-horizontal_alignment = 1
-
-[node name="SlotsHeader" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection" unique_id=1461350287]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.68, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "👥 MGA MANLALARO (Naghihintay...)"
-
-[node name="SlotsGrid" type="GridContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection" unique_id=1235355787]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 4
-columns = 2
-
-[node name="Slot1" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid" unique_id=1235355788]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
-
-[node name="Label" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid/Slot1" unique_id=1235355789]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.98, 1, 1)
-theme_override_font_sizes/font_size = 12
-text = "Slot 1: Dennrick"
-vertical_alignment = 1
-
-[node name="Slot5" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid" unique_id=1235355796]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
-
-[node name="Label" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid/Slot5" unique_id=1235355797]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.55, 0.68, 0.8)
-theme_override_font_sizes/font_size = 12
-text = "Slot 5: (Empty)"
-vertical_alignment = 1
-
-[node name="Slot2" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid" unique_id=1235355790]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
-
-[node name="Label" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid/Slot2" unique_id=1235355791]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.55, 0.68, 0.8)
-theme_override_font_sizes/font_size = 12
-text = "Slot 2: (Empty)"
-vertical_alignment = 1
-
-[node name="Slot6" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid" unique_id=1235355798]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
-
-[node name="Label" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid/Slot6" unique_id=1235355799]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.55, 0.68, 0.8)
-theme_override_font_sizes/font_size = 12
-text = "Slot 6: (Empty)"
-vertical_alignment = 1
-
-[node name="Slot3" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid" unique_id=1235355792]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
-
-[node name="Label" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid/Slot3" unique_id=1235355793]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.55, 0.68, 0.8)
-theme_override_font_sizes/font_size = 12
-text = "Slot 3: (Empty)"
-vertical_alignment = 1
-
-[node name="Slot7" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid" unique_id=1235355800]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
-
-[node name="Label" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid/Slot7" unique_id=1235355801]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.55, 0.68, 0.8)
-theme_override_font_sizes/font_size = 12
-text = "Slot 7: (Empty)"
-vertical_alignment = 1
-
-[node name="Slot4" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid" unique_id=1235355794]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
-
-[node name="Label" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid/Slot4" unique_id=1235355795]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.55, 0.68, 0.8)
-theme_override_font_sizes/font_size = 12
-text = "Slot 4: (Empty)"
-vertical_alignment = 1
-
-[node name="Slot8" type="PanelContainer" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid" unique_id=1235355802]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
-
-[node name="Label" type="Label" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid/Slot8" unique_id=1235355803]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.45, 0.55, 0.68, 0.8)
-theme_override_font_sizes/font_size = 12
-text = "Slot 8: (Empty)"
-vertical_alignment = 1
-
-[node name="BtnStartMatch" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection" unique_id=1741174962]
-visible = false
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
-theme_override_font_sizes/font_size = 15
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_start")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_start_hover")
-text = "🔥 SIMULAN ANG LARO (Maiba Taya!)"
-
-[node name="BtnCancel" type="Button" parent="LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection" unique_id=2117066773]
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_preset_btn")
-text = "❌ UMALIS SA LOBBY / ISARA ANG ROOM"
 
 [node name="HUD" parent="." unique_id=338919241 instance=ExtResource("5_hud")]
 visible = false
@@ -1470,16 +618,17 @@ alignment = 1
 
 [node name="Title" type="Label" parent="PauseUI/PausePanel/VBoxContainer" unique_id=57034645]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.88, 0.25, 1)
-theme_override_colors/font_outline_color = Color(0.12, 0.06, 0.02, 1)
-theme_override_constants/outline_size = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.75)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0)
+theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 24
-text = "⏸️ NAKAHINTO (PAUSED)"
+text = "NAKAHINTO (PAUSED)"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="PauseUI/PausePanel/VBoxContainer" unique_id=1097176336]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.85, 1, 1)
+theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
 theme_override_font_sizes/font_size = 13
 text = "Batang Kalye: Tayaan sa Kanto"
 horizontal_alignment = 1
@@ -1490,11 +639,11 @@ layout_mode = 2
 [node name="BtnResume" type="Button" parent="PauseUI/PausePanel/VBoxContainer" unique_id=584801688]
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 15
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_join_green")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_join_green_hover")
-text = "▶ IPAGPATULOY ANG LARO (Resume)"
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_start")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_start_hover")
+text = "IPAGPATULOY ANG LARO (Resume)"
 
 [node name="BtnSettings" type="Button" parent="PauseUI/PausePanel/VBoxContainer" unique_id=1160281938]
 custom_minimum_size = Vector2(0, 44)
@@ -1503,7 +652,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
-text = "⚙️ MGA SETTING (Audio / Mouse / FOV)"
+text = "MGA SETTING (Audio / Mouse / FOV)"
 
 [node name="BtnPauseLobby" type="Button" parent="PauseUI/PausePanel/VBoxContainer" unique_id=1611994850]
 custom_minimum_size = Vector2(0, 42)
@@ -1512,7 +661,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_solo_orange")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_solo_orange_hover")
-text = "🏠 BUMALIK SA LOBBY (Leave Match)"
+text = "BUMALIK SA LOBBY (Leave Match)"
 
 [node name="BtnPauseQuit" type="Button" parent="PauseUI/PausePanel/VBoxContainer" unique_id=1696186519]
 custom_minimum_size = Vector2(0, 40)
@@ -1520,7 +669,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_quit")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_quit_hover")
-text = "🚪 LUMABAS SA LARO (Quit Game)"
+text = "LUMABAS SA LARO (Quit Game)"
 
 [node name="SettingsPanel" type="PanelContainer" parent="PauseUI" unique_id=1947730561]
 visible = false
@@ -1546,9 +695,9 @@ alignment = 1
 
 [node name="Title" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=1339272570]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.88, 0.25, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 22
-text = "⚙️ MGA SETTING NG LARO"
+text = "MGA SETTING NG LARO"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=369862798]
@@ -1567,9 +716,9 @@ theme_override_constants/separation = 10
 
 [node name="PresetHeader" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862801]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
 theme_override_font_sizes/font_size = 14
-text = "🎮 MABILISANG GRAPHICS PRESET:"
+text = "MABILISANG GRAPHICS PRESET:"
 
 [node name="PresetRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862802]
 layout_mode = 2
@@ -1581,9 +730,9 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_solo_orange")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_solo_orange_hover")
-text = "🚀 MABABA (Tipid)"
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
+text = "MABABA (Tipid)"
 
 [node name="BtnPresetMed" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow" unique_id=369862804]
 custom_minimum_size = Vector2(0, 42)
@@ -1593,7 +742,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
-text = "⚖️ BALANSE"
+text = "BALANSE"
 
 [node name="BtnPresetHigh" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow" unique_id=369862805]
 custom_minimum_size = Vector2(0, 42)
@@ -1601,24 +750,24 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_join_green")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_join_green_hover")
-text = "✨ MATAAS"
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
+text = "MATAAS"
 
 [node name="PresetSubLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862806]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.82, 0.95, 1)
+theme_override_colors/font_color = Color(0.75, 0.82, 0.9, 1)
 theme_override_font_sizes/font_size = 11
-text = "💡 Inirerekomenda ang 'MABABA' para sa Realme 6 at Honor Pad 10 upang maalis ang lag!"
+text = "Inirerekomenda ang 'MABABA' para sa Realme 6 at Honor Pad 10 upang maalis ang lag!"
 
 [node name="HSep1" type="HSeparator" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862807]
 layout_mode = 2
 
 [node name="GfxHeader" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862808]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
+theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
 theme_override_font_sizes/font_size = 14
-text = "🖼️ DETALYADONG GRAPHICS (Custom Tuning):"
+text = "DETALYADONG GRAPHICS (Custom Tuning):"
 
 [node name="ScaleRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862809]
 layout_mode = 2
@@ -1626,7 +775,7 @@ layout_mode = 2
 [node name="ScaleLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/ScaleRow" unique_id=369862810]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "📐 3D Render Scale: 75% (Mas mababa = mas mabilis)"
+text = "3D Render Scale: 75% (Mas mababa = mas mabilis)"
 
 [node name="ScaleSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/ScaleRow" unique_id=369862811]
 layout_mode = 2
@@ -1643,7 +792,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 13
 button_pressed = true
-text = "👥 Anino ng Araw (Sun Shadows - patayin para bumilis)"
+text = "Anino ng Araw (Sun Shadows - patayin para bumilis)"
 
 [node name="GlowRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862814]
 layout_mode = 2
@@ -1652,7 +801,7 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 13
-text = "🌟 Glow & Bloom Effect (Liwanag)"
+text = "Glow & Bloom Effect (Liwanag)"
 
 [node name="FpsLimitRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862816]
 layout_mode = 2
@@ -1661,7 +810,7 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 13
-text = "⚡ Limit sa Framerate (FPS):"
+text = "Limit sa Framerate (FPS):"
 
 [node name="FpsLimitOption" type="OptionButton" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FpsLimitRow" unique_id=369862818]
 custom_minimum_size = Vector2(170, 36)
@@ -1682,7 +831,7 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 13
-text = "🔍 Anti-Aliasing (Pakinis ng Gilid):"
+text = "Anti-Aliasing (Pakinis ng Gilid):"
 
 [node name="AaOption" type="OptionButton" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/AaRow" unique_id=369862821]
 custom_minimum_size = Vector2(170, 36)
@@ -1701,16 +850,16 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 13
-text = "📊 Ipakita ang Live FPS Counter sa Laro"
+text = "Ipakita ang Live FPS Counter sa Laro"
 
 [node name="HSep2" type="HSeparator" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862824]
 layout_mode = 2
 
 [node name="AudioHeader" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862825]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
+theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
 theme_override_font_sizes/font_size = 14
-text = "🔊 TUNOG AT KONTROL:"
+text = "TUNOG AT KONTROL:"
 
 [node name="VolumeRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=1902377414]
 layout_mode = 2
@@ -1718,7 +867,7 @@ layout_mode = 2
 [node name="VolumeLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow" unique_id=559263539]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "🔊 Master Volume: 100%"
+text = "Master Volume: 100%"
 
 [node name="VolumeSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow" unique_id=769251910]
 layout_mode = 2
@@ -1732,7 +881,7 @@ layout_mode = 2
 [node name="SensitivityLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow" unique_id=1029384756]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "🖱️ Mouse / Touch Sensitivity: 2.5"
+text = "Mouse / Touch Sensitivity: 2.5"
 
 [node name="SensitivitySlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow" unique_id=192837465]
 layout_mode = 2
@@ -1747,7 +896,7 @@ layout_mode = 2
 [node name="FovLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow" unique_id=192837467]
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "👁️ Field of View (FOV): 75°"
+text = "Field of View (FOV): 75Â°"
 
 [node name="FovSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow" unique_id=192837468]
 layout_mode = 2
@@ -1761,76 +910,14 @@ layout_mode = 2
 [node name="BtnCloseSettings" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=192837469]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_join_green")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_join_green_hover")
-text = "◀ ISARA AT ILAPAT (Save & Close)"
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_start")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_start_hover")
+text = "< ISARA AT ILAPAT (Save & Close)"
 
-[node name="GameOverUI" type="Control" parent="." unique_id=10928137]
+[node name="GameOverUI" parent="." unique_id=10928137 instance=ExtResource("10_game_over_ui")]
 visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="ColorRect" type="ColorRect" parent="GameOverUI" unique_id=522296168]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.7)
-
-[node name="Panel" type="PanelContainer" parent="GameOverUI" unique_id=992727040]
-custom_minimum_size = Vector2(480, 260)
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -240.0
-offset_top = -130.0
-offset_right = 240.0
-offset_bottom = 130.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_gameover_card")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="GameOverUI/Panel" unique_id=102979500]
-layout_mode = 2
-theme_override_constants/separation = 16
-alignment = 1
-
-[node name="Title" type="Label" parent="GameOverUI/Panel/VBoxContainer" unique_id=578527007]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 28
-text = "🏆 TAPOS NA ANG LARO! 🏆"
-horizontal_alignment = 1
-
-[node name="WinnerLabel" type="Label" parent="GameOverUI/Panel/VBoxContainer" unique_id=2007912439]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 18
-text = "Panalo: Dennrick!"
-horizontal_alignment = 1
-
-[node name="BtnRematch" type="Button" parent="GameOverUI/Panel/VBoxContainer" unique_id=2040405085]
-custom_minimum_size = Vector2(0, 48)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_join_green")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_join_green_hover")
-text = "🔄 BUMALIK SA LOBBY"
 
 [node name="FpsOverlay" type="CanvasLayer" parent="." unique_id=981273461]
 layer = 120

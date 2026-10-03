@@ -1,0 +1,553 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/GameOverUI.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/Background.jpg" id="2_bg"]
+[ext_resource type="Texture2D" path="res://assets/portraits/portrait_mvp.jpg" id="3_mvp"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_table_panel"]
+bg_color = Color(0.06, 0.07, 0.09, 0.8)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.2, 0.24, 0.5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_metabar"]
+bg_color = Color(0.06, 0.07, 0.09, 0.85)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.2, 0.24, 0.5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_right_card"]
+bg_color = Color(0.07, 0.08, 0.11, 0.88)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.24, 0.3, 0.6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stat_pill"]
+bg_color = Color(0.12, 0.14, 0.18, 0.7)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.28, 0.35, 0.4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_lobby"]
+bg_color = Color(0.94, 0.92, 0.88, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_lobby_hover"]
+bg_color = Color(1, 0.98, 0.94, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 6
+
+[node name="GameOverUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="BgTexture" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRectOverlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.05, 0.08, 0.88)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 20
+
+[node name="MainVBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HeaderBar" type="HBoxContainer" parent="Margin/MainVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LeftTitles" type="VBoxContainer" parent="Margin/MainVBox/HeaderBar"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="TitleRow" type="HBoxContainer" parent="Margin/MainVBox/HeaderBar/LeftTitles"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CrownIcon" type="Label" parent="Margin/MainVBox/HeaderBar/LeftTitles/TitleRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 22
+text = "👑"
+
+[node name="Title" type="Label" parent="Margin/MainVBox/HeaderBar/LeftTitles/TitleRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.96, 0.98, 1)
+theme_override_font_sizes/font_size = 24
+text = "TAPOS NA ANG LARO!"
+
+[node name="Subtitle" type="Label" parent="Margin/MainVBox/HeaderBar/LeftTitles"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.62, 0.55, 1)
+theme_override_font_sizes/font_size = 11
+text = "BATANG KALYE"
+
+[node name="Spacer" type="Control" parent="Margin/MainVBox/HeaderBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightMode" type="VBoxContainer" parent="Margin/MainVBox/HeaderBar"]
+layout_mode = 2
+alignment = 2
+
+[node name="ModeHeader" type="Label" parent="Margin/MainVBox/HeaderBar/RightMode"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.76, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+text = "TAYAAN SA KANTO • 8 PLAYER"
+horizontal_alignment = 2
+
+[node name="CategoryLabel" type="Label" parent="Margin/MainVBox/HeaderBar/RightMode"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.55, 0.45, 1)
+theme_override_font_sizes/font_size = 10
+text = "LARO SA KALYE"
+horizontal_alignment = 2
+
+[node name="MainHBox" type="HBoxContainer" parent="Margin/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="LeftColumn" type="VBoxContainer" parent="Margin/MainVBox/MainHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.15
+theme_override_constants/separation = 10
+
+[node name="TablePanel" type="PanelContainer" parent="Margin/MainVBox/MainHBox/LeftColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_table_panel")
+
+[node name="Margin" type="MarginContainer" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HeaderRow" type="HBoxContainer" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ColRank" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/HeaderRow"]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.65, 1)
+theme_override_font_sizes/font_size = 11
+text = "#"
+horizontal_alignment = 1
+
+[node name="ColPlayer" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/HeaderRow"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.55, 0.58, 0.65, 1)
+theme_override_font_sizes/font_size = 11
+text = "PLAYER"
+
+[node name="ColStatus" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/HeaderRow"]
+custom_minimum_size = Vector2(85, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.65, 1)
+theme_override_font_sizes/font_size = 11
+text = "STATUS"
+horizontal_alignment = 1
+
+[node name="ColHuli" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/HeaderRow"]
+custom_minimum_size = Vector2(55, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.65, 1)
+theme_override_font_sizes/font_size = 11
+text = "HULI"
+horizontal_alignment = 1
+
+[node name="ColDulas" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/HeaderRow"]
+custom_minimum_size = Vector2(55, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.65, 1)
+theme_override_font_sizes/font_size = 11
+text = "DULAS"
+horizontal_alignment = 1
+
+[node name="ColBasura" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/HeaderRow"]
+custom_minimum_size = Vector2(55, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.65, 1)
+theme_override_font_sizes/font_size = 11
+text = "BASURA"
+horizontal_alignment = 1
+
+[node name="ColPatama" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/HeaderRow"]
+custom_minimum_size = Vector2(55, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.65, 1)
+theme_override_font_sizes/font_size = 11
+text = "PATAMA"
+horizontal_alignment = 1
+
+[node name="ColTago" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/HeaderRow"]
+custom_minimum_size = Vector2(55, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.65, 1)
+theme_override_font_sizes/font_size = 11
+text = "TAGO"
+horizontal_alignment = 1
+
+[node name="ColScore" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/HeaderRow"]
+custom_minimum_size = Vector2(65, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.65, 1)
+theme_override_font_sizes/font_size = 11
+text = "SCORE"
+horizontal_alignment = 2
+
+[node name="HSeparator" type="HSeparator" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RowsContainer" type="VBoxContainer" parent="Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="MetaBar" type="PanelContainer" parent="Margin/MainVBox/MainHBox/LeftColumn"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_metabar")
+
+[node name="HBox" type="HBoxContainer" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="PlayersBox" type="HBoxContainer" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Icon" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox/PlayersBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "👥 TOTAL PLAYERS:"
+
+[node name="Val" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox/PlayersBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 12
+text = "8 / 8"
+
+[node name="DurationBox" type="HBoxContainer" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Icon" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox/DurationBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "⏱️ ORAS:"
+
+[node name="Val" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox/DurationBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 12
+text = "04:32"
+
+[node name="TayaBox" type="HBoxContainer" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Icon" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox/TayaBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "🎯 TAYA:"
+
+[node name="Val" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox/TayaBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 12
+text = "KAMPEON"
+
+[node name="ModeBox" type="HBoxContainer" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Icon" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox/ModeBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "🎮 MODE:"
+
+[node name="Val" type="Label" parent="Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox/ModeBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 12
+text = "TAYAAN SA KANTO"
+
+[node name="RightColumn" type="VBoxContainer" parent="Margin/MainVBox/MainHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.05
+theme_override_constants/separation = 10
+
+[node name="TopPlayerCard" type="PanelContainer" parent="Margin/MainVBox/MainHBox/RightColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_right_card")
+
+[node name="VBox" type="VBoxContainer" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="CardHeader" type="HBoxContainer" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Icon" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/CardHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 13
+text = "👑"
+
+[node name="Title" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/CardHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.88, 0.45, 1)
+theme_override_font_sizes/font_size = 12
+text = "TOP PLAYER"
+
+[node name="PortraitContainer" type="CenterContainer" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox"]
+layout_mode = 2
+
+[node name="Portrait" type="TextureRect" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/PortraitContainer"]
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 2
+texture = ExtResource("3_mvp")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="RoleBadge" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 20
+text = "TAYA"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 15
+text = "KAMPEON"
+horizontal_alignment = 1
+
+[node name="StatsGrid" type="HBoxContainer" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="BoxHuli" type="PanelContainer" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid"]
+custom_minimum_size = Vector2(50, 44)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_pill")
+
+[node name="V" type="VBoxContainer" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxHuli"]
+layout_mode = 2
+alignment = 1
+
+[node name="Num" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxHuli/V"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
+theme_override_font_sizes/font_size = 14
+text = "6"
+horizontal_alignment = 1
+
+[node name="Lbl" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxHuli/V"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.68, 0.75, 1)
+theme_override_font_sizes/font_size = 9
+text = "HULI"
+horizontal_alignment = 1
+
+[node name="BoxDulas" type="PanelContainer" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid"]
+custom_minimum_size = Vector2(50, 44)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_pill")
+
+[node name="V" type="VBoxContainer" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxDulas"]
+layout_mode = 2
+alignment = 1
+
+[node name="Num" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxDulas/V"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
+theme_override_font_sizes/font_size = 14
+text = "4"
+horizontal_alignment = 1
+
+[node name="Lbl" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxDulas/V"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.68, 0.75, 1)
+theme_override_font_sizes/font_size = 9
+text = "DULAS"
+horizontal_alignment = 1
+
+[node name="BoxBasura" type="PanelContainer" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid"]
+custom_minimum_size = Vector2(50, 44)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_pill")
+
+[node name="V" type="VBoxContainer" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxBasura"]
+layout_mode = 2
+alignment = 1
+
+[node name="Num" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxBasura/V"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
+theme_override_font_sizes/font_size = 14
+text = "3"
+horizontal_alignment = 1
+
+[node name="Lbl" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxBasura/V"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.68, 0.75, 1)
+theme_override_font_sizes/font_size = 9
+text = "BASURA"
+horizontal_alignment = 1
+
+[node name="BoxTago" type="PanelContainer" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid"]
+custom_minimum_size = Vector2(50, 44)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stat_pill")
+
+[node name="V" type="VBoxContainer" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxTago"]
+layout_mode = 2
+alignment = 1
+
+[node name="Num" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxTago/V"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
+theme_override_font_sizes/font_size = 14
+text = "2"
+horizontal_alignment = 1
+
+[node name="Lbl" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxTago/V"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.68, 0.75, 1)
+theme_override_font_sizes/font_size = 9
+text = "TAGO"
+horizontal_alignment = 1
+
+[node name="QuoteLabel" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.82, 0.7, 1)
+theme_override_font_sizes/font_size = 11
+text = "\"PINAKA-MATALINO SA KALYE!\""
+horizontal_alignment = 1
+
+[node name="AwardsCard" type="PanelContainer" parent="Margin/MainVBox/MainHBox/RightColumn"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_right_card")
+
+[node name="VBox" type="VBoxContainer" parent="Margin/MainVBox/MainHBox/RightColumn/AwardsCard"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="Margin/MainVBox/MainHBox/RightColumn/AwardsCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Icon" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/AwardsCard/VBox/Header"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "🏆"
+
+[node name="Title" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/AwardsCard/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.88, 0.45, 1)
+theme_override_font_sizes/font_size = 12
+text = "MGA PARANGAL"
+
+[node name="AwardsList" type="VBoxContainer" parent="Margin/MainVBox/MainHBox/RightColumn/AwardsCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="BtnLobby" type="Button" parent="Margin/MainVBox/MainHBox/RightColumn"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.14, 0.18, 1)
+theme_override_colors/font_focus_color = Color(0.12, 0.14, 0.18, 1)
+theme_override_colors/font_pressed_color = Color(0.05, 0.05, 0.08, 1)
+theme_override_colors/font_hover_color = Color(0.05, 0.05, 0.08, 1)
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_lobby")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_lobby_hover")
+text = "BUMALIK SA LOBBY  ➔"

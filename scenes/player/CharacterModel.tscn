@@ -10,6 +10,7 @@
 [ext_resource type="Material" path="res://assets/materials/mat_banderitas_blue.tres" id="9_blue"]
 [ext_resource type="PackedScene" uid="uid://tr3c74umef1w" path="res://assets/models/Tsuna.glb" id="10_tsuna"]
 [ext_resource type="PackedScene" uid="uid://5outr5rgk58w" path="res://assets/models/Kalbo.glb" id="11_kalbo"]
+[ext_resource type="PackedScene" path="res://assets/models/Totoy.glb" id="12_totoy"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_torso"]
 radius = 0.26
@@ -104,6 +105,10 @@ script = ExtResource("1_anim")
 transform = Transform3D(-25, 0, 0, 0, 25, 0, 0, 0, -25, 0, 0, 0)
 
 [node name="ModelKalbo" parent="." unique_id=811987153 instance=ExtResource("11_kalbo")]
+transform = Transform3D(-25, 0, 0, 0, 25, 0, 0, 0, -25, 0, 0, 0)
+visible = false
+
+[node name="ModelTotoy" parent="." unique_id=1203948571 instance=ExtResource("12_totoy")]
 transform = Transform3D(-25, 0, 0, 0, 25, 0, 0, 0, -25, 0, 0, 0)
 visible = false
 
@@ -256,6 +261,6 @@ visible = false
 billboard = 1
 modulate = Color(1, 0.25, 0.1, 1)
 outline_modulate = Color(0.4, 0.05, 0.05, 1)
-text = "🔥 IKAW ANG TAYA! 🔥"
+text = "IKAW ANG TAYA!"
 font_size = 28
 outline_size = 8

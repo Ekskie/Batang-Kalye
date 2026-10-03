@@ -20,8 +20,27 @@ func _ready() -> void:
 		result_label.visible = false
 
 	if btn_palm_up:
+		btn_palm_up.pivot_offset = btn_palm_up.custom_minimum_size * 0.5
+		btn_palm_up.button_down.connect(func():
+			var tw := btn_palm_up.create_tween()
+			tw.tween_property(btn_palm_up, "scale", Vector2(0.93, 0.93), 0.05)
+		)
+		btn_palm_up.button_up.connect(func():
+			var tw := btn_palm_up.create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			tw.tween_property(btn_palm_up, "scale", Vector2.ONE, 0.12)
+		)
 		btn_palm_up.pressed.connect(func(): _choose(0))
+
 	if btn_palm_down:
+		btn_palm_down.pivot_offset = btn_palm_down.custom_minimum_size * 0.5
+		btn_palm_down.button_down.connect(func():
+			var tw := btn_palm_down.create_tween()
+			tw.tween_property(btn_palm_down, "scale", Vector2(0.93, 0.93), 0.05)
+		)
+		btn_palm_down.button_up.connect(func():
+			var tw := btn_palm_down.create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			tw.tween_property(btn_palm_down, "scale", Vector2.ONE, 0.12)
+		)
 		btn_palm_down.pressed.connect(func(): _choose(1))
 
 func show_chant(text: String) -> void:
@@ -58,7 +77,7 @@ func _choose(choice: int) -> void:
 		btn_palm_down.disabled = true
 	choice_made.emit(choice)
 	if chant_label:
-		chant_label.text = "NAKAPILI KA NA! ⏳"
+		chant_label.text = "NAKAPILI KA NA! (NAGHIHINTAY SA IBA...)"
 
 func show_result(taya_name: String, is_local_player_taya: bool) -> void:
 	if choice_container:
@@ -73,10 +92,10 @@ func show_result(taya_name: String, is_local_player_taya: bool) -> void:
 		t.tween_property(result_label, "scale", Vector2.ONE, 0.18)
 
 		if is_local_player_taya:
-			result_label.text = "🔥 IKAW ANG TAYA! HUMANDA SILA! 🔥"
+			result_label.text = "IKAW ANG TAYA! HUMANDA SILA!"
 			result_label.modulate = Color(1.0, 0.3, 0.2)
 		else:
-			result_label.text = "🏃 SI " + taya_name.to_upper() + " ANG TAYA! TAKBO NA! 💨"
+			result_label.text = "SI " + taya_name.to_upper() + " ANG TAYA! TAKBO NA!"
 			result_label.modulate = Color(0.2, 0.95, 0.45)
 
 	# Hide after 3 seconds
