@@ -540,6 +540,31 @@ text = "MGA PARANGAL"
 layout_mode = 2
 theme_override_constants/separation = 3
 
+[node name="EarningsCard" type="PanelContainer" parent="Margin/MainVBox/MainHBox/RightColumn"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Margin/MainVBox/MainHBox/RightColumn/EarningsCard"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="EarningsHeader" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/EarningsCard/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.25, 1)
+theme_override_font_sizes/font_size = 12
+text = "🎁 IYONG NAPANALUNAN SA MATCH"
+
+[node name="EarningsValue" type="Label" parent="Margin/MainVBox/MainHBox/RightColumn/EarningsCard/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "🪙 +50 Barya  |  ⭐ +25 Street Rep"
+
+[node name="BtnStore" type="Button" parent="Margin/MainVBox/MainHBox/RightColumn"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "🏪 Tindahan ni Aling Nena"
+
 [node name="BtnLobby" type="Button" parent="Margin/MainVBox/MainHBox/RightColumn"]
 custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
@@ -551,3 +576,4 @@ theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_lobby")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_lobby_hover")
 text = "BUMALIK SA LOBBY  ➔"
+

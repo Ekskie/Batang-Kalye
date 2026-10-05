@@ -498,26 +498,26 @@ text = "TAYAAN SA KANTO â€¢ 8-PLAYER CHAOTIC STREET TAG"
 horizontal_alignment = 1
 
 [node name="BtnEnterTitle" type="Button" parent="TitleScreenUI/Center/VBox" unique_id=1605562095]
-custom_minimum_size = Vector2(0, 56)
+custom_minimum_size = Vector2(0, 62)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_enter")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_3km4f")
 theme_override_styles/hover = ExtResource("8_qkm1d")
 text = "PUMASOK SA LOBBY >"
 
 [node name="BtnTitleSettings" type="Button" parent="TitleScreenUI/Center/VBox" unique_id=1605562099]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.92, 1, 1)
 theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_enter")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_3km4f")
 theme_override_styles/hover = ExtResource("8_qkm1d")
@@ -532,29 +532,29 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_shadow_color = Color(1, 1, 1, 0)
 theme_override_colors/font_outline_color = Color(0.18039216, 0.039215688, 0.3019608, 0)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 text = "TAYA"
 
 [node name="Dot1" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=1898806757]
 layout_mode = 2
-text = "â€¢"
+text = "•"
 
 [node name="Pill2" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=1458544726]
 layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0.078431375, 0.019607844, 0.14117648, 0)
 theme_override_colors/font_outline_color = Color(0.18039216, 0.039215688, 0.3019608, 0)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 text = "TAKBO"
 
 [node name="Dot2" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=697553231]
 layout_mode = 2
-text = "â€¢"
+text = "•"
 
 [node name="Pill3" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=1497282446]
 layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0.078431375, 0.019607844, 0.14117648, 0)
 theme_override_colors/font_outline_color = Color(0.18039216, 0.039215688, 0.3019608, 0)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 text = "HULI"
 
 [node name="Credits" type="Label" parent="TitleScreenUI/Center/VBox" unique_id=1579673086]
@@ -562,7 +562,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_shadow_color = Color(0.078431375, 0.019607844, 0.14117648, 0)
 theme_override_colors/font_outline_color = Color(0.18039216, 0.039215688, 0.3019608, 0)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 13
 text = "Team Fiery Fox • Philippine Street Games"
 horizontal_alignment = 1
 
@@ -596,17 +596,17 @@ grow_vertical = 2
 color = Color(0, 0, 0, 0.75)
 
 [node name="PausePanel" type="PanelContainer" parent="PauseUI" unique_id=921803920]
-custom_minimum_size = Vector2(460, 360)
+custom_minimum_size = Vector2(500, 400)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -230.0
-offset_top = -180.0
-offset_right = 230.0
-offset_bottom = 180.0
+offset_left = -250.0
+offset_top = -200.0
+offset_right = 250.0
+offset_bottom = 200.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_lobby_bg")
@@ -629,7 +629,7 @@ horizontal_alignment = 1
 [node name="Subtitle" type="Label" parent="PauseUI/PausePanel/VBoxContainer" unique_id=1097176336]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 14
 text = "Batang Kalye: Tayaan sa Kanto"
 horizontal_alignment = 1
 
@@ -637,34 +637,34 @@ horizontal_alignment = 1
 layout_mode = 2
 
 [node name="BtnResume" type="Button" parent="PauseUI/PausePanel/VBoxContainer" unique_id=584801688]
-custom_minimum_size = Vector2(0, 46)
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_start")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_start_hover")
 text = "IPAGPATULOY ANG LARO (Resume)"
 
 [node name="BtnSettings" type="Button" parent="PauseUI/PausePanel/VBoxContainer" unique_id=1160281938]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
 text = "MGA SETTING (Audio / Mouse / FOV)"
 
 [node name="BtnPauseLobby" type="Button" parent="PauseUI/PausePanel/VBoxContainer" unique_id=1611994850]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_solo_orange")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_solo_orange_hover")
 text = "BUMALIK SA LOBBY (Leave Match)"
 
 [node name="BtnPauseQuit" type="Button" parent="PauseUI/PausePanel/VBoxContainer" unique_id=1696186519]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_quit")
@@ -725,31 +725,31 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="BtnPresetLow" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow" unique_id=369862803]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
 text = "MABABA (Tipid)"
 
 [node name="BtnPresetMed" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow" unique_id=369862804]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
 text = "BALANSE"
 
 [node name="BtnPresetHigh" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow" unique_id=369862805]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
 text = "MATAAS"
@@ -908,10 +908,10 @@ value = 75.0
 layout_mode = 2
 
 [node name="BtnCloseSettings" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=192837469]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_start")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_start_hover")
 text = "< ISARA AT ILAPAT (Save & Close)"

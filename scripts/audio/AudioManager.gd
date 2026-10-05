@@ -13,6 +13,7 @@ var sfx_bin_correct: AudioStreamWAV
 var sfx_bin_wrong: AudioStreamWAV
 var sfx_powerup: AudioStreamWAV
 var sfx_tag_hit: AudioStreamWAV
+var sfx_tag_swing: AudioStreamWAV
 var sfx_drop: AudioStreamWAV
 var sfx_dog_bark: AudioStreamWAV
 var sfx_stun: AudioStreamWAV
@@ -55,6 +56,7 @@ func _synthesize_all_sfx() -> void:
 	sfx_bin_wrong = _create_dual_thud(160.0, 110.0, 0.18, 0.5)
 	sfx_powerup = _create_arpeggio([440.0, 554.37, 659.25, 880.0, 1108.73, 1318.5], 0.06, 0.8) # Stardust fanfare
 	sfx_tag_hit = _create_noise_hit(0.15, 0.8)
+	sfx_tag_swing = _create_sweep_tone(450.0, 160.0, 0.12, 0.4)
 	sfx_drop = _create_sweep_tone(400.0, 180.0, 0.10, 0.4)
 	sfx_dog_bark = _create_dog_bark(0.22, 0.7)
 	sfx_stun = _create_sweep_tone(600.0, 250.0, 0.35, 0.6)
@@ -103,6 +105,9 @@ func play_powerup() -> void:
 
 func play_tag_hit() -> void:
 	play_sfx(sfx_tag_hit, randf_range(0.9, 1.1))
+
+func play_tag_swing() -> void:
+	play_sfx(sfx_tag_swing, randf_range(0.95, 1.15))
 
 func play_drop() -> void:
 	play_sfx(sfx_drop, randf_range(0.95, 1.05))

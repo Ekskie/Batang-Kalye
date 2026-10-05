@@ -33,7 +33,7 @@ extends Control
 
 # Scoreboard
 @onready var scoreboard_panel: PanelContainer = get_node_or_null("ScoreboardPanel")
-@onready var player_list_box: VBoxContainer = get_node_or_null("ScoreboardPanel/MarginContainer/VBoxContainer/PlayerList")
+@onready var player_list_box: VBoxContainer = (get_node_or_null("ScoreboardPanel/MarginContainer/VBoxContainer/ScoreboardScroll/PlayerList") as VBoxContainer) if get_node_or_null("ScoreboardPanel/MarginContainer/VBoxContainer/ScoreboardScroll/PlayerList") else (get_node_or_null("ScoreboardPanel/MarginContainer/VBoxContainer/PlayerList") as VBoxContainer)
 
 # Contextual Interaction Prompt
 @onready var contextual_prompt: PanelContainer = get_node_or_null("ContextualPrompt")
@@ -313,6 +313,17 @@ func show_spectator_bar(target_name: String) -> void:
 	if spectator_label:
 		spectator_label.text = "NANONOOD KAY: %s   |   [SPACE / CLICK / A-D] Palitan" % target_name.to_upper()
 
+func update_spectator_info(target_data: Dictionary) -> void:
+	if spectator_bar:
+		spectator_bar.visible = true
+	var t_name: String = str(target_data.get("name", "Player")).to_upper()
+	var t_role_str: String = "TAYA 🔥" if int(target_data.get("role", 0)) == 1 else "RUNNER 🏃"
+	var t_score: int = int(target_data.get("score", 0))
+	var t_tags: int = int(target_data.get("tags", 0))
+	var alive_count: int = int(target_data.get("alive_count", 0))
+	if spectator_label:
+		spectator_label.text = "NANONOOD KAY: %s (%s)  |  Score: %d  |  Huli: %d  |  Buhay: %d\n[SPACE / TOUCH / A-D] Palitan ng Titingnan" % [t_name, t_role_str, t_score, t_tags, alive_count]
+
 func hide_spectator_bar() -> void:
 	if spectator_bar:
 		spectator_bar.visible = false
@@ -326,7 +337,10 @@ func show_round_intermission(next_round: int, eliminated_name: String, remaining
 		t.tween_property(intermission_banner, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 	if intermission_title:
-		intermission_title.text = "NA-TAYA SI %s! ELIMINADO NA!" % eliminated_name.to_upper()
+		if "," in eliminated_name:
+			intermission_title.text = "NA-TAYA SILA: %s! ELIMINADO NA!" % eliminated_name.to_upper()
+		else:
+			intermission_title.text = "NA-TAYA SI %s! ELIMINADO NA!" % eliminated_name.to_upper()
 	if intermission_sub:
 		intermission_sub.text = "%d bata na lang ang natitira sa kalye!\nSusunod na Round %d sa loob ng ilang sandali..." % [remaining_count, next_round]
 
@@ -344,6 +358,7 @@ func update_scoreboard(players_data: Dictionary) -> void:
 	if not player_list_box:
 		return
 	for child in player_list_box.get_children():
+		player_list_box.remove_child(child)
 		child.queue_free()
 
 	for pid in players_data.keys():

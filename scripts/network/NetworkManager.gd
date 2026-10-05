@@ -11,7 +11,7 @@ signal server_disconnected()
 const WebRTCSignalerScript = preload("res://scripts/network/WebRTCSignaler.gd")
 
 const DEFAULT_PORT: int = 7777
-const MAX_PLAYERS: int = 8
+const MAX_PLAYERS: int = 24
 
 var peer: MultiplayerPeer = null
 var connection_mode: String = "enet" # "enet" or "webrtc"
@@ -33,7 +33,8 @@ var local_outfit: Dictionary = {
 	"headwear": 0,
 	"body": 0,
 	"footwear": 0,
-	"color": 0
+	"color": 0,
+	"title": "Batang Kalye"
 }
 var is_host: bool = false
 var is_solo_practice: bool = false

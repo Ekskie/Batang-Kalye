@@ -10,7 +10,7 @@
 [PASS] Picked up Plastic Bottle: Bote ng Tubig
 [PASS] Wrong bin rejected deposit; trash kept safely in hand.
 [PASS] Correct bin accepted trash! +30 score awarded (Total: 30).
-[PASS] Imagination Powerup Unlocked: SUPER SPEED (Bilis-Alon)
+[PASS] Imagination Powerup Unlocked: KIDLAT DASH (3x)
 [PASS] Kidlat Dash executed successfully with powerup! Charges left: 2
 [SELF-TEST] Testing Dual Stamina & Exhaustion System...
 [PASS] Sprint movement drains burst stamina (76.0/100) and endurance (92.5/100).
@@ -61,4 +61,16 @@
 [PASS] Ice Candy consumed successfully.
 [PASS] Entered hiding drum successfully; character model concealed.
 [PASS] Exited hiding drum successfully; model visible.
+[SELF-TEST] Testing High-Density Netcode & 24-Player Scaling...
+[PASS] NetworkManager.MAX_PLAYERS == 24.
+[PASS] PlayerController 25Hz tick rate and 8-snapshot buffer capacity verified.
+[PASS] Snapshot ring buffer enforces max 8 snapshots and sorts chronologically.
+[PASS] Cubic Hermite Spline calculation verified with C1 tangent continuity.
+[PASS] KalyeMap contains 24 spawn markers.
+[PASS] 24 player spawn points distributed with zero collision overlaps.
+[PASS] LobbyUI players_slider supports 24 players.
+[SELF-TEST] Testing Dynamic Multi-Taya Balancing...
+[PASS] Dynamic Multi-Taya ratio formula verified across 1..24 players.
+[PASS] Maiba Taya minority gesture group selected 4 chasers for 16 players.
+[PASS] sync_assign_multi_taya and role sync verified.
 [ALL TESTS PASSED] ZERO RUNTIME ERRORS DETECTED!

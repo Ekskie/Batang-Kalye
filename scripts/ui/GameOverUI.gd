@@ -2,6 +2,7 @@ class_name GameOverUI
 extends Control
 
 signal rematch_requested
+signal store_requested
 
 @onready var bg_texture: TextureRect = get_node_or_null("BgTexture")
 @onready var rows_container: VBoxContainer = get_node_or_null("Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/ScrollContainer/RowsContainer")
@@ -23,7 +24,9 @@ signal rematch_requested
 # Awards Card
 @onready var awards_container: VBoxContainer = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/AwardsCard/VBox/AwardsList")
 
-# Buttons
+# Earnings Card & Buttons
+@onready var earnings_val_label: Label = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/EarningsCard/VBox/EarningsValue")
+@onready var btn_store: Button = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/BtnStore")
 @onready var btn_lobby: Button = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/BtnLobby")
 
 const PORTRAITS: Dictionary = {
@@ -49,6 +52,14 @@ const MVP_QUOTES: Array[String] = [
 func _ready() -> void:
 	if btn_lobby:
 		btn_lobby.pressed.connect(func(): rematch_requested.emit())
+	if btn_store:
+		btn_store.pressed.connect(_on_btn_store_pressed)
+
+func _on_btn_store_pressed() -> void:
+	store_requested.emit()
+	var main_node = get_node_or_null("/root/Main")
+	if main_node and ("store_ui" in main_node) and main_node.store_ui:
+		main_node.store_ui.open_store()
 
 func display_game_over(players_data: Array[Dictionary], match_meta: Dictionary, awards_data: Dictionary) -> void:
 	visible = true
@@ -98,6 +109,45 @@ func display_game_over(players_data: Array[Dictionary], match_meta: Dictionary, 
 
 	# 4. Populate Mga Parangal (Awards) Card
 	_populate_awards_card(awards_data)
+
+	# 5. Award and Display Economy Earnings
+	_award_and_display_earnings(players_data)
+
+func _award_and_display_earnings(players_data: Array[Dictionary]) -> void:
+	var eco: EconomyManager = get_node_or_null("/root/Main/EconomyManager")
+	if not eco:
+		var gm = get_node_or_null("/root/Main")
+		if gm and "economy_manager" in gm:
+			eco = gm.economy_manager
+	
+	if not eco or players_data.is_empty():
+		return
+	
+	var local_pid: int = 1
+	var nm = get_node_or_null("/root/Main/NetworkManager")
+	if nm and multiplayer.has_multiplayer_peer():
+		local_pid = multiplayer.get_unique_id()
+	
+	var my_data: Dictionary = {}
+	for p in players_data:
+		if p.get("id", 0) == local_pid or (nm and p.get("name") == nm.local_player_name):
+			my_data = p
+			break
+	if my_data.is_empty():
+		my_data = players_data[0]
+	
+	var my_score: int = int(my_data.get("score", 0))
+	var my_tags: int = int(my_data.get("huli", 0))
+	var my_recycled: int = int(my_data.get("basura", 0))
+	var is_win: bool = (players_data[0].get("id", 0) == local_pid) or (my_data.get("status") == "LIGTAS")
+	
+	var earnings := eco.award_match_earnings(my_score, my_tags, my_recycled, is_win)
+	if earnings_val_label:
+		earnings_val_label.text = "🪙 +%d Barya  |  ⭐ +%d Rep  (Total: %d)" % [
+			earnings.get("barya_earned", 0),
+			earnings.get("rep_earned", 0),
+			earnings.get("total_barya", 0)
+		]
 
 func _populate_top_player_card(mvp: Dictionary) -> void:
 	var char_idx: int = mvp.get("character", 0)

@@ -539,12 +539,12 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -230.0
+offset_left = -240.0
 offset_top = 16.0
 offset_right = -20.0
-offset_bottom = 160.0
+offset_bottom = 260.0
 grow_horizontal = 0
-mouse_filter = 2
+mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_scoreboard")
 
 [node name="MarginContainer" type="MarginContainer" parent="ScoreboardPanel"]
@@ -567,8 +567,16 @@ text = "MGA BATA"
 [node name="HSeparator" type="HSeparator" parent="ScoreboardPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="PlayerList" type="VBoxContainer" parent="ScoreboardPanel/MarginContainer/VBoxContainer"]
+[node name="ScoreboardScroll" type="ScrollContainer" parent="ScoreboardPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="PlayerList" type="VBoxContainer" parent="ScoreboardPanel/MarginContainer/VBoxContainer/ScoreboardScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
 
 [node name="ContextualPrompt" type="PanelContainer" parent="."]
 visible = false

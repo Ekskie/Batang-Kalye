@@ -37,6 +37,9 @@ func is_infection() -> bool:
 func is_elimination() -> bool:
 	return current_mode == MatchMode.PASA_TAYA_ELIMINATION
 
+static func get_taya_count(player_count: int) -> int:
+	return MaibaTayaManager.get_taya_count(player_count)
+
 func is_server_or_solo() -> bool:
 	if network_manager and network_manager.is_solo_practice:
 		return true
@@ -97,7 +100,17 @@ var selected_color_idx: int:
 	set(v): current_color_idx = v
 
 # Core System Nodes
+const EconomyManagerScript = preload("res://scripts/gameplay/EconomyManager.gd")
+const StoreUIScript = preload("res://scripts/ui/StoreUI.gd")
+const QuickGuideUIScript = preload("res://scripts/ui/QuickGuideUI.gd")
+
+var store_ui_scene: PackedScene = preload("res://scenes/ui/StoreUI.tscn")
+var quick_guide_scene: PackedScene = preload("res://scenes/ui/QuickGuideUI.tscn")
+
 @onready var network_manager: NetworkManager = get_node_or_null("NetworkManager")
+@onready var economy_manager: EconomyManager = get_node_or_null("EconomyManager")
+var store_ui: StoreUI = null
+var quick_guide_ui: QuickGuideUI = null
 @onready var maiba_manager: MaibaTayaManager = get_node_or_null("MaibaTayaManager")
 @onready var map_node: Node3D = get_node_or_null("KalyeMap")
 @onready var lobby_camera: Camera3D = get_node_or_null("LobbyCamera3D")
@@ -286,10 +299,6 @@ func _init_node_references() -> void:
 			lobby_list_container = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelLobbies/Scroll/LobbyListContainer")
 		if not preview_char:
 			preview_char = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer/PreviewSubViewport/PreviewChar")
-		if not btn_prev_char:
-			btn_prev_char = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/BtnPrevChar")
-		if not btn_next_char:
-			btn_next_char = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/BtnNextChar")
 		if not char_name_label:
 			char_name_label = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/DetailsPill/HBox/CharName")
 		if not btn_start_match:
@@ -399,9 +408,9 @@ func _init_node_references() -> void:
 	if not player_list_label:
 		player_list_label = slots_header if slots_header else get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/PlayerListBox/PlayerListLabel")
 
-	# Collect 8 Slot labels
+	# Collect Slot labels up to MAX_PLAYERS
 	slot_labels.clear()
-	for i in range(1, 9):
+	for i in range(1, NetworkManager.MAX_PLAYERS + 1):
 		var lbl: Label = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/RoomActiveSection/SlotsGrid/Slot" + str(i) + "/Label")
 		if not lbl:
 			lbl = get_node_or_null("LobbyUI/Panel/VBoxContainer/MainColumns/RightConsole/SlotsGrid/Slot" + str(i) + "/Label")
@@ -489,18 +498,43 @@ func _ready() -> void:
 	_load_settings()
 
 	var run_test := false
-	for arg in OS.get_cmdline_args():
+	var run_netcode_test := false
+	var run_multi_taya_test := false
+	for arg in OS.get_cmdline_args() + OS.get_cmdline_user_args():
 		if "--run-self-test" in arg:
 			run_test = true
-	for arg in OS.get_cmdline_user_args():
-		if "--run-self-test" in arg:
-			run_test = true
+		if "--run-netcode-test" in arg:
+			run_netcode_test = true
+		if "--run-multi-taya-test" in arg:
+			run_multi_taya_test = true
+
+	# Initialize EconomyManager & Store/Guide UI
+	if not economy_manager:
+		economy_manager = EconomyManager.new()
+		economy_manager.name = "EconomyManager"
+		add_child(economy_manager)
+
+	if store_ui_scene:
+		store_ui = store_ui_scene.instantiate() as StoreUI
+		store_ui.name = "StoreUI"
+		store_ui.visible = false
+		store_ui.economy_manager = economy_manager
+		add_child(store_ui)
+		store_ui.item_equipped.connect(_on_store_item_equipped)
+
+	if quick_guide_scene:
+		quick_guide_ui = quick_guide_scene.instantiate() as QuickGuideUI
+		quick_guide_ui.name = "QuickGuideUI"
+		quick_guide_ui.visible = false
+		add_child(quick_guide_ui)
 
 	# Start on Title for players, or Lobby for automated test runs
-	if run_test:
+	if run_test or run_netcode_test or run_multi_taya_test:
 		_set_game_state(GameState.LOBBY)
 	else:
 		_set_game_state(GameState.TITLE)
+		if not QuickGuideUI.has_seen_guide() and quick_guide_ui:
+			quick_guide_ui.call_deferred("open_guide")
 
 	_setup_network_signals()
 	_setup_ui_signals()
@@ -520,7 +554,11 @@ func _ready() -> void:
 	_switch_right_tab(LobbyTab.BROWSE)
 	_update_lobby_player_list()
 
-	if run_test:
+	if run_netcode_test:
+		call_deferred("_run_netcode_verification")
+	elif run_multi_taya_test:
+		call_deferred("_run_multi_taya_verification")
+	elif run_test:
 		call_deferred("_run_automated_self_test")
 
 func _setup_network_signals() -> void:
@@ -543,64 +581,66 @@ func _setup_ui_signals() -> void:
 
 	_setup_lobby_ui_signals()
 
-	# Tab switching buttons
-	if btn_tab_browse:
-		btn_tab_browse.pressed.connect(func():
-			_switch_right_tab(LobbyTab.BROWSE)
-			_fetch_supabase_lobbies()
-		)
-	if btn_tab_host:
-		btn_tab_host.pressed.connect(func(): _switch_right_tab(LobbyTab.HOST))
-	if btn_tab_direct:
-		btn_tab_direct.pressed.connect(func(): _switch_right_tab(LobbyTab.DIRECT))
-	if btn_quick_host:
-		btn_quick_host.pressed.connect(func(): _switch_right_tab(LobbyTab.HOST))
+	# Legacy UI button connections (only active if standalone LobbyUI component is absent)
+	if not lobby_ui:
+		# Tab switching buttons
+		if btn_tab_browse:
+			btn_tab_browse.pressed.connect(func():
+				_switch_right_tab(LobbyTab.BROWSE)
+				_fetch_supabase_lobbies()
+			)
+		if btn_tab_host:
+			btn_tab_host.pressed.connect(func(): _switch_right_tab(LobbyTab.HOST))
+		if btn_tab_direct:
+			btn_tab_direct.pressed.connect(func(): _switch_right_tab(LobbyTab.DIRECT))
+		if btn_quick_host:
+			btn_quick_host.pressed.connect(func(): _switch_right_tab(LobbyTab.HOST))
 
-	# Browse & Room creation buttons
-	if btn_refresh_lobbies:
-		btn_refresh_lobbies.pressed.connect(_fetch_supabase_lobbies)
-	if btn_create_supabase_room:
-		btn_create_supabase_room.pressed.connect(_on_btn_create_supabase_room_pressed)
-	if btn_net_mode_toggle:
-		btn_net_mode_toggle.pressed.connect(_on_btn_net_mode_toggle_pressed)
-	_update_host_net_mode_ui()
+		# Browse & Room creation buttons
+		if btn_refresh_lobbies:
+			btn_refresh_lobbies.pressed.connect(_fetch_supabase_lobbies)
+		if btn_create_supabase_room:
+			btn_create_supabase_room.pressed.connect(_on_btn_create_supabase_room_pressed)
+		if btn_net_mode_toggle:
+			btn_net_mode_toggle.pressed.connect(_on_btn_net_mode_toggle_pressed)
+		_update_host_net_mode_ui()
 
-	if btn_host: btn_host.pressed.connect(_on_btn_host_pressed)
-	if btn_join: btn_join.pressed.connect(_on_btn_join_pressed)
-	if btn_cancel: btn_cancel.pressed.connect(_on_btn_cancel_pressed)
-	if btn_solo: btn_solo.pressed.connect(_on_btn_solo_pressed)
-	if btn_start_match: btn_start_match.pressed.connect(_on_btn_start_match_pressed)
-	if btn_mode_toggle: btn_mode_toggle.pressed.connect(_on_btn_mode_toggle_pressed)
-	_update_mode_ui()
-	if ip_input:
-		ip_input.text_changed.connect(_on_ip_text_changed)
-	if name_input:
-		name_input.text_changed.connect(func(_new_name: String):
-			if not multiplayer.has_multiplayer_peer() or multiplayer.get_peers().is_empty():
-				_update_lobby_player_list()
-		)
-	if btn_copy_ip:
-		btn_copy_ip.pressed.connect(_on_btn_copy_ip_pressed)
+		if btn_host: btn_host.pressed.connect(_on_btn_host_pressed)
+		if btn_join: btn_join.pressed.connect(_on_btn_join_pressed)
+		if btn_cancel: btn_cancel.pressed.connect(_on_btn_cancel_pressed)
+		if btn_solo: btn_solo.pressed.connect(_on_btn_solo_pressed)
+		if btn_start_match: btn_start_match.pressed.connect(_on_btn_start_match_pressed)
+		if btn_mode_toggle: btn_mode_toggle.pressed.connect(_on_btn_mode_toggle_pressed)
+		_update_mode_ui()
+		if ip_input:
+			ip_input.text_changed.connect(_on_ip_text_changed)
+		if name_input:
+			name_input.text_changed.connect(func(_new_name: String):
+				if not multiplayer.has_multiplayer_peer() or multiplayer.get_peers().is_empty():
+					_update_lobby_player_list()
+			)
+		if btn_copy_ip:
+			btn_copy_ip.pressed.connect(_on_btn_copy_ip_pressed)
 
-	if btn_prev_char: btn_prev_char.pressed.connect(_on_prev_char_pressed)
-	if btn_next_char: btn_next_char.pressed.connect(_on_next_char_pressed)
-	if btn_prev_color: btn_prev_color.pressed.connect(_on_prev_color_pressed)
-	if btn_next_color: btn_next_color.pressed.connect(_on_next_color_pressed)
+		if btn_prev_char: btn_prev_char.pressed.connect(_on_prev_char_pressed)
+		if btn_next_char: btn_next_char.pressed.connect(_on_next_char_pressed)
+		if btn_prev_color: btn_prev_color.pressed.connect(_on_prev_color_pressed)
+		if btn_next_color: btn_next_color.pressed.connect(_on_next_color_pressed)
 
-	if btn_prev_hair: btn_prev_hair.pressed.connect(func(): _cycle_slot("hair", -1))
-	if btn_next_hair: btn_next_hair.pressed.connect(func(): _cycle_slot("hair", 1))
-	if btn_prev_head: btn_prev_head.pressed.connect(func(): _cycle_slot("headwear", -1))
-	if btn_next_head: btn_next_head.pressed.connect(func(): _cycle_slot("headwear", 1))
-	if btn_prev_body: btn_prev_body.pressed.connect(func(): _cycle_slot("body", -1))
-	if btn_next_body: btn_next_body.pressed.connect(func(): _cycle_slot("body", 1))
-	if btn_prev_foot: btn_prev_foot.pressed.connect(func(): _cycle_slot("footwear", -1))
-	if btn_next_foot: btn_next_foot.pressed.connect(func(): _cycle_slot("footwear", 1))
+		if btn_prev_hair: btn_prev_hair.pressed.connect(func(): _cycle_slot("hair", -1))
+		if btn_next_hair: btn_next_hair.pressed.connect(func(): _cycle_slot("hair", 1))
+		if btn_prev_head: btn_prev_head.pressed.connect(func(): _cycle_slot("headwear", -1))
+		if btn_next_head: btn_next_head.pressed.connect(func(): _cycle_slot("headwear", 1))
+		if btn_prev_body: btn_prev_body.pressed.connect(func(): _cycle_slot("body", -1))
+		if btn_next_body: btn_next_body.pressed.connect(func(): _cycle_slot("body", 1))
+		if btn_prev_foot: btn_prev_foot.pressed.connect(func(): _cycle_slot("footwear", -1))
+		if btn_next_foot: btn_next_foot.pressed.connect(func(): _cycle_slot("footwear", 1))
 
-	if preset_grid:
-		for i in range(min(8, preset_grid.get_child_count())):
-			var p_btn: Button = preset_grid.get_child(i) as Button
-			if p_btn:
-				p_btn.pressed.connect(_select_preset.bind(i))
+		if preset_grid:
+			for i in range(min(8, preset_grid.get_child_count())):
+				var p_btn: Button = preset_grid.get_child(i) as Button
+				if p_btn:
+					p_btn.pressed.connect(_select_preset.bind(i))
 
 	# Pause menu buttons & settings
 	if btn_resume:
@@ -656,13 +696,22 @@ func _setup_ui_signals() -> void:
 	if game_over_ui and game_over_ui.has_signal("rematch_requested"):
 		game_over_ui.rematch_requested.connect(_on_btn_pause_lobby_pressed)
 
+var _lobby_signals_connected: bool = false
+
 func _setup_lobby_ui_signals() -> void:
-	if not lobby_ui:
+	if not lobby_ui or _lobby_signals_connected:
 		return
+	_lobby_signals_connected = true
 	if lobby_ui.has_signal("main_menu_requested"):
 		lobby_ui.main_menu_requested.connect(func(): _set_game_state(GameState.TITLE))
 	if lobby_ui.has_signal("settings_requested"):
 		lobby_ui.settings_requested.connect(func(): _open_settings("LOBBY"))
+	if lobby_ui.has_signal("store_requested"):
+		lobby_ui.store_requested.connect(func(): if store_ui: store_ui.open_store())
+	if lobby_ui.has_signal("guide_requested"):
+		lobby_ui.guide_requested.connect(func(): if quick_guide_ui: quick_guide_ui.open_guide())
+	if game_over_ui and game_over_ui.has_signal("store_requested"):
+		game_over_ui.store_requested.connect(func(): if store_ui: store_ui.open_store())
 	if lobby_ui.has_signal("prev_char_requested"):
 		lobby_ui.prev_char_requested.connect(_on_prev_char_pressed)
 	if lobby_ui.has_signal("next_char_requested"):
@@ -734,10 +783,10 @@ func _on_lobby_create_room_submitted(r_name: String, mode_id: int, duration: flo
 	var is_online: bool = (supabase_manager != null and supabase_manager.is_configured())
 	if is_online:
 		if supabase_manager:
-			supabase_manager.register_lobby(r_name, pname, "webrtc", max_players, mode_name)
+			supabase_manager.register_lobby(r_name, pname, "webrtc", 0, mode_name, max_players)
 		current_joined_room_name = r_name
 		if lobby_ui and lobby_ui.has_method("set_room_waiting_state"):
-			lobby_ui.set_room_waiting_state(true, true, r_name, { 1: { "name": pname, "is_host": true } })
+			lobby_ui.set_room_waiting_state(true, true, r_name, { 1: { "name": pname, "is_host": true } }, max_players)
 	else:
 		var ips := NetworkManager.get_local_ip_addresses()
 		var local_ip := ips[0] if not ips.is_empty() else "127.0.0.1"
@@ -746,7 +795,7 @@ func _on_lobby_create_room_submitted(r_name: String, mode_id: int, duration: flo
 		if err == OK:
 			current_joined_room_name = r_name
 			if lobby_ui and lobby_ui.has_method("set_room_waiting_state"):
-				lobby_ui.set_room_waiting_state(true, true, "%s (%s)" % [r_name, local_ip], { 1: { "name": pname, "is_host": true } })
+				lobby_ui.set_room_waiting_state(true, true, "%s (%s)" % [r_name, local_ip], { 1: { "name": pname, "is_host": true } }, max_players)
 
 func _on_lobby_join_code_requested(_code: String) -> void:
 	if supabase_manager and supabase_manager.is_configured():
@@ -846,6 +895,7 @@ func _select_preset(idx: int) -> void:
 	_save_player_outfit()
 
 func _get_current_outfit_dict() -> Dictionary:
+	var title_str: String = economy_manager.equipped_title if economy_manager else "Batang Kalye"
 	return {
 		"archetype": current_archetype,
 		"base": current_base,
@@ -854,8 +904,33 @@ func _get_current_outfit_dict() -> Dictionary:
 		"body": current_body,
 		"footwear": current_footwear,
 		"color": current_color_idx,
-		"skin": current_skin_idx
+		"skin": current_skin_idx,
+		"title": title_str
 	}
+
+func _on_store_item_equipped(category: String, item_id: Variant) -> void:
+	apply_store_equip(category, item_id)
+
+func apply_store_equip(category: String, item_id: Variant) -> void:
+	match category:
+		"archetypes":
+			_select_preset(int(item_id))
+		"headwear":
+			current_headwear = int(item_id)
+			_update_customization_ui()
+			_save_player_outfit()
+		"body":
+			current_body = int(item_id)
+			_update_customization_ui()
+			_save_player_outfit()
+		"footwear":
+			current_footwear = int(item_id)
+			_update_customization_ui()
+			_save_player_outfit()
+		"titles":
+			if network_manager:
+				network_manager.local_outfit["title"] = str(item_id)
+				network_manager.set_local_outfit(network_manager.local_outfit)
 
 func _save_player_outfit() -> void:
 	var cfg := ConfigFile.new()
@@ -901,13 +976,17 @@ func _load_player_outfit() -> void:
 	_select_preset(2)
 
 func _update_customization_ui() -> void:
+	var is_unlocked: bool = true
+	if economy_manager:
+		is_unlocked = economy_manager.is_unlocked("archetypes", current_archetype)
 	if lobby_ui and lobby_ui.has_method("update_character_info"):
 		if current_archetype < CharacterAnimator.ARCHETYPES.size():
 			var arch := CharacterAnimator.ARCHETYPES[current_archetype]
 			lobby_ui.update_character_info(
 				current_archetype,
 				arch.get("name", "Totoy"),
-				arch.get("title", "Sando Runner")
+				arch.get("title", "Sando Runner"),
+				is_unlocked
 			)
 		if lobby_ui.has_method("set_color_swatches"):
 			lobby_ui.set_color_swatches(COLOR_OPTIONS, current_color_idx)
@@ -952,7 +1031,10 @@ func _setup_maiba_signals() -> void:
 	maiba_manager.countdown_step.connect(func(text: String): maiba_ui.show_chant(text))
 	maiba_manager.hand_choice_requested.connect(func(limit: float): maiba_ui.request_choice(limit))
 	maiba_ui.choice_made.connect(func(c: int): maiba_manager.rpc_id(1, "submit_hand_choice", c))
-	maiba_manager.taya_decided.connect(_on_taya_decided)
+	if maiba_manager.has_signal("tayas_decided"):
+		maiba_manager.tayas_decided.connect(_on_tayas_decided)
+	else:
+		maiba_manager.taya_decided.connect(_on_taya_decided)
 
 func _setup_nanay_event() -> void:
 	if not nanay_event:
@@ -1606,6 +1688,8 @@ func _on_btn_solo_pressed() -> void:
 		network_manager.players[1]["role"] = 1
 		if local_p.model:
 			local_p.model.apply_outfit_dict(_get_current_outfit_dict())
+			if local_p.has_method("set_player_title") and economy_manager:
+				local_p.set_player_title(economy_manager.equipped_title)
 		if local_p.camera:
 			local_p.camera.current = true
 		var is_mob := OS.has_feature("mobile") or OS.get_name() in ["Android", "iOS"] or DisplayServer.is_touchscreen_available()
@@ -1694,22 +1778,28 @@ func _start_match_flow() -> void:
 	if is_server_or_solo():
 		maiba_manager.start_selection(alive_player_ids)
 
-func _on_taya_decided(taya_id: int, taya_name: String) -> void:
-	var my_id := multiplayer.get_unique_id()
-	var is_me_taya := (my_id == taya_id)
-	maiba_ui.show_result(taya_name, is_me_taya)
+func _on_tayas_decided(taya_ids: Array, taya_names: Array) -> void:
+	var my_id := multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
+	var is_me_taya := (my_id in taya_ids)
 
-	# Set roles across players
+	var display_names: String = ", ".join(taya_names) if not taya_names.is_empty() else ("Player %s" % str(taya_ids))
+	if maiba_ui:
+		maiba_ui.show_result(display_names, is_me_taya)
+
+	# Set roles across all players
 	for player_node in players_container.get_children():
 		if player_node is PlayerController:
-			if player_node.player_id == taya_id:
+			if player_node.player_id in taya_ids:
 				player_node.current_role = PlayerController.Role.TAYA
-				if network_manager.players.has(taya_id):
-					network_manager.players[taya_id]["role"] = 1
+				if network_manager and network_manager.players.has(player_node.player_id):
+					network_manager.players[player_node.player_id]["role"] = 1
 			else:
 				player_node.current_role = PlayerController.Role.RUNNER
-				if network_manager.players.has(player_node.player_id):
+				if network_manager and network_manager.players.has(player_node.player_id):
 					network_manager.players[player_node.player_id]["role"] = 0
+
+	if hud and network_manager:
+		hud.update_scoreboard(network_manager.players)
 
 	# Begin match after 2 seconds
 	get_tree().create_timer(2.0).timeout.connect(func():
@@ -1720,6 +1810,37 @@ func _on_taya_decided(taya_id: int, taya_name: String) -> void:
 		elif has_node("/root/AudioManager"):
 			get_node("/root/AudioManager").play_whistle()
 	)
+
+func _on_taya_decided(taya_id: int, taya_name: String) -> void:
+	_on_tayas_decided([taya_id], [taya_name])
+
+func _get_spawn_position_for_index(spawn_idx: int) -> Vector3:
+	var spawn_points: Array = []
+	if map_node and map_node.has_node("SpawnPoints"):
+		spawn_points = map_node.get_node("SpawnPoints").get_children()
+
+	if spawn_points.is_empty():
+		return Vector3(0.0, 1.0, 0.0)
+
+	var num_points: int = spawn_points.size()
+	var base_marker: Marker3D = spawn_points[spawn_idx % num_points] as Marker3D
+	var base_pos: Vector3 = base_marker.global_position if base_marker else Vector3(0.0, 1.0, 0.0)
+
+	if spawn_idx < num_points:
+		return base_pos
+
+	# Procedural circular spawn scatter offset when spawn_idx >= spawn_points.size()
+	# Distributes overflow players in outward rings with golden-angle dispersal
+	var cycle: int = int(spawn_idx / num_points)
+	var ring_radius: float = 2.5 * float(cycle)
+	var angle: float = float(spawn_idx) * 2.3999632 # Golden ratio spiral angle in radians (~137.5 deg)
+	var scatter_offset: Vector3 = Vector3(cos(angle) * ring_radius, 0.0, sin(angle) * ring_radius)
+
+	var final_pos: Vector3 = base_pos + scatter_offset
+	# Safety clamping within map perimeter fences (Perimeter fence: +/-50m)
+	final_pos.x = clampf(final_pos.x, -46.0, 46.0)
+	final_pos.z = clampf(final_pos.z, -46.0, 46.0)
+	return final_pos
 
 func _spawn_single_player(int_pid: int, spawn_idx: int = 0) -> PlayerController:
 	if players_container.has_node(str(int_pid)):
@@ -1740,15 +1861,8 @@ func _spawn_single_player(int_pid: int, spawn_idx: int = 0) -> PlayerController:
 	player_instance.player_id = int_pid
 	player_instance.player_name = pinfo.get("name", "Player %d" % int_pid)
 
-	# Spawn point
-	var spawn_points: Array = []
-	if map_node and map_node.has_node("SpawnPoints"):
-		spawn_points = map_node.get_node("SpawnPoints").get_children()
-	var spawn_pos: Vector3 = Vector3(0, 1, 0)
-	if spawn_points.size() > 0:
-		var sp: Marker3D = spawn_points[spawn_idx % spawn_points.size()]
-		spawn_pos = sp.global_position
-	player_instance.position = spawn_pos
+	# Spawn point with procedural circular scatter for 24 players
+	player_instance.position = _get_spawn_position_for_index(spawn_idx)
 
 	players_container.add_child(player_instance)
 
@@ -1757,6 +1871,8 @@ func _spawn_single_player(int_pid: int, spawn_idx: int = 0) -> PlayerController:
 	if player_instance.model:
 		if pinfo.has("outfit") and pinfo["outfit"] is Dictionary and not pinfo["outfit"].is_empty():
 			player_instance.model.apply_outfit_dict(pinfo["outfit"])
+			if player_instance.has_method("set_player_title"):
+				player_instance.set_player_title(str(pinfo["outfit"].get("title", "")))
 		else:
 			var char_type: int = pinfo.get("character", selected_char_idx if int_pid == my_uid else 0)
 			var color_idx: int = pinfo.get("color_idx", selected_color_idx if int_pid == my_uid else (spawn_idx % COLOR_OPTIONS.size()))
@@ -1923,51 +2039,60 @@ func _on_round_timer_expired() -> void:
 			else:
 				sync_infection_game_over(taya_won)
 		MatchMode.PASA_TAYA_ELIMINATION:
-			var eliminated_id: int = -1
+			var eliminated_ids: Array = []
 			for p in players_container.get_children():
 				if p is PlayerController and not p.is_eliminated and p.current_role == PlayerController.Role.TAYA:
-					eliminated_id = p.player_id
-					break
-			if eliminated_id == -1 and not alive_player_ids.is_empty():
-				eliminated_id = alive_player_ids.pick_random()
+					eliminated_ids.append(p.player_id)
+			if eliminated_ids.is_empty() and not alive_player_ids.is_empty():
+				eliminated_ids.append(alive_player_ids.pick_random())
 
 			if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
-				rpc("sync_round_elimination", current_round, eliminated_id)
+				rpc("sync_round_multi_elimination", current_round, eliminated_ids)
 			else:
-				sync_round_elimination(current_round, eliminated_id)
+				sync_round_multi_elimination(current_round, eliminated_ids)
 
 @rpc("call_local", "reliable")
-func sync_round_elimination(round_num: int, eliminated_id: int) -> void:
-	var elim_name := "Player %d" % eliminated_id
-	if network_manager.players.has(eliminated_id):
-		elim_name = network_manager.players[eliminated_id].get("name", elim_name)
-		network_manager.players[eliminated_id]["eliminated"] = true
+func sync_round_multi_elimination(round_num: int, eliminated_ids: Array) -> void:
+	var elim_names: Array[String] = []
+	var my_id := multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
+	var am_i_eliminated: bool = false
 
-	alive_player_ids.erase(eliminated_id)
-	eliminated_player_ids.append(eliminated_id)
+	for elim_id in eliminated_ids:
+		var e_id := int(elim_id)
+		if e_id == my_id:
+			am_i_eliminated = true
+		var elim_name := "Player %d" % e_id
+		if network_manager and network_manager.players.has(e_id):
+			elim_name = network_manager.players[e_id].get("name", elim_name)
+			network_manager.players[e_id]["eliminated"] = true
+		elim_names.append(elim_name)
+
+		alive_player_ids.erase(e_id)
+		if not eliminated_player_ids.has(e_id):
+			eliminated_player_ids.append(e_id)
+
+		var elim_node: PlayerController = players_container.get_node_or_null(str(e_id)) as PlayerController
+		if elim_node:
+			elim_node.set_eliminated(true)
+			if elim_node.is_bot:
+				elim_node.global_position = Vector3(0, -50, 0)
 
 	if Engine.has_singleton("AudioManager"):
 		AudioManager.play_elimination()
 	elif has_node("/root/AudioManager"):
 		get_node("/root/AudioManager").play_elimination()
 
-	var elim_node: PlayerController = players_container.get_node_or_null(str(eliminated_id)) as PlayerController
-	if elim_node:
-		elim_node.set_eliminated(true)
-		if elim_node.is_bot:
-			elim_node.global_position = Vector3(0, -50, 0)
-
-	var my_id := multiplayer.get_unique_id()
-	if my_id == eliminated_id:
+	var combined_names := ", ".join(elim_names)
+	if am_i_eliminated:
 		if hud:
 			hud.show_toast_notification("NA-TAYA KA! IKAW AY ELIMINADO! (Nanonood na)", false)
 	else:
 		if hud:
-			hud.show_tag_banner("ELIMINADO!", elim_name)
+			hud.show_tag_banner("ELIMINADO!", combined_names)
 
 	# Check tournament win condition
 	if alive_player_ids.size() <= 1:
-		var winner_id: int = alive_player_ids[0] if alive_player_ids.size() == 1 else -1
+		var winner_id: int = alive_player_ids[0] if alive_player_ids.size() == 1 else (int(eliminated_ids[0]) if not eliminated_ids.is_empty() else -1)
 		sync_tournament_winner(winner_id)
 		return
 
@@ -1975,7 +2100,11 @@ func sync_round_elimination(round_num: int, eliminated_id: int) -> void:
 	is_intermission = true
 	intermission_timer = 4.0
 	if hud:
-		hud.show_round_intermission(round_num + 1, elim_name, alive_player_ids.size())
+		hud.show_round_intermission(round_num + 1, combined_names, alive_player_ids.size())
+
+@rpc("call_local", "reliable")
+func sync_round_elimination(round_num: int, eliminated_id: int) -> void:
+	sync_round_multi_elimination(round_num, [eliminated_id])
 
 func _start_next_round() -> void:
 	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
@@ -1989,28 +2118,30 @@ func sync_next_round_start(next_round: int) -> void:
 	is_intermission = false
 	_setup_round_timer()
 
-	var spawn_points: Array = []
-	if map_node and map_node.has_node("SpawnPoints"):
-		spawn_points = map_node.get_node("SpawnPoints").get_children()
 	var sp_idx := 0
 	for pid in alive_player_ids:
 		var pnode: PlayerController = players_container.get_node_or_null(str(pid)) as PlayerController
 		if pnode:
-			if spawn_points.size() > 0:
-				pnode.global_position = spawn_points[sp_idx % spawn_points.size()].global_position
-				sp_idx += 1
+			pnode.global_position = _get_spawn_position_for_index(sp_idx)
+			sp_idx += 1
 			pnode.velocity = Vector3.ZERO
 			pnode.is_stunned = false
 			pnode.is_immune = false
 			pnode.current_role = PlayerController.Role.RUNNER
 
-	# Pick random new Taya among alive players
+	# Pick dynamic multi-Tayas among remaining alive players
 	if is_server_or_solo():
-		var new_taya_id: int = alive_player_ids.pick_random()
+		var taya_count: int = get_taya_count(alive_player_ids.size())
+		var candidate_pool: Array = alive_player_ids.duplicate()
+		candidate_pool.shuffle()
+		var new_taya_ids: Array = []
+		for i in range(min(taya_count, candidate_pool.size())):
+			new_taya_ids.append(candidate_pool[i])
+
 		if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
-			rpc("sync_assign_taya", new_taya_id)
+			rpc("sync_assign_multi_taya", new_taya_ids)
 		else:
-			sync_assign_taya(new_taya_id)
+			sync_assign_multi_taya(new_taya_ids)
 
 	if Engine.has_singleton("AudioManager"):
 		AudioManager.play_whistle()
@@ -2022,21 +2153,25 @@ func sync_next_round_start(next_round: int) -> void:
 		hud.show_toast_notification("ROUND %d: TAKBUHAN NA!" % current_round, true)
 
 @rpc("call_local", "reliable")
-func sync_assign_taya(taya_id: int) -> void:
+func sync_assign_multi_taya(taya_ids: Array) -> void:
 	for p in players_container.get_children():
 		if p is PlayerController:
 			if p.is_eliminated:
 				continue
-			if p.player_id == taya_id:
+			if p.player_id in taya_ids:
 				p.current_role = PlayerController.Role.TAYA
-				if network_manager.players.has(taya_id):
-					network_manager.players[taya_id]["role"] = 1
+				if network_manager and network_manager.players.has(p.player_id):
+					network_manager.players[p.player_id]["role"] = 1
 			else:
 				p.current_role = PlayerController.Role.RUNNER
-				if network_manager.players.has(p.player_id):
+				if network_manager and network_manager.players.has(p.player_id):
 					network_manager.players[p.player_id]["role"] = 0
-	if hud:
+	if hud and network_manager:
 		hud.update_scoreboard(network_manager.players)
+
+@rpc("call_local", "reliable")
+func sync_assign_taya(taya_id: int) -> void:
+	sync_assign_multi_taya([taya_id])
 
 @rpc("call_local", "reliable")
 func sync_tournament_winner(winner_id: int) -> void:
@@ -2251,9 +2386,9 @@ func _get_match_meta() -> Dictionary:
 			break
 
 	var elapsed_time: float = max(0.0, match_duration - match_timer)
-	var max_p: int = 8
+	var max_p: int = NetworkManager.MAX_PLAYERS
 	if network_manager and network_manager.players:
-		max_p = max(network_manager.players.size(), 8)
+		max_p = max(network_manager.players.size(), NetworkManager.MAX_PLAYERS)
 
 	return {
 		"mode_name": mode_title,
@@ -2666,10 +2801,11 @@ func _on_server_disconnected() -> void:
 
 func _update_lobby_player_list() -> void:
 	var count := network_manager.players.size()
+	var max_cap: int = NetworkManager.MAX_PLAYERS
 	if slots_header:
-		slots_header.text = "MGA MANLALARO (%d / 8 PLAYERS)" % count
+		slots_header.text = "MGA MANLALARO (%d / %d PLAYERS)" % [count, max_cap]
 	elif player_list_label:
-		player_list_label.text = "MGA MANLALARO (%d / 8 PLAYERS)" % count
+		player_list_label.text = "MGA MANLALARO (%d / %d PLAYERS)" % [count, max_cap]
 
 	if supabase_manager and supabase_manager.is_hosting_lobby:
 		supabase_manager.update_lobby(max(1, count), false)
@@ -2680,7 +2816,7 @@ func _update_lobby_player_list() -> void:
 			var r_name := current_joined_room_name
 			if r_name.is_empty():
 				r_name = "Hotspot Room" if network_manager.is_host else "Lobby Room"
-			lobby_ui.set_room_waiting_state(true, network_manager.is_host, r_name, network_manager.players)
+			lobby_ui.set_room_waiting_state(true, network_manager.is_host, r_name, network_manager.players, max_cap)
 
 	# Start Match button dynamic status
 	if btn_start_match:
@@ -2698,9 +2834,10 @@ func _update_lobby_player_list() -> void:
 			btn_start_match.visible = false
 
 	var pids := network_manager.players.keys()
+	var total_display_slots: int = max(slot_labels.size(), max_cap)
 	if pids.is_empty():
 		var local_name := name_input.text.strip_edges() if name_input and not name_input.text.is_empty() else "Player"
-		for i in range(8):
+		for i in range(total_display_slots):
 			if i < slot_labels.size():
 				var lbl: Label = slot_labels[i]
 				if i == 0:
@@ -2715,7 +2852,7 @@ func _update_lobby_player_list() -> void:
 					lbl.modulate = Color(0.45, 0.55, 0.68, 0.8)
 		return
 
-	for i in range(8):
+	for i in range(total_display_slots):
 		if i < slot_labels.size():
 			var lbl: Label = slot_labels[i]
 			if i < pids.size():
@@ -3218,9 +3355,302 @@ func _run_automated_self_test() -> void:
 				_write_test_results(results, 1)
 				return
 
+	# 14. Test Milestone 1: High-Density Netcode & 24-Player Scaling
+	results.append("[SELF-TEST] Testing High-Density Netcode & 24-Player Scaling...")
+	if NetworkManager.MAX_PLAYERS != 24:
+		results.append("[FAIL] NetworkManager.MAX_PLAYERS is %d, expected 24!" % NetworkManager.MAX_PLAYERS)
+		_write_test_results(results, 1)
+		return
+	results.append("[PASS] NetworkManager.MAX_PLAYERS == 24.")
+
+	if PlayerController.NETWORK_TICK_RATE != 25.0 or PlayerController.SNAPSHOT_BUFFER_CAPACITY != 8:
+		results.append("[FAIL] Netcode tick rate or snapshot buffer capacity mismatch!")
+		_write_test_results(results, 1)
+		return
+	results.append("[PASS] PlayerController 25Hz tick rate and 8-snapshot buffer capacity verified.")
+
+	# Test Snapshot Ring Buffer Ordering & Bounds
+	var test_player: PlayerController = players_container.get_node_or_null("1") as PlayerController
+	if test_player:
+		test_player.snapshot_ring_buffer.clear()
+		var out_of_order_times: Array = [100, 180, 140, 220, 260, 300, 340, 380, 420, 460]
+		for t_ms in out_of_order_times:
+			test_player.sync_transform(Vector3(float(t_ms) * 0.1, 0, 0), Vector3(10, 0, 0), 0.0, 10.0, true, false, false, t_ms)
+		if test_player.snapshot_ring_buffer.size() != 8:
+			results.append("[FAIL] Snapshot ring buffer did not enforce capacity 8! size=%d" % test_player.snapshot_ring_buffer.size())
+			_write_test_results(results, 1)
+			return
+		var is_sorted := true
+		for s_idx in range(test_player.snapshot_ring_buffer.size() - 1):
+			if test_player.snapshot_ring_buffer[s_idx]["time_ms"] >= test_player.snapshot_ring_buffer[s_idx + 1]["time_ms"]:
+				is_sorted = false
+				break
+		if not is_sorted:
+			results.append("[FAIL] Snapshot buffer was not sorted chronologically!")
+			_write_test_results(results, 1)
+			return
+		results.append("[PASS] Snapshot ring buffer enforces max 8 snapshots and sorts chronologically.")
+
+		# Test Cubic Hermite Spline Calculation
+		var s0_test: Dictionary = { "pos": Vector3(0, 0, 0), "vel": Vector3(10, 0, 0), "rot_y": 0.0, "speed": 10.0, "floor": true, "slide": false, "dash": false, "time_ms": 0 }
+		var s1_test: Dictionary = { "pos": Vector3(10, 0, 0), "vel": Vector3(10, 0, 0), "rot_y": 0.0, "speed": 10.0, "floor": true, "slide": false, "dash": false, "time_ms": 1000 }
+		test_player._apply_spline_sample(s0_test, s1_test, 0.5, 0.016)
+		if abs(test_player.global_position.x - 5.0) > 0.01:
+			results.append("[FAIL] Cubic Hermite Spline calculation error: pos.x=%f" % test_player.global_position.x)
+			_write_test_results(results, 1)
+			return
+		results.append("[PASS] Cubic Hermite Spline calculation verified with C1 tangent continuity.")
+
+	# Test 24 Spawn Points & Procedural Scatter
+	if map_node and map_node.has_node("SpawnPoints"):
+		var sp_count: int = map_node.get_node("SpawnPoints").get_child_count()
+		if sp_count < 24:
+			results.append("[FAIL] KalyeMap spawn points count is %d, expected >= 24!" % sp_count)
+			_write_test_results(results, 1)
+			return
+		results.append("[PASS] KalyeMap contains %d spawn markers." % sp_count)
+
+	var spawn_pos_set: Array[Vector3] = []
+	for sp_i in range(24):
+		var p_pos := _get_spawn_position_for_index(sp_i)
+		for existing_pos in spawn_pos_set:
+			if p_pos.distance_to(existing_pos) < 1.0:
+				results.append("[FAIL] Spawn points overlap detected! dist=%.2f" % p_pos.distance_to(existing_pos))
+				_write_test_results(results, 1)
+				return
+		spawn_pos_set.append(p_pos)
+	results.append("[PASS] 24 player spawn points distributed with zero collision overlaps.")
+
+	# Test LobbyUI & HUD 24-Player Capacity
+	if lobby_ui and lobby_ui.players_slider:
+		if lobby_ui.players_slider.max_value != 24.0:
+			results.append("[FAIL] LobbyUI players_slider max_value is not 24.0!")
+			_write_test_results(results, 1)
+			return
+		results.append("[PASS] LobbyUI players_slider supports 24 players.")
+
+	# 15. Test Milestone 1: Dynamic Multi-Taya Balancing & Scaling
+	results.append("[SELF-TEST] Testing Dynamic Multi-Taya Balancing...")
+	var ratio_checks: Dictionary = { 1: 1, 4: 1, 8: 1, 9: 2, 10: 2, 12: 3, 15: 3, 16: 4, 20: 4, 24: 5 }
+	for p_cnt in ratio_checks.keys():
+		var exp_taya: int = ratio_checks[p_cnt]
+		var act_taya: int = MaibaTayaManager.get_taya_count(p_cnt)
+		if act_taya != exp_taya:
+			results.append("[FAIL] Ratio mismatch for %d players: got %d, expected %d!" % [p_cnt, act_taya, exp_taya])
+			_write_test_results(results, 1)
+			return
+	results.append("[PASS] Dynamic Multi-Taya ratio formula verified across 1..24 players.")
+
+	# Test gesture resolution minority selection
+	var test_pool: Array = []
+	for i in range(1, 17): test_pool.append(i)
+	maiba_manager.player_choices.clear()
+	maiba_manager.is_resolving = false
+	for pid in test_pool:
+		maiba_manager.player_choices[pid] = MaibaTayaManager.HandGesture.PALM_UP if pid in [1, 2, 3, 4] else MaibaTayaManager.HandGesture.PALM_DOWN
+	var chosen_tayas: Array = []
+	var sig_callable := func(ids: Array, _names: Array):
+		chosen_tayas.clear()
+		chosen_tayas.append_array(ids)
+	maiba_manager.tayas_decided.connect(sig_callable)
+	maiba_manager._resolve_choices(test_pool)
+	maiba_manager.tayas_decided.disconnect(sig_callable)
+	if chosen_tayas.size() != 4:
+		results.append("[FAIL] Multi-Taya selection size is %d, expected 4!" % chosen_tayas.size())
+		_write_test_results(results, 1)
+		return
+	for tid in chosen_tayas:
+		if not tid in [1, 2, 3, 4]:
+			results.append("[FAIL] Selected Taya %d was not from minority gesture group!" % tid)
+			_write_test_results(results, 1)
+			return
+	results.append("[PASS] Maiba Taya minority gesture group selected 4 chasers for 16 players.")
+
+	# Test sync_assign_multi_taya
+	sync_assign_multi_taya([1, 2])
+	if test_p1 and test_p1.current_role != PlayerController.Role.TAYA:
+		results.append("[FAIL] sync_assign_multi_taya failed to set player 1 as TAYA!")
+		_write_test_results(results, 1)
+		return
+	results.append("[PASS] sync_assign_multi_taya and role sync verified.")
+
 	results.append("[ALL TESTS PASSED] ZERO RUNTIME ERRORS DETECTED!")
 	for child in players_container.get_children():
 		child.queue_free()
+	_write_test_results(results, 0)
+
+func _run_netcode_verification() -> void:
+	var results: Array[String] = []
+	results.append("[NETCODE-VERIFICATION] Starting Milestone 1 Netcode & 24-Player Scaling tests...")
+
+	# NetworkManager capacity
+	if NetworkManager.MAX_PLAYERS != 24:
+		results.append("[FAIL] NetworkManager.MAX_PLAYERS is %d, expected 24!" % NetworkManager.MAX_PLAYERS)
+		_write_test_results(results, 1)
+		return
+	results.append("[PASS] NetworkManager.MAX_PLAYERS == 24.")
+
+	# PlayerController constants
+	if PlayerController.NETWORK_TICK_RATE != 25.0 or PlayerController.SNAPSHOT_BUFFER_CAPACITY != 8:
+		results.append("[FAIL] PlayerController netcode constants mismatch!")
+		_write_test_results(results, 1)
+		return
+	results.append("[PASS] PlayerController constants: 25Hz tick rate, 8-snapshot buffer capacity.")
+
+	# Spawn single player for snapshot buffer & Hermite testing
+	var p1_node: PlayerController = _spawn_single_player(1, 0)
+	if p1_node:
+		p1_node.snapshot_ring_buffer.clear()
+		var out_of_order_times: Array = [100, 180, 140, 220, 260, 300, 340, 380, 420, 460]
+		for t_ms in out_of_order_times:
+			p1_node.sync_transform(Vector3(float(t_ms) * 0.1, 0, 0), Vector3(10, 0, 0), 0.0, 10.0, true, false, false, t_ms)
+		if p1_node.snapshot_ring_buffer.size() != 8:
+			results.append("[FAIL] Snapshot buffer capacity not enforced: size=%d" % p1_node.snapshot_ring_buffer.size())
+			_write_test_results(results, 1)
+			return
+		for s_i in range(p1_node.snapshot_ring_buffer.size() - 1):
+			if p1_node.snapshot_ring_buffer[s_i]["time_ms"] >= p1_node.snapshot_ring_buffer[s_i + 1]["time_ms"]:
+				results.append("[FAIL] Snapshot buffer out of order at index %d!" % s_i)
+				_write_test_results(results, 1)
+				return
+		results.append("[PASS] Snapshot ring buffer chronological sorting and size bounds verified.")
+
+		# Spline test
+		var s0: Dictionary = { "pos": Vector3(0, 0, 0), "vel": Vector3(10, 0, 0), "rot_y": 0.0, "speed": 10.0, "floor": true, "slide": false, "dash": false, "time_ms": 0 }
+		var s1: Dictionary = { "pos": Vector3(10, 0, 0), "vel": Vector3(10, 0, 0), "rot_y": 0.0, "speed": 10.0, "floor": true, "slide": false, "dash": false, "time_ms": 1000 }
+		p1_node._apply_spline_sample(s0, s1, 0.5, 0.016)
+		if abs(p1_node.global_position.x - 5.0) > 0.01:
+			results.append("[FAIL] Hermite spline linear midpoint failed: pos.x=%f" % p1_node.global_position.x)
+			_write_test_results(results, 1)
+			return
+		results.append("[PASS] Cubic Hermite Spline calculation verified.")
+
+	# Map spawn points
+	if map_node and map_node.has_node("SpawnPoints"):
+		var marker_count: int = map_node.get_node("SpawnPoints").get_child_count()
+		if marker_count < 24:
+			results.append("[FAIL] SpawnPoints marker count is %d, expected >= 24!" % marker_count)
+			_write_test_results(results, 1)
+			return
+		results.append("[PASS] KalyeMap contains %d spawn markers." % marker_count)
+
+	# Radial scatter
+	var pos_list: Array[Vector3] = []
+	for idx in range(24):
+		var spos := _get_spawn_position_for_index(idx)
+		for existing in pos_list:
+			if spos.distance_to(existing) < 1.0:
+				results.append("[FAIL] Overlapping spawn position at index %d!" % idx)
+				_write_test_results(results, 1)
+				return
+		pos_list.append(spos)
+	results.append("[PASS] 24 player spawn points procedurally scattered without overlaps.")
+
+	# LobbyUI & HUD scaling
+	if lobby_ui and lobby_ui.players_slider:
+		if lobby_ui.players_slider.max_value != 24.0:
+			results.append("[FAIL] LobbyUI players_slider max_value is not 24.0!")
+			_write_test_results(results, 1)
+			return
+		var mock_players: Dictionary = {}
+		for m_i in range(1, 25): mock_players[m_i] = { "name": "Player_%d" % m_i }
+		lobby_ui.set_room_waiting_state(true, true, "24-Tambayan", mock_players, 24)
+		if lobby_ui.room_slots_container and lobby_ui.room_slots_container.get_child_count() != 24:
+			results.append("[FAIL] LobbyUI room_slots_container count is %d, expected 24!" % lobby_ui.room_slots_container.get_child_count())
+			_write_test_results(results, 1)
+			return
+		results.append("[PASS] LobbyUI 24-player slots verified.")
+
+	if hud and hud.player_list_box:
+		var mock_hud_p: Dictionary = {}
+		for h_i in range(1, 25): mock_hud_p[h_i] = { "name": "Bata_%d" % h_i, "score": h_i * 5, "role": 0 }
+		hud.update_scoreboard(mock_hud_p)
+		if hud.player_list_box.get_child_count() != 24:
+			results.append("[FAIL] HUD scoreboard player count is %d, expected 24!" % hud.player_list_box.get_child_count())
+			_write_test_results(results, 1)
+			return
+		results.append("[PASS] HUD scoreboard 24-player rendering verified.")
+
+	results.append("[ALL NETCODE & 24-PLAYER SCALING TESTS PASSED!]")
+	_write_test_results(results, 0)
+
+func _run_multi_taya_verification() -> void:
+	var results: Array[String] = []
+	results.append("[MULTI-TAYA-VERIFICATION] Starting Milestone 1 Multi-Taya Balancing tests...")
+
+	# Ratio checks
+	var ratio_checks: Dictionary = { 1: 1, 4: 1, 8: 1, 9: 2, 10: 2, 12: 3, 15: 3, 16: 4, 20: 4, 24: 5 }
+	for p_cnt in ratio_checks.keys():
+		var exp_t: int = ratio_checks[p_cnt]
+		var act_t: int = MaibaTayaManager.get_taya_count(p_cnt)
+		if act_t != exp_t:
+			results.append("[FAIL] Ratio mismatch for %d players: got %d, expected %d!" % [p_cnt, act_t, exp_t])
+			_write_test_results(results, 1)
+			return
+	results.append("[PASS] Dynamic Multi-Taya ratio formula verified across 1..24 players.")
+
+	# Minority selection
+	var test_pool: Array = []
+	for i in range(1, 17): test_pool.append(i)
+	maiba_manager.player_choices.clear()
+	maiba_manager.is_resolving = false
+	for pid in test_pool:
+		maiba_manager.player_choices[pid] = MaibaTayaManager.HandGesture.PALM_UP if pid in [1, 2, 3, 4] else MaibaTayaManager.HandGesture.PALM_DOWN
+	var chosen_tayas: Array = []
+	var sig_call := func(ids: Array, _names: Array):
+		chosen_tayas.clear()
+		chosen_tayas.append_array(ids)
+	maiba_manager.tayas_decided.connect(sig_call)
+	maiba_manager._resolve_choices(test_pool)
+	maiba_manager.tayas_decided.disconnect(sig_call)
+	if chosen_tayas.size() != 4:
+		results.append("[FAIL] Multi-Taya selection size is %d, expected 4!" % chosen_tayas.size())
+		_write_test_results(results, 1)
+		return
+	for tid in chosen_tayas:
+		if not tid in [1, 2, 3, 4]:
+			results.append("[FAIL] Selected Taya %d was not from minority gesture group!" % tid)
+			_write_test_results(results, 1)
+			return
+	results.append("[PASS] Maiba Taya minority gesture group selected 4 chasers for 16 players.")
+
+	# Role assignment
+	for i in range(1, 17):
+		_spawn_single_player(i, i - 1)
+		network_manager.players[i] = { "name": "Player_%d" % i, "role": 0 }
+	sync_assign_multi_taya([1, 2, 3, 4])
+	for i in range(1, 17):
+		var p_node := players_container.get_node(str(i)) as PlayerController
+		if i in [1, 2, 3, 4]:
+			if p_node.current_role != PlayerController.Role.TAYA or network_manager.players[i]["role"] != 1:
+				results.append("[FAIL] Player %d was not assigned TAYA role!" % i)
+				_write_test_results(results, 1)
+				return
+		else:
+			if p_node.current_role != PlayerController.Role.RUNNER or network_manager.players[i]["role"] != 0:
+				results.append("[FAIL] Player %d was not assigned RUNNER role!" % i)
+				_write_test_results(results, 1)
+				return
+	results.append("[PASS] sync_assign_multi_taya assigns roles across 16 players correctly.")
+
+	# Pasa-Taya multi-elimination
+	alive_player_ids.clear()
+	eliminated_player_ids.clear()
+	for i in range(1, 17): alive_player_ids.append(i)
+	sync_round_multi_elimination(1, [1, 2, 3, 4])
+	if alive_player_ids.size() != 12 or eliminated_player_ids.size() != 4:
+		results.append("[FAIL] Pasa-Taya multi-elimination count mismatch: alive=%d, elim=%d" % [alive_player_ids.size(), eliminated_player_ids.size()])
+		_write_test_results(results, 1)
+		return
+	for eid in [1, 2, 3, 4]:
+		var ep_node := players_container.get_node(str(eid)) as PlayerController
+		if not ep_node.is_eliminated:
+			results.append("[FAIL] Eliminated node %d is not marked is_eliminated!" % eid)
+			_write_test_results(results, 1)
+			return
+	results.append("[PASS] Pasa-Taya multi-elimination correctly eliminated 4 Tayas simultaneously.")
+
+	results.append("[ALL MULTI-TAYA BALANCING TESTS PASSED!]")
 	_write_test_results(results, 0)
 
 func _write_test_results(lines: Array[String], exit_code: int) -> void:

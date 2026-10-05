@@ -1,0 +1,160 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8m4e1s2guideui"]
+
+[ext_resource type="Script" path="res://scripts/ui/QuickGuideUI.gd" id="1_guideui"]
+
+[node name="QuickGuideUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_guideui")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.8)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(860, 520)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HeaderBar" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MainTitle" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HeaderBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "📖 GABAY SA KALYE (HOW TO PLAY)"
+
+[node name="Spacer" type="Control" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HeaderBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HeaderBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 36)
+layout_mode = 2
+text = "✕ ISARA"
+
+[node name="TabBar" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TabMaiba" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 38)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+text = "🖐️ Maiba Taya"
+
+[node name="TabStamina" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 38)
+layout_mode = 2
+toggle_mode = true
+text = "⚡ Stamina & Bilis"
+
+[node name="TabItems" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 38)
+layout_mode = 2
+toggle_mode = true
+text = "🩴 Mga Gamit"
+
+[node name="TabModes" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 38)
+layout_mode = 2
+toggle_mode = true
+text = "♻️ Basura & Modes"
+
+[node name="ContentCard" type="PanelContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="GuideTitle" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.25, 1)
+theme_override_font_sizes/font_size = 20
+text = "🖐️ MAIBA TAYA (Puti o Itim?)"
+
+[node name="GuideSubtitle" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.8, 0.88, 1)
+theme_override_font_sizes/font_size = 14
+text = "Ang tradisyonal na ritwal bago magsimula ang laro sa kalye."
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard/Margin/VBox"]
+layout_mode = 2
+
+[node name="GuideBody" type="RichTextLabel" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Ipaliwanag dito..."
+
+[node name="GuideTip" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
+theme_override_font_sizes/font_size = 13
+text = "💡 Tip: ..."
+
+[node name="FooterBar" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="PrevButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/FooterBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 40)
+layout_mode = 2
+text = "◀ NAKARAAN"
+
+[node name="Spacer" type="Control" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/FooterBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NextButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/FooterBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 40)
+layout_mode = 2
+text = "SUSUNOD ▶"

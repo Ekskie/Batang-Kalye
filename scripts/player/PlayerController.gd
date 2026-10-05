@@ -52,6 +52,16 @@ func is_local_human() -> bool:
 	return player_id == 1
 
 @export var player_name: String = "Player"
+var player_title: String = ""
+
+func set_player_title(title: String) -> void:
+	player_title = title
+	if name_label:
+		if not player_title.is_empty():
+			name_label.text = "%s\n«%s»" % [player_name, player_title]
+		else:
+			name_label.text = player_name
+
 @export var current_role: Role = Role.RUNNER:
 	set(value):
 		current_role = value
@@ -227,11 +237,34 @@ var footstep_timer: float = 0.0
 @onready var water_splash: CPUParticles3D = get_node_or_null("WaterSplash")
 @onready var held_item_display: Label3D = get_node_or_null("HeldItemDisplay")
 
-# Network sync targets for remote peers
+# Network sync targets and throttling configuration (25Hz Throttling, Ring Buffer, Hermite Spline)
+const NETWORK_TICK_RATE: float = 25.0
+const NETWORK_TICK_INTERVAL: float = 1.0 / NETWORK_TICK_RATE # 0.04s (25 ticks/sec)
+const SNAPSHOT_BUFFER_CAPACITY: int = 8
+const INTERPOLATION_DELAY_MS: float = 80.0 # 80ms buffer (2 ticks at 25Hz)
+const DELTA_SUPPRESSION_DIST_SQ: float = 0.04 * 0.04 # 0.04m threshold (0.0016 m^2)
+const DELTA_SUPPRESSION_ROT: float = 0.02 # 0.02 rad rotation threshold
+const HEARTBEAT_INTERVAL: float = 0.5 # 0.5s heartbeat timer for stationary players
+
+# Network broadcasting state (Local Authority)
+var _net_tick_timer: float = 0.0
+var _net_tick_counter: int = 0
+var _last_sent_position: Vector3 = Vector3.ZERO
+var _last_sent_rotation_y: float = 0.0
+var _last_sent_sliding: bool = false
+var _last_sent_dashing: bool = false
+var _last_sent_on_floor: bool = true
+var _heartbeat_timer: float = 0.0
+
+# Network remote targets & Snapshot Ring Buffer (Remote Peers)
 var target_position: Vector3 = Vector3.ZERO
+var target_velocity: Vector3 = Vector3.ZERO
 var target_rotation_y: float = 0.0
 var remote_horizontal_speed: float = 0.0
 var remote_is_on_floor: bool = true
+var snapshot_ring_buffer: Array[Dictionary] = []
+var _interpolation_render_time_ms: float = 0.0
+var _interpolation_initialized: bool = false
 
 func _ready() -> void:
 	add_to_group("players")
@@ -241,6 +274,11 @@ func _ready() -> void:
 		name_label.visible = false
 	target_position = global_position
 	target_rotation_y = model.rotation.y if model else 0.0
+	_last_sent_position = global_position
+	_last_sent_rotation_y = target_rotation_y
+	snapshot_ring_buffer.clear()
+	_interpolation_initialized = false
+	_interpolation_render_time_ms = 0.0
 	if model:
 		model_base_scale = model.scale
 
@@ -325,6 +363,12 @@ func _setup_mobile_ui() -> void:
 		mobile_ui.update_powerup_buttons(active_powerup, dash_charges_left)
 	if mobile_ui.has_method("set_tag_button_highlight"):
 		mobile_ui.set_tag_button_highlight(current_role == Role.TAYA)
+	if mobile_ui.has_signal("prev_spectate_pressed"):
+		mobile_ui.prev_spectate_pressed.connect(func(): _cycle_spectate_target(-1))
+	if mobile_ui.has_signal("next_spectate_pressed"):
+		mobile_ui.next_spectate_pressed.connect(func(): _cycle_spectate_target(1))
+	if mobile_ui.has_method("set_spectator_mode"):
+		mobile_ui.set_spectator_mode(is_eliminated)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_local_human():
@@ -457,6 +501,8 @@ func set_eliminated(elim: bool) -> void:
 	if tag_pointer:
 		tag_pointer.visible = not elim
 	if is_local_human():
+		if mobile_ui and mobile_ui.has_method("set_spectator_mode"):
+			mobile_ui.set_spectator_mode(elim)
 		if elim:
 			add_shake(0.85)
 			if Input.has_method("vibrate_handheld"):
@@ -495,6 +541,19 @@ func _cycle_spectate_target(step: int = 1) -> void:
 			camera_mount.global_position = spectating_target.global_position + Vector3(0, 1.4, 0)
 		if main_node.hud:
 			main_node.hud.show_spectator_bar(spectating_target.player_name)
+			if main_node.hud.has_method("update_spectator_info"):
+				var target_name: String = str(spectating_target.player_name) if ("player_name" in spectating_target) else "Player"
+				var target_role: int = int(spectating_target.current_role) if ("current_role" in spectating_target) else 0
+				var target_score: int = int(spectating_target.score) if ("score" in spectating_target) else 0
+				var target_tags: int = int(spectating_target.stats_tags) if ("stats_tags" in spectating_target) else 0
+				var spec_info: Dictionary = {
+					"name": target_name,
+					"role": target_role,
+					"score": target_score,
+					"tags": target_tags,
+					"alive_count": alive_candidates.size()
+				}
+				main_node.hud.update_spectator_info(spec_info)
 
 func _physics_process(delta: float) -> void:
 	var main_node = get_node_or_null("/root/Main")
@@ -542,6 +601,7 @@ func _physics_process(delta: float) -> void:
 		_process_authority_movement(delta)
 		_process_scoring(delta)
 		_update_tag_targeting()
+		_update_mobile_tag_proximity()
 		_update_name_tags_proximity()
 		_update_camera_fov(delta)
 		_update_interactable_target()
@@ -550,15 +610,9 @@ func _physics_process(delta: float) -> void:
 		if danger_check_timer <= 0.0:
 			danger_check_timer = 0.25
 			_check_danger_proximity()
-		# Send sync data to peers
+		# Throttled 25Hz network sync with 3-tier distance culling & delta suppression
 		if multiplayer.has_multiplayer_peer() and not is_solo_practice:
-			var is_active_match: bool = true
-			if main_node and "current_state" in main_node:
-				is_active_match = (int(main_node.current_state) == 1 or int(main_node.current_state) == 2)
-			if is_active_match:
-				var rot_y: float = model.rotation.y if model else 0.0
-				var h_spd_sync: float = Vector2(velocity.x, velocity.z).length()
-				rpc("sync_transform", global_position, rot_y, h_spd_sync, is_on_floor(), is_sliding, is_dashing)
+			_process_network_sync_broadcasting(delta)
 	else:
 		_process_remote_interpolation(delta)
 
@@ -1195,6 +1249,22 @@ func _update_tag_targeting() -> void:
 
 	tag_pointer.update_pointer(camera, best_target, target_is_taya, is_hunting_runners)
 
+func _update_mobile_tag_proximity() -> void:
+	if not mobile_ui or not mobile_ui.has_method("set_tag_in_range"):
+		return
+	if current_role != Role.TAYA or is_eliminated:
+		mobile_ui.set_tag_in_range(false)
+		return
+	var in_range := false
+	var all_players = get_tree().get_nodes_in_group("players")
+	for p in all_players:
+		if p is PlayerController and p != self:
+			if p.current_role == Role.RUNNER and not p.is_immune and not p.is_eliminated:
+				if global_position.distance_to(p.global_position) <= TAG_REACH + 0.4:
+					in_range = true
+					break
+	mobile_ui.set_tag_in_range(in_range)
+
 # Point-blank line-of-sight nametag check (under 2.2m when looking directly at player)
 func _update_name_tags_proximity() -> void:
 	var all_players = get_tree().get_nodes_in_group("players")
@@ -1250,6 +1320,9 @@ func _try_tag() -> void:
 	if target_to_tag:
 		perform_tag_on(target_to_tag)
 	else:
+		var am = get_node_or_null("/root/AudioManager")
+		if am and am.has_method("play_tag_swing"):
+			am.play_tag_swing()
 		# Check if Taya slapped a nearby hiding spot (Blue drum or Cardboard box)
 		var hiding_spots = get_tree().get_nodes_in_group("hiding_spots")
 		for spot in hiding_spots:
@@ -1268,6 +1341,12 @@ func perform_tag_on(target_to_tag: PlayerController) -> void:
 	squash_current = Vector3(0.85, 0.85, 1.3)
 
 	if is_local_human():
+		var am = get_node_or_null("/root/AudioManager")
+		if am:
+			if am.has_method("play_tag_hit"):
+				am.play_tag_hit()
+			if am.has_method("play_score_ding"):
+				am.play_score_ding()
 		add_shake(0.4)
 		trigger_hit_stop(55.0)
 		var main_node = get_node_or_null("/root/Main")
@@ -1303,14 +1382,223 @@ func spawn_hit_vfx_rpc(pos: Vector3) -> void:
 	spawn_hit_vfx(pos)
 
 func _process_remote_interpolation(delta: float) -> void:
-	global_position = global_position.lerp(target_position, delta * 18.0)
-	if global_position.distance_to(target_position) < 0.05:
-		remote_horizontal_speed = move_toward(remote_horizontal_speed, 0.0, delta * 20.0)
+	if snapshot_ring_buffer.size() < 2:
+		# Fallback to standard exponential lerp if insufficient snapshot history
+		global_position = global_position.lerp(target_position, delta * 18.0)
+		if global_position.distance_to(target_position) < 0.05:
+			remote_horizontal_speed = move_toward(remote_horizontal_speed, 0.0, delta * 20.0)
+		if model:
+			model.rotation.y = lerp_angle(model.rotation.y, target_rotation_y, delta * 18.0)
+			if tag_area:
+				tag_area.rotation.y = model.rotation.y
+		return
 
+	# Advance interpolation render timeline
+	_interpolation_render_time_ms += delta * 1000.0
+
+	var newest_time: float = float(snapshot_ring_buffer.back()["time_ms"])
+	var oldest_time: float = float(snapshot_ring_buffer.front()["time_ms"])
+
+	# Target render time sits INTERPOLATION_DELAY_MS behind the newest packet
+	var target_render_time: float = newest_time - INTERPOLATION_DELAY_MS
+	var lag: float = target_render_time - _interpolation_render_time_ms
+
+	# Drift & lag compensation
+	if abs(lag) > 150.0:
+		_interpolation_render_time_ms = target_render_time
+	elif abs(lag) > 20.0:
+		_interpolation_render_time_ms += lag * (delta * 3.0)
+
+	# Boundary checks
+	if _interpolation_render_time_ms <= oldest_time:
+		var s0: Dictionary = snapshot_ring_buffer[0]
+		var s1: Dictionary = snapshot_ring_buffer[1]
+		_apply_spline_sample(s0, s1, 0.0, delta)
+		return
+	elif _interpolation_render_time_ms >= newest_time:
+		# Packet starvation: dead-reckoning extrapolation along velocity
+		var last_snap: Dictionary = snapshot_ring_buffer.back()
+		var extrap_sec: float = clamp((_interpolation_render_time_ms - newest_time) / 1000.0, 0.0, 0.15)
+		var extrap_pos: Vector3 = last_snap["pos"] + (last_snap["vel"] * extrap_sec)
+		global_position = global_position.lerp(extrap_pos, delta * 18.0)
+		if model:
+			model.rotation.y = lerp_angle(model.rotation.y, float(last_snap["rot_y"]), delta * 18.0)
+			if tag_area:
+				tag_area.rotation.y = model.rotation.y
+		remote_horizontal_speed = move_toward(remote_horizontal_speed, 0.0, delta * 12.0)
+		return
+
+	# Search snapshot buffer for bracketing pair [S0, S1]
+	for i in range(snapshot_ring_buffer.size() - 1):
+		var t0: float = float(snapshot_ring_buffer[i]["time_ms"])
+		var t1: float = float(snapshot_ring_buffer[i + 1]["time_ms"])
+		if _interpolation_render_time_ms >= t0 and _interpolation_render_time_ms <= t1:
+			var s0: Dictionary = snapshot_ring_buffer[i]
+			var s1: Dictionary = snapshot_ring_buffer[i + 1]
+			var span: float = t1 - t0
+			var factor: float = clamp((_interpolation_render_time_ms - t0) / span, 0.0, 1.0) if span > 0.001 else 0.0
+			_apply_spline_sample(s0, s1, factor, delta)
+			return
+
+	# Fallback if bracket search edge case occurs
+	var fallback_snap: Dictionary = snapshot_ring_buffer.back()
+	global_position = global_position.lerp(fallback_snap["pos"], delta * 18.0)
 	if model:
-		model.rotation.y = lerp_angle(model.rotation.y, target_rotation_y, delta * 18.0)
+		model.rotation.y = lerp_angle(model.rotation.y, float(fallback_snap["rot_y"]), delta * 18.0)
 		if tag_area:
 			tag_area.rotation.y = model.rotation.y
+
+func _apply_spline_sample(s0: Dictionary, s1: Dictionary, s: float, _delta: float) -> void:
+	var p0: Vector3 = s0["pos"]
+	var p1: Vector3 = s1["pos"]
+	var v0: Vector3 = s0["vel"]
+	var v1: Vector3 = s1["vel"]
+	var dt_sec: float = max(0.001, (float(s1["time_ms"]) - float(s0["time_ms"])) / 1000.0)
+
+	# Velocity tangents scaled by interval duration
+	var m0: Vector3 = v0 * dt_sec
+	var m1: Vector3 = v1 * dt_sec
+
+	# Cubic Hermite basis functions
+	var s2: float = s * s
+	var s3: float = s2 * s
+	var h00: float = 2.0 * s3 - 3.0 * s2 + 1.0
+	var h10: float = s3 - 2.0 * s2 + s
+	var h01: float = -2.0 * s3 + 3.0 * s2
+	var h11: float = s3 - s2
+
+	var hermite_pos: Vector3 = (h00 * p0) + (h10 * m0) + (h01 * p1) + (h11 * m1)
+	global_position = hermite_pos
+
+	# Rotation and animation states
+	var interp_rot: float = lerp_angle(float(s0["rot_y"]), float(s1["rot_y"]), s)
+	if model:
+		model.rotation.y = interp_rot
+		if tag_area:
+			tag_area.rotation.y = interp_rot
+
+	remote_horizontal_speed = lerp(float(s0["speed"]), float(s1["speed"]), s)
+	var active_snap: Dictionary = s1 if s >= 0.5 else s0
+	remote_is_on_floor = active_snap["floor"]
+	is_sliding = active_snap["slide"]
+	is_dashing = active_snap["dash"]
+
+func _push_snapshot(snapshot: Dictionary) -> void:
+	# Teleport/Respawn detection: if position jumped > 10m, clear buffer and snap
+	if snapshot_ring_buffer.size() > 0:
+		var last_snap: Dictionary = snapshot_ring_buffer.back()
+		if snapshot["pos"].distance_squared_to(last_snap["pos"]) > 100.0:
+			snapshot_ring_buffer.clear()
+			global_position = snapshot["pos"]
+			_interpolation_initialized = false
+
+	if snapshot_ring_buffer.is_empty():
+		snapshot_ring_buffer.append(snapshot)
+		_interpolation_render_time_ms = float(snapshot["time_ms"]) - INTERPOLATION_DELAY_MS
+		_interpolation_initialized = true
+		return
+
+	var last_time: int = snapshot_ring_buffer.back()["time_ms"]
+	if snapshot["time_ms"] > last_time:
+		snapshot_ring_buffer.append(snapshot)
+	else:
+		# Chronological insertion for out-of-order packets
+		var inserted: bool = false
+		for i in range(snapshot_ring_buffer.size() - 1, -1, -1):
+			if snapshot["time_ms"] > snapshot_ring_buffer[i]["time_ms"]:
+				snapshot_ring_buffer.insert(i + 1, snapshot)
+				inserted = true
+				break
+		if not inserted and (snapshot_ring_buffer[0]["time_ms"] - snapshot["time_ms"]) < 250:
+			snapshot_ring_buffer.insert(0, snapshot)
+
+	# Keep buffer within capacity
+	while snapshot_ring_buffer.size() > SNAPSHOT_BUFFER_CAPACITY:
+		snapshot_ring_buffer.pop_front()
+
+func _process_network_sync_broadcasting(delta: float) -> void:
+	var main_node = get_node_or_null("/root/Main")
+	var is_active_match: bool = true
+	if main_node and "current_state" in main_node:
+		is_active_match = (int(main_node.current_state) == 1 or int(main_node.current_state) == 2)
+	if not is_active_match:
+		return
+
+	_net_tick_timer += delta
+	_heartbeat_timer += delta
+
+	if _net_tick_timer < NETWORK_TICK_INTERVAL:
+		return
+
+	_net_tick_timer = fmod(_net_tick_timer, NETWORK_TICK_INTERVAL)
+	_net_tick_counter = (_net_tick_counter + 1) % 1000000
+
+	var rot_y: float = model.rotation.y if model else rotation.y
+	var h_spd_sync: float = Vector2(velocity.x, velocity.z).length()
+	var now_ms: int = Time.get_ticks_msec()
+
+	# Delta suppression evaluation
+	var pos_moved: bool = global_position.distance_squared_to(_last_sent_position) >= DELTA_SUPPRESSION_DIST_SQ
+	var rot_diff: float = abs(wrapf(rot_y - _last_sent_rotation_y, -PI, PI))
+	var rot_turned: bool = rot_diff >= DELTA_SUPPRESSION_ROT
+	var vel_active: bool = velocity.length_squared() > 0.0025
+	var state_changed: bool = (is_sliding != _last_sent_sliding or is_dashing != _last_sent_dashing or is_on_floor() != _last_sent_on_floor)
+	var is_heartbeat: bool = _heartbeat_timer >= HEARTBEAT_INTERVAL
+
+	# Suppress packet if stationary and heartbeat interval has not elapsed
+	if not pos_moved and not rot_turned and not vel_active and not state_changed and not is_heartbeat:
+		return
+
+	# Update sent history
+	_last_sent_position = global_position
+	_last_sent_rotation_y = rot_y
+	_last_sent_sliding = is_sliding
+	_last_sent_dashing = is_dashing
+	_last_sent_on_floor = is_on_floor()
+	if is_heartbeat:
+		_heartbeat_timer = 0.0
+
+	# 3-Tier Distance and Role Prioritization
+	var all_players: Array[Node] = get_tree().get_nodes_in_group("players")
+	var peer_nodes: Array[PlayerController] = []
+	for p in all_players:
+		if p is PlayerController and p != self and not p.is_bot:
+			peer_nodes.append(p)
+
+	if peer_nodes.is_empty():
+		# Fallback broadcast when specific peer nodes are not resolved
+		rpc("sync_transform", global_position, velocity, rot_y, h_spd_sync, is_on_floor(), is_sliding, is_dashing, now_ms)
+		return
+
+	for peer_p in peer_nodes:
+		var target_id: int = peer_p.player_id
+		if target_id <= 0:
+			continue
+
+		var dist: float = global_position.distance_to(peer_p.global_position)
+		var is_threat: bool = (current_role == Role.TAYA or peer_p.current_role == Role.TAYA)
+
+		var should_send: bool = false
+		if is_threat or dist <= 20.0:
+			# Tier 1 (Threat / Distance <= 20m): full 25Hz
+			should_send = true
+		elif dist <= 45.0:
+			# Tier 2 (Mid-range 20m - 45m): 12.5Hz (every 2nd tick)
+			should_send = (_net_tick_counter % 2 == 0)
+		else:
+			# Tier 3 (Far > 45m): 6.25Hz (every 4th tick)
+			should_send = (_net_tick_counter % 4 == 0)
+
+		if should_send or is_heartbeat:
+			rpc_id(target_id, "sync_transform", global_position, velocity, rot_y, h_spd_sync, is_on_floor(), is_sliding, is_dashing, now_ms)
+
+func reset_network_interpolation(new_pos: Vector3) -> void:
+	global_position = new_pos
+	target_position = new_pos
+	target_velocity = Vector3.ZERO
+	snapshot_ring_buffer.clear()
+	_interpolation_initialized = false
+	_interpolation_render_time_ms = 0.0
 
 func _process_scoring(delta: float) -> void:
 	if current_role == Role.RUNNER:
@@ -1322,13 +1610,40 @@ func play_tag_anim_rpc() -> void:
 		model.trigger_tag_animation()
 
 @rpc("unreliable")
-func sync_transform(pos: Vector3, rot_y: float, speed_val: float, floor_val: bool, remote_slide: bool, remote_dash: bool) -> void:
+func sync_transform(
+	pos: Vector3,
+	vel: Vector3,
+	rot_y: float,
+	speed_val: float,
+	floor_val: bool,
+	remote_slide: bool,
+	remote_dash: bool,
+	timestamp_ms: int
+) -> void:
 	target_position = pos
+	target_velocity = vel
 	target_rotation_y = rot_y
 	remote_horizontal_speed = speed_val
 	remote_is_on_floor = floor_val
 	is_sliding = remote_slide
 	is_dashing = remote_dash
+
+	var recv_time: int = Time.get_ticks_msec()
+	if timestamp_ms <= 0:
+		timestamp_ms = recv_time
+
+	var snapshot: Dictionary = {
+		"pos": pos,
+		"vel": vel,
+		"rot_y": rot_y,
+		"speed": speed_val,
+		"floor": floor_val,
+		"slide": remote_slide,
+		"dash": remote_dash,
+		"time_ms": timestamp_ms,
+		"recv_time_ms": recv_time
+	}
+	_push_snapshot(snapshot)
 
 @rpc("any_peer", "call_local", "reliable")
 func request_tag_player(target_id: int) -> void:

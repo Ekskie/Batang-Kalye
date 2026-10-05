@@ -19,6 +19,8 @@ signal join_lobby_requested(lobby_data: Dictionary)
 signal join_code_requested(code: String)
 signal settings_requested
 signal leave_room_requested
+signal store_requested
+signal guide_requested
 
 enum LobbyTab {
 	BROWSE = 0,
@@ -31,8 +33,11 @@ var current_tab: LobbyTab = LobbyTab.HOTSPOT_SOLO
 # Top Navigation
 @onready var btn_main_menu: Button = get_node_or_null("Margin/VBox/TopBar/LeftControls/BtnMainMenu")
 @onready var btn_settings: Button = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbySettings")
+@onready var btn_store: Button = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbyStore")
+@onready var btn_guide: Button = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbyGuide")
 
 # Character Preview Panel (Left)
+@onready var viewport_frame: Control = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame")
 @onready var preview_viewport_container: SubViewportContainer = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer")
 @onready var preview_sub_viewport: SubViewport = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer/PreviewSubViewport")
 @onready var preview_char: CharacterAnimator = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer/PreviewSubViewport/PreviewChar")
@@ -43,6 +48,12 @@ var current_tab: LobbyTab = LobbyTab.HOTSPOT_SOLO
 @onready var char_desc_label: Label = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/CharDesc")
 @onready var palette_container: HBoxContainer = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/PaletteRow")
 @onready var palette_dots_container: HBoxContainer = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/DotsRow")
+
+var swipe_start_pos: Vector2 = Vector2.ZERO
+var is_swiping: bool = false
+var swipe_touch_id: int = -1
+var has_swiped_current_gesture: bool = false
+const SWIPE_THRESHOLD: float = 45.0
 
 # Matchmaking / Lobby Card (Right)
 @onready var player_name_input: LineEdit = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/NameRow/NameInput")
@@ -81,7 +92,7 @@ var current_tab: LobbyTab = LobbyTab.HOTSPOT_SOLO
 # Room Waiting View (When in a room waiting for players)
 @onready var panel_room_waiting: VBoxContainer = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting")
 @onready var room_name_title: Label = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting/RoomTitle")
-@onready var room_slots_container: VBoxContainer = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting/SlotsContainer")
+@onready var room_slots_container: VBoxContainer = (get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting/SlotsScroll/SlotsContainer") as VBoxContainer) if get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting/SlotsScroll/SlotsContainer") else (get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting/SlotsContainer") as VBoxContainer)
 @onready var btn_leave_room: Button = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting/BtnLeaveRoom")
 
 # Bottom Bar
@@ -102,6 +113,10 @@ func _ready() -> void:
 
 func _init_references() -> void:
 	if not btn_main_menu: btn_main_menu = get_node_or_null("Margin/VBox/TopBar/LeftControls/BtnMainMenu")
+	if not btn_settings: btn_settings = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbySettings")
+	if not btn_store: btn_store = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbyStore")
+	if not btn_guide: btn_guide = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbyGuide")
+	if not viewport_frame: viewport_frame = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame")
 	if not preview_viewport_container: preview_viewport_container = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer")
 	if not preview_sub_viewport: preview_sub_viewport = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer/PreviewSubViewport")
 	if not preview_char: preview_char = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer/PreviewSubViewport/PreviewChar")
@@ -144,6 +159,7 @@ func _init_references() -> void:
 
 	if not panel_room_waiting: panel_room_waiting = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting")
 	if not room_name_title: room_name_title = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting/RoomTitle")
+	if not room_slots_container: room_slots_container = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting/SlotsScroll/SlotsContainer")
 	if not room_slots_container: room_slots_container = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting/SlotsContainer")
 	if not btn_leave_room: btn_leave_room = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting/BtnLeaveRoom")
 
@@ -166,12 +182,18 @@ func _connect_internal_signals() -> void:
 		btn_main_menu.pressed.connect(func(): main_menu_requested.emit())
 	if btn_settings:
 		btn_settings.pressed.connect(func(): settings_requested.emit())
+	if btn_store:
+		btn_store.pressed.connect(func(): store_requested.emit())
+	if btn_guide:
+		btn_guide.pressed.connect(func(): guide_requested.emit())
 
-	# Character Carousel
+	# Character Carousel & Touch Swiping
 	if btn_prev_char:
 		btn_prev_char.pressed.connect(func(): prev_char_requested.emit())
 	if btn_next_char:
 		btn_next_char.pressed.connect(func(): next_char_requested.emit())
+	if viewport_frame:
+		viewport_frame.gui_input.connect(_on_viewport_frame_input)
 
 	# Player Name
 	if player_name_input:
@@ -214,7 +236,7 @@ func _connect_internal_signals() -> void:
 		btn_create_submit.pressed.connect(_on_create_submit_pressed)
 	if players_slider and players_slider_val:
 		players_slider.value_changed.connect(func(v: float):
-			players_slider_val.text = "%d / 8" % int(v)
+			players_slider_val.text = "%d / %d" % [int(v), int(players_slider.max_value)]
 		)
 
 	# Leave room
@@ -228,6 +250,50 @@ func _connect_internal_signals() -> void:
 	# Primary Bottom CTA
 	if btn_start_game:
 		btn_start_game.pressed.connect(func(): start_game_requested.emit())
+
+func _on_viewport_frame_input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		var touch_ev := event as InputEventScreenTouch
+		if touch_ev.pressed and swipe_touch_id == -1:
+			swipe_touch_id = touch_ev.index
+			swipe_start_pos = touch_ev.position
+			is_swiping = true
+			has_swiped_current_gesture = false
+		elif not touch_ev.pressed and touch_ev.index == swipe_touch_id:
+			swipe_touch_id = -1
+			is_swiping = false
+			has_swiped_current_gesture = false
+	elif event is InputEventScreenDrag:
+		var drag_ev := event as InputEventScreenDrag
+		if drag_ev.index == swipe_touch_id and not has_swiped_current_gesture:
+			var delta_x: float = drag_ev.position.x - swipe_start_pos.x
+			if abs(delta_x) >= SWIPE_THRESHOLD:
+				has_swiped_current_gesture = true
+				if delta_x > 0:
+					prev_char_requested.emit()
+				else:
+					next_char_requested.emit()
+				swipe_start_pos = drag_ev.position
+	elif event is InputEventMouseButton and swipe_touch_id == -1:
+		var mouse_btn := event as InputEventMouseButton
+		if mouse_btn.button_index == MOUSE_BUTTON_LEFT:
+			if mouse_btn.pressed:
+				is_swiping = true
+				has_swiped_current_gesture = false
+				swipe_start_pos = mouse_btn.position
+			else:
+				is_swiping = false
+				has_swiped_current_gesture = false
+	elif event is InputEventMouseMotion and is_swiping and swipe_touch_id == -1 and not has_swiped_current_gesture:
+		var mouse_motion := event as InputEventMouseMotion
+		var delta_x: float = mouse_motion.position.x - swipe_start_pos.x
+		if abs(delta_x) >= SWIPE_THRESHOLD:
+			has_swiped_current_gesture = true
+			if delta_x > 0:
+				prev_char_requested.emit()
+			else:
+				next_char_requested.emit()
+			swipe_start_pos = mouse_motion.position
 
 func _setup_options() -> void:
 	if mode_option:
@@ -327,14 +393,20 @@ func get_player_name() -> String:
 		return player_name_input.text.strip_edges()
 	return ""
 
-func update_character_info(idx: int, char_name: String, char_desc: String) -> void:
+func update_character_info(idx: int, char_name: String, char_desc: String, is_unlocked: bool = true) -> void:
 	current_archetype_idx = idx
 	if char_name_label:
-		char_name_label.text = char_name + " ✎"
+		if is_unlocked:
+			char_name_label.text = char_name + " ✎"
+		else:
+			char_name_label.text = "🔒 " + char_name
 	if char_count_label:
 		char_count_label.text = "%d / 8" % (idx + 1)
 	if char_desc_label:
-		char_desc_label.text = "👕 " + char_desc
+		if is_unlocked:
+			char_desc_label.text = "👕 " + char_desc
+		else:
+			char_desc_label.text = "🔒 NAKALOCK — Bilihin sa Tindahan ni Aling Nena (🪙)"
 
 func set_color_swatches(colors: Array[Dictionary], selected_color_idx: int) -> void:
 	current_color_idx = selected_color_idx
@@ -348,15 +420,15 @@ func set_color_swatches(colors: Array[Dictionary], selected_color_idx: int) -> v
 		var col: Color = c_info.get("color", Color.WHITE)
 
 		var swatch := Button.new()
-		swatch.custom_minimum_size = Vector2(34, 34)
+		swatch.custom_minimum_size = Vector2(46, 46)
 		var sb := StyleBoxFlat.new()
-		sb.set_corner_radius_all(8)
+		sb.set_corner_radius_all(12)
 		sb.bg_color = col
 		if i == selected_color_idx:
 			sb.border_color = Color(1.0, 0.9, 0.3, 1.0)
-			sb.set_border_width_all(2)
+			sb.set_border_width_all(3)
 		else:
-			sb.border_color = Color(0.2, 0.22, 0.28, 0.6)
+			sb.border_color = Color(1.0, 1.0, 1.0, 0.35)
 			sb.set_border_width_all(1)
 
 		swatch.add_theme_stylebox_override("normal", sb)
@@ -382,7 +454,7 @@ func _update_palette_dots(total: int, active_idx: int) -> void:
 	for i in range(total):
 		var dot := Label.new()
 		dot.text = "●" if i == active_idx else "○"
-		dot.add_theme_font_size_override("font_size", 10)
+		dot.add_theme_font_size_override("font_size", 12)
 		dot.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3, 1.0) if i == active_idx else Color(0.5, 0.52, 0.58, 0.8))
 		palette_dots_container.add_child(dot)
 
@@ -397,7 +469,7 @@ func get_hotspot_target_ip() -> String:
 		return hotspot_ip_input.text.strip_edges()
 	return ""
 
-func set_room_waiting_state(in_room: bool, is_host: bool, room_name: String, players: Dictionary) -> void:
+func set_room_waiting_state(in_room: bool, is_host: bool = false, room_name: String = "", players: Dictionary = {}, max_slots: int = 0) -> void:
 	is_in_room = in_room
 	is_room_host = is_host
 
@@ -415,12 +487,15 @@ func set_room_waiting_state(in_room: bool, is_host: bool, room_name: String, pla
 			room_name_title.text = "KASALUKUYANG ROOM: " + room_name
 		if room_slots_container:
 			for c in room_slots_container.get_children():
+				room_slots_container.remove_child(c)
 				c.queue_free()
 
 			var pids := players.keys()
-			for i in range(8):
+			var total_slots: int = max_slots if max_slots > 0 else (int(players_slider.value) if players_slider else 24)
+			total_slots = max(total_slots, pids.size())
+			for i in range(total_slots):
 				var slot_lbl := Label.new()
-				slot_lbl.add_theme_font_size_override("font_size", 12)
+				slot_lbl.add_theme_font_size_override("font_size", 14)
 				if i < pids.size():
 					var pid = pids[i]
 					var pinfo: Dictionary = players[pid]
@@ -445,7 +520,7 @@ func populate_online_lobbies(lobbies: Array[Dictionary]) -> void:
 		empty_lbl.text = "Walang nahanap na aktibong kwarto sa kalye."
 		empty_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		empty_lbl.add_theme_color_override("font_color", Color(0.65, 0.7, 0.75, 0.8))
-		empty_lbl.add_theme_font_size_override("font_size", 12)
+		empty_lbl.add_theme_font_size_override("font_size", 14)
 		lobby_list_container.add_child(empty_lbl)
 		return
 
@@ -453,20 +528,20 @@ func populate_online_lobbies(lobbies: Array[Dictionary]) -> void:
 		var row := PanelContainer.new()
 		var sb := StyleBoxFlat.new()
 		sb.bg_color = Color(0.10, 0.12, 0.16, 0.85)
-		sb.set_corner_radius_all(8)
+		sb.set_corner_radius_all(10)
 		sb.set_border_width_all(1)
 		sb.border_color = Color(0.2, 0.24, 0.3, 0.5)
 		row.add_theme_stylebox_override("panel", sb)
 
 		var margin := MarginContainer.new()
-		margin.add_theme_constant_override("margin_left", 10)
-		margin.add_theme_constant_override("margin_right", 10)
-		margin.add_theme_constant_override("margin_top", 6)
-		margin.add_theme_constant_override("margin_bottom", 6)
+		margin.add_theme_constant_override("margin_left", 14)
+		margin.add_theme_constant_override("margin_right", 14)
+		margin.add_theme_constant_override("margin_top", 8)
+		margin.add_theme_constant_override("margin_bottom", 8)
 		row.add_child(margin)
 
 		var hbox := HBoxContainer.new()
-		hbox.add_theme_constant_override("separation", 10)
+		hbox.add_theme_constant_override("separation", 12)
 		margin.add_child(hbox)
 
 		var info_vbox := VBoxContainer.new()
@@ -474,7 +549,7 @@ func populate_online_lobbies(lobbies: Array[Dictionary]) -> void:
 
 		var title := Label.new()
 		title.text = str(l_data.get("name", "Tambayan"))
-		title.add_theme_font_size_override("font_size", 13)
+		title.add_theme_font_size_override("font_size", 15)
 		title.add_theme_color_override("font_color", Color(0.95, 0.95, 0.98))
 		info_vbox.add_child(title)
 
@@ -485,22 +560,23 @@ func populate_online_lobbies(lobbies: Array[Dictionary]) -> void:
 			l_data.get("player_count", 1),
 			l_data.get("max_players", 8)
 		]
-		meta.add_theme_font_size_override("font_size", 10)
+		meta.add_theme_font_size_override("font_size", 12)
 		meta.add_theme_color_override("font_color", Color(0.65, 0.7, 0.78))
 		info_vbox.add_child(meta)
 
 		hbox.add_child(info_vbox)
 
 		var btn_join := Button.new()
+		btn_join.custom_minimum_size = Vector2(100, 46)
 		btn_join.text = "SUMALI >"
-		btn_join.add_theme_font_size_override("font_size", 11)
+		btn_join.add_theme_font_size_override("font_size", 13)
 		var bsb := StyleBoxFlat.new()
 		bsb.bg_color = Color(0.92, 0.9, 0.85)
-		bsb.set_corner_radius_all(6)
-		bsb.content_margin_left = 10
-		bsb.content_margin_right = 10
-		bsb.content_margin_top = 4
-		bsb.content_margin_bottom = 4
+		bsb.set_corner_radius_all(10)
+		bsb.content_margin_left = 14
+		bsb.content_margin_right = 14
+		bsb.content_margin_top = 8
+		bsb.content_margin_bottom = 8
 		btn_join.add_theme_stylebox_override("normal", bsb)
 		btn_join.add_theme_color_override("font_color", Color(0.08, 0.09, 0.12))
 

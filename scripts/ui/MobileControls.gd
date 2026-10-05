@@ -10,9 +10,21 @@ signal tag_pressed()
 signal interact_pressed()
 signal drop_pressed()
 signal item_pressed()
+signal prev_spectate_pressed()
+signal next_spectate_pressed()
+
+enum LayoutPreset {
+	DEFAULT = 0,
+	LEFT_HANDED = 1,
+	COMPACT = 2
+}
+
+var current_preset: int = LayoutPreset.DEFAULT
 
 @onready var joystick: KalyeVirtualJoystick = $LeftTouchZone/VirtualJoystick
+@onready var left_touch_zone: Control = $LeftTouchZone
 @onready var camera_touch_zone: Control = $RightTouchZone
+@onready var action_buttons: Control = $ActionButtons
 @onready var btn_jump: Button = $ActionButtons/BtnJump
 @onready var btn_sprint: Button = $ActionButtons/BtnSprint
 @onready var btn_slide: Button = $ActionButtons/BtnSlide
@@ -22,11 +34,20 @@ signal item_pressed()
 @onready var btn_drop: Button = get_node_or_null("ActionButtons/BtnDrop")
 @onready var btn_item: Button = get_node_or_null("ActionButtons/BtnItem")
 
+# Spectator Controls
+@onready var spectator_controls: Control = get_node_or_null("SpectatorControls")
+@onready var btn_prev_spectate: Button = get_node_or_null("SpectatorControls/BtnPrevSpectate")
+@onready var btn_next_spectate: Button = get_node_or_null("SpectatorControls/BtnNextSpectate")
+
 var camera_touch_id: int = -1
 var is_sprinting: bool = false
+var is_spectator: bool = false
 
 func _ready() -> void:
 	var buttons: Array[Button] = [btn_jump, btn_sprint, btn_slide, btn_dash, btn_tag, btn_interact, btn_drop, btn_item]
+	if btn_prev_spectate: buttons.append(btn_prev_spectate)
+	if btn_next_spectate: buttons.append(btn_next_spectate)
+	
 	for b in buttons:
 		if b:
 			_setup_button_juice(b)
@@ -47,6 +68,10 @@ func _ready() -> void:
 		btn_drop.pressed.connect(func(): drop_pressed.emit())
 	if btn_item:
 		btn_item.pressed.connect(func(): item_pressed.emit())
+	if btn_prev_spectate:
+		btn_prev_spectate.pressed.connect(func(): prev_spectate_pressed.emit())
+	if btn_next_spectate:
+		btn_next_spectate.pressed.connect(func(): next_spectate_pressed.emit())
 
 	if camera_touch_zone:
 		camera_touch_zone.gui_input.connect(_on_camera_zone_input)
@@ -56,6 +81,7 @@ func _ready() -> void:
 	set_drop_button_visible(false)
 	set_tag_button_highlight(false)
 	set_item_button_visible(false)
+	set_spectator_mode(false)
 
 func _setup_button_juice(btn: Button) -> void:
 	btn.pivot_offset = btn.custom_minimum_size * 0.5
@@ -151,3 +177,54 @@ func set_item_button_visible(p_visible: bool, item_name: String = "BATO") -> voi
 		btn_item.visible = p_visible
 		if p_visible:
 			btn_item.text = item_name.to_upper()
+
+func set_spectator_mode(active: bool) -> void:
+	is_spectator = active
+	if action_buttons:
+		action_buttons.visible = not active
+	if left_touch_zone:
+		left_touch_zone.visible = not active
+	if spectator_controls:
+		spectator_controls.visible = active
+
+func set_tag_in_range(in_range: bool) -> void:
+	if not btn_tag or not btn_tag.visible or is_spectator:
+		return
+	if in_range:
+		btn_tag.text = "🔥 HAMPASIN!"
+		btn_tag.modulate = Color(1.0, 0.9, 0.2, 1.0)
+	else:
+		btn_tag.text = "HAMPAS"
+		btn_tag.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+func set_layout_preset(preset: int) -> void:
+	current_preset = preset as LayoutPreset
+	if not left_touch_zone or not action_buttons:
+		return
+	match current_preset:
+		LayoutPreset.DEFAULT:
+			left_touch_zone.anchor_left = 0.0
+			left_touch_zone.anchor_right = 0.4
+			action_buttons.anchor_left = 0.55
+			action_buttons.anchor_right = 0.98
+			scale = Vector2.ONE
+		LayoutPreset.LEFT_HANDED:
+			# Invert sides: joystick right, buttons left
+			left_touch_zone.anchor_left = 0.6
+			left_touch_zone.anchor_right = 1.0
+			action_buttons.anchor_left = 0.02
+			action_buttons.anchor_right = 0.45
+			scale = Vector2.ONE
+		LayoutPreset.COMPACT:
+			left_touch_zone.anchor_left = 0.0
+			left_touch_zone.anchor_right = 0.35
+			action_buttons.anchor_left = 0.65
+			action_buttons.anchor_right = 0.98
+			scale = Vector2(0.85, 0.85)
+
+func set_ui_scale(new_scale: float) -> void:
+	var clamped := clampf(new_scale, 0.6, 1.4)
+	scale = Vector2(clamped, clamped)
+
+func set_ui_opacity(new_opacity: float) -> void:
+	modulate.a = clampf(new_opacity, 0.2, 1.0)

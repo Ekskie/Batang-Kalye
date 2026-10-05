@@ -50,61 +50,89 @@ content_margin_bottom = 6.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_action_btn"]
 bg_color = Color(0.09, 0.11, 0.15, 0.75)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.18, 0.2, 0.26, 0.4)
-content_margin_left = 14.0
-content_margin_top = 10.0
-content_margin_right = 14.0
-content_margin_bottom = 10.0
+content_margin_left = 16.0
+content_margin_top = 13.0
+content_margin_right = 16.0
+content_margin_bottom = 13.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_action_btn_hover"]
 bg_color = Color(0.13, 0.16, 0.22, 0.9)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.35, 0.4, 0.5, 0.8)
-content_margin_left = 14.0
-content_margin_top = 10.0
-content_margin_right = 14.0
-content_margin_bottom = 10.0
+content_margin_left = 16.0
+content_margin_top = 13.0
+content_margin_right = 16.0
+content_margin_bottom = 13.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_start"]
 bg_color = Color(0.96, 0.94, 0.9, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 shadow_color = Color(0, 0, 0, 0.45)
 shadow_size = 6
-content_margin_left = 24.0
-content_margin_top = 10.0
-content_margin_right = 24.0
-content_margin_bottom = 10.0
+content_margin_left = 28.0
+content_margin_top = 14.0
+content_margin_right = 28.0
+content_margin_bottom = 14.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_start_hover"]
 bg_color = Color(1, 0.98, 0.94, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
 shadow_color = Color(0, 0, 0, 0.6)
 shadow_size = 8
-content_margin_left = 24.0
-content_margin_top = 10.0
-content_margin_right = 24.0
-content_margin_bottom = 10.0
+content_margin_left = 28.0
+content_margin_top = 14.0
+content_margin_right = 28.0
+content_margin_bottom = 14.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_chevron"]
+bg_color = Color(0.1, 0.12, 0.18, 0.85)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.45)
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_chevron_hover"]
+bg_color = Color(0.2, 0.24, 0.32, 0.95)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.85)
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 8
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pedestal"]
 albedo_color = Color(0.18, 0.19, 0.22, 1)
@@ -153,10 +181,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 36
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 36
-theme_override_constants/margin_bottom = 14
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 12
 
 [node name="VBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
@@ -171,9 +199,10 @@ layout_mode = 2
 size_flags_horizontal = 2
 
 [node name="BtnMainMenu" type="Button" parent="Margin/VBox/TopBar/LeftControls"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 15
 text = "◀  MAIN MENU"
 flat = true
 
@@ -186,7 +215,7 @@ alignment = 1
 [node name="CrownIcon" type="Label" parent="Margin/VBox/TopBar/CenterTitle"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.8, 0.25, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 18
 text = "👑"
 horizontal_alignment = 1
 
@@ -202,7 +231,7 @@ horizontal_alignment = 1
 [node name="Subtitle" type="Label" parent="Margin/VBox/TopBar/CenterTitle"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.85)
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 12
 text = "— TAYAAN SA KANTO —"
 horizontal_alignment = 1
 
@@ -214,17 +243,36 @@ alignment = 2
 [node name="Breadcrumbs" type="Label" parent="Margin/VBox/TopBar/RightControls"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.72, 0.78, 0.8)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 12
 text = "LARO  ·  TAYA  ·  KAIBIGAN  ·  KALYE"
 
 [node name="VSep" type="VSeparator" parent="Margin/VBox/TopBar/RightControls"]
 layout_mode = 2
 
-[node name="BtnLobbySettings" type="Button" parent="Margin/VBox/TopBar/RightControls"]
+[node name="BtnLobbyGuide" type="Button" parent="Margin/VBox/TopBar/RightControls"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.92, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.85, 0.3, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 15
+text = "📖 GABAY"
+flat = true
+
+[node name="BtnLobbyStore" type="Button" parent="Margin/VBox/TopBar/RightControls"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
+theme_override_font_sizes/font_size = 15
+text = "🏪 TINDAHAN"
+flat = true
+
+[node name="BtnLobbySettings" type="Button" parent="Margin/VBox/TopBar/RightControls"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.92, 0.98, 1)
+theme_override_colors/font_hover_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 15
 text = "⚙ MGA SETTING"
 flat = true
 
@@ -260,14 +308,14 @@ layout_mode = 2
 [node name="Title" type="Label" parent="Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/HeaderRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.78, 0.85, 0.9)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 13
 text = "CHARACTER PREVIEW"
 
 [node name="Badge" type="Label" parent="Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/HeaderRow"]
 layout_mode = 2
 size_flags_horizontal = 10
 theme_override_colors/font_color = Color(0.75, 0.85, 0.95, 0.8)
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 11
 theme_override_styles/normal = SubResource("StyleBoxFlat_badge")
 text = "🧊 3D PREVIEW"
 
@@ -308,35 +356,41 @@ mesh = SubResource("CylinderMesh_pedestal")
 [node name="PreviewChar" parent="Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer/PreviewSubViewport" instance=ExtResource("3_char_model")]
 
 [node name="BtnPrevChar" type="Button" parent="Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame"]
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
 anchor_bottom = 0.5
-offset_left = 8.0
-offset_top = -24.0
-offset_right = 44.0
-offset_bottom = 24.0
+offset_left = 10.0
+offset_top = -28.0
+offset_right = 66.0
+offset_bottom = 28.0
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_badge")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_chevron")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_chevron_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_chevron_hover")
 text = "‹"
 
 [node name="BtnNextChar" type="Button" parent="Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame"]
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 1
 anchors_preset = 6
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -44.0
-offset_top = -24.0
-offset_right = -8.0
-offset_bottom = 24.0
+offset_left = -66.0
+offset_top = -28.0
+offset_right = -10.0
+offset_bottom = 28.0
 grow_horizontal = 0
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_badge")
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_chevron")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_chevron_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_chevron_hover")
 text = "›"
 
 [node name="DetailsPill" type="PanelContainer" parent="Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox"]
@@ -349,25 +403,25 @@ layout_mode = 2
 [node name="CharName" type="Label" parent="Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/DetailsPill/HBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 17
 text = "Totoy ✎"
 
 [node name="CharCount" type="Label" parent="Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/DetailsPill/HBox"]
 layout_mode = 2
 size_flags_horizontal = 10
 theme_override_colors/font_color = Color(0.68, 0.72, 0.78, 0.85)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 13
 text = "3 / 8"
 
 [node name="CharDesc" type="Label" parent="Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.76, 0.82, 0.9)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 text = "👕 Sando Runner"
 
 [node name="PaletteRow" type="HBoxContainer" parent="Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="DotsRow" type="HBoxContainer" parent="Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox"]
@@ -402,14 +456,14 @@ layout_mode = 2
 [node name="Title" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/HeaderRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 14
 text = "MATCHMAKING / LOBBY"
 
 [node name="Badge" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/HeaderRow"]
 layout_mode = 2
 size_flags_horizontal = 10
 theme_override_colors/font_color = Color(0.3, 0.9, 0.5, 0.95)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_badge")
 text = "👥 ONLINE & HOTSPOT ●"
 
@@ -420,22 +474,23 @@ theme_override_constants/separation = 10
 [node name="Icon" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/NameRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.74, 0.8, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 text = "👤"
 
 [node name="Label" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/NameRow"]
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.78, 0.85, 0.9)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 13
 text = "PLAYER NAME"
 
 [node name="NameInput" type="LineEdit" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/NameRow"]
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
 theme_override_colors/font_placeholder_color = Color(0.5, 0.53, 0.6, 0.8)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_input")
 placeholder_text = "Ilagay ang iyong pangalan..."
 
@@ -446,14 +501,14 @@ theme_override_constants/separation = 8
 [node name="Icon" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/TabsRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.74, 0.8, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 text = "👥"
 
 [node name="Label" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/TabsRow"]
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.78, 0.85, 0.9)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 13
 text = "LOBBY TYPE"
 
 [node name="PillsContainer" type="HBoxContainer" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/TabsRow"]
@@ -462,21 +517,24 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
 [node name="BtnTabLobbies" type="Button" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/TabsRow"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 13
 text = "MGA LOBBY"
 
 [node name="BtnTabCreate" type="Button" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/TabsRow"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 13
 text = "GUMAWA"
 
 [node name="BtnTabHotspot" type="Button" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/TabsRow"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 13
 text = "HOTSPOT / SOLO"
 
 [node name="ContentPanels" type="VBoxContainer" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox"]
@@ -495,27 +553,29 @@ theme_override_constants/separation = 10
 [node name="Icon" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/IpRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.74, 0.8, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 text = "📶"
 
 [node name="Label" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/IpRow"]
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.78, 0.85, 0.9)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 13
 text = "HOTSPOT IP"
 
 [node name="IpInput" type="LineEdit" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/IpRow"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_input")
 text = "192.168.1.3"
 
 [node name="BtnRefreshIp" type="Button" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/IpRow"]
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_badge")
 text = "↻"
 
@@ -524,41 +584,44 @@ layout_mode = 2
 
 [node name="Icon" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/SettingsHeader"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 text = "⚙️"
 
 [node name="Title" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/SettingsHeader"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.78, 0.85, 0.85)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 12
 text = "GAME SETTINGS"
 
 [node name="Actions" type="VBoxContainer" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 8
 
 [node name="BtnHotspotHost" type="Button" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/Actions"]
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_action_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_action_btn_hover")
 text = "🗺️   BUKASAN BILANG HOTSPOT HOST                                     ›"
 alignment = 0
 
 [node name="BtnHotspotJoin" type="Button" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/Actions"]
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_action_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_action_btn_hover")
 text = "🏠   SUMALI SA HOTSPOT ROOM                                             ›"
 alignment = 0
 
 [node name="BtnSoloPractice" type="Button" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/Actions"]
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.95, 0.98, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_action_btn")
 theme_override_styles/hover = SubResource("StyleBoxFlat_action_btn_hover")
 text = "🛠️   MAG-ISA / PRACTICE (Kasama ang Bots)                             ›"
@@ -572,12 +635,13 @@ alignment = 2
 [node name="LocalIpLabel" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/Footer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.72, 0.8, 0.9)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 13
 text = "📍 Local IP: 192.168.1.3 (Port 7777)"
 
 [node name="BtnCopyIp" type="Button" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/Footer"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 13
 theme_override_styles/normal = SubResource("StyleBoxFlat_badge")
 text = "📋 COPY"
 
@@ -592,16 +656,18 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="CodeInput" type="LineEdit" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelLobbies/CodeRow"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_input")
 placeholder_text = "I-type ang Room Code (kung mayroon)..."
 
 [node name="BtnJoinCode" type="Button" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelLobbies/CodeRow"]
+custom_minimum_size = Vector2(100, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.09, 0.12, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_start")
 text = "SUMALI"
 
@@ -615,9 +681,10 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
 [node name="BtnRefreshLobbies" type="Button" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelLobbies"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_action_btn")
 text = "↻ I-REFRESH ANG LISTAHAN NG ROOMS"
 
@@ -633,13 +700,15 @@ layout_mode = 2
 [node name="Label" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/NameRow"]
 custom_minimum_size = Vector2(95, 0)
 layout_mode = 2
-theme_override_font_size = 11
 theme_override_colors/font_color = Color(0.75, 0.78, 0.85, 0.9)
+theme_override_font_sizes/font_size = 13
 text = "ROOM NAME"
 
 [node name="CreateNameInput" type="LineEdit" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/NameRow"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_input")
 text = "Tambayan Room"
 
@@ -649,13 +718,15 @@ layout_mode = 2
 [node name="Label" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/ModeRow"]
 custom_minimum_size = Vector2(95, 0)
 layout_mode = 2
-theme_override_font_size = 11
 theme_override_colors/font_color = Color(0.75, 0.78, 0.85, 0.9)
+theme_override_font_sizes/font_size = 13
 text = "GAME MODE"
 
 [node name="ModeOption" type="OptionButton" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/ModeRow"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_input")
 
 [node name="DurationRow" type="HBoxContainer" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate"]
@@ -664,13 +735,15 @@ layout_mode = 2
 [node name="Label" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/DurationRow"]
 custom_minimum_size = Vector2(95, 0)
 layout_mode = 2
-theme_override_font_size = 11
 theme_override_colors/font_color = Color(0.75, 0.78, 0.85, 0.9)
+theme_override_font_sizes/font_size = 13
 text = "ROUND TIME"
 
 [node name="DurationOption" type="OptionButton" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/DurationRow"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_input")
 
 [node name="PlayersRow" type="HBoxContainer" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate"]
@@ -679,28 +752,30 @@ layout_mode = 2
 [node name="Label" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/PlayersRow"]
 custom_minimum_size = Vector2(95, 0)
 layout_mode = 2
-theme_override_font_size = 11
 theme_override_colors/font_color = Color(0.75, 0.78, 0.85, 0.9)
+theme_override_font_sizes/font_size = 13
 text = "MAX PLAYERS"
 
 [node name="PlayersSlider" type="HSlider" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/PlayersRow"]
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 2.0
-max_value = 8.0
+max_value = 24.0
 value = 8.0
 
 [node name="Val" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/PlayersRow"]
-custom_minimum_size = Vector2(40, 0)
+custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
-theme_override_font_size = 11
-text = "8 / 8"
+theme_override_font_sizes/font_size = 13
+text = "8 / 24"
 horizontal_alignment = 2
 
 [node name="BtnCreateSubmit" type="Button" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate"]
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.09, 0.12, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 16
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_start")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_start_hover")
 text = "BUKUIN AT BUKSAN ANG ROOM >"
@@ -714,18 +789,25 @@ theme_override_constants/separation = 10
 [node name="RoomTitle" type="Label" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.25, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 16
 text = "KASALUKUYANG ROOM: Tambayan"
 
-[node name="SlotsContainer" type="VBoxContainer" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting"]
+[node name="SlotsScroll" type="ScrollContainer" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting"]
 layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="SlotsContainer" type="VBoxContainer" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting/SlotsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 6
 
 [node name="BtnLeaveRoom" type="Button" parent="Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelRoomWaiting"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.4, 0.4, 1)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_action_btn")
 text = "◀  LUMABAS SA ROOM"
 
@@ -742,14 +824,14 @@ alignment = 0
 [node name="TipLabel" type="Label" parent="Margin/VBox/BottomBar/TipHBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.7, 0.78, 0.8)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 13
 text = "ⓘ Piliin ang mode at i-set up ang iyong laro."
 
 [node name="BtnStartGame" type="Button" parent="Margin/VBox/BottomBar"]
-custom_minimum_size = Vector2(210, 44)
+custom_minimum_size = Vector2(240, 58)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.08, 0.09, 0.12, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 17
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_start")
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_start_hover")
 text = "SIMULA NG LARO  →"
