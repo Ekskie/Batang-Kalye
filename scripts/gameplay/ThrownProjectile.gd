@@ -74,10 +74,9 @@ func _impact(hit_target: PlayerController, impact_pos: Vector3) -> void:
 
 	if projectile_type == ProjectileType.TSINELAS:
 		if hit_target:
-			if Engine.has_singleton("AudioManager"):
-				AudioManager.play_tsinelas_slap()
-			elif has_node("/root/AudioManager"):
-				get_node("/root/AudioManager").play_tsinelas_slap()
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_tsinelas_slap"):
+				am.play_tsinelas_slap()
 
 			hit_target.call("apply_slipper_stun", 1.4, thrower_name)
 			var players := get_tree().get_nodes_in_group("players")
@@ -88,16 +87,14 @@ func _impact(hit_target: PlayerController, impact_pos: Vector3) -> void:
 			var ft = preload("res://scripts/player/FloatingText.gd")
 			ft.spawn(get_parent(), hit_target.global_position + Vector3(0, 2.2, 0), "SAPUL!", Color(0.2, 0.8, 1.0))
 		else:
-			if Engine.has_singleton("AudioManager"):
-				AudioManager.play_drop()
-			elif has_node("/root/AudioManager"):
-				get_node("/root/AudioManager").play_drop()
+			var am_drop = get_node_or_null("/root/AudioManager")
+			if am_drop and am_drop.has_method("play_drop"):
+				am_drop.play_drop()
 
 	elif projectile_type == ProjectileType.CHALK_BAG:
-		if Engine.has_singleton("AudioManager"):
-			AudioManager.play_chalk_puff()
-		elif has_node("/root/AudioManager"):
-			get_node("/root/AudioManager").play_chalk_puff()
+		var am_puff = get_node_or_null("/root/AudioManager")
+		if am_puff and am_puff.has_method("play_chalk_puff"):
+			am_puff.play_chalk_puff()
 
 		_spawn_chalk_cloud(impact_pos)
 

@@ -11,6 +11,8 @@ signal danger_detected(is_danger: bool, distance: float)
 signal stamina_changed(burst_val: float, burst_max: float, endurance_val: float, endurance_max: float, is_exhausted: bool)
 signal street_item_changed(item_type: int, item_name: String, count: int)
 signal hiding_state_changed(is_hiding: bool, time_left: float)
+signal vault_available_changed(is_available: bool)
+signal emote_triggered(emote_text: String)
 
 enum Role {
 	RUNNER = 0,
@@ -46,7 +48,7 @@ var is_solo_practice: bool:
 func is_local_human() -> bool:
 	if is_bot:
 		return false
-	if multiplayer.has_multiplayer_peer():
+	if is_inside_tree() and multiplayer and multiplayer.has_multiplayer_peer():
 		var my_id := multiplayer.get_unique_id()
 		return player_id == my_id or get_multiplayer_authority() == my_id
 	return player_id == 1
@@ -155,6 +157,17 @@ var slide_direction: Vector3 = Vector3.ZERO
 var dash_timer: float = 0.0
 var dash_cooldown: float = 0.0
 var dash_direction: Vector3 = Vector3.ZERO
+
+# Parkour & Vaulting State
+var is_vaulting: bool = false
+var vault_progress: float = 0.0
+var vault_duration: float = 0.40
+var vault_start_pos: Vector3 = Vector3.ZERO
+var vault_apex_pos: Vector3 = Vector3.ZERO
+var vault_end_pos: Vector3 = Vector3.ZERO
+var vault_forward_dir: Vector3 = Vector3.FORWARD
+var can_vault: bool = false
+var stats_vaults: int = 0
 
 var coyote_timer: float = 0.0
 var jump_buffer_timer: float = 0.0
@@ -347,7 +360,10 @@ func _setup_mobile_ui() -> void:
 		return
 	mobile_ui.camera_dragged.connect(_on_mobile_camera_dragged)
 	mobile_ui.jump_pressed.connect(func(): _queue_jump())
-	mobile_ui.sprint_toggled.connect(func(sprint_on: bool): is_sprinting = sprint_on)
+	mobile_ui.sprint_toggled.connect(func(sprint_on: bool):
+		if not _is_game_paused():
+			is_sprinting = sprint_on
+	)
 	mobile_ui.slide_pressed.connect(func(): _try_slide())
 	mobile_ui.dash_pressed.connect(func(): _try_dash())
 	mobile_ui.tag_pressed.connect(func(): _try_tag())
@@ -369,14 +385,17 @@ func _setup_mobile_ui() -> void:
 		mobile_ui.next_spectate_pressed.connect(func(): _cycle_spectate_target(1))
 	if mobile_ui.has_method("set_spectator_mode"):
 		mobile_ui.set_spectator_mode(is_eliminated)
+	if mobile_ui.has_signal("vault_pressed"):
+		mobile_ui.vault_pressed.connect(func(): _try_vault())
+	if mobile_ui.has_method("set_vault_available"):
+		vault_available_changed.connect(mobile_ui.set_vault_available)
+
+func _is_game_paused() -> bool:
+	var main_node = get_node_or_null("/root/Main")
+	return bool(main_node and ("is_game_paused" in main_node) and main_node.is_game_paused)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not is_local_human():
-		return
-
-	var main_node = get_node_or_null("/root/Main")
-	var is_paused: bool = main_node and ("is_game_paused" in main_node) and main_node.is_game_paused
-	if is_paused:
+	if not is_local_human() or _is_game_paused():
 		return
 
 	# Spectator mode input (when eliminated)
@@ -418,7 +437,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	# Right-Click: Use/Throw street item
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
-		if not is_cursor_free and not is_paused and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		if not is_cursor_free and not _is_game_paused() and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 			use_current_item()
 			get_viewport().set_input_as_handled()
 			return
@@ -439,12 +458,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 
 	# Mouse look when captured (only when cursor is NOT free and game is not paused)
-	if not is_cursor_free and not is_paused and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and event is InputEventMouseMotion:
+	if not is_cursor_free and not _is_game_paused() and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and event is InputEventMouseMotion:
 		_rotate_camera(-event.relative.x * mouse_sensitivity, -event.relative.y * mouse_sensitivity)
 
 func _on_mobile_camera_dragged(relative_vec: Vector2) -> void:
-	if is_local_human():
-		_rotate_camera(-relative_vec.x * touch_sensitivity, -relative_vec.y * touch_sensitivity)
+	if _is_game_paused() or not is_local_human():
+		return
+	_rotate_camera(-relative_vec.x * touch_sensitivity, -relative_vec.y * touch_sensitivity)
 
 func _apply_camera_rotation() -> void:
 	if camera_mount:
@@ -557,12 +577,6 @@ func _cycle_spectate_target(step: int = 1) -> void:
 
 func _physics_process(delta: float) -> void:
 	var main_node = get_node_or_null("/root/Main")
-	if main_node and ("is_game_paused" in main_node) and main_node.is_game_paused:
-		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
-		velocity.z = move_toward(velocity.z, 0.0, friction * delta)
-		move_and_slide()
-		return
-
 	if is_eliminated:
 		if is_local_human():
 			if is_instance_valid(spectating_target) and not spectating_target.is_eliminated:
@@ -633,6 +647,7 @@ func _physics_process(delta: float) -> void:
 		var current_max: float = sprint_speed if (is_sprinting or horizontal_speed > 8.0) else walk_speed
 		model.is_sliding = is_sliding
 		model.is_dashing = is_dashing
+		model.is_vaulting = is_vaulting
 		model.has_superspeed = (active_powerup == PowerupType.SUPER_SPEED)
 		model.animate(delta, horizontal_speed, current_floor, current_max)
 
@@ -738,14 +753,33 @@ func _process_authority_movement(delta: float) -> void:
 		move_and_slide()
 		return
 
-	# Cursor-free gate — freeze all input while cursor is visible (Escape pressed)
-	if is_cursor_free:
+	# Handle active Vault
+	if is_vaulting:
+		_process_vault(delta)
+		if not is_vaulting:
+			move_and_slide()
+			_process_landing_and_footsteps(delta)
+		return
+
+	# In-game pause menu or cursor-free gate: freeze gameplay movement/actions while maintaining physics & gravity
+	if _is_game_paused() or is_cursor_free:
+		if is_sliding:
+			_end_slide()
+		is_sprinting = false
+		is_dashing = false
+		is_wall_running = false
+		_process_stamina(delta, false)
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 		velocity.z = move_toward(velocity.z, 0.0, friction * delta)
-		if not is_on_floor():
-			velocity.y += fall_gravity * delta
 		move_and_slide()
+		_process_landing_and_footsteps(delta)
 		return
+
+	# Update vaultable obstacle status
+	var prev_can_vault := can_vault
+	can_vault = _check_vaultable_obstacle()
+	if can_vault != prev_can_vault:
+		vault_available_changed.emit(can_vault)
 
 	# Input checks
 	var sprint_requested: bool = false
@@ -755,7 +789,10 @@ func _process_authority_movement(delta: float) -> void:
 		sprint_requested = true
 
 	if Input.is_action_just_pressed("jump"):
-		_queue_jump()
+		if can_vault and _try_vault():
+			jump_buffer_timer = 0.0
+		else:
+			_queue_jump()
 
 	if Input.is_action_just_pressed("slide"):
 		_try_slide()
@@ -940,16 +977,22 @@ func _process_authority_movement(delta: float) -> void:
 	move_and_slide()
 	_process_landing_and_footsteps(delta)
 
+func _play_sfx(method_name: String, arg = null) -> void:
+	var am = get_node_or_null("/root/AudioManager")
+	if not am or not is_instance_valid(am) or not am.has_method(method_name):
+		return
+	if arg != null:
+		am.call(method_name, arg)
+	else:
+		am.call(method_name)
+
 func _process_landing_and_footsteps(delta: float) -> void:
 	# Dynamic Landing Juice
 	if is_on_floor() and not was_on_floor_prev:
 		if prev_vert_vel < -2.8:
 			var impact_spd: float = abs(prev_vert_vel)
 			squash_current = Vector3(1.22, 0.74, 1.22)
-			if Engine.has_singleton("AudioManager"):
-				AudioManager.play_land(impact_spd)
-			elif has_node("/root/AudioManager"):
-				get_node("/root/AudioManager").play_land(impact_spd)
+			_play_sfx("play_land", impact_spd)
 			if impact_spd > 5.5:
 				add_shake(clamp(impact_spd / 26.0, 0.06, 0.28))
 				if slide_dust:
@@ -966,16 +1009,15 @@ func _process_landing_and_footsteps(delta: float) -> void:
 			footstep_timer -= delta
 			if footstep_timer <= 0.0:
 				footstep_timer = step_interval
-				if Engine.has_singleton("AudioManager"):
-					AudioManager.play_footstep(is_in_water)
-				elif has_node("/root/AudioManager"):
-					get_node("/root/AudioManager").play_footstep(is_in_water)
+				_play_sfx("play_footstep", is_in_water)
 		else:
 			footstep_timer = 0.1
 	else:
 		footstep_timer = 0.1
 
 func _queue_jump() -> void:
+	if _is_game_paused():
+		return
 	jump_buffer_timer = jump_buffer_duration
 
 func _execute_jump() -> void:
@@ -989,10 +1031,7 @@ func _execute_jump() -> void:
 		endurance_stamina = max(0.0, endurance_stamina - 2.5)
 		stamina_regen_delay_timer = 0.45
 
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_jump()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_jump()
+	_play_sfx("play_jump")
 
 	if slide_dust:
 		slide_dust.restart()
@@ -1005,7 +1044,7 @@ func _execute_jump() -> void:
 		_end_slide()
 
 func _try_slide() -> void:
-	if is_sliding or slide_cooldown > 0.0 or not is_on_floor():
+	if _is_game_paused() or is_sliding or slide_cooldown > 0.0 or not is_on_floor():
 		return
 
 	if is_exhausted:
@@ -1032,10 +1071,7 @@ func _try_slide() -> void:
 	slide_direction = Vector3(velocity.x, 0, velocity.z).normalized()
 	squash_current = Vector3(1.18, 0.65, 1.18)
 
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_slide()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_slide()
+	_play_sfx("play_slide")
 
 	# Lower hitbox during slide
 	if collision_shape and collision_shape.shape is CapsuleShape3D:
@@ -1048,8 +1084,174 @@ func _end_slide() -> void:
 		collision_shape.shape.height = 1.45
 		collision_shape.position.y = 0.725
 
+# --- Parkour & Vaulting Mechanics ---
+func _check_vaultable_obstacle() -> bool:
+	if not is_inside_tree():
+		return false
+	var space_state := get_world_3d().direct_space_state
+	if not space_state:
+		return false
+
+	var fwd := Vector3.ZERO
+	var h_vel := Vector2(velocity.x, velocity.z)
+	if h_vel.length() > 0.8:
+		fwd = Vector3(velocity.x, 0.0, velocity.z).normalized()
+	elif model and model.global_transform.basis.z.length_squared() > 0.01:
+		fwd = -model.global_transform.basis.z.normalized()
+		fwd.y = 0.0
+		fwd = fwd.normalized()
+	else:
+		fwd = -global_transform.basis.z.normalized()
+		fwd.y = 0.0
+		fwd = fwd.normalized()
+
+	if fwd.length_squared() < 0.1:
+		fwd = Vector3.FORWARD
+
+	var exclude_rids: Array[RID] = [get_rid()]
+
+	# 1. Forward obstacle detection ray (supports obstacles from 0.45m to 1.1m)
+	var chest_hit := {}
+	for test_h in [0.70, 0.45]:
+		var cast_start := global_position + Vector3(0.0, test_h, 0.0)
+		var cast_end := cast_start + fwd * 1.35
+		var cast_query := PhysicsRayQueryParameters3D.create(cast_start, cast_end, 1, exclude_rids)
+		var h := space_state.intersect_ray(cast_query)
+		if not h.is_empty():
+			chest_hit = h
+			break
+
+	if chest_hit.is_empty():
+		return false
+
+	var hit_pt: Vector3 = chest_hit.position
+	var hit_norm: Vector3 = chest_hit.normal
+
+	# Must be facing toward the obstacle
+	if hit_norm.dot(fwd) > -0.2:
+		return false
+
+	# 2. Forward head/clearance ray (height ~1.65m, reach 1.45m)
+	var head_start := global_position + Vector3(0.0, 1.65, 0.0)
+	var head_end := head_start + fwd * 1.45
+	var head_query := PhysicsRayQueryParameters3D.create(head_start, head_end, 1, exclude_rids)
+	var head_hit := space_state.intersect_ray(head_query)
+
+	if not head_hit.is_empty():
+		return false
+
+	# 3. Top surface downward ray (from over obstacle, trying multiple forward offsets)
+	var top_hit := {}
+	for fwd_offset in [0.15, 0.35, 0.05]:
+		var top_cast_start: Vector3 = hit_pt + fwd * float(fwd_offset) + Vector3(0.0, 1.2, 0.0)
+		var top_cast_end: Vector3 = top_cast_start - Vector3(0.0, 1.8, 0.0)
+		var top_query := PhysicsRayQueryParameters3D.create(top_cast_start, top_cast_end, 1, exclude_rids)
+		var t_hit := space_state.intersect_ray(top_query)
+		if not t_hit.is_empty():
+			var h_diff: float = t_hit.position.y - global_position.y
+			if h_diff >= 0.3 and h_diff <= 1.4:
+				top_hit = t_hit
+				break
+
+	if top_hit.is_empty():
+		return false
+
+	var obs_top_y: float = top_hit.position.y
+	var height_diff: float = obs_top_y - global_position.y
+	if height_diff < 0.3 or height_diff > 1.4:
+		return false
+
+	# 4. Landing spot downward ray (behind obstacle)
+	var land_cast_start := hit_pt + fwd * 1.35 + Vector3(0.0, 1.0, 0.0)
+	var land_cast_end := land_cast_start - Vector3(0.0, 2.6, 0.0)
+	var land_query := PhysicsRayQueryParameters3D.create(land_cast_start, land_cast_end, 1, exclude_rids)
+	var land_hit := space_state.intersect_ray(land_query)
+
+	if land_hit.is_empty():
+		return false
+
+	var land_pos: Vector3 = land_hit.position
+	if abs(land_pos.y - global_position.y) > 1.8:
+		return false
+
+	vault_start_pos = global_position
+	vault_apex_pos = Vector3(top_hit.position.x, obs_top_y + 0.35, top_hit.position.z)
+	vault_end_pos = land_pos + Vector3(0.0, 0.05, 0.0)
+	vault_forward_dir = fwd
+	return true
+
+func _trigger_vault(start_pos: Vector3, apex_pos: Vector3, end_pos: Vector3) -> void:
+	is_vaulting = true
+	vault_progress = 0.0
+	vault_start_pos = start_pos
+	vault_apex_pos = apex_pos
+	vault_end_pos = end_pos
+	var diff := end_pos - start_pos
+	diff.y = 0.0
+	vault_forward_dir = diff.normalized() if diff.length_squared() > 0.01 else Vector3.FORWARD
+	stats_vaults += 1
+	squash_target = Vector3(0.85, 1.25, 0.85)
+	add_shake(0.2)
+	_play_sfx("play_vault")
+	if is_local_human() and multiplayer.has_multiplayer_peer() and not is_solo_practice:
+		rpc("sync_vault_trigger", vault_start_pos, vault_apex_pos, vault_end_pos)
+
+func _process_vault(delta: float) -> void:
+	if not is_vaulting:
+		return
+	vault_progress += delta / vault_duration
+	if vault_progress >= 1.0:
+		is_vaulting = false
+		global_position = vault_end_pos
+		velocity = vault_forward_dir * sprint_speed
+		squash_target = Vector3(1.15, 0.85, 1.15)
+		_play_sfx("play_land", sprint_speed)
+		return
+
+	var t: float = clampf(vault_progress, 0.0, 1.0)
+	var omt: float = 1.0 - t
+	global_position = omt * omt * vault_start_pos + 2.0 * omt * t * vault_apex_pos + t * t * vault_end_pos
+	if model:
+		var target_rot_y := atan2(-vault_forward_dir.x, -vault_forward_dir.z)
+		model.rotation.y = lerp_angle(model.rotation.y, target_rot_y, delta * 20.0)
+
+func _try_vault() -> bool:
+	if _is_game_paused() or is_vaulting or is_stunned or is_hiding or is_slipping or is_eliminated:
+		return false
+
+	if _check_vaultable_obstacle():
+		_trigger_vault(vault_start_pos, vault_apex_pos, vault_end_pos)
+		return true
+	return false
+
+@rpc("call_local", "reliable")
+func sync_vault_trigger(start_p: Vector3, apex_p: Vector3, end_p: Vector3) -> void:
+	if not is_local_human():
+		_trigger_vault(start_p, apex_p, end_p)
+
+# --- Social Emotes ---
+func trigger_emote(emote_text: String) -> void:
+	if _is_game_paused() or is_eliminated or is_hiding:
+		return
+	if is_local_human():
+		if multiplayer.has_multiplayer_peer() and not is_solo_practice:
+			rpc("sync_emote", player_id, emote_text)
+		else:
+			_display_emote(emote_text)
+
+@rpc("call_local", "reliable")
+func sync_emote(sender_id: int, emote_text: String) -> void:
+	if player_id == sender_id:
+		_display_emote(emote_text)
+
+func _display_emote(emote_text: String) -> void:
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0.0, 2.2, 0.0), emote_text, Color(1.0, 0.9, 0.2))
+	squash_current = Vector3(1.25, 0.75, 1.25)
+	_play_sfx("play_score_ding")
+	emote_triggered.emit(emote_text)
+
 func _try_dash() -> void:
-	if is_dashing or dash_cooldown > 0.0:
+	if _is_game_paused() or is_dashing or dash_cooldown > 0.0:
 		return
 
 	if is_exhausted:
@@ -1083,10 +1285,7 @@ func _try_dash() -> void:
 		dash_direction.y = 0.0
 		dash_direction = dash_direction.normalized()
 
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_dash()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_dash()
+	_play_sfx("play_dash")
 
 	if is_local_human():
 		add_shake(0.25)
@@ -1117,19 +1316,13 @@ func _process_stamina(delta: float, is_moving: bool) -> void:
 		exhaust_pant_timer -= delta
 		if exhaust_pant_timer <= 0.0:
 			exhaust_pant_timer = 1.35
-			if Engine.has_singleton("AudioManager"):
-				AudioManager.play_pant()
-			elif has_node("/root/AudioManager"):
-				get_node("/root/AudioManager").play_pant()
+			_play_sfx("play_pant")
 
 		# Exit exhaustion check
 		if endurance_stamina >= exhaustion_recovery_threshold:
 			is_exhausted = false
 			exhaust_pant_timer = 0.0
-			if Engine.has_singleton("AudioManager"):
-				AudioManager.play_recover_breath()
-			elif has_node("/root/AudioManager"):
-				get_node("/root/AudioManager").play_recover_breath()
+			_play_sfx("play_recover_breath")
 			FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "NAKAHINGA NA!", Color(0.3, 1.0, 0.6))
 			if is_local_human():
 				notification_displayed.emit("Nakahinga na ulit! Pwede nang tumakbo!", true)
@@ -1153,10 +1346,7 @@ func _process_stamina(delta: float, is_moving: bool) -> void:
 				is_exhausted = true
 				is_sprinting = false
 				exhaust_pant_timer = 0.0
-				if Engine.has_singleton("AudioManager"):
-					AudioManager.play_pant()
-				elif has_node("/root/AudioManager"):
-					get_node("/root/AudioManager").play_pant()
+				_play_sfx("play_pant")
 				FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "HINGAL! PAGOD NA...", Color(1.0, 0.35, 0.2))
 				add_shake(0.35)
 				if is_local_human():
@@ -1178,10 +1368,7 @@ func _process_stamina(delta: float, is_moving: bool) -> void:
 						is_exhausted = true
 						is_sprinting = false
 						exhaust_pant_timer = 0.0
-						if Engine.has_singleton("AudioManager"):
-							AudioManager.play_pant()
-						elif has_node("/root/AudioManager"):
-							get_node("/root/AudioManager").play_pant()
+						_play_sfx("play_pant")
 						FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "HINGAL! PAGOD NA...", Color(1.0, 0.35, 0.2))
 				else:
 					# Resting still — full recovery for both bars
@@ -1271,6 +1458,13 @@ func _update_name_tags_proximity() -> void:
 	var cam_node: Node3D = camera if camera else self
 	var cam_fwd: Vector3 = -cam_node.global_transform.basis.z
 
+	var main_node = get_node_or_null("/root/Main")
+	var is_lobby_state: bool = false
+	if main_node and ("current_state" in main_node):
+		var st: int = int(main_node.current_state)
+		# TITLE=0, LOBBY=1, SOCIAL_LOBBY=5
+		is_lobby_state = (st in [0, 1, 5])
+
 	for p in all_players:
 		if p is PlayerController and p != self:
 			if not p.name_label:
@@ -1283,15 +1477,18 @@ func _update_name_tags_proximity() -> void:
 				continue
 
 			var dist := global_position.distance_to(p.global_position)
-			if dist <= 2.2:
-				var to_p: Vector3 = (p.global_position - cam_node.global_position).normalized()
-				var dot: float = cam_fwd.dot(to_p)
-				p.name_label.visible = (dot > 0.25)
+			if is_lobby_state:
+				p.name_label.visible = (dist <= 20.0)
 			else:
-				p.name_label.visible = false
+				if dist <= 3.0:
+					var to_p: Vector3 = (p.global_position - cam_node.global_position).normalized()
+					var dot: float = cam_fwd.dot(to_p)
+					p.name_label.visible = (dot > 0.2)
+				else:
+					p.name_label.visible = false
 
 func _try_tag() -> void:
-	if tag_cooldown > 0.0:
+	if _is_game_paused() or tag_cooldown > 0.0:
 		return
 
 	tag_cooldown = tag_cooldown_max
@@ -1382,6 +1579,10 @@ func spawn_hit_vfx_rpc(pos: Vector3) -> void:
 	spawn_hit_vfx(pos)
 
 func _process_remote_interpolation(delta: float) -> void:
+	if is_vaulting:
+		_process_vault(delta)
+		return
+
 	if snapshot_ring_buffer.size() < 2:
 		# Fallback to standard exponential lerp if insufficient snapshot history
 		global_position = global_position.lerp(target_position, delta * 18.0)
@@ -1601,6 +1802,9 @@ func reset_network_interpolation(new_pos: Vector3) -> void:
 	_interpolation_render_time_ms = 0.0
 
 func _process_scoring(delta: float) -> void:
+	var main_node = get_node_or_null("/root/Main")
+	if main_node and "current_state" in main_node and main_node.current_state != 3:
+		return
 	if current_role == Role.RUNNER:
 		survival_time += delta
 
@@ -1697,10 +1901,7 @@ func _server_process_tag(chaser_id: int, target_id: int) -> void:
 func apply_tagged(_chaser_id: int) -> void:
 	if has_trash():
 		drop_trash()
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_tag_boom()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_tag_boom()
+	_play_sfx("play_tag_boom")
 
 	squash_current = Vector3(1.3, 0.7, 1.3)
 
@@ -1779,10 +1980,7 @@ func deposit_trash(is_correct: bool, _bin_cat: int) -> void:
 	if gm and gm.has_method("award_recycle_points"):
 		gm.award_recycle_points(player_id, 30)
 
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_score_ding()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_score_ding()
+	_play_sfx("play_score_ding")
 
 	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "+30 SCORE!", Color(0.2, 1.0, 0.45))
 
@@ -1810,10 +2008,7 @@ func grant_random_powerup() -> PowerupType:
 	var chosen: PowerupType = options.pick_random() as PowerupType
 	set_powerup(chosen)
 
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_powerup()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_powerup()
+	_play_sfx("play_powerup")
 
 	return chosen
 
@@ -1920,6 +2115,8 @@ func sync_held_trash_rpc(t_type: int) -> void:
 
 # --- Contextual Interaction & Loot System ---
 func _try_interact() -> void:
+	if _is_game_paused():
+		return
 	if is_hiding:
 		exit_hiding_spot()
 		return
@@ -1940,7 +2137,7 @@ func _try_interact() -> void:
 		current_interactable.interact(self)
 
 func drop_trash() -> void:
-	if not has_trash():
+	if _is_game_paused() or not has_trash():
 		return
 	var _dropped_type := held_trash
 	held_trash = -1
@@ -1948,10 +2145,7 @@ func drop_trash() -> void:
 	held_trash_category = 0
 	_update_held_item_visuals()
 
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_drop()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_drop()
+	_play_sfx("play_drop")
 
 	if is_local_human():
 		trash_changed.emit(-1, "", 0)
@@ -2026,10 +2220,7 @@ func _check_danger_proximity() -> void:
 	if min_dist < 14.0:
 		danger_detected.emit(true, min_dist)
 		if min_dist < 8.0:
-			if Engine.has_singleton("AudioManager"):
-				AudioManager.play_danger()
-			elif has_node("/root/AudioManager"):
-				get_node("/root/AudioManager").play_danger()
+			_play_sfx("play_danger")
 	else:
 		danger_detected.emit(false, 0.0)
 
@@ -2061,7 +2252,7 @@ func pickup_street_item(i_type: int, i_name: String) -> void:
 		notification_displayed.emit("Nakuha: %s! [Right-Click / G para gamitin]" % i_name, true)
 
 func use_current_item() -> void:
-	if is_eliminated or is_stunned or is_hiding:
+	if _is_game_paused() or is_eliminated or is_stunned or is_hiding:
 		return
 	if held_street_item == -1 or held_street_item_count <= 0:
 		return
@@ -2132,10 +2323,7 @@ func _throw_tsinelas() -> void:
 	get_parent().add_child(proj)
 	proj.setup(ThrownProjectile.ProjectileType.TSINELAS, start_pos, dir, player_id, player_name)
 
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_tsinelas_throw()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_tsinelas_throw()
+	_play_sfx("play_tsinelas_throw")
 
 	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "BATO TSINELAS!", Color(0.3, 0.85, 1.0))
 
@@ -2152,10 +2340,7 @@ func _drop_banana() -> void:
 	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "BALAT NG SAGING!", Color(1.0, 0.9, 0.2))
 
 func _blow_whistle() -> void:
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_whistle()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_whistle()
+	_play_sfx("play_whistle")
 
 	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.2, 0), "SIPOL! TAGO NA!", Color(1.0, 0.35, 0.35))
 	add_shake(0.35)
@@ -2214,10 +2399,7 @@ func _consume_ice_candy() -> void:
 	# Temporary adrenaline surge
 	set_powerup(PowerupType.SUPER_SPEED, 3.5)
 
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_ice_candy()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_ice_candy()
+	_play_sfx("play_ice_candy")
 
 	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "ICE CANDY RUSH!", Color(1.0, 0.45, 0.8))
 
@@ -2228,10 +2410,7 @@ func apply_slipper_stun(duration: float, attacker_name: String) -> void:
 	stun_timer = max(stun_timer, duration)
 	velocity = velocity * 0.15
 	squash_current = Vector3(1.3, 0.4, 1.3)
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_stun()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_stun()
+	_play_sfx("play_stun")
 	add_shake(0.4)
 	if is_local_human():
 		notification_displayed.emit("SAPUL NG TSINELAS ni %s!" % attacker_name, false)

@@ -38,6 +38,9 @@ var sfx_drum_hide: AudioStreamWAV
 var sfx_drum_clang: AudioStreamWAV
 var sfx_chalk_puff: AudioStreamWAV
 var sfx_ice_candy: AudioStreamWAV
+var sfx_vault: AudioStreamWAV
+var sfx_vote_select: AudioStreamWAV
+var sfx_vote_win: AudioStreamWAV
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -81,6 +84,9 @@ func _synthesize_all_sfx() -> void:
 	sfx_drum_clang = _create_gong_clang(0.45, 0.85)
 	sfx_chalk_puff = _create_sweep_tone(600.0, 150.0, 0.16, 0.5)
 	sfx_ice_candy = _create_arpeggio([523.25, 659.25, 783.99, 1046.5, 1318.51], 0.05, 0.8)
+	sfx_vault = _create_sweep_tone(260.0, 620.0, 0.15, 0.6)
+	sfx_vote_select = _create_sweep_tone(440.0, 880.0, 0.08, 0.5)
+	sfx_vote_win = _create_arpeggio([523.25, 659.25, 783.99, 1046.50, 1318.51], 0.07, 0.8)
 
 func play_sfx(stream: AudioStreamWAV, pitch_scale: float = 1.0) -> void:
 	if not stream or audio_players.is_empty():
@@ -181,6 +187,15 @@ func play_chalk_puff() -> void:
 
 func play_ice_candy() -> void:
 	play_sfx(sfx_ice_candy, 1.0)
+
+func play_vault() -> void:
+	play_sfx(sfx_vault, randf_range(0.95, 1.15))
+
+func play_vote() -> void:
+	play_sfx(sfx_vote_select, randf_range(0.95, 1.05))
+
+func play_vote_win() -> void:
+	play_sfx(sfx_vote_win, 1.0)
 
 # --- Procedural Waveform Generators ---
 func _create_pant_sound(duration: float, volume: float = 0.5) -> AudioStreamWAV:

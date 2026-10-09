@@ -234,6 +234,7 @@ var current_player_color: Color = Color(0.18, 0.58, 0.95, 1.0)
 
 var is_sliding: bool = false
 var is_dashing: bool = false
+var is_vaulting: bool = false
 var has_superspeed: bool = false
 var held_anchor_base_y: float = 0.70
 
@@ -1049,6 +1050,10 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 	if is_skeletal and active_anim:
 		if is_tag_swinging and _has_anim("punching"):
 			pass
+		elif is_vaulting:
+			if _has_anim("jump"):
+				_play_anim("jump", 0.08)
+				active_anim.speed_scale = 1.6
 		elif not is_on_floor:
 			if _has_anim("jump"):
 				_play_anim("jump", 0.12)
@@ -1077,7 +1082,15 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 
 	# 2. Original Procedural Animation (Batang Kalye Retro Model)
 	elif not is_skeletal:
-		if is_on_floor and horizontal_speed > 0.3:
+		if is_vaulting:
+			if left_leg: left_leg.rotation.x = lerp_angle(left_leg.rotation.x, -deg_to_rad(65.0), delta * 18.0)
+			if right_leg: right_leg.rotation.x = lerp_angle(right_leg.rotation.x, -deg_to_rad(45.0), delta * 18.0)
+			if not is_tag_swinging:
+				if left_arm: left_arm.rotation.x = lerp_angle(left_arm.rotation.x, deg_to_rad(45.0), delta * 18.0)
+				if right_arm: right_arm.rotation.x = lerp_angle(right_arm.rotation.x, deg_to_rad(45.0), delta * 18.0)
+			if body_mesh:
+				body_mesh.position.y = lerp(body_mesh.position.y, 0.85, delta * 15.0)
+		elif is_on_floor and horizontal_speed > 0.3:
 			walk_cycle_time += delta * (horizontal_speed / max(max_speed, 1.0)) * 14.0
 			var leg_swing: float = sin(walk_cycle_time) * 0.65
 			if left_leg: left_leg.rotation.x = leg_swing

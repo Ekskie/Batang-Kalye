@@ -83,10 +83,9 @@ func collect(collector: PlayerController) -> void:
 	if collector and collector.has_method("pickup_street_item"):
 		collector.call("pickup_street_item", int(item_type), get_item_name())
 
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_pickup()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_pickup()
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_pickup"):
+		am.play_pickup()
 
 	if particles:
 		particles.restart()

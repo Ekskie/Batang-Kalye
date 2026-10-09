@@ -63,10 +63,9 @@ func _play_success_effects() -> void:
 	is_animating = true
 
 	# Sound
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_bin_correct()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_bin_correct()
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_bin_correct"):
+		am.play_bin_correct()
 
 	# Particles
 	if spark_particles:
@@ -87,10 +86,9 @@ func _play_fail_effects() -> void:
 	is_animating = true
 
 	# Sound: Dull thud / buzz
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_bin_wrong()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_bin_wrong()
+	var am_fail = get_node_or_null("/root/AudioManager")
+	if am_fail and am_fail.has_method("play_bin_wrong"):
+		am_fail.play_bin_wrong()
 
 	# Subtle horizontal rattle/shake
 	if visual_bin:

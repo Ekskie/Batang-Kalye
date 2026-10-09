@@ -1,0 +1,177 @@
+[gd_scene load_steps=6 format=3 uid="uid://social_lobby_ui_01"]
+
+[ext_resource type="Script" path="res://scripts/ui/SocialLobbyUI.gd" id="1_social_ui"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_topbar"]
+bg_color = Color(0.04, 0.05, 0.08, 0.88)
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.2)
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_vote"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.12, 0.58, 0.25, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.9, 0.3, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.12, 0.58, 0.25, 0.4)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_action"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.15, 0.18, 0.25, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.25)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_emotes_panel"]
+bg_color = Color(0.05, 0.06, 0.09, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.3)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_size = 12
+
+[node name="SocialLobbyUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_social_ui")
+
+[node name="TopBar" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 56.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_topbar")
+
+[node name="Margin" type="MarginContainer" parent="TopBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 6
+
+[node name="HBox" type="HBoxContainer" parent="TopBar/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="RoomInfo" type="VBoxContainer" parent="TopBar/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="TopBar/Margin/HBox/RoomInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.2, 1)
+theme_override_font_sizes/font_size = 15
+text = "BARANGAY LOBBY"
+
+[node name="Ip" type="Label" parent="TopBar/Margin/HBox/RoomInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 12
+text = "192.168.1.1:7777"
+
+[node name="PlayerCount" type="PanelContainer" parent="TopBar/Margin/HBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_btn_action")
+
+[node name="Count" type="Label" parent="TopBar/Margin/HBox/PlayerCount"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "MGA BATA: 1 / 24"
+
+[node name="BtnStartVote" type="Button" parent="TopBar/Margin/HBox"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_vote")
+text = "★ BUMOTO NG LARO ★"
+
+[node name="BtnEmotes" type="Button" parent="TopBar/Margin/HBox"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_action")
+text = "EMOTES [1-5]"
+
+[node name="BtnSettings" type="Button" parent="TopBar/Margin/HBox"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_action")
+text = "SETTINGS"
+
+[node name="BtnLeave" type="Button" parent="TopBar/Margin/HBox"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_action")
+text = "UMALIS"
+
+[node name="EmotesBar" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -280.0
+offset_top = -80.0
+offset_right = 280.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_emotes_panel")
+
+[node name="HBox" type="HBoxContainer" parent="EmotesBar"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Emote1" type="Button" parent="EmotesBar/HBox"]
+layout_mode = 2
+text = "Kumusta! 👋"
+
+[node name="Emote2" type="Button" parent="EmotesBar/HBox"]
+layout_mode = 2
+text = "Habulin mo 'ko! 🏃"
+
+[node name="Emote3" type="Button" parent="EmotesBar/HBox"]
+layout_mode = 2
+text = "Astig! 🔥"
+
+[node name="Emote4" type="Button" parent="EmotesBar/HBox"]
+layout_mode = 2
+text = "Haha! 😂"
+
+[node name="Emote5" type="Button" parent="EmotesBar/HBox"]
+layout_mode = 2
+text = "Talon! 🤸"

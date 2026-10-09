@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://court_scoreboard_3d_01"]
+
+[ext_resource type="Script" path="res://scripts/gameplay/VotingCourtScoreboard3D.gd" id="1_sb_script"]
+[ext_resource type="Material" path="res://assets/materials/mat_concrete_wall.tres" id="2_frame"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_screen"]
+shading_mode = 1
+albedo_color = Color(0.02, 0.04, 0.08, 1)
+
+[node name="VotingCourtScoreboard3D" type="Node3D"]
+script = ExtResource("1_sb_script")
+
+[node name="BoardFrame" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+use_collision = true
+size = Vector3(9.0, 3.2, 0.3)
+material = ExtResource("2_frame")
+
+[node name="BoardScreen" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.16)
+size = Vector3(8.7, 2.9, 0.05)
+material = SubResource("StandardMaterial3D_screen")
+
+[node name="LabelTimer" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0.22)
+billboard = 1
+double_sided = false
+no_depth_test = true
+text = "ORAS: 10s"
+font_size = 58
+outline_size = 8
+modulate = Color(1, 0.9, 0.2, 1)
+
+[node name="LabelSubtitle" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0.22)
+billboard = 1
+double_sided = false
+text = "TUMAKBO SA 3D STATIONS PARA BUMOTO!"
+font_size = 24
+outline_size = 4
+modulate = Color(0.9, 0.95, 1, 1)
+
+[node name="LabelStandings" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.65, 0.22)
+billboard = 1
+double_sided = false
+text = "💥 PASA: 0  |  🧟‍♂️ HAWA: 0  |  🏃‍♂️ TAYA: 0"
+font_size = 28
+outline_size = 5
+modulate = Color(1, 1, 1, 1)

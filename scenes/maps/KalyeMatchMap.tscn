@@ -1,0 +1,565 @@
+[gd_scene format=3 uid="uid://btjas68rkrvbv"]
+
+[ext_resource type="Script" uid="uid://dup7h2k26jw12" path="res://scripts/gameplay/KalyeMatchMap.gd" id="1_map_script"]
+[ext_resource type="Material" path="res://assets/materials/mat_asphalt.tres" id="2_asphalt"]
+[ext_resource type="Material" path="res://assets/materials/mat_concrete_wall.tres" id="4_wall"]
+[ext_resource type="Material" path="res://assets/materials/mat_wood.tres" id="6_wood"]
+[ext_resource type="Material" path="res://assets/materials/mat_canal_water.tres" id="7_canal_water"]
+[ext_resource type="Material" path="res://assets/materials/mat_trash_blue.tres" id="8_t_blue"]
+[ext_resource type="Material" path="res://assets/materials/mat_trash_green.tres" id="9_t_green"]
+[ext_resource type="Material" path="res://assets/materials/mat_trash_yellow.tres" id="10_t_yellow"]
+[ext_resource type="Material" path="res://assets/materials/mat_dog_fur.tres" id="11_dog_fur"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/HidingSpot.tscn" id="12_hiding_spot"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/StreetItem.tscn" id="13_street_item"]
+[ext_resource type="PackedScene" uid="uid://byp5gk1jwp01n" path="res://scenes/gameplay/TrashItem.tscn" id="14_trash_item"]
+[ext_resource type="Script" uid="uid://cndmhed5g3avy" path="res://scripts/gameplay/RecyclingBin.gd" id="15_bin_script"]
+[ext_resource type="Script" uid="uid://5abq30evirab" path="res://scripts/gameplay/WaterZone.gd" id="16_water_script"]
+[ext_resource type="Script" uid="uid://cyu3c5f6ub22u" path="res://scripts/gameplay/DogChaser.gd" id="17_dog_script"]
+[ext_resource type="PackedScene" uid="uid://c888kmg8ma8uh" path="res://assets/models/Tindahan/Tindahan-ni-Mama.glb" id="18_tindahan"]
+[ext_resource type="PackedScene" uid="uid://bbyjfj3lev0ca" path="res://assets/models/For maps/citykit-suburban/Models/GLB format/building-type-a.glb" id="19_house_a"]
+[ext_resource type="PackedScene" uid="uid://d04m4f0ixumlc" path="res://assets/models/For maps/citykit-suburban/Models/GLB format/building-type-b.glb" id="20_house_b"]
+[ext_resource type="PackedScene" uid="uid://bvujvdnk7i4qf" path="res://assets/models/For maps/citykit-suburban/Models/GLB format/building-type-c.glb" id="21_house_c"]
+[ext_resource type="PackedScene" uid="uid://bf5rxpphvqn1p" path="res://assets/models/For maps/citykit-suburban/Models/GLB format/building-type-d.glb" id="22_house_d"]
+[ext_resource type="PackedScene" uid="uid://c88iex6st18c4" path="res://assets/models/For maps/citykit-suburban/Models/GLB format/building-type-e.glb" id="23_house_e"]
+[ext_resource type="PackedScene" uid="uid://ds6678rhie4w4" path="res://assets/models/For maps/citykit-suburban/Models/GLB format/building-type-f.glb" id="24_house_f"]
+[ext_resource type="PackedScene" uid="uid://bxp1qri82scm1" path="res://assets/models/For maps/citykit-suburban/Models/GLB format/building-type-g.glb" id="25_house_g"]
+[ext_resource type="PackedScene" uid="uid://c88enawey77t5" path="res://assets/models/For maps/citykit-suburban/Models/GLB format/building-type-j.glb" id="26_house_j"]
+[ext_resource type="PackedScene" uid="uid://c7o5xdmr48om8" path="res://assets/models/For maps/citykit-suburban/Models/GLB format/fence-1x3.glb" id="27_fence_1x3"]
+[ext_resource type="PackedScene" uid="uid://d1qmemdp7dyqm" path="res://assets/models/For maps/citykit-suburban/Models/GLB format/fence-low.glb" id="28_fence_low"]
+[ext_resource type="PackedScene" uid="uid://cy66rod2sfthm" path="res://assets/models/For maps/citykit-suburban/Models/GLB format/tree-large.glb" id="29_tree_large"]
+[ext_resource type="PackedScene" uid="uid://cqh8j5sj3whu5" path="res://assets/models/For maps/citykit-suburban/Models/GLB format/tree-small.glb" id="30_tree_small"]
+[ext_resource type="PackedScene" uid="uid://bntkc42c6o727" path="res://assets/models/For maps/retro-urban/Models/GLB format/detail-dumpster-open.glb" id="31_dumpster_open"]
+[ext_resource type="PackedScene" uid="uid://bck3xl02dj6hf" path="res://assets/models/For maps/retro-urban/Models/GLB format/detail-dumpster-closed.glb" id="32_dumpster_closed"]
+[ext_resource type="PackedScene" uid="uid://dt7jjr6v64wm0" path="res://assets/models/For maps/retro-urban/Models/GLB format/truck-green.glb" id="33_truck_green"]
+[ext_resource type="PackedScene" uid="uid://cudr3wrux133u" path="res://assets/models/For maps/retro-urban/Models/GLB format/truck-grey-cargo.glb" id="34_truck_cargo"]
+[ext_resource type="PackedScene" uid="uid://cpdhob03jo07" path="res://assets/models/For maps/retro-urban/Models/GLB format/truck-flat.glb" id="35_truck_flat"]
+[ext_resource type="PackedScene" uid="uid://b4ni3hy7sywmc" path="res://assets/models/For maps/retro-urban/Models/GLB format/scaffolding-structure.glb" id="36_scaffolding"]
+[ext_resource type="PackedScene" uid="uid://d0wxchh6yvgya" path="res://assets/models/For maps/retro-urban/Models/GLB format/scaffolding-poles.glb" id="37_scaffold_poles"]
+[ext_resource type="PackedScene" uid="uid://bnhplxhoy6kgg" path="res://assets/models/For maps/retro-urban/Models/GLB format/pallet.glb" id="38_pallet"]
+[ext_resource type="PackedScene" uid="uid://dmd7muu1b71oj" path="res://assets/models/For maps/retro-urban/Models/GLB format/pallet-small.glb" id="39_pallet_small"]
+[ext_resource type="PackedScene" uid="uid://dklgsal2vcaga" path="res://assets/models/For maps/retro-urban/Models/GLB format/planks.glb" id="40_planks"]
+[ext_resource type="PackedScene" uid="uid://dld8v068m72bp" path="res://assets/models/For maps/retro-urban/Models/GLB format/detail-barrier-strong-type-a.glb" id="41_barrier_strong"]
+[ext_resource type="PackedScene" uid="uid://bftstvy6tcrce" path="res://assets/models/For maps/retro-urban/Models/GLB format/detail-barrier-strong-damaged.glb" id="42_barrier_damaged"]
+[ext_resource type="PackedScene" uid="uid://cvpqnpwx1mvis" path="res://assets/models/For maps/retro-urban/Models/GLB format/wall-broken-type-a.glb" id="43_wall_broken"]
+[ext_resource type="PackedScene" uid="uid://hyw2nisitf04" path="res://assets/models/For maps/retro-urban/Models/GLB format/wall-steps-type-a.glb" id="44_wall_steps"]
+[ext_resource type="PackedScene" uid="uid://w80k1vbrvx2w" path="res://assets/models/For maps/retro-urban/Models/GLB format/detail-light-single.glb" id="45_light_single"]
+[ext_resource type="PackedScene" uid="uid://cqe1h50w8dxon" path="res://assets/models/For maps/retro-urban/Models/GLB format/detail-light-double.glb" id="46_light_double"]
+[ext_resource type="PackedScene" uid="uid://diqlaju0mgplw" path="res://assets/models/For maps/retro-urban/Models/GLB format/detail-bench.glb" id="47_bench"]
+[ext_resource type="PackedScene" uid="uid://dx1s2677hkr0w" path="res://assets/models/For maps/test.glb" id="47_m4j2d"]
+[ext_resource type="PackedScene" uid="uid://bponn0l2c46ye" path="res://assets/models/For maps/retro-urban/Models/GLB format/balcony-type-a.glb" id="48_balcony"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sunset"]
+sky_top_color = Color(0.24, 0.48, 0.85, 1)
+sky_horizon_color = Color(0.98, 0.72, 0.52, 1)
+sky_curve = 0.14
+ground_bottom_color = Color(0.18, 0.16, 0.14, 1)
+ground_horizon_color = Color(0.88, 0.65, 0.52, 1)
+
+[sub_resource type="Sky" id="Sky_kalye_vast"]
+sky_material = SubResource("ProceduralSkyMaterial_sunset")
+
+[sub_resource type="Environment" id="Environment_kalye_vast"]
+background_mode = 2
+sky = SubResource("Sky_kalye_vast")
+ambient_light_source = 2
+ambient_light_color = Color(0.72, 0.78, 0.9, 1)
+ambient_light_energy = 0.6
+tonemap_mode = 2
+tonemap_exposure = 1.08
+glow_enabled = true
+glow_bloom = 0.06
+
+[sub_resource type="BoxMesh" id="BoxMesh_arena_road"]
+material = ExtResource("2_asphalt")
+size = Vector3(120, 0.4, 120)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_arena_road"]
+size = Vector3(120, 0.4, 120)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_canal"]
+size = Vector3(34, 1.2, 8)
+
+[sub_resource type="SphereMesh" id="SphereMesh_dog"]
+material = ExtResource("11_dog_fur")
+radius = 0.35
+height = 0.7
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_dog"]
+radius = 0.4
+height = 1.0
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_bin"]
+height = 1.8
+radius = 1.6
+
+[node name="KalyeMap" type="Node3D" unique_id=1269134282]
+script = ExtResource("1_map_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=819753818]
+environment = SubResource("Environment_kalye_vast")
+
+[node name="SunLight" type="DirectionalLight3D" parent="." unique_id=626626954]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 50, 0)
+light_color = Color(1, 0.94, 0.84, 1)
+light_energy = 1.45
+shadow_enabled = true
+shadow_bias = 0.03
+directional_shadow_max_distance = 200.0
+
+[node name="Ground" type="Node3D" parent="." unique_id=2028515386]
+
+[node name="RoadFloor" type="StaticBody3D" parent="Ground" unique_id=927620159]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground/RoadFloor" unique_id=462549726]
+mesh = SubResource("BoxMesh_arena_road")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/RoadFloor" unique_id=888974521]
+shape = SubResource("BoxShape3D_arena_road")
+
+[node name="PerimeterFences" type="Node3D" parent="." unique_id=1152663710]
+
+[node name="FenceNorth" type="CSGBox3D" parent="PerimeterFences" unique_id=1017522456]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -58)
+use_collision = true
+size = Vector3(120, 3.6, 0.6)
+material = ExtResource("4_wall")
+
+[node name="FenceSouth" type="CSGBox3D" parent="PerimeterFences" unique_id=389143595]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 58)
+use_collision = true
+size = Vector3(120, 3.6, 0.6)
+material = ExtResource("4_wall")
+
+[node name="FenceWest" type="CSGBox3D" parent="PerimeterFences" unique_id=1513898703]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58, 1.8, 0)
+use_collision = true
+size = Vector3(0.6, 3.6, 120)
+material = ExtResource("4_wall")
+
+[node name="FenceEast" type="CSGBox3D" parent="PerimeterFences" unique_id=278435995]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58, 1.8, 0)
+use_collision = true
+size = Vector3(0.6, 3.6, 120)
+material = ExtResource("4_wall")
+
+[node name="District1_Subdivision" type="Node3D" parent="." unique_id=1520866662]
+
+[node name="House1" parent="District1_Subdivision" unique_id=621320911 instance=ExtResource("19_house_a")]
+transform = Transform3D(7.5, 0, 0, 0, 7.5, 0, 0, 0, 7.5, -36, 0, -38)
+
+[node name="House2" parent="District1_Subdivision" unique_id=1091251959 instance=ExtResource("20_house_b")]
+transform = Transform3D(7.5, 0, 0, 0, 7.5, 0, 0, 0, 7.5, -18, 0, -38)
+
+[node name="House3" parent="District1_Subdivision" unique_id=1105340395 instance=ExtResource("22_house_d")]
+transform = Transform3D(7.5, 0, 0, 0, 7.5, 0, 0, 0, 7.5, -38, 0, -20)
+
+[node name="House4" parent="District1_Subdivision" unique_id=818690785 instance=ExtResource("25_house_g")]
+transform = Transform3D(7.5, 0, 0, 0, 7.5, 0, 0, 0, 7.5, -18, 0, -20)
+
+[node name="House5" parent="District1_Subdivision" unique_id=1988729792 instance=ExtResource("26_house_j")]
+transform = Transform3D(7.5, 0, 0, 0, 7.5, 0, 0, 0, 7.5, -40, 0, -4)
+
+[node name="Tree1" parent="District1_Subdivision" unique_id=590312912 instance=ExtResource("29_tree_large")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, -46, 0, -46)
+
+[node name="Tree2" parent="District1_Subdivision" unique_id=150056767 instance=ExtResource("30_tree_small")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -12, 0, -46)
+
+[node name="Tree3" parent="District1_Subdivision" unique_id=1276875494 instance=ExtResource("29_tree_large")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, -46, 0, -10)
+
+[node name="VaultFenceSub1" parent="District1_Subdivision" unique_id=1374164833 instance=ExtResource("27_fence_1x3")]
+transform = Transform3D(2.6, 0, 0, 0, 2.6, 0, 0, 0, 2.6, -28, 0, -38)
+
+[node name="VaultColliderSub1" type="CSGBox3D" parent="District1_Subdivision/VaultFenceSub1" unique_id=1757909266]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.32, 0)
+visible = false
+use_collision = true
+size = Vector3(1.2, 0.65, 0.3)
+
+[node name="VaultFenceSub2" parent="District1_Subdivision" unique_id=1671415101 instance=ExtResource("28_fence_low")]
+transform = Transform3D(2.6, 0, 0, 0, 2.6, 0, 0, 0, 2.6, -28, 0, -20)
+
+[node name="VaultColliderSub2" type="CSGBox3D" parent="District1_Subdivision/VaultFenceSub2" unique_id=1545115067]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.32, 0)
+visible = false
+use_collision = true
+size = Vector3(1.2, 0.65, 0.3)
+
+[node name="District2_Alleyways" type="Node3D" parent="." unique_id=1465833544]
+
+[node name="AlleyBuilding1" parent="District2_Alleyways" unique_id=141012085 instance=ExtResource("21_house_c")]
+transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 18, 0, -40)
+
+[node name="AlleyBuilding2" parent="District2_Alleyways" unique_id=1221414886 instance=ExtResource("23_house_e")]
+transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 38, 0, -40)
+
+[node name="AlleyBuilding3" parent="District2_Alleyways" unique_id=303527251 instance=ExtResource("24_house_f")]
+transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 18, 0, -20)
+
+[node name="AlleyBuilding4" parent="District2_Alleyways" unique_id=2053882346 instance=ExtResource("26_house_j")]
+transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 40, 0, -20)
+
+[node name="WallBroken1" parent="District2_Alleyways" unique_id=1111741948 instance=ExtResource("43_wall_broken")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 28, 0, -40)
+
+[node name="WallSteps1" parent="District2_Alleyways" unique_id=1896182098 instance=ExtResource("44_wall_steps")]
+transform = Transform3D(0, 0, 2.5, 0, 2.5, 0, -2.5, 0, 0, 28, 0, -20)
+
+[node name="BalconyAlley" parent="District2_Alleyways" unique_id=602507992 instance=ExtResource("48_balcony")]
+transform = Transform3D(2.8, 0, 0, 0, 2.8, 0, 0, 0, 2.8, 28, 3.2, -30)
+
+[node name="Dumpster1" parent="District2_Alleyways" unique_id=145505559 instance=ExtResource("31_dumpster_open")]
+transform = Transform3D(2.6, 0, 0, 0, 2.6, 0, 0, 0, 2.6, 28, 0, -34)
+
+[node name="Dumpster2" parent="District2_Alleyways" unique_id=573013835 instance=ExtResource("32_dumpster_closed")]
+transform = Transform3D(2.6, 0, 0, 0, 2.6, 0, 0, 0, 2.6, 44, 0, -26)
+
+[node name="LightAlley1" parent="District2_Alleyways" unique_id=1482699299 instance=ExtResource("45_light_single")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 10, 0, -44)
+
+[node name="LightAlley2" parent="District2_Alleyways" unique_id=301212384 instance=ExtResource("45_light_single")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 46, 0, -44)
+
+[node name="BenchAlley" parent="District2_Alleyways" unique_id=1591378094 instance=ExtResource("47_bench")]
+transform = Transform3D(2.4, 0, 0, 0, 2.4, 0, 0, 0, 2.4, 12, 0, -30)
+
+[node name="VaultWallAlley1" type="CSGBox3D" parent="District2_Alleyways" unique_id=722039973]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0.44, -38)
+use_collision = true
+size = Vector3(4.5, 0.88, 0.4)
+material = ExtResource("4_wall")
+
+[node name="VaultWallAlley2" type="CSGBox3D" parent="District2_Alleyways" unique_id=1349528650]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 29, 0.44, -22)
+use_collision = true
+size = Vector3(4.5, 0.88, 0.4)
+material = ExtResource("4_wall")
+
+[node name="District3_Construction" type="Node3D" parent="." unique_id=1552402834]
+
+[node name="Scaffolding1" parent="District3_Construction" unique_id=351952594 instance=ExtResource("36_scaffolding")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, -36, 0, 18)
+
+[node name="ScaffoldingPoles1" parent="District3_Construction" unique_id=1153637282 instance=ExtResource("37_scaffold_poles")]
+transform = Transform3D(3.5, 0, 0, 0, 3.5, 0, 0, 0, 3.5, -18, 0, 18)
+
+[node name="CargoTruckGrey" parent="District3_Construction" unique_id=1284996039 instance=ExtResource("34_truck_cargo")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -38, 0, 36)
+
+[node name="FlatbedTruck" parent="District3_Construction" unique_id=643947228 instance=ExtResource("35_truck_flat")]
+transform = Transform3D(0, 0, -3, 0, 3, 0, 3, 0, 0, -18, 0, 36)
+
+[node name="PalletStack1" parent="District3_Construction" unique_id=124317779 instance=ExtResource("38_pallet")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -28, 0, 18)
+
+[node name="VaultColliderPallet1" type="CSGBox3D" parent="District3_Construction/PalletStack1" unique_id=678946004]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.32, 0)
+visible = false
+use_collision = true
+size = Vector3(1.2, 0.65, 1)
+
+[node name="PalletSmall1" parent="District3_Construction" unique_id=2094811662 instance=ExtResource("39_pallet_small")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -28, 0, 32)
+
+[node name="VaultColliderPallet2" type="CSGBox3D" parent="District3_Construction/PalletSmall1" unique_id=354613605]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.32, 0)
+visible = false
+use_collision = true
+size = Vector3(1, 0.65, 0.8)
+
+[node name="Planks1" parent="District3_Construction" unique_id=1425836033 instance=ExtResource("40_planks")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -14, 0, 26)
+
+[node name="VaultColliderPlanks1" type="CSGBox3D" parent="District3_Construction/Planks1" unique_id=888872490]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+visible = false
+use_collision = true
+size = Vector3(1.4, 0.6, 0.6)
+
+[node name="BarrierStrong1" parent="District3_Construction" unique_id=1621996695 instance=ExtResource("41_barrier_strong")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -34, 0, 28)
+
+[node name="VaultColliderBarrier1" type="CSGBox3D" parent="District3_Construction/BarrierStrong1" unique_id=641750143]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34, 0)
+visible = false
+use_collision = true
+size = Vector3(1.3, 0.7, 0.3)
+
+[node name="BarrierDamaged1" parent="District3_Construction" unique_id=979525542 instance=ExtResource("42_barrier_damaged")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -22, 0, 24)
+
+[node name="VaultColliderBarrier2" type="CSGBox3D" parent="District3_Construction/BarrierDamaged1" unique_id=1333249846]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34, 0)
+visible = false
+use_collision = true
+size = Vector3(1.3, 0.7, 0.3)
+
+[node name="LightConstruction" parent="District3_Construction" unique_id=1701769695 instance=ExtResource("46_light_double")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -28, 0, 28)
+
+[node name="District4_MarketAndCanal" type="Node3D" parent="." unique_id=1030754869]
+
+[node name="TindahanMama" parent="District4_MarketAndCanal" unique_id=1853361513 instance=ExtResource("18_tindahan")]
+transform = Transform3D(1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 18, 0, 18)
+
+[node name="CargoTruckGreen" parent="District4_MarketAndCanal" unique_id=928572987 instance=ExtResource("33_truck_green")]
+transform = Transform3D(2.8, 0, 0, 0, 2.8, 0, 0, 0, 2.8, 34, 0, 18)
+
+[node name="CargoTruckGreen2" parent="District4_MarketAndCanal" unique_id=1714049693 instance=ExtResource("33_truck_green")]
+transform = Transform3D(0, 0, -2.8, 0, 2.8, 0, 2.8, 0, 0, 38, 0, 34)
+
+[node name="FloodedCanal" type="Node3D" parent="District4_MarketAndCanal" unique_id=795754907]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 42)
+
+[node name="WaterMesh" type="CSGBox3D" parent="District4_MarketAndCanal/FloodedCanal" unique_id=1510434318]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
+size = Vector3(34, 0.15, 8)
+material = ExtResource("7_canal_water")
+
+[node name="Footbridge" type="CSGBox3D" parent="District4_MarketAndCanal/FloodedCanal" unique_id=1039246493]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+use_collision = true
+size = Vector3(2.5, 0.85, 9)
+material = ExtResource("6_wood")
+
+[node name="WaterZone" type="Area3D" parent="District4_MarketAndCanal/FloodedCanal" unique_id=837840653]
+script = ExtResource("16_water_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="District4_MarketAndCanal/FloodedCanal/WaterZone" unique_id=1174588129]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_canal")
+
+[node name="DogChaser" type="CharacterBody3D" parent="District4_MarketAndCanal" unique_id=2113210966]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0.35, 34)
+script = ExtResource("17_dog_script")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="District4_MarketAndCanal/DogChaser" unique_id=1783554277]
+mesh = SubResource("SphereMesh_dog")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="District4_MarketAndCanal/DogChaser" unique_id=994403345]
+shape = SubResource("CapsuleShape3D_dog")
+
+[node name="RecycleStation" type="Node3D" parent="District4_MarketAndCanal" unique_id=328761679]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 12)
+
+[node name="BinNabubulok" type="Area3D" parent="District4_MarketAndCanal/RecycleStation" unique_id=1857010869]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, 0)
+script = ExtResource("15_bin_script")
+
+[node name="VisualMesh" type="CSGCylinder3D" parent="District4_MarketAndCanal/RecycleStation/BinNabubulok" unique_id=545845996]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+radius = 0.55
+height = 1.4
+material = ExtResource("9_t_green")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="District4_MarketAndCanal/RecycleStation/BinNabubulok" unique_id=210656392]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CylinderShape3D_bin")
+
+[node name="BinDiNabubulok" type="Area3D" parent="District4_MarketAndCanal/RecycleStation" unique_id=956876038]
+script = ExtResource("15_bin_script")
+
+[node name="VisualMesh" type="CSGCylinder3D" parent="District4_MarketAndCanal/RecycleStation/BinDiNabubulok" unique_id=2059399864]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+radius = 0.55
+height = 1.4
+material = ExtResource("10_t_yellow")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="District4_MarketAndCanal/RecycleStation/BinDiNabubulok" unique_id=187552478]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CylinderShape3D_bin")
+
+[node name="BinNareresiklo" type="Area3D" parent="District4_MarketAndCanal/RecycleStation" unique_id=2059141504]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0, 0)
+script = ExtResource("15_bin_script")
+
+[node name="VisualMesh" type="CSGCylinder3D" parent="District4_MarketAndCanal/RecycleStation/BinNareresiklo" unique_id=4776578]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+radius = 0.55
+height = 1.4
+material = ExtResource("8_t_blue")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="District4_MarketAndCanal/RecycleStation/BinNareresiklo" unique_id=2086276331]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CylinderShape3D_bin")
+
+[node name="HidingSpots" type="Node3D" parent="." unique_id=668092243]
+
+[node name="HidingDrum1" parent="HidingSpots" unique_id=1527500183 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44, 0, -44)
+
+[node name="HidingBox1" parent="HidingSpots" unique_id=1900217927 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28, 0, -14)
+spot_type = 1
+
+[node name="HidingDrum2" parent="HidingSpots" unique_id=1439246152 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -46, 0, -4)
+
+[node name="HidingBox2" parent="HidingSpots" unique_id=330121735 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -28)
+spot_type = 1
+
+[node name="HidingDrum3" parent="HidingSpots" unique_id=42214843 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0, -44)
+
+[node name="HidingBox3" parent="HidingSpots" unique_id=1172054111 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46, 0, -32)
+spot_type = 1
+
+[node name="HidingDrum4" parent="HidingSpots" unique_id=1707380845 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -18)
+
+[node name="HidingBox4" parent="HidingSpots" unique_id=1966468518 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46, 0, -12)
+spot_type = 1
+
+[node name="HidingDrum5" parent="HidingSpots" unique_id=1466175772 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44, 0, 14)
+
+[node name="HidingBox5" parent="HidingSpots" unique_id=1715719610 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 0, 22)
+spot_type = 1
+
+[node name="HidingDrum6" parent="HidingSpots" unique_id=13358565 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44, 0, 42)
+
+[node name="HidingBox6" parent="HidingSpots" unique_id=603779000 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 44)
+spot_type = 1
+
+[node name="HidingDrum7" parent="HidingSpots" unique_id=409657775 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36, 0, 46)
+
+[node name="HidingDrum8" parent="HidingSpots" unique_id=1032640256 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 24)
+
+[node name="HidingBox7" parent="HidingSpots" unique_id=717312132 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0, 16)
+spot_type = 1
+
+[node name="HidingDrum9" parent="HidingSpots" unique_id=996104244 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 0, 44)
+
+[node name="HidingBox8" parent="HidingSpots" unique_id=1258900119 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0, 10)
+spot_type = 1
+
+[node name="HidingDrum10" parent="HidingSpots" unique_id=26428496 instance=ExtResource("12_hiding_spot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 46)
+
+[node name="StreetItems" type="Node3D" parent="." unique_id=918811959]
+
+[node name="ItemTsinelas1" parent="StreetItems" unique_id=251602804 instance=ExtResource("13_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0.2, -10)
+
+[node name="ItemBanana1" parent="StreetItems" unique_id=821936073 instance=ExtResource("13_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.2, -10)
+item_type = 1
+
+[node name="ItemWhistle1" parent="StreetItems" unique_id=1810459335 instance=ExtResource("13_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+item_type = 2
+
+[node name="ItemChalk1" parent="StreetItems" unique_id=1749542101 instance=ExtResource("13_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.2, 14)
+item_type = 3
+
+[node name="ItemCandy1" parent="StreetItems" unique_id=1093532200 instance=ExtResource("13_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.2, 14)
+item_type = 4
+
+[node name="TrashItems" type="Node3D" parent="." unique_id=2116184015]
+
+[node name="Trash1" parent="TrashItems" unique_id=1747338786 instance=ExtResource("14_trash_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0.2, 8)
+trash_type = 2
+
+[node name="Trash2" parent="TrashItems" unique_id=1197833613 instance=ExtResource("14_trash_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0.2, 16)
+trash_type = 1
+
+[node name="Trash3" parent="TrashItems" unique_id=402858574 instance=ExtResource("14_trash_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.2, 10)
+
+[node name="Trash4" parent="TrashItems" unique_id=1899213789 instance=ExtResource("14_trash_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.2, 18)
+trash_type = 2
+
+[node name="SpawnPoints" type="Node3D" parent="." unique_id=1934992820]
+
+[node name="Spawn1" type="Marker3D" parent="SpawnPoints" unique_id=1527089685]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34, 0.5, -34)
+
+[node name="Spawn2" type="Marker3D" parent="SpawnPoints" unique_id=252970455]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.5, -34)
+
+[node name="Spawn3" type="Marker3D" parent="SpawnPoints" unique_id=1056534258]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34, 0.5, -16)
+
+[node name="Spawn4" type="Marker3D" parent="SpawnPoints" unique_id=438486456]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.5, -16)
+
+[node name="Spawn5" type="Marker3D" parent="SpawnPoints" unique_id=1675173229]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44, 0.5, -24)
+
+[node name="Spawn6" type="Marker3D" parent="SpawnPoints" unique_id=1020617832]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 0.5, -46)
+
+[node name="Spawn7" type="Marker3D" parent="SpawnPoints" unique_id=1034490924]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.5, -34)
+
+[node name="Spawn8" type="Marker3D" parent="SpawnPoints" unique_id=1896064586]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0.5, -34)
+
+[node name="Spawn9" type="Marker3D" parent="SpawnPoints" unique_id=2140223840]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.5, -16)
+
+[node name="Spawn10" type="Marker3D" parent="SpawnPoints" unique_id=343149924]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 0.5, -16)
+
+[node name="Spawn11" type="Marker3D" parent="SpawnPoints" unique_id=1856317161]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0.5, -24)
+
+[node name="Spawn12" type="Marker3D" parent="SpawnPoints" unique_id=537249732]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0.5, -46)
+
+[node name="Spawn13" type="Marker3D" parent="SpawnPoints" unique_id=1196655764]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34, 0.5, 20)
+
+[node name="Spawn14" type="Marker3D" parent="SpawnPoints" unique_id=1962513384]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.5, 20)
+
+[node name="Spawn15" type="Marker3D" parent="SpawnPoints" unique_id=1623855842]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34, 0.5, 38)
+
+[node name="Spawn16" type="Marker3D" parent="SpawnPoints" unique_id=713283420]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.5, 38)
+
+[node name="Spawn17" type="Marker3D" parent="SpawnPoints" unique_id=1347270309]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44, 0.5, 30)
+
+[node name="Spawn18" type="Marker3D" parent="SpawnPoints" unique_id=1387015295]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 0.5, 46)
+
+[node name="Spawn19" type="Marker3D" parent="SpawnPoints" unique_id=1961028315]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.5, 24)
+
+[node name="Spawn20" type="Marker3D" parent="SpawnPoints" unique_id=1222707172]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0.5, 24)
+
+[node name="Spawn21" type="Marker3D" parent="SpawnPoints" unique_id=1012651616]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.5, 42)
+
+[node name="Spawn22" type="Marker3D" parent="SpawnPoints" unique_id=404988023]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0.5, 42)
+
+[node name="Spawn23" type="Marker3D" parent="SpawnPoints" unique_id=457623609]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0.5, 32)
+
+[node name="Spawn24" type="Marker3D" parent="SpawnPoints" unique_id=1278075080]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0.5, 46)
+
+[node name="test" parent="." unique_id=2011387452 instance=ExtResource("47_m4j2d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.325916, 1, 2.0356226)

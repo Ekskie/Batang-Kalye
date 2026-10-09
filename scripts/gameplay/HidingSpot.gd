@@ -109,10 +109,9 @@ func interact(player: PlayerController) -> void:
 	if player.has_method("enter_hiding_spot"):
 		player.call("enter_hiding_spot", self)
 
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_drum_hide()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_drum_hide()
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_drum_hide"):
+		am.play_drum_hide()
 
 	var ft = preload("res://scripts/player/FloatingText.gd")
 	ft.spawn(get_parent(), global_position + Vector3(0, 1.8, 0), "NAGTATAGO...", Color(0.3, 0.8, 1.0))
@@ -157,10 +156,9 @@ func on_taya_slap(taya: PlayerController) -> void:
 			taya.call("perform_tag_on", caught_player)
 	else:
 		# EMPTY SLAP! Stun Taya with hollow clang!
-		if Engine.has_singleton("AudioManager"):
-			AudioManager.play_drum_clang()
-		elif has_node("/root/AudioManager"):
-			get_node("/root/AudioManager").play_drum_clang()
+		var am = get_node_or_null("/root/AudioManager")
+		if am and am.has_method("play_drum_clang"):
+			am.play_drum_clang()
 
 		if visual_root:
 			var tw := create_tween()

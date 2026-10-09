@@ -3,6 +3,7 @@ extends Control
 
 signal camera_dragged(relative_vec: Vector2)
 signal jump_pressed()
+signal vault_pressed()
 signal sprint_toggled(is_sprinting: bool)
 signal slide_pressed()
 signal dash_pressed()
@@ -26,6 +27,8 @@ var current_preset: int = LayoutPreset.DEFAULT
 @onready var camera_touch_zone: Control = $RightTouchZone
 @onready var action_buttons: Control = $ActionButtons
 @onready var btn_jump: Button = $ActionButtons/BtnJump
+var jump_label: Button:
+	get: return btn_jump
 @onready var btn_sprint: Button = $ActionButtons/BtnSprint
 @onready var btn_slide: Button = $ActionButtons/BtnSlide
 @onready var btn_dash: Button = $ActionButtons/BtnDash
@@ -42,6 +45,7 @@ var current_preset: int = LayoutPreset.DEFAULT
 var camera_touch_id: int = -1
 var is_sprinting: bool = false
 var is_spectator: bool = false
+var is_vault_available: bool = false
 
 func _ready() -> void:
 	var buttons: Array[Button] = [btn_jump, btn_sprint, btn_slide, btn_dash, btn_tag, btn_interact, btn_drop, btn_item]
@@ -53,7 +57,11 @@ func _ready() -> void:
 			_setup_button_juice(b)
 
 	if btn_jump:
-		btn_jump.pressed.connect(func(): jump_pressed.emit())
+		btn_jump.pressed.connect(func():
+			if is_vault_available:
+				vault_pressed.emit()
+			jump_pressed.emit()
+		)
 	if btn_sprint:
 		btn_sprint.toggled.connect(_on_sprint_toggled)
 	if btn_slide:
@@ -154,9 +162,22 @@ func update_powerup_buttons(powerup_type: int, dash_charges: int) -> void:
 			btn_dash.modulate = Color(0.65, 0.65, 0.65, 0.4)
 
 	if btn_jump:
-		if powerup_type == 3: # DOUBLE_JUMP
+		if is_vault_available:
+			btn_jump.text = "VAULT"
+			btn_jump.modulate = Color(1.0, 0.88, 0.25)
+		elif powerup_type == 3: # DOUBLE_JUMP
 			btn_jump.text = "2x TALON"
 			btn_jump.modulate = Color(0.7, 1.0, 0.8, 1.0)
+		else:
+			btn_jump.text = "TALON"
+			btn_jump.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+func set_vault_available(available: bool) -> void:
+	is_vault_available = available
+	if btn_jump:
+		if is_vault_available:
+			btn_jump.text = "VAULT"
+			btn_jump.modulate = Color(1.0, 0.88, 0.25)
 		else:
 			btn_jump.text = "TALON"
 			btn_jump.modulate = Color(1.0, 1.0, 1.0, 1.0)

@@ -29,6 +29,8 @@
 [ext_resource type="PackedScene" uid="uid://c888kmg8ma8uh" path="res://assets/models/Tindahan/Tindahan-ni-Mama.glb" id="27_0i5ci"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/StreetItem.tscn" id="28_street_item"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/HidingSpot.tscn" id="29_hiding_spot"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/VotingStation3D.tscn" id="30_voting_station"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/VotingCourtScoreboard3D.tscn" id="31_court_scoreboard"]
 
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ph"]
@@ -312,6 +314,33 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
 use_collision = true
 size = Vector3(26, 0.02, 34)
 material = SubResource("StandardMaterial3D_court_green")
+
+[node name="VotingStationPasaTaya" parent="Ground/BarangayBasketballCourt" instance=ExtResource("30_voting_station")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, -8)
+mode_id = 0
+mode_name = "PASA-TAYA"
+tagline = "Matira Matibay"
+mode_icon = "💥"
+theme_color = Color(1, 0.35, 0.1, 1)
+
+[node name="VotingStationHawaan" parent="Ground/BarangayBasketballCourt" instance=ExtResource("30_voting_station")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
+mode_id = 1
+mode_name = "HAWAAN"
+tagline = "Zombie Outbreak"
+mode_icon = "🧟‍♂️"
+theme_color = Color(0.2, 0.95, 0.3, 1)
+
+[node name="VotingStationTayaan" parent="Ground/BarangayBasketballCourt" instance=ExtResource("30_voting_station")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 8)
+mode_id = 2
+mode_name = "TAYAAN"
+tagline = "Walang Bawian"
+mode_icon = "🏃‍♂️"
+theme_color = Color(0.2, 0.65, 1, 1)
+
+[node name="CourtScoreboard" parent="Ground/BarangayBasketballCourt" instance=ExtResource("31_court_scoreboard")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.2, -17.2)
 
 [node name="LineNorth" type="CSGBox3D" parent="Ground/BarangayBasketballCourt"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.022, -17)
@@ -1217,4 +1246,48 @@ spot_type = 0
 [node name="HidingBox1" parent="HidingSpots" instance=ExtResource("29_hiding_spot")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.0, 0.0, -28.0)
 spot_type = 1
+
+[node name="VaultObstacles" type="Node3D" parent="."]
+
+[node name="BenchPlaza" type="CSGBox3D" parent="VaultObstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.38, 1)
+use_collision = true
+size = Vector3(3, 0.76, 0.8)
+material = ExtResource("3_wood")
+
+[node name="BenchCourtWest" type="CSGBox3D" parent="VaultObstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0.38, -6)
+use_collision = true
+size = Vector3(1, 0.76, 4)
+material = ExtResource("3_wood")
+
+[node name="BenchCourtEast" type="CSGBox3D" parent="VaultObstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.5, 0.38, -6)
+use_collision = true
+size = Vector3(1, 0.76, 4)
+material = ExtResource("3_wood")
+
+[node name="LowFenceCourtNorth" type="CSGBox3D" parent="VaultObstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0.42, 12)
+use_collision = true
+size = Vector3(8, 0.84, 0.35)
+material = ExtResource("4_fence")
+
+[node name="LowFenceCourtSouth" type="CSGBox3D" parent="VaultObstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0.42, -24)
+use_collision = true
+size = Vector3(8, 0.84, 0.35)
+material = ExtResource("4_fence")
+
+[node name="ConcreteBarrier1" type="CSGBox3D" parent="VaultObstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.4, 2)
+use_collision = true
+size = Vector3(4, 0.8, 0.5)
+material = ExtResource("22_concrete_wall")
+
+[node name="ConcreteBarrier2" type="CSGBox3D" parent="VaultObstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.4, 9)
+use_collision = true
+size = Vector3(4, 0.8, 0.5)
+material = ExtResource("22_concrete_wall")
 

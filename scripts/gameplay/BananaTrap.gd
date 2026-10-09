@@ -46,10 +46,9 @@ func _trigger_slip(victim: PlayerController) -> void:
 		return
 	is_triggered = true
 
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_banana_slip()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_banana_slip()
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_banana_slip"):
+		am.play_banana_slip()
 
 	if victim and victim.has_method("apply_banana_slip"):
 		victim.call("apply_banana_slip", planter_name)

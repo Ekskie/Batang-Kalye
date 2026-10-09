@@ -104,12 +104,10 @@ func _check_attack() -> void:
 		if not stun_cooldowns.has(pid):
 			target_player.apply_stun(stun_duration)
 			stun_cooldowns[pid] = stun_duration + 2.5
-			if Engine.has_singleton("AudioManager"):
-				AudioManager.play_dog_bark()
-				AudioManager.play_stun()
-			elif has_node("/root/AudioManager"):
-				get_node("/root/AudioManager").play_dog_bark()
-				get_node("/root/AudioManager").play_stun()
+			var am = get_node_or_null("/root/AudioManager")
+			if am:
+				if am.has_method("play_dog_bark"): am.play_dog_bark()
+				if am.has_method("play_stun"): am.play_stun()
 
 
 func _patrol(delta: float) -> void:

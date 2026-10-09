@@ -1,0 +1,303 @@
+[gd_scene load_steps=7 format=3 uid="uid://vote_ui_scene_01"]
+
+[ext_resource type="Script" path="res://scripts/ui/VoteUI.gd" id="1_vote_ui"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_bg"]
+bg_color = Color(0.04, 0.05, 0.08, 0.72)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.25)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card_bg"]
+bg_color = Color(0.08, 0.1, 0.15, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.2)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_vote"]
+bg_color = Color(0.18, 0.25, 0.4, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.4)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_winner_bg"]
+bg_color = Color(0.1, 0.5, 0.2, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.9, 0.2, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[node name="VoteUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_vote_ui")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="Panel" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(880, 150)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_top = 0.0
+anchor_right = 0.5
+anchor_bottom = 0.0
+offset_left = -440.0
+offset_top = 12.0
+offset_right = 440.0
+offset_bottom = 166.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_bg")
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 20
+text = "🏀 BOTOHAN SA COURT: Tumakbo sa Voting Station ng nais mong laro!"
+horizontal_alignment = 1
+
+[node name="TimerLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
+theme_override_font_sizes/font_size = 18
+text = "Natitirang Oras: 10s"
+horizontal_alignment = 1
+
+[node name="CardsContainer" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="Card0" type="PanelContainer" parent="Panel/VBox/CardsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card_bg")
+
+[node name="Margin" type="MarginContainer" parent="Panel/VBox/CardsContainer/Card0"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="VBox" type="VBoxContainer" parent="Panel/VBox/CardsContainer/Card0/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Icon" type="Label" parent="Panel/VBox/CardsContainer/Card0/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "💥"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="Panel/VBox/CardsContainer/Card0/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.5, 0.3, 1)
+theme_override_font_sizes/font_size = 19
+text = "PASA-TAYA"
+horizontal_alignment = 1
+
+[node name="Tagline" type="Label" parent="Panel/VBox/CardsContainer/Card0/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 13
+text = "Matira Matibay"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="Panel/VBox/CardsContainer/Card0/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "Ipasa ang Taya bago matapos ang timer! Crab game elimination."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="VoteCount" type="Label" parent="Panel/VBox/CardsContainer/Card0/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.2, 1)
+theme_override_font_sizes/font_size = 16
+text = "0 BOTO"
+horizontal_alignment = 1
+
+[node name="BtnVote" type="Button" parent="Panel/VBox/CardsContainer/Card0/Margin/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_vote")
+text = "IBOTO ITO"
+
+[node name="Card1" type="PanelContainer" parent="Panel/VBox/CardsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card_bg")
+
+[node name="Margin" type="MarginContainer" parent="Panel/VBox/CardsContainer/Card1"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="VBox" type="VBoxContainer" parent="Panel/VBox/CardsContainer/Card1/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Icon" type="Label" parent="Panel/VBox/CardsContainer/Card1/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "🧟‍♂️"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="Panel/VBox/CardsContainer/Card1/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 1.0, 0.5, 1)
+theme_override_font_sizes/font_size = 19
+text = "HAWAAN"
+horizontal_alignment = 1
+
+[node name="Tagline" type="Label" parent="Panel/VBox/CardsContainer/Card1/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 13
+text = "Zombie Tag"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="Panel/VBox/CardsContainer/Card1/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "Bawat mahampas ay magiging Taya rin! Outbreak survival."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="VoteCount" type="Label" parent="Panel/VBox/CardsContainer/Card1/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.2, 1)
+theme_override_font_sizes/font_size = 16
+text = "0 BOTO"
+horizontal_alignment = 1
+
+[node name="BtnVote" type="Button" parent="Panel/VBox/CardsContainer/Card1/Margin/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_vote")
+text = "IBOTO ITO"
+
+[node name="Card2" type="PanelContainer" parent="Panel/VBox/CardsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_card_bg")
+
+[node name="Margin" type="MarginContainer" parent="Panel/VBox/CardsContainer/Card2"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="VBox" type="VBoxContainer" parent="Panel/VBox/CardsContainer/Card2/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Icon" type="Label" parent="Panel/VBox/CardsContainer/Card2/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "🏃‍♂️"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="Panel/VBox/CardsContainer/Card2/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1.0, 1)
+theme_override_font_sizes/font_size = 19
+text = "TAYAAN"
+horizontal_alignment = 1
+
+[node name="Tagline" type="Label" parent="Panel/VBox/CardsContainer/Card2/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 13
+text = "Walang Bawian"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="Panel/VBox/CardsContainer/Card2/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.85, 0.88, 0.92, 1)
+theme_override_font_sizes/font_size = 12
+text = "Klasikong tayaan sa kanto! Mag-ipon ng points habang umiiwas."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="VoteCount" type="Label" parent="Panel/VBox/CardsContainer/Card2/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.2, 1)
+theme_override_font_sizes/font_size = 16
+text = "0 BOTO"
+horizontal_alignment = 1
+
+[node name="BtnVote" type="Button" parent="Panel/VBox/CardsContainer/Card2/Margin/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_vote")
+text = "IBOTO ITO"
+
+[node name="WinnerBanner" type="PanelContainer" parent="Panel"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_winner_bg")
+
+[node name="WinnerLabel" type="Label" parent="Panel/WinnerBanner"]
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 24
+text = "★ NA-PILI: HAWAAN! ★\nHumanda na sa kalye!"
+horizontal_alignment = 1
+vertical_alignment = 1

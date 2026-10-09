@@ -51,6 +51,7 @@ const MVP_QUOTES: Array[String] = [
 
 func _ready() -> void:
 	if btn_lobby:
+		btn_lobby.text = "BUMALIK SA BARANGAY"
 		btn_lobby.pressed.connect(func(): rematch_requested.emit())
 	if btn_store:
 		btn_store.pressed.connect(_on_btn_store_pressed)
@@ -181,11 +182,11 @@ func _populate_awards_card(awards_data: Dictionary) -> void:
 		c.queue_free()
 
 	var awards_def: Array[Dictionary] = [
-		{ "icon": "🏃", "title": "Best Chaser", "key": "chaser" },
-		{ "icon": "🩴", "title": "Spartan Sniper", "key": "sniper" },
-		{ "icon": "🍌", "title": "Hari ng Dulas", "key": "dulas" },
-		{ "icon": "🗑️", "title": "Basura King", "key": "basura" },
-		{ "icon": "🛢️", "title": "Ninja ng Drum", "key": "ninja" }
+		{ "icon": "👑", "title": "TAYA MASTER", "key": "taya_master" },
+		{ "icon": "🏃‍♂️", "title": "ESCAPE ARTIST", "key": "escape_artist" },
+		{ "icon": "🤸", "title": "VAULT KING", "key": "vault_king" },
+		{ "icon": "⚡", "title": "SPRINT KING", "key": "sprint_king" },
+		{ "icon": "🗑️", "title": "BASURA CHAMPION", "key": "basura" }
 	]
 
 	for a in awards_def:

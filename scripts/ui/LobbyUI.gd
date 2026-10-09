@@ -41,8 +41,27 @@ var current_tab: LobbyTab = LobbyTab.HOTSPOT_SOLO
 @onready var preview_viewport_container: SubViewportContainer = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer")
 @onready var preview_sub_viewport: SubViewport = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer/PreviewSubViewport")
 @onready var preview_char: CharacterAnimator = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer/PreviewSubViewport/PreviewChar")
-@onready var btn_prev_char: Button = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/BtnPrevChar")
-@onready var btn_next_char: Button = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/BtnNextChar")
+var _btn_prev_char_node: Button = null
+var btn_prev_char: Button:
+	get:
+		if not is_instance_valid(_btn_prev_char_node):
+			_btn_prev_char_node = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/BtnPrevChar")
+			if _btn_prev_char_node and not _signals_connected:
+				_connect_internal_signals()
+		return _btn_prev_char_node
+	set(v):
+		_btn_prev_char_node = v
+
+var _btn_next_char_node: Button = null
+var btn_next_char: Button:
+	get:
+		if not is_instance_valid(_btn_next_char_node):
+			_btn_next_char_node = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/BtnNextChar")
+			if _btn_next_char_node and not _signals_connected:
+				_connect_internal_signals()
+		return _btn_next_char_node
+	set(v):
+		_btn_next_char_node = v
 @onready var char_name_label: Label = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/DetailsPill/HBox/CharName")
 @onready var char_count_label: Label = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/DetailsPill/HBox/CharCount")
 @onready var char_desc_label: Label = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/CharDesc")
@@ -105,6 +124,9 @@ var current_color_idx: int = 0
 var is_in_room: bool = false
 var is_room_host: bool = false
 
+func _enter_tree() -> void:
+	_init_references()
+
 func _ready() -> void:
 	_init_references()
 	_connect_internal_signals()
@@ -120,8 +142,8 @@ func _init_references() -> void:
 	if not preview_viewport_container: preview_viewport_container = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer")
 	if not preview_sub_viewport: preview_sub_viewport = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer/PreviewSubViewport")
 	if not preview_char: preview_char = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer/PreviewSubViewport/PreviewChar")
-	if not btn_prev_char: btn_prev_char = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/BtnPrevChar")
-	if not btn_next_char: btn_next_char = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/BtnNextChar")
+	if not _btn_prev_char_node: _btn_prev_char_node = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/BtnPrevChar")
+	if not _btn_next_char_node: _btn_next_char_node = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/BtnNextChar")
 	if not char_name_label: char_name_label = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/DetailsPill/HBox/CharName")
 	if not char_count_label: char_count_label = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/DetailsPill/HBox/CharCount")
 	if not char_desc_label: char_desc_label = get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/CharDesc")
@@ -176,6 +198,7 @@ var _signals_connected: bool = false
 func _connect_internal_signals() -> void:
 	if _signals_connected:
 		return
+	_init_references()
 	_signals_connected = true
 
 	if btn_main_menu:

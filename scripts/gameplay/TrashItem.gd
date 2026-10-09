@@ -215,10 +215,9 @@ func _play_pickup_animation_and_collect(player: PlayerController) -> void:
 		pickup_particles.emitting = true
 
 	# Play audio
-	if Engine.has_singleton("AudioManager"):
-		AudioManager.play_pickup()
-	elif has_node("/root/AudioManager"):
-		get_node("/root/AudioManager").play_pickup()
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_pickup"):
+		am.play_pickup()
 
 	# Quick smooth suction / fly toward player tween
 	if visual_root:
