@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dx1s2677hkr0w"
-path="res://.godot/imported/test.glb-910e07af92ccad4cd8f99f9acfe2f73a.scn"
+uid="uid://bdlktqtmqiidm"
+path="res://.godot/imported/Batang Kalye.glb-148132a927692099e81d4c43133b8498.scn"
 
 [deps]
 
-source_file="res://assets/models/For maps/test.glb"
-dest_files=["res://.godot/imported/test.glb-910e07af92ccad4cd8f99f9acfe2f73a.scn"]
+source_file="res://assets/models/For maps/Batang Kalye.glb"
+dest_files=["res://.godot/imported/Batang Kalye.glb-148132a927692099e81d4c43133b8498.scn"]
 
 [params]
 

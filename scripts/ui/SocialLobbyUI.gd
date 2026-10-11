@@ -74,4 +74,12 @@ func update_lobby_info(room_name: String, ip_str: String, count: int, max_player
 	if player_count_label:
 		player_count_label.text = "MGA BATA: %d / %d" % [count, max_players]
 	if btn_start_vote:
-		btn_start_vote.visible = is_host
+		btn_start_vote.visible = false # 3D buzzer podium in court handles voting
+
+func set_voting_active(active: bool) -> void:
+	if btn_start_vote:
+		btn_start_vote.disabled = active
+		if active:
+			btn_start_vote.text = "BUMOBOTO NA..."
+		else:
+			btn_start_vote.text = "★ BUMOTO NG LARO ★"

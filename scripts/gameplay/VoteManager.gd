@@ -65,6 +65,8 @@ func is_server_or_solo() -> bool:
 func start_voting(duration: float = 10.0) -> void:
 	if not is_server_or_solo():
 		return
+	if is_voting:
+		return # Prevent accidental duplicate voting triggers
 	is_voting = true
 	vote_duration = duration
 	vote_timer = duration
@@ -76,6 +78,32 @@ func start_voting(duration: float = 10.0) -> void:
 		rpc("sync_start_voting", duration)
 	else:
 		_on_client_start_voting(duration)
+
+func request_start_voting(duration: float = 10.0) -> void:
+	if is_server_or_solo():
+		start_voting(duration)
+	elif multiplayer.has_multiplayer_peer():
+		rpc_id(1, "request_start_voting_rpc", duration)
+
+@rpc("any_peer", "reliable")
+func request_start_voting_rpc(duration: float = 10.0) -> void:
+	if is_server_or_solo():
+		start_voting(duration)
+
+func sync_late_join_to_peer(peer_id: int) -> void:
+	if not is_server_or_solo() or not is_voting:
+		return
+	if multiplayer.has_multiplayer_peer():
+		rpc_id(peer_id, "sync_late_join_voting_state", current_counts, vote_timer, vote_duration)
+
+@rpc("authority", "reliable")
+func sync_late_join_voting_state(counts: Dictionary, time_left: float, duration: float) -> void:
+	is_voting = true
+	vote_timer = time_left
+	vote_duration = duration
+	current_counts = counts
+	vote_started.emit(time_left)
+	vote_updated.emit(counts, time_left)
 
 @rpc("call_local", "reliable")
 func sync_start_voting(duration: float) -> void:
@@ -116,6 +144,9 @@ func submit_vote_rpc(peer_id: int, mode_id: int) -> void:
 func sync_vote_state(counts: Dictionary, time_left: float) -> void:
 	current_counts = counts
 	vote_timer = time_left
+	if not is_voting and time_left > 0.0:
+		is_voting = true
+		vote_started.emit(time_left)
 	vote_updated.emit(counts, time_left)
 
 func _recalc_counts() -> void:

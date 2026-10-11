@@ -17,6 +17,7 @@ signal player_voted_at_station(mode_id: int)
 @onready var station_light: OmniLight3D = get_node_or_null("StationLight")
 @onready var victory_beam: CSGCylinder3D = get_node_or_null("VictoryBeam")
 @onready var border_ring: CSGTorus3D = get_node_or_null("BorderRing")
+@onready var station_button_dome: CSGCylinder3D = get_node_or_null("StationButton/ButtonCap")
 
 var vote_manager: Node = null
 var is_local_player_inside: bool = false
@@ -37,7 +38,7 @@ func _setup_visuals() -> void:
 	if label_votes:
 		label_votes.text = "0 BOTO"
 	if label_prompt:
-		label_prompt.text = "TUMAKBO DITO PARA BUMOTO"
+		label_prompt.text = "[E] / [TAP] PINDUTIN O TUMAKBO DITO"
 	if station_light:
 		station_light.light_color = theme_color
 		station_light.light_energy = base_light_energy
@@ -50,6 +51,13 @@ func _setup_visuals() -> void:
 		mat.emission = theme_color
 		mat.emission_energy_multiplier = 1.8
 		border_ring.material = mat
+	if station_button_dome and station_button_dome.material is StandardMaterial3D:
+		var b_mat: StandardMaterial3D = station_button_dome.material.duplicate()
+		b_mat.albedo_color = theme_color
+		b_mat.emission_enabled = true
+		b_mat.emission = theme_color
+		b_mat.emission_energy_multiplier = 2.2
+		station_button_dome.material = b_mat
 
 func _connect_trigger() -> void:
 	if trigger_area:
@@ -86,6 +94,48 @@ func _process(delta: float) -> void:
 	if victory_beam and victory_beam.visible:
 		victory_beam.rotation.y += delta * 1.5
 
+func get_interaction_action() -> String:
+	return "IBOTO (%s)" % mode_name
+
+func get_interaction_icon() -> String:
+	return mode_icon
+
+func interact(player: PlayerController = null) -> void:
+	if not vote_manager:
+		_find_and_connect_vote_manager()
+
+	_animate_station_button()
+
+	if vote_manager:
+		if not vote_manager.get("is_voting"):
+			if vote_manager.has_method("request_start_voting"):
+				vote_manager.request_start_voting(10.0)
+			elif vote_manager.has_method("start_voting"):
+				vote_manager.start_voting(10.0)
+		vote_manager.cast_vote(mode_id)
+		player_voted_at_station.emit(mode_id)
+
+	if label_prompt:
+		label_prompt.text = "✓ NAPILI MO NA ITO!"
+		label_prompt.modulate = Color(1.0, 0.95, 0.2)
+
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_vote"):
+		am.play_vote()
+	elif am and am.has_method("play_score_ding"):
+		am.play_score_ding()
+
+func _animate_station_button() -> void:
+	if station_button_dome:
+		var orig_y: float = station_button_dome.position.y
+		var tw := create_tween()
+		tw.tween_property(station_button_dome, "position:y", orig_y - 0.06, 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tw.tween_property(station_button_dome, "position:y", orig_y, 0.16).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	base_light_energy = 3.2
+	get_tree().create_timer(0.4).timeout.connect(func():
+		base_light_energy = 1.8
+	)
+
 func _on_body_entered(body: Node3D) -> void:
 	if not (body is PlayerController):
 		return
@@ -95,11 +145,14 @@ func _on_body_entered(body: Node3D) -> void:
 		return
 
 	is_local_player_inside = true
+	if player.has_method("register_nearby_interactable"):
+		player.register_nearby_interactable(self)
 
 	# Cast vote if voting is currently underway
 	if vote_manager and vote_manager.get("is_voting"):
 		vote_manager.cast_vote(mode_id)
 		player_voted_at_station.emit(mode_id)
+		_animate_station_button()
 
 		# Visual & Audio feedback
 		if label_prompt:
@@ -111,15 +164,9 @@ func _on_body_entered(body: Node3D) -> void:
 			am.play_vote()
 		elif am and am.has_method("play_score_ding"):
 			am.play_score_ding()
-
-		# Trigger pop animation on light
-		base_light_energy = 3.2
-		get_tree().create_timer(0.4).timeout.connect(func():
-			base_light_energy = 1.8
-		)
 	else:
 		if label_prompt:
-			label_prompt.text = "%s (%s)" % [mode_name, tagline]
+			label_prompt.text = "%s (%s) - [E] Bumoto" % [mode_name, tagline]
 
 func _on_body_exited(body: Node3D) -> void:
 	if not (body is PlayerController):
@@ -130,8 +177,10 @@ func _on_body_exited(body: Node3D) -> void:
 		return
 
 	is_local_player_inside = false
+	if player.has_method("unregister_nearby_interactable"):
+		player.unregister_nearby_interactable(self)
 
-func _on_vote_started(duration: float) -> void:
+func _on_vote_started(_duration: float) -> void:
 	if victory_beam:
 		victory_beam.visible = false
 	base_light_energy = 1.8
@@ -148,7 +197,7 @@ func _on_vote_started(duration: float) -> void:
 			label_prompt.text = "✓ NAPILI MO NA ITO!"
 			label_prompt.modulate = Color(1.0, 0.95, 0.2)
 
-func _on_vote_updated(vote_counts: Dictionary, time_left: float) -> void:
+func _on_vote_updated(vote_counts: Dictionary, _time_left: float) -> void:
 	var c: int = vote_counts.get(mode_id, 0)
 	if label_votes:
 		label_votes.text = "%d BOTO" % c

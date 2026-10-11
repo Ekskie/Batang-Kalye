@@ -87,7 +87,7 @@ func display_game_over(players_data: Array[Dictionary], match_meta: Dictionary, 
 		meta_players_label.text = "%d / %d" % [players_data.size(), match_meta.get("max_players", 8)]
 	if meta_duration_label:
 		var sec: int = int(match_meta.get("duration", 0.0))
-		meta_duration_label.text = "%02d:%02d" % [sec / 60, sec % 60]
+		meta_duration_label.text = "%02d:%02d" % [int(float(sec) / 60.0), sec % 60]
 	if meta_taya_label:
 		meta_taya_label.text = match_meta.get("taya_name", "Walang Taya")
 	if meta_mode_label:
@@ -207,9 +207,13 @@ func _populate_awards_card(awards_data: Dictionary) -> void:
 		row.add_child(title_label)
 
 		var name_label := Label.new()
-		name_label.text = winner
+		if winner == "Walang Award" or winner.is_empty():
+			name_label.text = "-"
+			name_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.62, 0.6))
+		else:
+			name_label.text = winner
+			name_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.35, 1.0))
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		name_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.35, 1.0))
 		name_label.add_theme_font_size_override("font_size", 12)
 		row.add_child(name_label)
 

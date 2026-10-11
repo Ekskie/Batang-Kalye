@@ -36,7 +36,7 @@ func _ready() -> void:
 			btn.pressed.connect(func(): _on_card_clicked(mode_idx))
 
 func _on_vote_started(duration: float) -> void:
-	visible = true
+	visible = false # Physical 3D button, scoreboard, and stations handle voting in 3D world
 	my_selected_mode = -1
 	if winner_banner:
 		winner_banner.visible = false

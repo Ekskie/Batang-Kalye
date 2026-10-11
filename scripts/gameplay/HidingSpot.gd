@@ -51,9 +51,10 @@ func _process(delta: float) -> void:
 			if visual_root:
 				visual_root.rotation = Vector3.ZERO
 
-		# Max time reached -> Eject!
+		# Max time reached -> Eject! (Authoritative on server or solo)
 		if hide_timer >= max_hide_duration:
-			eject_occupant(true)
+			if not multiplayer.has_multiplayer_peer() or multiplayer.is_server():
+				eject_occupant(true)
 
 	else:
 		if visual_root:
@@ -91,89 +92,212 @@ func _update_prompt() -> void:
 	else:
 		prompt_label.visible = false
 
+func _is_multiplayer_active() -> bool:
+	return is_inside_tree() and multiplayer != null and multiplayer.has_multiplayer_peer()
+
+func _is_multiplayer_server() -> bool:
+	return is_inside_tree() and multiplayer != null and multiplayer.has_multiplayer_peer() and multiplayer.is_server()
+
 func interact(player: PlayerController) -> void:
+	if not is_instance_valid(player):
+		return
+
+	# If this player is already the occupant, they are leaving
+	if is_occupied and occupant == player:
+		request_eject(player.player_id)
+		return
+
+	# If occupied by someone else, cannot enter
 	if is_occupied:
-		if player == occupant:
-			eject_occupant(false)
 		return
 
 	if player.current_role != PlayerController.Role.RUNNER or player.is_eliminated:
 		return
 
-	# Enter hiding spot
-	is_occupied = true
-	occupant = player
-	hide_timer = 0.0
-	wobble_intensity = 0.0
-
-	if player.has_method("enter_hiding_spot"):
-		player.call("enter_hiding_spot", self)
-
-	var am = get_node_or_null("/root/AudioManager")
-	if am and am.has_method("play_drum_hide"):
-		am.play_drum_hide()
-
-	var ft = preload("res://scripts/player/FloatingText.gd")
-	ft.spawn(get_parent(), global_position + Vector3(0, 1.8, 0), "NAGTATAGO...", Color(0.3, 0.8, 1.0))
-
-	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
-		rpc("sync_hide_state", player.player_id, true)
-
-func eject_occupant(forced: bool = false) -> void:
-	if not is_occupied or not is_instance_valid(occupant):
-		is_occupied = false
-		occupant = null
+	# In multiplayer, clients request the server authoritatively
+	if _is_multiplayer_active() and not multiplayer.is_server():
+		rpc_id(1, "request_interact_rpc", player.player_id)
 		return
 
-	var p := occupant
-	is_occupied = false
-	occupant = null
-	hide_timer = 0.0
+	# Authoritative execution on server or local/solo
+	_server_execute_enter_hiding(player)
 
-	if p.has_method("exit_hiding_spot"):
-		p.call("exit_hiding_spot")
+func _server_execute_enter_hiding(player: PlayerController) -> void:
+	if is_occupied or not is_instance_valid(player):
+		return
+	if player.current_role != PlayerController.Role.RUNNER or player.is_eliminated:
+		return
 
-	# Hop out
-	p.velocity = Vector3(randf_range(-2, 2), 6.5, randf_range(-2, 2))
-	if forced:
-		var ft = preload("res://scripts/player/FloatingText.gd")
-		ft.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "NAHULOG!", Color(1.0, 0.7, 0.2))
+	if _is_multiplayer_active():
+		rpc("sync_hide_state", player.player_id, true)
+	else:
+		sync_hide_state(player.player_id, true)
 
-	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
-		rpc("sync_hide_state", p.player_id, false)
+@rpc("any_peer", "reliable")
+func request_interact_rpc(pid: int) -> void:
+	if not _is_multiplayer_server():
+		return
+	var player := _find_player(pid)
+	if not is_instance_valid(player):
+		return
+	# Validate distance to spot
+	if global_position.distance_to(player.global_position) > 4.5:
+		return
+	interact(player)
+
+func request_eject(pid: int) -> void:
+	if _is_multiplayer_active() and not multiplayer.is_server():
+		rpc_id(1, "request_eject_rpc", pid)
+	else:
+		eject_occupant(false)
+
+@rpc("any_peer", "reliable")
+func request_eject_rpc(pid: int) -> void:
+	if not _is_multiplayer_server():
+		return
+	if is_occupied and is_instance_valid(occupant) and occupant.player_id == pid:
+		eject_occupant(false)
+	elif is_occupied:
+		var p := _find_player(pid)
+		if is_instance_valid(p) and p.is_hiding:
+			eject_occupant(false)
+
+func eject_occupant(forced: bool = false) -> void:
+	if not is_occupied:
+		return
+
+	var pid := occupant.player_id if is_instance_valid(occupant) else 0
+
+	if _is_multiplayer_server():
+		rpc("sync_hide_state", pid, false, forced)
+	else:
+		sync_hide_state(pid, false, forced)
 
 func on_taya_slap(taya: PlayerController) -> void:
-	# Taya slapped this drum!
+	if not is_instance_valid(taya):
+		return
+
+	if _is_multiplayer_active() and not multiplayer.is_server():
+		rpc_id(1, "request_slap_rpc", taya.player_id)
+		return
+
+	_server_execute_slap(taya)
+
+@rpc("any_peer", "reliable")
+func request_slap_rpc(taya_id: int) -> void:
+	if not _is_multiplayer_server():
+		return
+	var taya := _find_player(taya_id)
+	if not is_instance_valid(taya):
+		return
+	if global_position.distance_to(taya.global_position) > PlayerController.TAG_REACH + 1.5:
+		return
+	_server_execute_slap(taya)
+
+func _server_execute_slap(taya: PlayerController) -> void:
 	if is_occupied and is_instance_valid(occupant):
 		# SUCCESSFUL TAG!
 		var caught_player := occupant
 		eject_occupant(false)
 
-		var ft = preload("res://scripts/player/FloatingText.gd")
-		ft.spawn(get_parent(), global_position + Vector3(0, 2.2, 0), "HULI SA DRUM!", Color(1.0, 0.2, 0.2))
+		if is_inside_tree():
+			var ft = preload("res://scripts/player/FloatingText.gd")
+			var spot_name: String = "KARTON" if spot_type == SpotType.CARDBOARD_BOX else "DRUM"
+			var p_parent = get_parent()
+			if p_parent:
+				ft.spawn(p_parent, global_position + Vector3(0, 2.2, 0), "HULI SA %s!" % spot_name, Color(1.0, 0.2, 0.2))
 
 		if taya.has_method("perform_tag_on"):
 			taya.call("perform_tag_on", caught_player)
 	else:
 		# EMPTY SLAP! Stun Taya with hollow clang!
-		var am = get_node_or_null("/root/AudioManager")
-		if am and am.has_method("play_drum_clang"):
-			am.play_drum_clang()
-
-		if visual_root:
-			var tw := create_tween()
-			tw.tween_property(visual_root, "scale", Vector3(1.15, 0.85, 1.15), 0.08)
-			tw.tween_property(visual_root, "scale", Vector3.ONE, 0.12)
-
-		taya.call("apply_slipper_stun", 1.0, "Walang Laman!")
-		var ft = preload("res://scripts/player/FloatingText.gd")
-		ft.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "KLANG! WALANG TAO!", Color(1.0, 0.85, 0.2))
+		if _is_multiplayer_server():
+			rpc("sync_empty_slap", taya.player_id)
+		else:
+			sync_empty_slap(taya.player_id)
 
 @rpc("call_local", "reliable")
-func sync_hide_state(_pid: int, occupied: bool) -> void:
+func sync_empty_slap(taya_id: int) -> void:
+	var tree := get_tree()
+	var am = tree.root.get_node_or_null("AudioManager") if (tree and tree.root) else null
+	if am and am.has_method("play_drum_clang"):
+		am.play_drum_clang()
+
+	if visual_root:
+		var tw := create_tween()
+		tw.tween_property(visual_root, "scale", Vector3(1.15, 0.85, 1.15), 0.08)
+		tw.tween_property(visual_root, "scale", Vector3.ONE, 0.12)
+
+	var taya := _find_player(taya_id)
+	if is_instance_valid(taya):
+		taya.apply_slipper_stun(1.0, "Walang Laman!")
+
+	if is_inside_tree():
+		var p_parent = get_parent()
+		if p_parent:
+			var ft = preload("res://scripts/player/FloatingText.gd")
+			ft.spawn(p_parent, global_position + Vector3(0, 2.0, 0), "KLANG! WALANG TAO!", Color(1.0, 0.85, 0.2))
+
+@rpc("call_local", "reliable")
+func sync_hide_state(pid: int, occupied: bool, forced: bool = false) -> void:
 	is_occupied = occupied
-	if not occupied:
+	var p := _find_player(pid)
+
+	if occupied:
+		hide_timer = 0.0
+		wobble_intensity = 0.0
+		if is_instance_valid(p):
+			occupant = p
+			p.enter_hiding_spot(self)
+
+		var tree := get_tree()
+		var am = tree.root.get_node_or_null("AudioManager") if (tree and tree.root) else null
+		if am and am.has_method("play_drum_hide"):
+			am.play_drum_hide()
+
+		if is_inside_tree():
+			var p_parent = get_parent()
+			if p_parent:
+				var ft = preload("res://scripts/player/FloatingText.gd")
+				ft.spawn(p_parent, global_position + Vector3(0, 1.8, 0), "NAGTATAGO...", Color(0.3, 0.8, 1.0))
+	else:
+		var exiting_player := occupant if is_instance_valid(occupant) else p
+		is_occupied = false
 		occupant = null
+		hide_timer = 0.0
+		wobble_intensity = 0.0
+		if visual_root:
+			visual_root.rotation = Vector3.ZERO
+
+		if is_instance_valid(exiting_player):
+			exiting_player.exit_hiding_spot()
+			exiting_player.velocity = Vector3(randf_range(-2, 2), 6.5, randf_range(-2, 2))
+
+		if forced and is_inside_tree():
+			var p_parent = get_parent()
+			if p_parent:
+				var ft = preload("res://scripts/player/FloatingText.gd")
+				ft.spawn(p_parent, global_position + Vector3(0, 2.0, 0), "NAHULOG!", Color(1.0, 0.7, 0.2))
+
+func _find_player(pid: int) -> PlayerController:
+	if is_instance_valid(occupant) and occupant.player_id == pid:
+		return occupant
+	for np in nearby_players:
+		if is_instance_valid(np) and np.player_id == pid:
+			return np
+	if not is_inside_tree():
+		return null
+	var tree := get_tree()
+	if tree and tree.root:
+		var players_container = tree.root.get_node_or_null("Main/Players")
+		if players_container:
+			var p = players_container.get_node_or_null(str(pid))
+			if p is PlayerController:
+				return p
+		for p in tree.get_nodes_in_group("players"):
+			if p is PlayerController and p.player_id == pid:
+				return p
+	return null
 
 func _on_body_entered(body: Node3D) -> void:
 	if body is PlayerController and not nearby_players.has(body):

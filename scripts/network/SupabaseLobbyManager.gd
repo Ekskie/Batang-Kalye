@@ -27,6 +27,8 @@ var supabase_anon_key: String = DEFAULT_SUPABASE_ANON_KEY
 var current_lobby_id: String = ""
 var current_lobby_name: String = ""
 var is_hosting_lobby: bool = false
+const SESSION_FILE_PATH: String = "user://active_lobby_session.json"
+
 var detected_public_ip: String = ""
 
 # Internal HTTP Request nodes
@@ -34,6 +36,7 @@ var _http_fetch: HTTPRequest
 var _http_create: HTTPRequest
 var _http_heartbeat: HTTPRequest
 var _http_delete: HTTPRequest
+var _http_prune: HTTPRequest
 var _http_ip: HTTPRequest
 var _heartbeat_timer: Timer
 
@@ -41,6 +44,7 @@ func _ready() -> void:
 	_init_http_nodes()
 	load_config()
 	_detect_public_ip()
+	_cleanup_abandoned_session()
 
 func _init_http_nodes() -> void:
 	_http_fetch = HTTPRequest.new()
@@ -62,6 +66,10 @@ func _init_http_nodes() -> void:
 	_http_delete.timeout = 8.0
 	_http_delete.request_completed.connect(_on_delete_completed)
 	add_child(_http_delete)
+
+	_http_prune = HTTPRequest.new()
+	_http_prune.timeout = 8.0
+	add_child(_http_prune)
 
 	_http_ip = HTTPRequest.new()
 	_http_ip.timeout = 5.0
@@ -212,7 +220,38 @@ func _on_fetch_completed(result: int, response_code: int, _headers: PackedString
 	var text := body.get_string_from_utf8()
 	var parsed = JSON.parse_string(text)
 	if parsed is Array:
-		lobbies_fetched.emit(parsed)
+		var valid_lobbies: Array = []
+		var stale_ids: Array[String] = []
+		var now_unix: float = Time.get_unix_time_from_system()
+
+		for lobby_item in parsed:
+			if not lobby_item is Dictionary:
+				continue
+			
+			# Check heartbeat staleness (45 seconds TTL)
+			var time_str: String = str(lobby_item.get("updated_at", ""))
+			if time_str.is_empty():
+				time_str = str(lobby_item.get("created_at", ""))
+			
+			var is_stale := false
+			if not time_str.is_empty():
+				var clean_time := time_str.split(".")[0] # Strip microseconds/tz
+				var dt_unix := Time.get_unix_time_from_datetime_string(clean_time)
+				if dt_unix > 0 and (now_unix - dt_unix) > 45.0:
+					is_stale = true
+
+			if is_stale:
+				var ghost_id := str(lobby_item.get("id", "")).strip_edges()
+				if not ghost_id.is_empty():
+					stale_ids.append(ghost_id)
+			else:
+				valid_lobbies.append(lobby_item)
+
+		# Auto-prune ghost lobbies in the background
+		if not stale_ids.is_empty():
+			_prune_stale_lobbies(stale_ids)
+
+		lobbies_fetched.emit(valid_lobbies)
 	else:
 		lobbies_fetched.emit([])
 
@@ -241,7 +280,8 @@ func register_lobby(lobby_name: String, host_name: String, address: String, port
 		"player_count": 1,
 		"max_players": max_p,
 		"game_mode": mode_name,
-		"is_started": false
+		"is_started": false,
+		"updated_at": Time.get_datetime_string_from_system(true) + "Z"
 	}
 
 	current_lobby_name = lobby_name
@@ -266,12 +306,14 @@ func _on_create_completed(result: int, response_code: int, _headers: PackedStrin
 		var row: Dictionary = parsed[0]
 		current_lobby_id = str(row.get("id", ""))
 		is_hosting_lobby = true
+		_save_active_session()
 		_heartbeat_timer.start()
 		lobby_created.emit(row)
 		print("[SupabaseLobbyManager] Lobby registered with ID: ", current_lobby_id)
 	elif parsed is Dictionary:
 		current_lobby_id = str(parsed.get("id", ""))
 		is_hosting_lobby = true
+		_save_active_session()
 		_heartbeat_timer.start()
 		lobby_created.emit(parsed)
 		print("[SupabaseLobbyManager] Lobby registered with ID: ", current_lobby_id)
@@ -290,8 +332,12 @@ func update_lobby(player_count: int, is_started: bool = false) -> void:
 	var headers := get_auth_headers()
 	var payload := {
 		"player_count": player_count,
-		"is_started": is_started
+		"is_started": is_started,
+		"updated_at": Time.get_datetime_string_from_system(true) + "Z"
 	}
+
+	if not _http_heartbeat or _http_heartbeat.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
+		return
 
 	var body := JSON.stringify(payload)
 	_http_heartbeat.request(endpoint, headers, HTTPClient.METHOD_PATCH, body)
@@ -313,7 +359,7 @@ func _on_heartbeat_completed(_result: int, response_code: int, _headers: PackedS
 		lobby_updated.emit()
 
 # ==============================================================================
-# LOBBY REMOVAL (DELETE)
+# LOBBY REMOVAL (DELETE) & GHOST PRUNING
 # ==============================================================================
 
 func delete_lobby() -> void:
@@ -321,7 +367,8 @@ func delete_lobby() -> void:
 		_cleanup_local_lobby_state()
 		return
 
-	var endpoint := supabase_url + "/rest/v1/lobbies?id=eq." + current_lobby_id
+	var target_id := current_lobby_id
+	var endpoint := supabase_url + "/rest/v1/lobbies?id=eq." + target_id
 	var headers := PackedStringArray([
 		"apikey: " + supabase_anon_key,
 		"Authorization: Bearer " + supabase_anon_key
@@ -330,12 +377,64 @@ func delete_lobby() -> void:
 	_http_delete.request(endpoint, headers, HTTPClient.METHOD_DELETE)
 	_cleanup_local_lobby_state()
 
+func delete_lobby_by_id(lobby_id: String) -> void:
+	if lobby_id.is_empty() or not is_configured():
+		return
+	var endpoint := supabase_url + "/rest/v1/lobbies?id=eq." + lobby_id
+	var headers := PackedStringArray([
+		"apikey: " + supabase_anon_key,
+		"Authorization: Bearer " + supabase_anon_key
+	])
+	if _http_delete:
+		_http_delete.request(endpoint, headers, HTTPClient.METHOD_DELETE)
+
+func _prune_stale_lobbies(stale_ids: Array[String]) -> void:
+	if stale_ids.is_empty() or not is_configured() or not _http_prune:
+		return
+	var id_list := ",".join(stale_ids)
+	var endpoint := supabase_url + "/rest/v1/lobbies?id=in.(" + id_list + ")"
+	var headers := PackedStringArray([
+		"apikey: " + supabase_anon_key,
+		"Authorization: Bearer " + supabase_anon_key
+	])
+	_http_prune.request(endpoint, headers, HTTPClient.METHOD_DELETE)
+	print("[SupabaseLobbyManager] Pruned %d stale ghost lobbies: %s" % [stale_ids.size(), id_list])
+
 func _on_delete_completed(_result: int, _response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
 	lobby_deleted.emit()
 	print("[SupabaseLobbyManager] Lobby deleted from Supabase.")
 
 func _cleanup_local_lobby_state() -> void:
-	_heartbeat_timer.stop()
+	if _heartbeat_timer:
+		_heartbeat_timer.stop()
 	current_lobby_id = ""
 	current_lobby_name = ""
 	is_hosting_lobby = false
+	_clear_active_session()
+
+func _save_active_session() -> void:
+	if current_lobby_id.is_empty():
+		return
+	var file := FileAccess.open(SESSION_FILE_PATH, FileAccess.WRITE)
+	if file:
+		var data := {"lobby_id": current_lobby_id}
+		file.store_string(JSON.stringify(data))
+		file.close()
+
+func _clear_active_session() -> void:
+	if FileAccess.file_exists(SESSION_FILE_PATH):
+		DirAccess.remove_absolute(SESSION_FILE_PATH)
+
+func _cleanup_abandoned_session() -> void:
+	if FileAccess.file_exists(SESSION_FILE_PATH):
+		var file := FileAccess.open(SESSION_FILE_PATH, FileAccess.READ)
+		if file:
+			var txt := file.get_as_text()
+			file.close()
+			var parsed = JSON.parse_string(txt)
+			if parsed is Dictionary and parsed.has("lobby_id"):
+				var old_id: String = str(parsed["lobby_id"]).strip_edges()
+				if not old_id.is_empty():
+					print("[SupabaseLobbyManager] Cleaning up abandoned lobby session from previous run: ", old_id)
+					delete_lobby_by_id(old_id)
+		DirAccess.remove_absolute(SESSION_FILE_PATH)

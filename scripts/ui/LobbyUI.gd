@@ -102,7 +102,6 @@ const SWIPE_THRESHOLD: float = 45.0
 
 # Create Room Sub-Panel Controls
 @onready var create_name_input: LineEdit = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/NameRow/CreateNameInput")
-@onready var mode_option: OptionButton = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/ModeRow/ModeOption")
 @onready var duration_option: OptionButton = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/DurationRow/DurationOption")
 @onready var players_slider: HSlider = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/PlayersRow/PlayersSlider")
 @onready var players_slider_val: Label = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/PlayersRow/Val")
@@ -173,7 +172,6 @@ func _init_references() -> void:
 	if not btn_refresh_lobbies: btn_refresh_lobbies = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelLobbies/BtnRefreshLobbies")
 
 	if not create_name_input: create_name_input = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/NameRow/CreateNameInput")
-	if not mode_option: mode_option = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/ModeRow/ModeOption")
 	if not duration_option: duration_option = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/DurationRow/DurationOption")
 	if not players_slider: players_slider = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/PlayersRow/PlayersSlider")
 	if not players_slider_val: players_slider_val = get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelCreate/PlayersRow/Val")
@@ -319,12 +317,6 @@ func _on_viewport_frame_input(event: InputEvent) -> void:
 			swipe_start_pos = mouse_motion.position
 
 func _setup_options() -> void:
-	if mode_option:
-		mode_option.clear()
-		mode_option.add_item("Pasa-Taya: Matira Matibay", 0)
-		mode_option.add_item("Hawaan: Zombie Outbreak", 1)
-		mode_option.add_item("Walang Bawian: Points Tag", 2)
-
 	if duration_option:
 		duration_option.clear()
 		duration_option.add_item("30 Segundo (Mabilis)", 30)
@@ -400,7 +392,7 @@ func _on_create_submit_pressed() -> void:
 	var r_name: String = create_name_input.text.strip_edges() if create_name_input else "Tambayan Room"
 	if r_name.is_empty():
 		r_name = "Tambayan Room"
-	var mode_id: int = mode_option.get_selected_id() if mode_option else 0
+	var mode_id: int = 0 # Mode is selected dynamically via 3D court voting
 	var dur_id: float = float(duration_option.get_selected_id()) if duration_option else 45.0
 	var max_p: int = int(players_slider.value) if players_slider else 8
 	create_room_submitted.emit(r_name, mode_id, dur_id, max_p)

@@ -116,6 +116,7 @@ theme_override_font_sizes/font_size = 13
 text = "MGA BATA: 1 / 24"
 
 [node name="BtnStartVote" type="Button" parent="TopBar/Margin/HBox"]
+visible = false
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_vote")
 text = "★ BUMOTO NG LARO ★"

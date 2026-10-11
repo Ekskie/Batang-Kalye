@@ -6,6 +6,7 @@ signal join_success()
 signal join_failed()
 signal player_list_updated()
 signal player_registered(peer_id: int)
+signal player_disconnected(peer_id: int)
 signal server_disconnected()
 
 const WebRTCSignalerScript = preload("res://scripts/network/WebRTCSignaler.gd")
@@ -481,6 +482,7 @@ func _on_peer_disconnected(id: int) -> void:
 		if conn:
 			conn.close()
 		webrtc_peers.erase(id)
+	player_disconnected.emit(id)
 	if players.has(id):
 		players.erase(id)
 		player_list_updated.emit()

@@ -54,10 +54,10 @@ func _get_mode_display_name() -> String:
 		MatchMode.PASA_TAYA_ELIMINATION:
 			return "Pasa-Taya"
 		MatchMode.INFECTION:
-			return "Hawaan"
+			return "Infected Base"
 		MatchMode.CLASSIC_TAG:
-			return "Walang Bawian"
-	return "Taya-Tayaan"
+			return "Normal Taayan"
+	return "Normal Taayan"
 
 func get_available_maps() -> Array[Dictionary]:
 	var list: Array[Dictionary] = []
@@ -78,7 +78,7 @@ func switch_to_lobby_map() -> void:
 	_set_active_map(LOBBY_MAP_PATH)
 
 func _set_active_map(scene_path: String) -> void:
-	if current_loaded_map_path == scene_path and is_instance_valid(map_node):
+	if current_loaded_map_path == scene_path and is_instance_valid(map_node) and map_node.name == "KalyeMap":
 		return
 
 	var map_scene: PackedScene = load(scene_path)
@@ -87,18 +87,33 @@ func _set_active_map(scene_path: String) -> void:
 		return
 
 	var old_map = map_node
+	# Clean up any existing KalyeMap or old map node FIRST before adding the new map.
+	# This guarantees the new map node is deterministically named "KalyeMap" on all peers,
+	# completely preventing Godot's automatic sibling collision renaming (@Node3D@xxx)
+	# which breaks multiplayer RPC routing paths (e.g. Main/KalyeMap/HidingSpots/HidingBox2).
+	if is_instance_valid(old_map):
+		old_map.name = "KalyeMap_Old"
+		if old_map.get_parent() == self:
+			remove_child(old_map)
+		old_map.queue_free()
+
+	var existing_node = get_node_or_null("KalyeMap")
+	if is_instance_valid(existing_node):
+		existing_node.name = "KalyeMap_Old"
+		if existing_node.get_parent() == self:
+			remove_child(existing_node)
+		existing_node.queue_free()
+
 	var new_map: Node3D = map_scene.instantiate() as Node3D
 	new_map.name = "KalyeMap"
 
 	add_child(new_map)
+	new_map.name = "KalyeMap"
 	if players_container:
 		move_child(new_map, players_container.get_index())
 
 	map_node = new_map
 	current_loaded_map_path = scene_path
-
-	if is_instance_valid(old_map) and old_map != new_map:
-		old_map.queue_free()
 
 const COLOR_OPTIONS: Array[Dictionary] = [
 	{ "name": "Puting Sando (Clean White)", "color": Color(0.95, 0.95, 0.95, 1.0) },
@@ -572,6 +587,11 @@ func _init_node_references() -> void:
 	if not btn_close_settings: btn_close_settings = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/BtnCloseSettings")
 	if not fps_label: fps_label = get_node_or_null("FpsOverlay/FpsLabel")
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_PREDELETE:
+		if supabase_manager and supabase_manager.is_hosting_lobby:
+			supabase_manager.delete_lobby()
+
 func _ready() -> void:
 	# Lock orientation to landscape on mobile / handheld devices
 	if DisplayServer.has_feature(DisplayServer.FEATURE_ORIENTATION):
@@ -622,6 +642,14 @@ func _ready() -> void:
 		vote_manager.name = "VoteManager"
 		add_child(vote_manager)
 		vote_manager.vote_ended.connect(_on_vote_ended_flow)
+		vote_manager.vote_started.connect(func(_dur: float):
+			if social_lobby_ui and social_lobby_ui.has_method("set_voting_active"):
+				social_lobby_ui.set_voting_active(true)
+		)
+		vote_manager.vote_ended.connect(func(_m: int):
+			if social_lobby_ui and social_lobby_ui.has_method("set_voting_active"):
+				social_lobby_ui.set_voting_active(false)
+		)
 
 	if vote_ui_scene:
 		vote_ui = vote_ui_scene.instantiate() as Control
@@ -689,6 +717,7 @@ func _setup_network_signals() -> void:
 	network_manager.join_failed.connect(_on_join_failed)
 	network_manager.player_list_updated.connect(_update_lobby_player_list)
 	network_manager.player_registered.connect(_on_player_registered_midgame)
+	network_manager.player_disconnected.connect(_on_player_disconnected)
 	network_manager.server_disconnected.connect(_on_server_disconnected)
 
 	if supabase_manager:
@@ -778,7 +807,11 @@ func _setup_ui_signals() -> void:
 	if btn_pause_lobby:
 		btn_pause_lobby.pressed.connect(_on_btn_pause_lobby_pressed)
 	if btn_pause_quit:
-		btn_pause_quit.pressed.connect(func(): get_tree().quit())
+		btn_pause_quit.pressed.connect(func():
+			if supabase_manager and supabase_manager.is_hosting_lobby:
+				supabase_manager.delete_lobby()
+			get_tree().quit()
+		)
 
 	# Quick Graphics Presets
 	if btn_preset_low:
@@ -913,17 +946,13 @@ func _on_lobby_create_room_submitted(r_name: String, mode_id: int, duration: flo
 		if supabase_manager:
 			supabase_manager.register_lobby(r_name, pname, "webrtc", 0, mode_name, max_players)
 		current_joined_room_name = r_name
-		if lobby_ui and lobby_ui.has_method("set_room_waiting_state"):
-			lobby_ui.set_room_waiting_state(true, true, r_name, { 1: { "name": pname, "is_host": true } }, max_players)
+		_enter_social_lobby_as_host()
 	else:
-		var ips := NetworkManager.get_local_ip_addresses()
-		var local_ip := ips[0] if not ips.is_empty() else "127.0.0.1"
 		var port := NetworkManager.DEFAULT_PORT
 		var err := network_manager.create_game(pname, port)
 		if err == OK:
 			current_joined_room_name = r_name
-			if lobby_ui and lobby_ui.has_method("set_room_waiting_state"):
-				lobby_ui.set_room_waiting_state(true, true, "%s (%s)" % [r_name, local_ip], { 1: { "name": pname, "is_host": true } }, max_players)
+			_enter_social_lobby_as_host()
 
 func _on_lobby_join_code_requested(_code: String) -> void:
 	if supabase_manager and supabase_manager.is_configured():
@@ -1828,6 +1857,8 @@ func _on_btn_solo_pressed() -> void:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 	_setup_round_timer()
+	if active_game_mode:
+		active_game_mode.start_mode(self)
 	_set_game_state(GameState.PLAYING)
 	if lobby_camera:
 		lobby_camera.current = false
@@ -1840,6 +1871,17 @@ func _on_btn_solo_pressed() -> void:
 	if am and am.has_method("play_whistle"):
 		am.play_whistle()
 
+func _server_process_tag_transfer(tagger_id: int, victim_id: int) -> void:
+	if not is_server_or_solo():
+		return
+	if network_manager and network_manager.players:
+		if network_manager.players.has(tagger_id) and current_mode != MatchMode.INFECTION:
+			network_manager.players[tagger_id]["role"] = 0
+		if network_manager.players.has(victim_id):
+			network_manager.players[victim_id]["role"] = 1
+	if hud:
+		hud.update_scoreboard(network_manager.players)
+
 func notify_tag_event(chaser_id: int, target_id: int) -> void:
 	if active_game_mode:
 		active_game_mode.on_player_tagged(self, chaser_id, target_id)
@@ -1850,6 +1892,11 @@ func notify_tag_event(chaser_id: int, target_id: int) -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func sync_tag_event(chaser_id: int, target_id: int) -> void:
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		var sender := multiplayer.get_remote_sender_id()
+		if sender != 1:
+			push_warning("Unauthorized sync_tag_event rejected from peer %d" % sender)
+			return
 	var chaser_name: String = "Chaser"
 	var target_name: String = "Runner"
 
@@ -1878,6 +1925,11 @@ func award_recycle_points(pid: int, pts: int = 30) -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func sync_recycle_points(pid: int, pts: int) -> void:
+	if multiplayer.has_multiplayer_peer():
+		var sender := multiplayer.get_remote_sender_id()
+		if sender != 0 and sender != 1:
+			push_warning("Unauthorized sync_recycle_points rejected from peer %d" % sender)
+			return
 	if network_manager.players.has(pid):
 		network_manager.players[pid]["score"] += pts
 	if hud:
@@ -1905,8 +1957,8 @@ func _start_match_flow() -> void:
 	if supabase_manager and supabase_manager.is_hosting_lobby:
 		supabase_manager.update_lobby(network_manager.players.size(), true)
 
-	_spawn_all_players()
 	_set_game_state(GameState.MAIBA_TAYA)
+	_spawn_all_players()
 
 	if is_server_or_solo():
 		maiba_manager.start_selection(alive_player_ids)
@@ -1965,7 +2017,7 @@ func _get_spawn_position_for_index(spawn_idx: int) -> Vector3:
 
 	# Procedural circular spawn scatter offset when spawn_idx >= spawn_points.size()
 	# Distributes overflow players in outward rings with golden-angle dispersal
-	var cycle: int = int(spawn_idx / num_points)
+	var cycle: int = int(float(spawn_idx) / float(num_points))
 	var ring_radius: float = 2.5 * float(cycle)
 	var angle: float = float(spawn_idx) * 2.3999632 # Golden ratio spiral angle in radians (~137.5 deg)
 	var scatter_offset: Vector3 = Vector3(cos(angle) * ring_radius, 0.0, sin(angle) * ring_radius)
@@ -1996,7 +2048,10 @@ func _spawn_single_player(int_pid: int, spawn_idx: int = 0) -> PlayerController:
 	player_instance.player_name = pinfo.get("name", "Player %d" % int_pid)
 
 	# Spawn point with procedural circular scatter for 24 players
-	player_instance.position = _get_spawn_position_for_index(spawn_idx)
+	if current_state == GameState.SOCIAL_LOBBY:
+		player_instance.position = _get_lobby_spawn_position(spawn_idx)
+	else:
+		player_instance.position = _get_spawn_position_for_index(spawn_idx)
 
 	players_container.add_child(player_instance)
 
@@ -2051,6 +2106,8 @@ func _on_player_registered_midgame(new_pid: int) -> void:
 		elif current_state == GameState.SOCIAL_LOBBY:
 			rpc("sync_spawn_new_player_lobby", new_pid)
 			rpc_id(new_pid, "sync_late_join_lobby", network_manager.players)
+			if vote_manager and vote_manager.is_voting:
+				vote_manager.sync_late_join_to_peer(new_pid)
 
 @rpc("call_local", "reliable")
 func sync_spawn_new_player(pid: int) -> void:
@@ -2071,6 +2128,7 @@ func sync_late_join_match(state: int, round_num: int, timer_left: float, mode: i
 	alive_player_ids.clear()
 	for pid in all_players.keys():
 		alive_player_ids.append(int(pid))
+	switch_to_match_map()
 	_spawn_all_players()
 	_set_game_state(state as GameState)
 
@@ -2120,8 +2178,6 @@ func _process(delta: float) -> void:
 			preview_char.rotate_y(delta * 0.8)
 			preview_char.animate(delta, 0.0, true, 7.0)
 	elif current_state == GameState.PLAYING:
-		if active_game_mode:
-			active_game_mode.process_mode(self, delta)
 		if is_intermission:
 			intermission_timer -= delta
 			if hud:
@@ -2129,6 +2185,9 @@ func _process(delta: float) -> void:
 			if is_server_or_solo() and intermission_timer <= 0.0:
 				_start_next_round()
 			return
+
+		if active_game_mode:
+			active_game_mode.process_mode(self, delta)
 
 		match_timer -= delta
 		if hud:
@@ -2144,33 +2203,23 @@ func _process(delta: float) -> void:
 					am.play_tick()
 
 		# Update local player hud
-		var my_id := multiplayer.get_unique_id()
+		var my_id := multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
 		var my_node: PlayerController = players_container.get_node_or_null(str(my_id))
 		if my_node:
-			hud.update_role_display(my_node.current_role == PlayerController.Role.TAYA)
+			hud.update_role_display(my_node.current_role == PlayerController.Role.TAYA, my_node.is_eliminated)
 			hud.update_score(my_node.survival_time, my_node.tag_count, my_node.current_role == PlayerController.Role.TAYA)
-
-		# Infection early win condition check: if 0 runners left
-		if current_mode == MatchMode.INFECTION and is_server_or_solo():
-			var alive_runners: int = 0
-			for p in players_container.get_children():
-				if p is PlayerController and not p.is_eliminated and p.current_role == PlayerController.Role.RUNNER:
-					alive_runners += 1
-			if alive_runners == 0:
-				if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
-					rpc("sync_infection_game_over", true)
-				else:
-					sync_infection_game_over(true)
-				return
 
 		if hud:
 			hud.update_scoreboard(network_manager.players)
 			hud.update_round_badge(current_round, _get_mode_display_name(), alive_player_ids.size(), network_manager.players.size())
 
-		if is_server_or_solo() and match_timer <= 0.0:
+		# Fallback round timer expiry if active_game_mode is absent
+		if not active_game_mode and is_server_or_solo() and match_timer <= 0.0:
 			_on_round_timer_expired()
 
 func _on_round_timer_expired() -> void:
+	if is_intermission:
+		return
 	match current_mode:
 		MatchMode.CLASSIC_TAG:
 			if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
@@ -2270,8 +2319,9 @@ func sync_next_round_start(next_round: int) -> void:
 	for pid in alive_player_ids:
 		var pnode: PlayerController = players_container.get_node_or_null(str(pid)) as PlayerController
 		if pnode:
-			pnode.global_position = _get_spawn_position_for_index(sp_idx)
+			var next_pos := _get_spawn_position_for_index(sp_idx)
 			sp_idx += 1
+			pnode.reset_network_interpolation(next_pos)
 			pnode.velocity = Vector3.ZERO
 			pnode.is_stunned = false
 			pnode.is_immune = false
@@ -2313,6 +2363,8 @@ func sync_assign_multi_taya(taya_ids: Array) -> void:
 				p.current_role = PlayerController.Role.RUNNER
 				if network_manager and network_manager.players.has(p.player_id):
 					network_manager.players[p.player_id]["role"] = 0
+			if p.has_method("_update_role_state"):
+				p._update_role_state()
 	if hud and network_manager:
 		hud.update_scoreboard(network_manager.players)
 
@@ -2323,6 +2375,9 @@ func sync_assign_taya(taya_id: int) -> void:
 @rpc("call_local", "reliable")
 func sync_tournament_winner(winner_id: int) -> void:
 	_set_game_state(GameState.GAME_OVER)
+	if hud:
+		hud.hide_spectator_bar()
+		hud.hide_round_intermission()
 	var winner_name: String = "Kampeon"
 	if network_manager.players.has(winner_id):
 		winner_name = network_manager.players[winner_id].get("name", "Kampeon")
@@ -2338,6 +2393,9 @@ func sync_tournament_winner(winner_id: int) -> void:
 @rpc("call_local", "reliable")
 func sync_infection_game_over(taya_won: bool) -> void:
 	_set_game_state(GameState.GAME_OVER)
+	if hud:
+		hud.hide_spectator_bar()
+		hud.hide_round_intermission()
 	if winner_label:
 		if taya_won:
 			winner_label.text = "LAHAT NAHAWAAN NA!\n\nPANALO ANG MGA TAYA!\nWala nang nakaligtas na Runner sa kalye!"
@@ -2353,6 +2411,9 @@ func sync_infection_game_over(taya_won: bool) -> void:
 @rpc("call_local", "reliable")
 func sync_game_over() -> void:
 	_set_game_state(GameState.GAME_OVER)
+	if hud:
+		hud.hide_spectator_bar()
+		hud.hide_round_intermission()
 	var players_data: Array[Dictionary] = _compile_match_results()
 	var meta: Dictionary = _get_match_meta()
 	var awards: Dictionary = _calculate_kalye_awards(players_data)
@@ -2409,6 +2470,7 @@ func _compile_match_results(forced_winner_id: int = -1, infection_taya_won: bool
 		var tago: int = int(round(p_node.stats_hiding_time)) if p_node else 0
 		var surv: float = p_node.survival_time if p_node else 0.0
 		var vaults: int = p_node.stats_vaults if p_node else 0
+		var sprint_time: float = p_node.stats_sprint_time if (p_node and "stats_sprint_time" in p_node) else 0.0
 
 		var stored_score: float = float(pinfo.get("score", 0))
 		var calc_score: int = int(surv + (huli * 30) + (basura * 30) + (patama * 15) + stored_score)
@@ -2457,6 +2519,7 @@ func _compile_match_results(forced_winner_id: int = -1, infection_taya_won: bool
 			"tago": tago,
 			"vaults": vaults,
 			"surv": surv,
+			"sprint_time": sprint_time,
 			"score": calc_score
 		})
 
@@ -2472,6 +2535,15 @@ func _compile_match_results(forced_winner_id: int = -1, infection_taya_won: bool
 			var b_out: bool = (b["status"] == "OUT")
 			if a_out != b_out:
 				return not a_out
+		elif current_mode == MatchMode.INFECTION:
+			if not infection_taya_won:
+				var a_surv: bool = (a["status"] == "LIGTAS")
+				var b_surv: bool = (b["status"] == "LIGTAS")
+				if a_surv != b_surv:
+					return a_surv
+			else:
+				if a.get("huli", 0) != b.get("huli", 0):
+					return a.get("huli", 0) > b.get("huli", 0)
 		return a["score"] > b["score"]
 	)
 
@@ -2493,13 +2565,14 @@ func _calculate_kalye_awards(compiled_players: Array[Dictionary]) -> Dictionary:
 	if compiled_players.is_empty():
 		return awards
 
-	var best_huli_p: Dictionary = compiled_players[0]
-	var best_patama_p: Dictionary = compiled_players[0]
-	var best_dulas_p: Dictionary = compiled_players[0]
-	var best_basura_p: Dictionary = compiled_players[0]
-	var best_tago_p: Dictionary = compiled_players[0]
-	var best_vault_p: Dictionary = compiled_players[0]
-	var best_surv_p: Dictionary = compiled_players[0]
+	var best_huli_p: Dictionary = {}
+	var best_patama_p: Dictionary = {}
+	var best_dulas_p: Dictionary = {}
+	var best_basura_p: Dictionary = {}
+	var best_tago_p: Dictionary = {}
+	var best_vault_p: Dictionary = {}
+	var best_surv_p: Dictionary = {}
+	var best_sprint_p: Dictionary = {}
 
 	for p in compiled_players:
 		if p.get("huli", 0) > best_huli_p.get("huli", 0):
@@ -2516,22 +2589,27 @@ func _calculate_kalye_awards(compiled_players: Array[Dictionary]) -> Dictionary:
 			best_vault_p = p
 		if p.get("surv", 0.0) > best_surv_p.get("surv", 0.0):
 			best_surv_p = p
+		if p.get("sprint_time", 0.0) > best_sprint_p.get("sprint_time", 0.0):
+			best_sprint_p = p
 
-	var p_names: Array[String] = []
-	for p in compiled_players:
-		p_names.append(p["name"])
-
-	var default_name: String = p_names[0] if not p_names.is_empty() else "Batang Kalye"
-
-	awards["chaser"] = best_huli_p["name"] if best_huli_p.get("huli", 0) > 0 else default_name
-	awards["taya_master"] = awards["chaser"]
-	awards["sniper"] = best_patama_p["name"] if best_patama_p.get("patama", 0) > 0 else default_name
-	awards["dulas"] = best_dulas_p["name"] if best_dulas_p.get("dulas", 0) > 0 else default_name
-	awards["sprint_king"] = awards["dulas"]
-	awards["basura"] = best_basura_p["name"] if best_basura_p.get("basura", 0) > 0 else default_name
-	awards["ninja"] = best_tago_p["name"] if best_tago_p.get("tago", 0) > 0 else default_name
-	awards["vault_king"] = best_vault_p["name"] if best_vault_p.get("vaults", 0) > 0 else default_name
-	awards["escape_artist"] = best_surv_p["name"] if best_surv_p.get("surv", 0.0) > 0.0 else default_name
+	# Meaningful awards strictly requiring authentic positive performance (> 0)
+	if best_huli_p.get("huli", 0) > 0:
+		awards["chaser"] = best_huli_p["name"]
+		awards["taya_master"] = best_huli_p["name"]
+	if best_patama_p.get("patama", 0) > 0:
+		awards["sniper"] = best_patama_p["name"]
+	if best_dulas_p.get("dulas", 0) > 0:
+		awards["dulas"] = best_dulas_p["name"]
+	if best_basura_p.get("basura", 0) > 0:
+		awards["basura"] = best_basura_p["name"]
+	if best_tago_p.get("tago", 0) > 0:
+		awards["ninja"] = best_tago_p["name"]
+	if best_vault_p.get("vaults", 0) > 0:
+		awards["vault_king"] = best_vault_p["name"]
+	if best_surv_p.get("surv", 0.0) > 5.0:
+		awards["escape_artist"] = best_surv_p["name"]
+	if best_sprint_p.get("sprint_time", 0.0) >= 2.0:
+		awards["sprint_king"] = best_sprint_p["name"]
 
 	return awards
 
@@ -2631,17 +2709,28 @@ func _reset_players_for_social_lobby() -> void:
 			child.burst_stamina = child.burst_stamina_max
 			child.endurance_stamina = child.endurance_stamina_max
 			child.is_exhausted = false
-			child.global_position = _get_lobby_spawn_position(idx)
-			child.rotation.y = -PI / 2.0
+			var spawn_pos := _get_lobby_spawn_position(idx)
+			child.rotation = Vector3.ZERO
 			child.velocity = Vector3.ZERO
-			if child.is_local_human() and child.camera:
-				child.camera.current = true
+			if child.is_local_human():
+				child.global_position = spawn_pos
+				child.target_position = spawn_pos
+				child._last_sent_position = spawn_pos
+				child.snapshot_ring_buffer.clear()
+				if child.camera:
+					child.camera.current = true
+				if child.model:
+					child.model.rotation.y = -PI / 2.0
+				child.camera_yaw = -PI / 2.0
+				child._apply_camera_rotation()
+			else:
+				child.reset_network_interpolation(spawn_pos)
 			idx += 1
 
 func _get_lobby_spawn_position(idx: int) -> Vector3:
-	var base_center := Vector3(15.0, 0.5, -6.0)
+	var base_center := Vector3(35.5, 0.5, -6.0)
 	var angle := float(idx) * 0.785398
-	var radius := 2.5 + float(int(idx / 8)) * 1.5
+	var radius := 2.0 + float(int(float(idx) / 8.0)) * 1.2
 	return base_center + Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
 
 func _update_social_lobby_info() -> void:
@@ -2704,11 +2793,16 @@ func _enter_social_lobby_as_host() -> void:
 	var my_id := multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
 	var host_p := _spawn_single_player(my_id, 0)
 	if host_p:
-		host_p.global_position = _get_lobby_spawn_position(0)
-		host_p.rotation.y = -PI / 2.0
+		var spawn_pos := _get_lobby_spawn_position(0)
+		host_p.global_position = spawn_pos
+		host_p.rotation = Vector3.ZERO
 		host_p.current_role = PlayerController.Role.RUNNER
 		if host_p.camera:
 			host_p.camera.current = true
+		if host_p.model:
+			host_p.model.rotation.y = -PI / 2.0
+		host_p.camera_yaw = -PI / 2.0
+		host_p._apply_camera_rotation()
 	_update_social_lobby_info()
 
 func _enter_social_lobby_as_client() -> void:
@@ -2717,35 +2811,73 @@ func _enter_social_lobby_as_client() -> void:
 	var my_id := multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
 	var client_p := _spawn_single_player(my_id, players_container.get_child_count())
 	if client_p:
-		client_p.global_position = _get_lobby_spawn_position(players_container.get_child_count() - 1)
-		client_p.rotation.y = -PI / 2.0
+		var spawn_pos := _get_lobby_spawn_position(max(0, players_container.get_child_count() - 1))
+		client_p.global_position = spawn_pos
+		client_p.rotation = Vector3.ZERO
 		client_p.current_role = PlayerController.Role.RUNNER
 		if client_p.camera:
 			client_p.camera.current = true
+		if client_p.model:
+			client_p.model.rotation.y = -PI / 2.0
+		client_p.camera_yaw = -PI / 2.0
+		client_p._apply_camera_rotation()
 	_update_social_lobby_info()
 
 @rpc("call_local", "reliable")
 func sync_spawn_new_player_lobby(pid: int) -> void:
+	var my_id := multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
+	var existing: PlayerController = players_container.get_node_or_null(str(pid)) as PlayerController
 	var spawn_pos := _get_lobby_spawn_position(players_container.get_child_count())
-	var new_player := _spawn_single_player(pid, 0)
-	if new_player:
-		new_player.global_position = spawn_pos
-		new_player.rotation.y = -PI / 2.0
-		new_player.current_role = PlayerController.Role.RUNNER
+	if not existing or not is_instance_valid(existing) or existing.is_queued_for_deletion():
+		existing = _spawn_single_player(pid, players_container.get_child_count())
+	if existing:
+		if pid != my_id:
+			existing.reset_network_interpolation(spawn_pos)
+		else:
+			existing.global_position = spawn_pos
+			existing.target_position = spawn_pos
+			existing._last_sent_position = spawn_pos
+			existing.snapshot_ring_buffer.clear()
+		existing.rotation = Vector3.ZERO
+		existing.current_role = PlayerController.Role.RUNNER
 	_update_social_lobby_info()
 
 @rpc("authority", "reliable")
 func sync_late_join_lobby(all_players: Dictionary) -> void:
 	network_manager.players = all_players
+	switch_to_lobby_map()
 	_set_game_state(GameState.SOCIAL_LOBBY)
+
+	var my_id := multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
+
+	# Prune obsolete remote players not in all_players
 	for child in players_container.get_children():
-		child.queue_free()
+		if child is PlayerController:
+			if not all_players.has(child.player_id) and not all_players.has(str(child.player_id)):
+				players_container.remove_child(child)
+				child.queue_free()
+
+	# Spawn / synchronize all active players in lobby
 	var idx := 0
-	for pid in all_players.keys():
-		var p_inst := _spawn_single_player(int(pid), 0)
-		if p_inst:
-			p_inst.global_position = _get_lobby_spawn_position(idx)
-			p_inst.current_role = PlayerController.Role.RUNNER
+	for pid_key in all_players.keys():
+		var pid := int(pid_key)
+		var p_node: PlayerController = players_container.get_node_or_null(str(pid)) as PlayerController
+		var spawn_pos := _get_lobby_spawn_position(idx)
+		if not p_node or not is_instance_valid(p_node) or p_node.is_queued_for_deletion():
+			p_node = _spawn_single_player(pid, idx)
+		if p_node:
+			if pid != my_id:
+				p_node.reset_network_interpolation(spawn_pos)
+			else:
+				p_node.global_position = spawn_pos
+				p_node.target_position = spawn_pos
+				p_node._last_sent_position = spawn_pos
+				p_node.snapshot_ring_buffer.clear()
+				p_node.velocity = Vector3.ZERO
+				if p_node.camera:
+					p_node.camera.current = true
+			p_node.rotation = Vector3.ZERO
+			p_node.current_role = PlayerController.Role.RUNNER
 		idx += 1
 	_update_social_lobby_info()
 
@@ -3094,6 +3226,8 @@ func _on_fov_changed(val: float) -> void:
 
 func _on_btn_pause_lobby_pressed() -> void:
 	set_paused(false)
+	if supabase_manager and supabase_manager.is_hosting_lobby:
+		supabase_manager.delete_lobby()
 	if multiplayer.has_multiplayer_peer():
 		network_manager.leave_game()
 	_set_game_state(GameState.LOBBY)
@@ -3148,6 +3282,28 @@ func _on_join_failed() -> void:
 		hotspot_info_label.text = "Bigo sa pagkonekta sa host."
 
 func _on_server_disconnected() -> void:
+	if supabase_manager and supabase_manager.is_hosting_lobby:
+		supabase_manager.delete_lobby()
+	if players_container:
+		for child in players_container.get_children():
+			players_container.remove_child(child)
+			child.queue_free()
+
+	alive_player_ids.clear()
+	eliminated_player_ids.clear()
+	is_intermission = false
+	current_round = 1
+	match_timer = 0.0
+
+	switch_to_lobby_map()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+	if hud: hud.visible = false
+	if pause_ui: pause_ui.visible = false
+	if maiba_ui: maiba_ui.visible = false
+	if game_over_ui: game_over_ui.visible = false
+	if vote_ui: vote_ui.visible = false
+
 	_set_game_state(GameState.LOBBY)
 	if btn_host: btn_host.disabled = false
 	if btn_join: btn_join.disabled = false
@@ -3161,6 +3317,88 @@ func _on_server_disconnected() -> void:
 	if hotspot_info_label:
 		hotspot_info_label.text = "Na-disconnect mula sa Server."
 	_update_lobby_player_list()
+
+func _on_player_disconnected(peer_id: int) -> void:
+	var was_taya: bool = false
+	var disconnected_name: String = "Player %d" % peer_id
+	if network_manager and network_manager.players.has(peer_id):
+		disconnected_name = network_manager.players[peer_id].get("name", disconnected_name)
+
+	# 1. Despawn and free 3D player node from players_container
+	if players_container:
+		var p_node := players_container.get_node_or_null(str(peer_id)) as PlayerController
+		if p_node and is_instance_valid(p_node):
+			was_taya = (p_node.current_role == PlayerController.Role.TAYA)
+			players_container.remove_child(p_node)
+			p_node.queue_free()
+
+	# 2. Remove from alive and eliminated tracking
+	alive_player_ids.erase(peer_id)
+	eliminated_player_ids.erase(peer_id)
+
+	# 3. Handle state-specific logic
+	match current_state:
+		GameState.PLAYING:
+			# If the disconnected player was Taya, ensure at least one Taya exists
+			if was_taya and is_server_or_solo():
+				var remaining_tayas: Array[int] = []
+				for child in players_container.get_children():
+					if child is PlayerController and not child.is_eliminated and child.current_role == PlayerController.Role.TAYA:
+						remaining_tayas.append(child.player_id)
+
+				if remaining_tayas.is_empty() and not alive_player_ids.is_empty():
+					var new_taya_id: int = alive_player_ids.pick_random()
+					var new_taya_node := players_container.get_node_or_null(str(new_taya_id)) as PlayerController
+					if new_taya_node:
+						new_taya_node.set_role_rpc(PlayerController.Role.TAYA)
+						new_taya_node.grant_immunity_rpc(2.0)
+						if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+							new_taya_node.rpc("set_role_rpc", PlayerController.Role.TAYA)
+							new_taya_node.rpc("grant_immunity_rpc", 2.0)
+						if network_manager and network_manager.players.has(new_taya_id):
+							network_manager.players[new_taya_id]["role"] = 1
+						var tname: String = network_manager.players.get(new_taya_id, {}).get("name", "Player %d" % new_taya_id)
+						if hud and hud.has_method("show_toast_notification"):
+							hud.show_toast_notification("Na-disconnect ang Taya! Bagong Taya si %s!" % tname, false)
+
+			# Check win conditions under reduced player count
+			if is_server_or_solo():
+				if current_mode == MatchMode.PASA_TAYA_ELIMINATION:
+					if alive_player_ids.size() <= 1:
+						var winner_id: int = alive_player_ids[0] if alive_player_ids.size() == 1 else -1
+						if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+							rpc("sync_tournament_winner", winner_id)
+						else:
+							sync_tournament_winner(winner_id)
+				elif current_mode == MatchMode.INFECTION:
+					var alive_runners: int = 0
+					for p in players_container.get_children():
+						if p is PlayerController and not p.is_eliminated and p.current_role == PlayerController.Role.RUNNER:
+							alive_runners += 1
+					if alive_runners == 0:
+						if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+							rpc("sync_infection_game_over", true)
+						else:
+							sync_infection_game_over(true)
+				elif current_mode == MatchMode.CLASSIC_TAG:
+					if multiplayer.has_multiplayer_peer() and not network_manager.is_solo_practice:
+						if network_manager.players.size() <= 1:
+							rpc("sync_game_over")
+
+			if hud:
+				hud.update_scoreboard(network_manager.players)
+				if hud.has_method("show_toast_notification"):
+					hud.show_toast_notification("Umalis sa laro: %s" % disconnected_name, false)
+
+		GameState.SOCIAL_LOBBY:
+			if vote_manager and vote_manager.get("is_voting"):
+				if vote_manager.player_votes.has(peer_id):
+					vote_manager.player_votes.erase(peer_id)
+					vote_manager._recalc_counts()
+			_update_social_lobby_info()
+
+		_:
+			_update_lobby_player_list()
 
 func _update_lobby_player_list() -> void:
 	var count := network_manager.players.size()

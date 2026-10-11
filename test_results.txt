@@ -1,76 +1,10 @@
-[SELF-TEST] Starting automated verification...
-[SELF-TEST] Testing address parsing...
-[PASS] Auto-parsed host and port correctly: 192.168.43.1:7777
-[SELF-TEST] Spawning Solo Practice match...
-[PASS] Player 1 and Bot 99 spawned successfully.
-[SELF-TEST] Testing Powerup Gating...
-[PASS] Double Jump locked by default (max_air_jumps = 0).
-[PASS] Dash locked by default without Imagination Powerup.
-[SELF-TEST] Testing Trash Pickup & Segregation...
-[PASS] Picked up Plastic Bottle: Bote ng Tubig
-[PASS] Wrong bin rejected deposit; trash kept safely in hand.
-[PASS] Correct bin accepted trash! +30 score awarded (Total: 30).
-[PASS] Imagination Powerup Unlocked: KIDLAT DASH (3x)
-[PASS] Kidlat Dash executed successfully with powerup! Charges left: 2
-[SELF-TEST] Testing Dual Stamina & Exhaustion System...
-[PASS] Sprint movement drains burst stamina (76.0/100) and endurance (92.5/100).
-[PASS] Exhaustion triggered when endurance reaches 0; sprint locked out.
-[PASS] Exhaustion cleared after catching breath above threshold (36.2/100).
-[SELF-TEST] Testing Tagging mechanism...
- - Post-tag P1 Role: 0 (Expected RUNNER: 0)
- - Post-tag Bot Role: 1 (Expected TAYA: 1)
-[PASS] Tag role transfer successful.
-[SELF-TEST] Testing Pause Menu...
-[PASS] Pause menu opened successfully.
-[PASS] Pause menu closed successfully.
-[SELF-TEST] Testing Mobile Graphics Optimization & Presets...
-[PASS] Mababa (Low) preset applied correctly: 3D scale=60%, shadows=OFF, glow=OFF.
-[PASS] Balanse (Medium) preset applied correctly: 3D scale=75%, shadows=ON.
-[PASS] Main menu settings button opened settings modal successfully.
-[PASS] Settings modal closed cleanly back to main menu.
-[PASS] Pause menu settings button opened settings modal and concealed pause panel.
-[PASS] Settings modal closed cleanly back to pause panel.
-[PASS] Resume button unpaused game cleanly.
-[PASS] Lobby settings button opened settings modal successfully.
-[PASS] Settings modal closed cleanly back to lobby.
-[SELF-TEST] Testing 8-Character Roster & Customization...
-[PASS] All 8 Pinoy Archetypes selected and applied successfully.
-[PASS] Modular outfit saved to config and reloaded successfully.
-[SELF-TEST] Testing Bot Elimination & Spectator Isolation...
-[PASS] Bot 99 eliminated without hijacking human player spectator mode.
-[PASS] Human player successfully tagged living Bot 98 without locking onto dead Bot 99.
-[SELF-TEST] Testing Human Player Elimination & Spectator Mode...
-[PASS] Human player spectator camera tracks target and switches targets correctly.
-[SELF-TEST] Testing Multiplayer Match Flow & Start Match...
-[PASS] Multiplayer match flow started cleanly with 2 players; alive_player_ids populated without type error.
-[PASS] Game over reached. Winner: Completed
-[SELF-TEST] Testing Supabase Matchmaking & Tab Switching...
-[PASS] Switched to Create Tab successfully.
-[PASS] Switched to Hotspot/Solo Tab successfully.
-[PASS] Switched back to Browse Tab successfully.
-[PASS] Supabase dynamic room cards (LAN & WebRTC Online P2P) rendered into lobby list successfully.
-[SELF-TEST] Testing WebRTC Online Peer Initialization & Cleanup...
-[PASS] WebRTC host peer initialized successfully!
-[PASS] WebRTC peer and signaler cleaned up cleanly.
-[SELF-TEST] Testing Street Items & Hiding Spots...
-[PASS] Spartan Tsinelas picked up successfully.
-[PASS] Spartan Tsinelas thrown successfully; inventory cleared.
-[PASS] Balat ng Saging deployed successfully.
-[PASS] Pito ng Barangay blown successfully with 0 errors.
-[PASS] Supot ng Chalk thrown successfully.
-[PASS] Ice Candy consumed successfully.
-[PASS] Entered hiding drum successfully; character model concealed.
-[PASS] Exited hiding drum successfully; model visible.
-[SELF-TEST] Testing High-Density Netcode & 24-Player Scaling...
+[NETCODE-VERIFICATION] Starting Milestone 1 Netcode & 24-Player Scaling tests...
 [PASS] NetworkManager.MAX_PLAYERS == 24.
-[PASS] PlayerController 25Hz tick rate and 8-snapshot buffer capacity verified.
-[PASS] Snapshot ring buffer enforces max 8 snapshots and sorts chronologically.
-[PASS] Cubic Hermite Spline calculation verified with C1 tangent continuity.
+[PASS] PlayerController constants: 25Hz tick rate, 8-snapshot buffer capacity.
+[PASS] Snapshot ring buffer chronological sorting and size bounds verified.
+[PASS] Cubic Hermite Spline calculation verified.
 [PASS] KalyeMap contains 24 spawn markers.
-[PASS] 24 player spawn points distributed with zero collision overlaps.
-[PASS] LobbyUI players_slider supports 24 players.
-[SELF-TEST] Testing Dynamic Multi-Taya Balancing...
-[PASS] Dynamic Multi-Taya ratio formula verified across 1..24 players.
-[PASS] Maiba Taya minority gesture group selected 4 chasers for 16 players.
-[PASS] sync_assign_multi_taya and role sync verified.
-[ALL TESTS PASSED] ZERO RUNTIME ERRORS DETECTED!
+[PASS] 24 player spawn points procedurally scattered without overlaps.
+[PASS] LobbyUI 24-player slots verified.
+[PASS] HUD scoreboard 24-player rendering verified.
+[ALL NETCODE & 24-PLAYER SCALING TESTS PASSED!]

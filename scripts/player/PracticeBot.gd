@@ -46,38 +46,27 @@ func _physics_process(delta: float) -> void:
 			exit_hiding_spot()
 		return
 
-	# Check slip state
-	if is_slipping:
-		velocity.x = slip_velocity.x
-		velocity.z = slip_velocity.z
+	# Check slip & stun state (freeze in exact place)
+	if is_slipping or is_stunned:
+		velocity.x = move_toward(velocity.x, 0.0, friction * 2.0 * delta)
+		velocity.z = move_toward(velocity.z, 0.0, friction * 2.0 * delta)
 		if not is_on_floor():
 			velocity.y += fall_gravity * delta
 		move_and_slide()
-		if model:
-			squash_current = squash_current.lerp(Vector3(1.35, 0.4, 1.35), delta * 12.0)
-			model.scale = model_base_scale * squash_current
-		return
-
-	# Stun state
-	if is_stunned:
-		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
-		velocity.z = move_toward(velocity.z, 0.0, friction * delta)
-		move_and_slide()
-		return
-
-	if current_role == Role.RUNNER:
-		_process_runner_ai(delta)
-		_process_scoring(delta)
 	else:
-		_process_chaser_ai(delta)
+		if current_role == Role.RUNNER:
+			_process_runner_ai(delta)
+			_process_scoring(delta)
+		else:
+			_process_chaser_ai(delta)
 
-	# Banter
-	if ai_banter_timer <= 0.0:
-		ai_banter_timer = randf_range(8.0, 18.0)
-		_trigger_bot_banter()
+		# Banter
+		if ai_banter_timer <= 0.0:
+			ai_banter_timer = randf_range(8.0, 18.0)
+			_trigger_bot_banter()
 
-	var is_moving := (velocity.length() > 0.2)
-	_process_stamina(delta, is_moving)
+		var is_moving := (velocity.length() > 0.2)
+		_process_stamina(delta, is_moving)
 
 	# Update visual animations & squash deformation
 	var horizontal_speed: float = Vector2(velocity.x, velocity.z).length()
@@ -88,6 +77,7 @@ func _physics_process(delta: float) -> void:
 		model.scale = model_base_scale * squash_current
 		model.is_sliding = is_sliding
 		model.is_dashing = is_dashing
+		model.is_slipping = is_slipping or (is_stunned and stun_timer > 0.0)
 		model.has_superspeed = false
 		model.animate(delta, horizontal_speed, is_on_floor(), current_max)
 

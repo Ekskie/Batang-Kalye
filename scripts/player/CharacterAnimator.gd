@@ -235,6 +235,8 @@ var current_player_color: Color = Color(0.18, 0.58, 0.95, 1.0)
 var is_sliding: bool = false
 var is_dashing: bool = false
 var is_vaulting: bool = false
+var is_slipping: bool = false
+var slip_anim_timer: float = 0.0
 var has_superspeed: bool = false
 var held_anchor_base_y: float = 0.70
 
@@ -910,6 +912,18 @@ func set_character(char_type: int) -> void:
 					if lib.has_animation(cap_name) and not lib.has_animation(a_name):
 						lib.add_animation(a_name, lib.get_animation(cap_name))
 
+		# Ensure "slip" animation is available across all skeletal characters (from Totoy if needed)
+		if not _has_anim("slip") and model_totoy:
+			var totoy_ap: AnimationPlayer = model_totoy.get_node_or_null("AnimationPlayer")
+			if totoy_ap and (totoy_ap.has_animation("Slip") or totoy_ap.has_animation("slip")):
+				var src_anim: Animation = totoy_ap.get_animation("Slip") if totoy_ap.has_animation("Slip") else totoy_ap.get_animation("slip")
+				if src_anim:
+					var default_lib: AnimationLibrary = active_anim.get_animation_library("")
+					if not default_lib and not lib_list.is_empty():
+						default_lib = active_anim.get_animation_library(lib_list[0])
+					if default_lib:
+						default_lib.add_animation("slip", src_anim.duplicate())
+
 		var loop_anims: Array[String] = ["idle", "jogging", "running", "narutoRun", "idle_Armature", "jogging_Armature", "running_Armature", "narutoRun_Armature"]
 		for a_name: String in loop_anims:
 			if active_anim.has_animation(a_name):
@@ -1043,12 +1057,28 @@ func trigger_tag_animation() -> void:
 		_play_anim("punching", 0.08)
 		active_anim.speed_scale = 2.2 # Snappy 0.4s tag punch strike
 
+func trigger_slip_animation(duration: float = 1.4) -> void:
+	is_slipping = true
+	slip_anim_timer = max(slip_anim_timer, duration)
+	if is_skeletal and active_anim and _has_anim("slip"):
+		_play_anim("slip", 0.08)
+		active_anim.speed_scale = clampf(3.36 / max(0.5, duration), 1.2, 2.5)
+
 func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed: float) -> void:
+	if slip_anim_timer > 0.0:
+		slip_anim_timer -= delta
+		if slip_anim_timer <= 0.0 and not is_slipping:
+			is_slipping = false
+
 	var using_naruto: bool = (has_superspeed or is_dashing or horizontal_speed > 13.0)
 
 	# 1. Skeletal Character Animation
 	if is_skeletal and active_anim:
-		if is_tag_swinging and _has_anim("punching"):
+		if (is_slipping or slip_anim_timer > 0.0) and _has_anim("slip"):
+			_play_anim("slip", 0.08)
+			if active_anim.speed_scale < 1.0 or active_anim.speed_scale > 3.0:
+				active_anim.speed_scale = 2.0
+		elif is_tag_swinging and _has_anim("punching"):
 			pass
 		elif is_vaulting:
 			if _has_anim("jump"):
@@ -1082,7 +1112,15 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 
 	# 2. Original Procedural Animation (Batang Kalye Retro Model)
 	elif not is_skeletal:
-		if is_vaulting:
+		if is_slipping or slip_anim_timer > 0.0:
+			if left_leg: left_leg.rotation.x = lerp_angle(left_leg.rotation.x, -deg_to_rad(75.0), delta * 18.0)
+			if right_leg: right_leg.rotation.x = lerp_angle(right_leg.rotation.x, -deg_to_rad(45.0), delta * 18.0)
+			if not is_tag_swinging:
+				if left_arm: left_arm.rotation.x = lerp_angle(left_arm.rotation.x, deg_to_rad(80.0), delta * 18.0)
+				if right_arm: right_arm.rotation.x = lerp_angle(right_arm.rotation.x, deg_to_rad(80.0), delta * 18.0)
+			if body_mesh:
+				body_mesh.position.y = lerp(body_mesh.position.y, 0.45, delta * 15.0)
+		elif is_vaulting:
 			if left_leg: left_leg.rotation.x = lerp_angle(left_leg.rotation.x, -deg_to_rad(65.0), delta * 18.0)
 			if right_leg: right_leg.rotation.x = lerp_angle(right_leg.rotation.x, -deg_to_rad(45.0), delta * 18.0)
 			if not is_tag_swinging:
@@ -1136,7 +1174,13 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 			active_model.position.z = lerp(active_model.position.z, model_base_pos.z, delta * 12.0)
 			active_model.rotation.y = lerp_angle(active_model.rotation.y, model_base_rot_y, delta * 12.0)
 
-	# 4. Dynamic Tilt Overlays (Dash, Slide, Jump)
+	# 4. Dynamic Tilt Overlays (Dash, Slide, Jump, Slip)
+	if is_slipping or slip_anim_timer > 0.0:
+		if not is_skeletal and active_model:
+			active_model.rotation.x = lerp_angle(active_model.rotation.x, deg_to_rad(-55.0), delta * 15.0)
+			active_model.position.y = lerp(active_model.position.y, model_base_pos.y - 0.22, delta * 15.0)
+		return
+
 	if is_dashing:
 		if active_model:
 			active_model.rotation.x = lerp_angle(active_model.rotation.x, deg_to_rad(28.0), delta * 15.0)

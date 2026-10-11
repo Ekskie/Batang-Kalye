@@ -40,10 +40,21 @@ var is_bot: bool = false
 
 var is_solo_practice: bool:
 	get:
-		var main_node = get_node_or_null("/root/Main")
+		var main_node = _get_main_node()
 		if main_node and "network_manager" in main_node and main_node.network_manager:
 			return main_node.network_manager.is_solo_practice
 		return false
+
+func _get_main_node() -> Node:
+	var cur := get_parent()
+	while cur:
+		if ("players_container" in cur and "hud" in cur) or cur is GameManager:
+			return cur
+		cur = cur.get_parent()
+	var m = get_node_or_null("/root/Main")
+	if m and is_instance_valid(m) and not m.is_queued_for_deletion():
+		return m
+	return get_tree().current_scene if (is_inside_tree() and get_tree()) else null
 
 func is_local_human() -> bool:
 	if is_bot:
@@ -144,6 +155,7 @@ var stats_slips: int = 0
 var stats_recycled: int = 0
 var stats_hits: int = 0
 var stats_hiding_time: float = 0.0
+var stats_sprint_time: float = 0.0
 
 # State timers
 var camera_pitch: float = 0.0
@@ -168,6 +180,12 @@ var vault_end_pos: Vector3 = Vector3.ZERO
 var vault_forward_dir: Vector3 = Vector3.FORWARD
 var can_vault: bool = false
 var stats_vaults: int = 0
+
+# Base Shelter State (Infected Base Mode)
+var is_in_base: bool = false
+var base_shelter_timer: float = 8.0
+var base_shelter_max: float = 8.0
+var base_cooldown_timer: float = 0.0
 
 var coyote_timer: float = 0.0
 var jump_buffer_timer: float = 0.0
@@ -217,6 +235,7 @@ var chalk_blind_timer: float = 0.0
 # Tournament & Crab Game Elimination State
 var is_eliminated: bool = false
 var spectating_target: PlayerController = null
+var _spec_hud_timer: float = 0.0
 
 # Screen Shake Juice
 var camera_trauma: float = 0.0
@@ -292,6 +311,9 @@ func _ready() -> void:
 	snapshot_ring_buffer.clear()
 	_interpolation_initialized = false
 	_interpolation_render_time_ms = 0.0
+	floor_max_angle = deg_to_rad(60.0)
+	floor_snap_length = 0.35
+	floor_constant_speed = true
 	if model:
 		model_base_scale = model.scale
 
@@ -408,10 +430,13 @@ func _unhandled_input(event: InputEvent) -> void:
 				_cycle_spectate_target(-1)
 				get_viewport().set_input_as_handled()
 		elif event is InputEventMouseButton and event.pressed:
-			if event.button_index == MOUSE_BUTTON_LEFT:
+			if is_cursor_free or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+				is_cursor_free = false
+				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			if event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_WHEEL_DOWN]:
 				_cycle_spectate_target(1)
 				get_viewport().set_input_as_handled()
-			elif event.button_index == MOUSE_BUTTON_RIGHT:
+			elif event.button_index in [MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_WHEEL_UP]:
 				_cycle_spectate_target(-1)
 				get_viewport().set_input_as_handled()
 		elif event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -512,6 +537,8 @@ func trigger_hit_stop(duration_ms: float = 55.0) -> void:
 
 func set_eliminated(elim: bool) -> void:
 	is_eliminated = elim
+	if elim and is_hiding:
+		exit_hiding_spot()
 	if collision_shape:
 		collision_shape.disabled = elim
 	if model:
@@ -520,6 +547,9 @@ func set_eliminated(elim: bool) -> void:
 		name_label.visible = not elim
 	if tag_pointer:
 		tag_pointer.visible = not elim
+	if elim:
+		velocity = Vector3.ZERO
+		global_position = Vector3(0, -50, 0)
 	if is_local_human():
 		if mobile_ui and mobile_ui.has_method("set_spectator_mode"):
 			mobile_ui.set_spectator_mode(elim)
@@ -530,20 +560,27 @@ func set_eliminated(elim: bool) -> void:
 			_cycle_spectate_target(1)
 		else:
 			spectating_target = null
-			var main_node = get_node_or_null("/root/Main")
+			var main_node = _get_main_node()
 			if main_node and main_node.hud:
 				main_node.hud.hide_spectator_bar()
 
 func _cycle_spectate_target(step: int = 1) -> void:
 	if not is_local_human():
 		return
-	var main_node = get_node_or_null("/root/Main")
+	var main_node = _get_main_node()
 	if not main_node or not ("players_container" in main_node) or not main_node.players_container:
 		return
 	var alive_candidates: Array[PlayerController] = []
-	for p in main_node.players_container.get_children():
-		if p is PlayerController and p != self and not p.is_eliminated:
-			alive_candidates.append(p)
+	if "alive_player_ids" in main_node and not main_node.alive_player_ids.is_empty():
+		for pid in main_node.alive_player_ids:
+			if pid != player_id:
+				var p: PlayerController = main_node.players_container.get_node_or_null(str(pid)) as PlayerController
+				if p and is_instance_valid(p) and not p.is_eliminated:
+					alive_candidates.append(p)
+	else:
+		for p in main_node.players_container.get_children():
+			if p is PlayerController and p != self and not p.is_eliminated:
+				alive_candidates.append(p)
 	if alive_candidates.is_empty():
 		spectating_target = null
 		if main_node.hud:
@@ -556,33 +593,50 @@ func _cycle_spectate_target(step: int = 1) -> void:
 			idx = alive_candidates.size() - 1
 	spectating_target = alive_candidates[idx]
 	if is_instance_valid(spectating_target):
-		global_position = spectating_target.global_position
+		if spring_arm:
+			spring_arm.add_excluded_object(spectating_target.get_rid())
 		if camera_mount:
 			camera_mount.global_position = spectating_target.global_position + Vector3(0, 1.4, 0)
-		if main_node.hud:
-			main_node.hud.show_spectator_bar(spectating_target.player_name)
-			if main_node.hud.has_method("update_spectator_info"):
-				var target_name: String = str(spectating_target.player_name) if ("player_name" in spectating_target) else "Player"
-				var target_role: int = int(spectating_target.current_role) if ("current_role" in spectating_target) else 0
-				var target_score: int = int(spectating_target.score) if ("score" in spectating_target) else 0
-				var target_tags: int = int(spectating_target.stats_tags) if ("stats_tags" in spectating_target) else 0
-				var spec_info: Dictionary = {
-					"name": target_name,
-					"role": target_role,
-					"score": target_score,
-					"tags": target_tags,
-					"alive_count": alive_candidates.size()
-				}
-				main_node.hud.update_spectator_info(spec_info)
+		_update_spectator_hud()
+
+func _update_spectator_hud() -> void:
+	if not is_local_human() or not is_instance_valid(spectating_target):
+		return
+	var main_node = _get_main_node()
+	if not main_node or not ("hud" in main_node) or not main_node.hud:
+		return
+	var alive_count: int = main_node.alive_player_ids.size() if ("alive_player_ids" in main_node) else 1
+	if main_node.hud.has_method("update_spectator_info"):
+		var target_name: String = str(spectating_target.player_name) if ("player_name" in spectating_target) else "Player"
+		var target_role: int = int(spectating_target.current_role) if ("current_role" in spectating_target) else 0
+		var target_score: int = int(spectating_target.score) if ("score" in spectating_target) else 0
+		var target_tags: int = int(spectating_target.stats_tags) if ("stats_tags" in spectating_target) else 0
+		var spec_info: Dictionary = {
+			"name": target_name,
+			"role": target_role,
+			"score": target_score,
+			"tags": target_tags,
+			"alive_count": alive_count
+		}
+		main_node.hud.update_spectator_info(spec_info)
+	elif main_node.hud.has_method("show_spectator_bar"):
+		main_node.hud.show_spectator_bar(spectating_target.player_name)
 
 func _physics_process(delta: float) -> void:
-	var main_node = get_node_or_null("/root/Main")
+	var main_node = _get_main_node()
 	if is_eliminated:
 		if is_local_human():
 			if is_instance_valid(spectating_target) and not spectating_target.is_eliminated:
-				global_position = spectating_target.global_position
+				var target_cam_pos: Vector3 = spectating_target.global_position + Vector3(0, 1.4, 0)
 				if camera_mount:
-					camera_mount.global_position = camera_mount.global_position.lerp(spectating_target.global_position + Vector3(0, 1.4, 0), delta * 25.0)
+					if camera_mount.global_position.distance_squared_to(target_cam_pos) > 225.0:
+						camera_mount.global_position = target_cam_pos
+					else:
+						camera_mount.global_position = camera_mount.global_position.lerp(target_cam_pos, delta * 25.0)
+				_spec_hud_timer -= delta
+				if _spec_hud_timer <= 0.0:
+					_spec_hud_timer = 0.2
+					_update_spectator_hud()
 			else:
 				_cycle_spectate_target(1)
 			_process_shake(delta)
@@ -598,17 +652,6 @@ func _physics_process(delta: float) -> void:
 		if model: model.visible = false
 		if name_label: name_label.visible = false
 		_process_shake(delta)
-		return
-
-	if is_slipping:
-		velocity.x = slip_velocity.x
-		velocity.z = slip_velocity.z
-		if not is_on_floor():
-			velocity.y += fall_gravity * delta
-		move_and_slide()
-		if model:
-			squash_current = squash_current.lerp(Vector3(1.35, 0.4, 1.35), delta * 12.0)
-			model.scale = model_base_scale * squash_current
 		return
 
 	if is_local_human():
@@ -648,6 +691,7 @@ func _physics_process(delta: float) -> void:
 		model.is_sliding = is_sliding
 		model.is_dashing = is_dashing
 		model.is_vaulting = is_vaulting
+		model.is_slipping = is_slipping or (is_stunned and stun_timer > 0.0)
 		model.has_superspeed = (active_powerup == PowerupType.SUPER_SPEED)
 		model.animate(delta, horizontal_speed, current_floor, current_max)
 
@@ -699,6 +743,22 @@ func _update_timers(delta: float) -> void:
 	if chalk_blind_timer > 0.0:
 		chalk_blind_timer -= delta
 
+	# Base shelter stamina update (Infected Base)
+	if is_in_base:
+		if current_role == Role.RUNNER:
+			if base_shelter_timer > 0.0:
+				base_shelter_timer = maxf(0.0, base_shelter_timer - delta)
+				if base_shelter_timer <= 0.0 and is_local_human():
+					notification_displayed.emit("UBOS NA ANG LIGTAS TIME SA BASE! Tumakbo!", false)
+					var am = get_node_or_null("/root/AudioManager")
+					if am and am.has_method("play_whiff"):
+						am.play_whiff()
+	else:
+		if base_cooldown_timer > 0.0:
+			base_cooldown_timer = maxf(0.0, base_cooldown_timer - delta)
+		elif base_shelter_timer < base_shelter_max:
+			base_shelter_timer = minf(base_shelter_max, base_shelter_timer + delta * 1.6)
+
 	# Imagination powerup countdown
 	if active_powerup != PowerupType.NONE:
 		powerup_time_left -= delta
@@ -720,6 +780,10 @@ func apply_stun(duration: float) -> void:
 	stun_timer = duration
 	velocity = Vector3.ZERO
 	squash_current = Vector3(1.2, 0.7, 1.2)
+	if model and model.has_method("trigger_slip_animation"):
+		model.trigger_slip_animation(duration)
+	if is_inside_tree() and multiplayer and multiplayer.has_multiplayer_peer():
+		rpc("play_slip_anim_rpc", duration)
 	if name_label:
 		name_label.text = "NA-STUN!"
 	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "ARF! NA-STUN!", Color(1.0, 0.7, 0.2))
@@ -746,10 +810,10 @@ func _process_authority_movement(delta: float) -> void:
 		else:
 			velocity.y += fall_gravity * delta
 
-	# Stun gate — freeze all input while stunned by dog/event
-	if is_stunned:
-		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
-		velocity.z = move_toward(velocity.z, 0.0, friction * delta)
+	# Stun & Slip gate — freeze all input while stunned or slipping in exact place
+	if is_stunned or is_slipping:
+		velocity.x = move_toward(velocity.x, 0.0, friction * 2.0 * delta)
+		velocity.z = move_toward(velocity.z, 0.0, friction * 2.0 * delta)
 		move_and_slide()
 		return
 
@@ -967,7 +1031,7 @@ func _process_authority_movement(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, target_vel_x, accel_factor * delta)
 		velocity.z = move_toward(velocity.z, target_vel_z, accel_factor * delta)
 
-		var target_facing := atan2(-move_dir.x, -move_dir.z)
+		var target_facing := wrapf(atan2(-move_dir.x, -move_dir.z) - global_rotation.y, -PI, PI)
 		model.rotation.y = lerp_angle(model.rotation.y, target_facing, rotation_speed * delta)
 		tag_area.rotation.y = model.rotation.y
 	else:
@@ -1016,7 +1080,7 @@ func _process_landing_and_footsteps(delta: float) -> void:
 		footstep_timer = 0.1
 
 func _queue_jump() -> void:
-	if _is_game_paused():
+	if _is_game_paused() or is_stunned or is_slipping:
 		return
 	jump_buffer_timer = jump_buffer_duration
 
@@ -1044,7 +1108,7 @@ func _execute_jump() -> void:
 		_end_slide()
 
 func _try_slide() -> void:
-	if _is_game_paused() or is_sliding or slide_cooldown > 0.0 or not is_on_floor():
+	if _is_game_paused() or is_sliding or is_stunned or is_slipping or slide_cooldown > 0.0 or not is_on_floor():
 		return
 
 	if is_exhausted:
@@ -1251,7 +1315,7 @@ func _display_emote(emote_text: String) -> void:
 	emote_triggered.emit(emote_text)
 
 func _try_dash() -> void:
-	if _is_game_paused() or is_dashing or dash_cooldown > 0.0:
+	if _is_game_paused() or is_dashing or is_stunned or is_slipping or dash_cooldown > 0.0:
 		return
 
 	if is_exhausted:
@@ -1328,6 +1392,7 @@ func _process_stamina(delta: float, is_moving: bool) -> void:
 				notification_displayed.emit("Nakahinga na ulit! Pwede nang tumakbo!", true)
 	else:
 		if is_sprinting and is_moving:
+			stats_sprint_time += delta
 			var burst_drain: float = burst_drain_rate * delta
 			var end_drain: float = endurance_drain_sprint * delta
 			if active_powerup == PowerupType.SUPER_SPEED:
@@ -1455,7 +1520,7 @@ func _update_mobile_tag_proximity() -> void:
 # Point-blank line-of-sight nametag check (under 2.2m when looking directly at player)
 func _update_name_tags_proximity() -> void:
 	var all_players = get_tree().get_nodes_in_group("players")
-	var cam_node: Node3D = camera if camera else self
+	var cam_node: Node3D = (camera as Node3D) if camera else (self as Node3D)
 	var cam_fwd: Vector3 = -cam_node.global_transform.basis.z
 
 	var main_node = get_node_or_null("/root/Main")
@@ -1488,7 +1553,7 @@ func _update_name_tags_proximity() -> void:
 					p.name_label.visible = false
 
 func _try_tag() -> void:
-	if _is_game_paused() or tag_cooldown > 0.0:
+	if _is_game_paused() or is_stunned or is_slipping or tag_cooldown > 0.0:
 		return
 
 	tag_cooldown = tag_cooldown_max
@@ -1531,6 +1596,15 @@ func perform_tag_on(target_to_tag: PlayerController) -> void:
 	if not target_to_tag or target_to_tag.is_immune or target_to_tag.is_eliminated:
 		return
 
+	if target_to_tag.has_method("is_sheltered_in_base") and target_to_tag.is_sheltered_in_base():
+		if is_local_human():
+			notification_displayed.emit("LIGTAS SA BASE! Bawal manghuli dito!", false)
+			FloatingTextScript.spawn(get_parent(), target_to_tag.global_position + Vector3(0, 2.0, 0), "LIGTAS SA BASE!", Color(0.2, 0.95, 0.5))
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_whiff"):
+				am.play_whiff()
+		return
+
 	# Forward lunge towards target on tag
 	var lunge_dir := (target_to_tag.global_position - global_position).normalized()
 	lunge_dir.y = 0.0
@@ -1547,7 +1621,7 @@ func perform_tag_on(target_to_tag: PlayerController) -> void:
 		add_shake(0.4)
 		trigger_hit_stop(55.0)
 		var main_node = get_node_or_null("/root/Main")
-		if main_node and main_node.hud and main_node.hud.has_method("trigger_hit_flash"):
+		if main_node and ("hud" in main_node) and main_node.hud and main_node.hud.has_method("trigger_hit_flash"):
 			main_node.hud.trigger_hit_flash(Color(1.0, 0.85, 0.2, 0.45), 0.22)
 		if Input.has_method("vibrate_handheld"):
 			Input.vibrate_handheld(80)
@@ -1719,11 +1793,22 @@ func _push_snapshot(snapshot: Dictionary) -> void:
 
 func _process_network_sync_broadcasting(delta: float) -> void:
 	var main_node = get_node_or_null("/root/Main")
-	var is_active_match: bool = true
+	if not main_node or not is_instance_valid(main_node) or main_node.is_queued_for_deletion():
+		main_node = null
+		var p = get_parent()
+		if p and p.get_parent() is GameManager and not p.get_parent().is_queued_for_deletion():
+			main_node = p.get_parent()
+		elif is_inside_tree() and get_tree().root:
+			for c in get_tree().root.get_children():
+				if c is GameManager and not c.is_queued_for_deletion():
+					main_node = c
+					break
 	if main_node and "current_state" in main_node:
-		is_active_match = (int(main_node.current_state) == 1 or int(main_node.current_state) == 2)
-	if not is_active_match:
-		return
+		var st: int = int(main_node.current_state)
+		# TITLE=0 and 2D LOBBY=1 suppress 3D movement syncing.
+		# SOCIAL_LOBBY=5, PLAYING=3, MAIBA_TAYA=2, GAME_OVER=4 actively broadcast.
+		if st in [0, 1]:
+			return
 
 	_net_tick_timer += delta
 	_heartbeat_timer += delta
@@ -1759,7 +1844,20 @@ func _process_network_sync_broadcasting(delta: float) -> void:
 	if is_heartbeat:
 		_heartbeat_timer = 0.0
 
-	# 3-Tier Distance and Role Prioritization
+	if not multiplayer.has_multiplayer_peer():
+		return
+
+	# In client-server topology (ENet / WebRTC), clients send transforms directly to Host (peer 1)
+	if not multiplayer.is_server():
+		if multiplayer.get_peers().has(1):
+			rpc_id(1, "sync_transform", global_position, velocity, rot_y, h_spd_sync, is_on_floor(), is_sliding, is_dashing, now_ms)
+		return
+
+	var connected_peers := multiplayer.get_peers()
+	if connected_peers.is_empty():
+		return
+
+	# Host broadcasts with 3-tier distance and threat prioritization
 	var all_players: Array[Node] = get_tree().get_nodes_in_group("players")
 	var peer_nodes: Array[PlayerController] = []
 	for p in all_players:
@@ -1773,7 +1871,7 @@ func _process_network_sync_broadcasting(delta: float) -> void:
 
 	for peer_p in peer_nodes:
 		var target_id: int = peer_p.player_id
-		if target_id <= 0:
+		if target_id <= 0 or not connected_peers.has(target_id):
 			continue
 
 		var dist: float = global_position.distance_to(peer_p.global_position)
@@ -1797,9 +1895,12 @@ func reset_network_interpolation(new_pos: Vector3) -> void:
 	global_position = new_pos
 	target_position = new_pos
 	target_velocity = Vector3.ZERO
+	_last_sent_position = new_pos
 	snapshot_ring_buffer.clear()
 	_interpolation_initialized = false
 	_interpolation_render_time_ms = 0.0
+	if camera_mount and is_local_human() and not is_eliminated:
+		camera_mount.global_position = new_pos + Vector3(0, 1.4, 0)
 
 func _process_scoring(delta: float) -> void:
 	var main_node = get_node_or_null("/root/Main")
@@ -1813,7 +1914,12 @@ func play_tag_anim_rpc() -> void:
 	if model:
 		model.trigger_tag_animation()
 
-@rpc("unreliable")
+@rpc("call_local", "reliable")
+func play_slip_anim_rpc(duration: float = 1.4) -> void:
+	if model and model.has_method("trigger_slip_animation"):
+		model.trigger_slip_animation(duration)
+
+@rpc("any_peer", "unreliable")
 func sync_transform(
 	pos: Vector3,
 	vel: Vector3,
@@ -1849,6 +1955,14 @@ func sync_transform(
 	}
 	_push_snapshot(snapshot)
 
+	# Authoritative server relay: forward remote client's transform to all other peers
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		var sender_id := multiplayer.get_remote_sender_id()
+		if sender_id > 1:
+			for other_peer in multiplayer.get_peers():
+				if other_peer != sender_id:
+					rpc_id(other_peer, "sync_transform", pos, vel, rot_y, speed_val, floor_val, remote_slide, remote_dash, timestamp_ms)
+
 @rpc("any_peer", "call_local", "reliable")
 func request_tag_player(target_id: int) -> void:
 	if not multiplayer.is_server():
@@ -1869,6 +1983,8 @@ func _server_process_tag(chaser_id: int, target_id: int) -> void:
 
 	if target_node and chaser_node:
 		if target_node.is_eliminated or chaser_node.is_eliminated:
+			return
+		if target_node.has_method("is_sheltered_in_base") and target_node.is_sheltered_in_base():
 			return
 		var dist: float = chaser_node.global_position.distance_to(target_node.global_position)
 		if dist <= (TAG_REACH + 1.8) and not target_node.is_immune and target_node.current_role == Role.RUNNER:
@@ -1924,12 +2040,22 @@ func apply_tagged(_chaser_id: int) -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func set_role_rpc(new_role: int) -> void:
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		var sender := multiplayer.get_remote_sender_id()
+		if sender != 1:
+			push_warning("Unauthorized role change attempt rejected from peer %d" % sender)
+			return
 	current_role = new_role as Role
 	_update_role_state()
 	role_changed.emit(current_role)
 
 @rpc("any_peer", "call_local", "reliable")
 func grant_immunity_rpc(duration: float) -> void:
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		var sender := multiplayer.get_remote_sender_id()
+		if sender != 1:
+			push_warning("Unauthorized grant_immunity attempt rejected from peer %d" % sender)
+			return
 	is_immune = true
 	current_immunity_timer = duration
 
@@ -2053,6 +2179,11 @@ func clear_powerup() -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func sync_powerup_state(p_type: int) -> void:
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		var sender := multiplayer.get_remote_sender_id()
+		if sender != 1 and sender != get_multiplayer_authority():
+			push_warning("Unauthorized powerup sync rejected from peer %d" % sender)
+			return
 	active_powerup = p_type as PowerupType
 	_update_powerup_visuals()
 
@@ -2075,6 +2206,23 @@ func set_in_water(in_water: bool) -> void:
 	if is_in_water and active_powerup == PowerupType.WATER_RUN:
 		if is_local_human():
 			notification_displayed.emit("WATER RUN! Tumatakbo sa ibabaw ng baha!", true)
+
+func enter_safe_base() -> void:
+	is_in_base = true
+	if is_local_human() and current_role == Role.RUNNER:
+		if base_shelter_timer > 0.0:
+			notification_displayed.emit("LIGTAS SA BASE! (Protektado sa Taya)", true)
+		else:
+			notification_displayed.emit("UBOS NA ANG LIGTAS TIME! Kailangan lumabas muna!", false)
+
+func exit_safe_base() -> void:
+	is_in_base = false
+	base_cooldown_timer = 5.0
+	if is_local_human() and current_role == Role.RUNNER:
+		notification_displayed.emit("Lumabas sa Base! Mag-ingat sa mga Taya!", false)
+
+func is_sheltered_in_base() -> bool:
+	return is_in_base and base_shelter_timer > 0.0 and current_role == Role.RUNNER
 
 func _update_powerup_visuals() -> void:
 	if powerup_aura:
@@ -2134,6 +2282,8 @@ func _try_interact() -> void:
 	if current_interactable is TrashItem:
 		current_interactable.interact(self)
 	elif current_interactable is RecyclingBin:
+		current_interactable.interact(self)
+	elif current_interactable.has_method("interact"):
 		current_interactable.interact(self)
 
 func drop_trash() -> void:
@@ -2197,6 +2347,9 @@ func _update_interactable_target() -> void:
 		elif current_interactable is RecyclingBin:
 			icon = "[BIN]"
 			action = "IPASOK" if has_trash() else "BASURAHAN"
+		elif current_interactable.has_method("get_interaction_action"):
+			action = current_interactable.get_interaction_action()
+			icon = current_interactable.get_interaction_icon() if current_interactable.has_method("get_interaction_icon") else "★"
 		interactable_changed.emit(true, icon, action)
 		if mobile_ui and mobile_ui.has_method("set_interact_prompt"):
 			mobile_ui.set_interact_prompt(true, icon, action)
@@ -2252,7 +2405,7 @@ func pickup_street_item(i_type: int, i_name: String) -> void:
 		notification_displayed.emit("Nakuha: %s! [Right-Click / G para gamitin]" % i_name, true)
 
 func use_current_item() -> void:
-	if _is_game_paused() or is_eliminated or is_stunned or is_hiding:
+	if _is_game_paused() or is_eliminated or is_stunned or is_slipping or is_hiding:
 		return
 	if held_street_item == -1 or held_street_item_count <= 0:
 		return
@@ -2412,6 +2565,10 @@ func apply_slipper_stun(duration: float, attacker_name: String) -> void:
 	squash_current = Vector3(1.3, 0.4, 1.3)
 	_play_sfx("play_stun")
 	add_shake(0.4)
+	if model and model.has_method("trigger_slip_animation"):
+		model.trigger_slip_animation(duration)
+	if is_inside_tree() and multiplayer and multiplayer.has_multiplayer_peer():
+		rpc("play_slip_anim_rpc", duration)
 	if is_local_human():
 		notification_displayed.emit("SAPUL NG TSINELAS ni %s!" % attacker_name, false)
 
@@ -2421,14 +2578,15 @@ func apply_banana_slip(planter_name: String) -> void:
 	stats_slips += 1
 	is_slipping = true
 	slip_timer = 1.4
-	var move_dir := velocity.normalized()
-	if move_dir.length() < 0.2:
-		move_dir = -global_transform.basis.z
-	move_dir.y = 0.0
-	slip_velocity = move_dir * 14.0
-	velocity = slip_velocity
-	squash_current = Vector3(1.4, 0.35, 1.4)
-	add_shake(0.3)
+	velocity.x = 0.0
+	velocity.z = 0.0
+	slip_velocity = Vector3.ZERO
+	squash_current = Vector3(1.2, 0.65, 1.2)
+	add_shake(0.25)
+	if model and model.has_method("trigger_slip_animation"):
+		model.trigger_slip_animation(1.4)
+	if is_inside_tree() and multiplayer and multiplayer.has_multiplayer_peer():
+		rpc("play_slip_anim_rpc", 1.4)
 	if is_local_human():
 		notification_displayed.emit("NANDULAS SA SAGING ni %s!" % planter_name, false)
 
@@ -2449,19 +2607,27 @@ func enter_hiding_spot(spot: Node3D) -> void:
 		name_label.visible = false
 	if is_local_human():
 		hiding_state_changed.emit(true, 8.0)
-		notification_displayed.emit("Nagtatago sa drum... Tahimik lang!", true)
+		var is_box: bool = is_instance_valid(spot) and ("spot_type" in spot) and spot.spot_type == 1
+		var msg: String = "Nagtatago sa karton... Tahimik lang!" if is_box else "Nagtatago sa drum... Tahimik lang!"
+		notification_displayed.emit(msg, true)
 
 func exit_hiding_spot() -> void:
 	if not is_hiding:
 		return
+
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		if is_instance_valid(current_hiding_spot) and current_hiding_spot.has_method("request_eject"):
+			current_hiding_spot.call("request_eject", player_id)
+			return
+
 	is_hiding = false
 	if is_instance_valid(current_hiding_spot) and current_hiding_spot.has_method("eject_occupant"):
 		if current_hiding_spot.get("occupant") == self:
 			current_hiding_spot.call("eject_occupant", false)
 	current_hiding_spot = null
 	if model:
-		model.visible = true
+		model.visible = not is_eliminated
 	if name_label:
-		name_label.visible = true
+		name_label.visible = not is_eliminated
 	if is_local_human():
 		hiding_state_changed.emit(false, 0.0)

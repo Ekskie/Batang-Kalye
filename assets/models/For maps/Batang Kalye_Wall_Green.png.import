@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dqgibt8imdgta"
-path.s3tc="res://.godot/imported/test_icon gc.jpg-091fd10ec071f79b7796a8cbd1ce46be.s3tc.ctex"
-path.etc2="res://.godot/imported/test_icon gc.jpg-091fd10ec071f79b7796a8cbd1ce46be.etc2.ctex"
+uid="uid://brsjaucohei4t"
+path.s3tc="res://.godot/imported/Batang Kalye_Wall_Green.png-31afeb035030e2e80e63ea763c1d0204.s3tc.ctex"
+path.etc2="res://.godot/imported/Batang Kalye_Wall_Green.png-31afeb035030e2e80e63ea763c1d0204.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "6bf77dba17df906e05bc1e293f41cbd5"
+"md5": "799af2a5ecb2327c1c8d8cef20c645fa"
 }
 
 [deps]
 
-source_file="res://assets/models/For maps/test_icon gc.jpg"
-dest_files=["res://.godot/imported/test_icon gc.jpg-091fd10ec071f79b7796a8cbd1ce46be.s3tc.ctex", "res://.godot/imported/test_icon gc.jpg-091fd10ec071f79b7796a8cbd1ce46be.etc2.ctex"]
+source_file="res://assets/models/For maps/Batang Kalye_Wall_Green.png"
+dest_files=["res://.godot/imported/Batang Kalye_Wall_Green.png-31afeb035030e2e80e63ea763c1d0204.s3tc.ctex", "res://.godot/imported/Batang Kalye_Wall_Green.png-31afeb035030e2e80e63ea763c1d0204.etc2.ctex"]
 
 [params]
 

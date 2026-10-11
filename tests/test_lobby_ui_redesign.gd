@@ -91,17 +91,17 @@ func _init() -> void:
 		return
 	print("[PASS] Color swatches and indicator dots generated successfully.")
 
-	# 5. Verify Room Waiting State
+	# 5. Verify Streamlined Room Waiting State (Redundant 2D panel removed in favor of 3D Social Lobby)
 	lobby_ui.set_room_waiting_state(true, true, "Laro sa Kanto", { 1: { "name": "HostPlayer" }, 2: { "name": "Client1" } })
-	if not lobby_ui.panel_room_waiting.visible:
-		push_error("[FAIL] Room waiting panel not visible!")
+	if lobby_ui.panel_room_waiting != null and lobby_ui.panel_room_waiting.visible:
+		push_error("[FAIL] Redundant 2D room waiting panel should be absent or inactive!")
 		quit(1)
 		return
-	if lobby_ui.room_slots_container.get_child_count() != 8:
-		push_error("[FAIL] Room slots count mismatch: " + str(lobby_ui.room_slots_container.get_child_count()))
+	if not lobby_ui.is_in_room or not lobby_ui.is_room_host:
+		push_error("[FAIL] Room state flags mismatch!")
 		quit(1)
 		return
-	print("[PASS] Room waiting slots populated (8 slots) successfully.")
+	print("[PASS] Streamlined room waiting state handled cleanly without redundant 2D panel.")
 
 	# 6. Verify Online Lobbies Population
 	var mock_lobbies: Array[Dictionary] = [

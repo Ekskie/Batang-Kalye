@@ -34,6 +34,20 @@ inner_radius = 2.1
 outer_radius = 2.25
 material = SubResource("StandardMaterial3D_ring")
 
+[node name="StationButton" type="CSGCylinder3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+use_collision = true
+radius = 0.32
+height = 0.8
+material = ExtResource("2_sidewalk")
+
+[node name="ButtonCap" type="CSGCylinder3D" parent="StationButton"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+use_collision = true
+radius = 0.36
+height = 0.12
+material = SubResource("StandardMaterial3D_ring")
+
 [node name="PillarLeft" type="CSGCylinder3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8, 1.8, 0)
 use_collision = true

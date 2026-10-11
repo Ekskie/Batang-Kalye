@@ -199,7 +199,16 @@ func _set_crosshair_throwable_mode(active: bool) -> void:
 		var t := create_tween()
 		t.tween_property(crosshair, "scale", target_scale, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
-func update_role_display(is_taya: bool) -> void:
+func update_role_display(is_taya: bool, is_eliminated: bool = false) -> void:
+	if is_eliminated:
+		is_taya_local = false
+		if player_deck:
+			player_deck.add_theme_stylebox_override("panel", deck_style_runner)
+		if role_badge:
+			role_badge.text = "NANONOOD"
+			role_badge.modulate = Color(0.7, 0.75, 0.85)
+		return
+
 	var role_changed := (is_taya != is_taya_local)
 	is_taya_local = is_taya
 
@@ -283,13 +292,14 @@ func _pulse_timer_label() -> void:
 	timer_pulse_tween.tween_property(timer_label, "scale", Vector2(1.25, 1.25), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	timer_pulse_tween.tween_property(timer_label, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
-func update_round_badge(round_num: int, _mode_name: String, alive_count: int, total_count: int) -> void:
+func update_round_badge(round_num: int, mode_name: String, alive_count: int, total_count: int) -> void:
 	if round_label:
+		var mode_str := (" - " + mode_name.to_upper()) if not mode_name.is_empty() else ""
 		if alive_count <= 2 and total_count > 2:
-			round_label.text = "FINALS (1v1)"
+			round_label.text = "FINALS (1v1)%s" % mode_str
 			round_label.modulate = Color(1.0, 0.35, 0.2)
 		else:
-			round_label.text = "ROUND %d" % round_num
+			round_label.text = "ROUND %d%s" % [round_num, mode_str]
 			round_label.modulate = Color(1.0, 0.85, 0.2)
 
 	if alive_label:

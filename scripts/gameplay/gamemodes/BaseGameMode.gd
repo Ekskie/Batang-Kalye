@@ -1,6 +1,9 @@
 class_name BaseGameMode
 extends RefCounted
 
+## BaseGameMode
+## Abstract interface for Batang Kalye street match rules and lifecycles.
+
 var mode_type: int = 0
 var mode_name: String = "Larong Kalye"
 var mode_tagline: String = "Street Game"
@@ -16,6 +19,9 @@ func process_mode(_game_manager: Node, _delta: float) -> void:
 func on_player_tagged(_game_manager: Node, _tagger_id: int, _victim_id: int) -> void:
 	pass
 
+func on_player_disconnected(_game_manager: Node, _peer_id: int) -> void:
+	pass
+
 func check_win_condition(_game_manager: Node) -> bool:
 	return false
 
@@ -28,4 +34,12 @@ func get_mode_meta(_game_manager: Node) -> Dictionary:
 		"tagline": mode_tagline,
 		"description": mode_description,
 		"icon": icon_name
+	}
+
+func get_mode_hud_info(game_manager: Node) -> Dictionary:
+	var alive_count: int = game_manager.alive_player_ids.size() if ("alive_player_ids" in game_manager) else 0
+	return {
+		"display_name": mode_name,
+		"alive_count": alive_count,
+		"round": game_manager.current_round if ("current_round" in game_manager) else 1
 	}

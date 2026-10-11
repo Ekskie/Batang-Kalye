@@ -2,23 +2,25 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://blo48py0ql8sf"
-path="res://.godot/imported/test_icon gc_1.png-22f4c9cb6aeff7b68a001a6d02516139.ctex"
+uid="uid://dcfgsmcrirrtl"
+path.s3tc="res://.godot/imported/Batang Kalye_Door_Green.png-c8ffa1e4439fa50962d3494583d53bd2.s3tc.ctex"
+path.etc2="res://.godot/imported/Batang Kalye_Door_Green.png-c8ffa1e4439fa50962d3494583d53bd2.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
-"md5": "6bf77dba17df906e05bc1e293f41cbd5"
+"md5": "17315d2e9bb05984ce842951d99f7931"
 }
 
 [deps]
 
-source_file="res://assets/models/For maps/test_icon gc_1.png"
-dest_files=["res://.godot/imported/test_icon gc_1.png-22f4c9cb6aeff7b68a001a6d02516139.ctex"]
+source_file="res://assets/models/For maps/Batang Kalye_Door_Green.png"
+dest_files=["res://.godot/imported/Batang Kalye_Door_Green.png-c8ffa1e4439fa50962d3494583d53bd2.s3tc.ctex", "res://.godot/imported/Batang Kalye_Door_Green.png-c8ffa1e4439fa50962d3494583d53bd2.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
