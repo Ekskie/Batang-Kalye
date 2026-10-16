@@ -7,49 +7,62 @@ var audio_players: Array[AudioStreamPlayer] = []
 const POOL_SIZE: int = 8
 var current_player_idx: int = 0
 
-# Cached synthesized audio streams
-var sfx_pickup: AudioStreamWAV
-var sfx_bin_correct: AudioStreamWAV
-var sfx_bin_wrong: AudioStreamWAV
-var sfx_powerup: AudioStreamWAV
-var sfx_tag_hit: AudioStreamWAV
-var sfx_tag_swing: AudioStreamWAV
-var sfx_drop: AudioStreamWAV
-var sfx_dog_bark: AudioStreamWAV
-var sfx_stun: AudioStreamWAV
-var sfx_danger: AudioStreamWAV
-var sfx_tick: AudioStreamWAV
-var sfx_elimination: AudioStreamWAV
-var sfx_whistle: AudioStreamWAV
-var sfx_jump: AudioStreamWAV
-var sfx_land: AudioStreamWAV
-var sfx_slide: AudioStreamWAV
-var sfx_dash: AudioStreamWAV
-var sfx_step_asphalt: AudioStreamWAV
-var sfx_step_water: AudioStreamWAV
-var sfx_tag_boom: AudioStreamWAV
-var sfx_score_ding: AudioStreamWAV
-var sfx_pant: AudioStreamWAV
-var sfx_recover_breath: AudioStreamWAV
-var sfx_tsinelas_throw: AudioStreamWAV
-var sfx_tsinelas_slap: AudioStreamWAV
-var sfx_banana_slip: AudioStreamWAV
-var sfx_drum_hide: AudioStreamWAV
-var sfx_drum_clang: AudioStreamWAV
-var sfx_chalk_puff: AudioStreamWAV
-var sfx_ice_candy: AudioStreamWAV
-var sfx_vault: AudioStreamWAV
-var sfx_vote_select: AudioStreamWAV
-var sfx_vote_win: AudioStreamWAV
+var audio_players_3d: Array[AudioStreamPlayer3D] = []
+const POOL_3D_SIZE: int = 8
+var current_player_3d_idx: int = 0
+
+# Cached synthesized audio streams (polymorphic AudioStream supporting WAV, OGG, and MP3)
+var sfx_pickup: AudioStream
+var sfx_bin_correct: AudioStream
+var sfx_bin_wrong: AudioStream
+var sfx_powerup: AudioStream
+var sfx_tag_hit: AudioStream
+var sfx_tag_swing: AudioStream
+var sfx_drop: AudioStream
+var sfx_dog_bark: AudioStream
+var sfx_stun: AudioStream
+var sfx_danger: AudioStream
+var sfx_tick: AudioStream
+var sfx_elimination: AudioStream
+var sfx_whistle: AudioStream
+var sfx_jump: AudioStream
+var sfx_land: AudioStream
+var sfx_slide: AudioStream
+var sfx_dash: AudioStream
+var sfx_step_asphalt: AudioStream
+var sfx_step_water: AudioStream
+var sfx_tag_boom: AudioStream
+var sfx_score_ding: AudioStream
+var sfx_pant: AudioStream
+var sfx_recover_breath: AudioStream
+var sfx_tsinelas_throw: AudioStream
+var sfx_tsinelas_slap: AudioStream
+var sfx_banana_slip: AudioStream
+var sfx_drum_hide: AudioStream
+var sfx_drum_clang: AudioStream
+var sfx_chalk_puff: AudioStream
+var sfx_ice_candy: AudioStream
+var sfx_vault: AudioStream
+var sfx_vote_select: AudioStream
+var sfx_vote_win: AudioStream
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	# Create pool of players
+	# Create pool of 2D / non-positional players
 	for i in range(POOL_SIZE):
 		var p := AudioStreamPlayer.new()
 		p.bus = "Master"
 		add_child(p)
 		audio_players.append(p)
+
+	# Create pool of 3D positional players
+	for i in range(POOL_3D_SIZE):
+		var p3d := AudioStreamPlayer3D.new()
+		p3d.bus = "Master"
+		p3d.max_distance = 35.0
+		p3d.attenuation_model = AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE
+		add_child(p3d)
+		audio_players_3d.append(p3d)
 
 	_synthesize_all_sfx()
 
@@ -88,7 +101,7 @@ func _synthesize_all_sfx() -> void:
 	sfx_vote_select = _create_sweep_tone(440.0, 880.0, 0.08, 0.5)
 	sfx_vote_win = _create_arpeggio([523.25, 659.25, 783.99, 1046.50, 1318.51], 0.07, 0.8)
 
-func play_sfx(stream: AudioStreamWAV, pitch_scale: float = 1.0) -> void:
+func play_sfx(stream: AudioStream, pitch_scale: float = 1.0) -> void:
 	if not stream or audio_players.is_empty():
 		return
 	var player: AudioStreamPlayer = audio_players[current_player_idx]
@@ -96,6 +109,20 @@ func play_sfx(stream: AudioStreamWAV, pitch_scale: float = 1.0) -> void:
 	player.stream = stream
 	player.pitch_scale = pitch_scale + randf_range(-0.05, 0.05)
 	player.play()
+
+func play_sfx_3d(stream: AudioStream, global_pos: Vector3, max_distance: float = 35.0, pitch_scale: float = 1.0) -> void:
+	if not stream or audio_players_3d.is_empty():
+		return
+	var player: AudioStreamPlayer3D = audio_players_3d[current_player_3d_idx]
+	current_player_3d_idx = (current_player_3d_idx + 1) % POOL_3D_SIZE
+	player.global_position = global_pos
+	player.max_distance = max_distance
+	player.stream = stream
+	player.pitch_scale = pitch_scale + randf_range(-0.05, 0.05)
+	player.play()
+
+func play_whiff() -> void:
+	play_sfx(sfx_tag_swing, randf_range(0.95, 1.15))
 
 func play_pickup() -> void:
 	play_sfx(sfx_pickup, randf_range(0.95, 1.1))

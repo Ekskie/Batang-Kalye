@@ -188,6 +188,8 @@ func trigger_hit_flash(color: Color = Color(1, 1, 1, 0.65), duration: float = 0.
 		crosshair_tween = create_tween()
 		crosshair_tween.tween_property(crosshair, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
+var held_street_item_local: int = -1
+
 func _set_crosshair_throwable_mode(active: bool) -> void:
 	for tick in crosshair_ticks:
 		if is_instance_valid(tick):
@@ -198,6 +200,22 @@ func _set_crosshair_throwable_mode(active: bool) -> void:
 		var target_scale := Vector2(1.2, 1.2) if active else Vector2.ONE
 		var t := create_tween()
 		t.tween_property(crosshair, "scale", target_scale, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+func set_aiming_mode(active: bool, is_locked: bool = false) -> void:
+	if not crosshair:
+		return
+	if active:
+		for tick in crosshair_ticks:
+			if is_instance_valid(tick):
+				tick.visible = true
+				tick.color = Color(1.0, 0.35, 0.25, 0.95) if is_locked else Color(1.0, 0.92, 0.35, 0.95)
+		if crosshair_dot:
+			crosshair_dot.color = Color(1.0, 0.35, 0.25, 1.0) if is_locked else Color(1.0, 0.95, 0.4, 1.0)
+		var target_scale := Vector2(1.38, 1.38) if is_locked else Vector2(1.25, 1.25)
+		var t := create_tween()
+		t.tween_property(crosshair, "scale", target_scale, 0.08).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	else:
+		_set_crosshair_throwable_mode(held_street_item_local == 0 or held_street_item_local == 3)
 
 func update_role_display(is_taya: bool, is_eliminated: bool = false) -> void:
 	if is_eliminated:
@@ -506,6 +524,8 @@ func on_street_item_changed(item_type: int, _item_name: String, count: int) -> v
 	if not street_item_slot:
 		return
 
+	held_street_item_local = item_type
+
 	if item_type == -1 or count <= 0:
 		_set_crosshair_throwable_mode(false)
 		if street_item_icon: street_item_icon.text = ""
@@ -519,14 +539,14 @@ func on_street_item_changed(item_type: int, _item_name: String, count: int) -> v
 		_set_crosshair_throwable_mode(item_type == 0 or item_type == 3)
 		var iname := "GAMIT"
 		var icon := "🎒"
-		var hint := "[R-CLICK] GAMIT"
+		var hint := "[R-CLICK / G] GAMIT"
 		var col := Color(1.0, 1.0, 1.0)
 
 		match item_type:
 			0: # TSINELAS
 				iname = "TSINELAS (%dx)" % count if count > 1 else "TSINELAS"
 				icon = "🩴"
-				hint = "[R-CLICK] BATO"
+				hint = "[HOLD R-CLICK / G] ASINTA / BATO"
 				col = Color(0.3, 0.85, 1.0)
 			1: # SAGING
 				iname = "SAGING (%dx)" % count if count > 1 else "SAGING"

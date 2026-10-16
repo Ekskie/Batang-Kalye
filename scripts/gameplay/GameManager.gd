@@ -353,6 +353,10 @@ var settings_data: Dictionary = {
 @onready var sensitivity_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow/SensitivityLabel")
 @onready var fov_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow/FovSlider")
 @onready var fov_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow/FovLabel")
+@onready var vibration_check: CheckButton = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VibrationRow/VibrationCheck")
+@onready var joystick_style_option: OptionButton = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/JoystickStyleRow/JoystickStyleOption")
+@onready var ui_scale_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/UiScaleRow/UiScaleSlider")
+@onready var ui_scale_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/UiScaleRow/UiScaleLabel")
 @onready var btn_close_settings: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/BtnCloseSettings")
 @onready var fps_label: Label = get_node_or_null("FpsOverlay/FpsLabel")
 
@@ -584,6 +588,10 @@ func _init_node_references() -> void:
 	if not sensitivity_label: sensitivity_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow/SensitivityLabel")
 	if not fov_slider: fov_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow/FovSlider")
 	if not fov_label: fov_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow/FovLabel")
+	if not vibration_check: vibration_check = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VibrationRow/VibrationCheck")
+	if not joystick_style_option: joystick_style_option = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/JoystickStyleRow/JoystickStyleOption")
+	if not ui_scale_slider: ui_scale_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/UiScaleRow/UiScaleSlider")
+	if not ui_scale_label: ui_scale_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/UiScaleRow/UiScaleLabel")
 	if not btn_close_settings: btn_close_settings = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/BtnCloseSettings")
 	if not fps_label: fps_label = get_node_or_null("FpsOverlay/FpsLabel")
 
@@ -843,6 +851,22 @@ func _setup_ui_signals() -> void:
 	if fov_slider:
 		fov_slider.value_changed.connect(_on_fov_changed)
 
+	# Mobile Controls & Haptics
+	if vibration_check:
+		vibration_check.toggled.connect(func(enabled: bool):
+			set_vibration_enabled(enabled)
+		)
+	if joystick_style_option:
+		joystick_style_option.item_selected.connect(func(idx: int):
+			set_joystick_style(idx)
+		)
+	if ui_scale_slider:
+		ui_scale_slider.value_changed.connect(func(val: float):
+			set_touch_ui_scale(val)
+			if ui_scale_label:
+				ui_scale_label.text = "Laki ng Touch Pindutan: %d%%" % int(val * 100.0)
+		)
+
 	_update_customization_ui()
 
 	var btn_rematch = get_node_or_null("GameOverUI/Panel/VBoxContainer/BtnRematch")
@@ -923,6 +947,23 @@ func _setup_lobby_ui_signals() -> void:
 		lobby_ui.start_game_requested.connect(_on_lobby_start_game_requested)
 	if lobby_ui.has_signal("leave_room_requested"):
 		lobby_ui.leave_room_requested.connect(_on_btn_cancel_pressed)
+	if lobby_ui.has_signal("add_bot_requested"):
+		lobby_ui.add_bot_requested.connect(_on_lobby_add_bot_requested)
+	if lobby_ui.has_signal("remove_bot_requested"):
+		lobby_ui.remove_bot_requested.connect(_on_lobby_remove_bot_requested)
+
+func _on_lobby_add_bot_requested() -> void:
+	if not network_manager or not network_manager.is_host:
+		return
+	var bot_id := network_manager.add_bot()
+	if bot_id > 0:
+		_update_lobby_player_list()
+
+func _on_lobby_remove_bot_requested() -> void:
+	if not network_manager or not network_manager.is_host:
+		return
+	if network_manager.remove_bot():
+		_update_lobby_player_list()
 
 func _on_lobby_create_room_submitted(r_name: String, mode_id: int, duration: float, max_players: int) -> void:
 	current_mode = mode_id as MatchMode
@@ -2038,8 +2079,11 @@ func _spawn_single_player(int_pid: int, spawn_idx: int = 0) -> PlayerController:
 
 	var pinfo: Dictionary = network_manager.players[int_pid] if network_manager.players.has(int_pid) else network_manager.players.get(str(int_pid), {})
 	var player_instance: PlayerController
-	if int_pid in [97, 98, 99]:
+	var is_bot: bool = bool(pinfo.get("is_bot", false)) or int_pid in [97, 98, 99] or (int_pid >= 80 and int_pid < 120)
+	if is_bot:
 		player_instance = bot_scene.instantiate()
+		player_instance.is_bot = true
+		player_instance.set_multiplayer_authority(1)
 	else:
 		player_instance = player_scene.instantiate()
 
@@ -2956,7 +3000,10 @@ func _load_settings() -> void:
 			"show_fps": false,
 			"volume": 1.0,
 			"sensitivity": 2.5,
-			"fov": 75.0
+			"fov": 75.0,
+			"vibration": true,
+			"joystick_style": 0,
+			"touch_ui_scale": 1.0
 		}
 	else:
 		settings_data = {
@@ -2969,7 +3016,10 @@ func _load_settings() -> void:
 			"show_fps": false,
 			"volume": 1.0,
 			"sensitivity": 2.5,
-			"fov": 75.0
+			"fov": 75.0,
+			"vibration": false,
+			"joystick_style": 0,
+			"touch_ui_scale": 1.0
 		}
 
 	var cfg := ConfigFile.new()
@@ -2985,6 +3035,9 @@ func _load_settings() -> void:
 		settings_data["volume"] = cfg.get_value("audio", "volume", settings_data["volume"])
 		settings_data["sensitivity"] = cfg.get_value("controls", "sensitivity", settings_data["sensitivity"])
 		settings_data["fov"] = cfg.get_value("controls", "fov", settings_data["fov"])
+		settings_data["vibration"] = cfg.get_value("controls", "vibration", settings_data.get("vibration", is_mobile))
+		settings_data["joystick_style"] = cfg.get_value("controls", "joystick_style", settings_data.get("joystick_style", 0))
+		settings_data["touch_ui_scale"] = cfg.get_value("controls", "touch_ui_scale", settings_data.get("touch_ui_scale", 1.0))
 
 	apply_graphics_settings()
 	_sync_settings_ui()
@@ -3001,6 +3054,9 @@ func _save_settings() -> void:
 	cfg.set_value("audio", "volume", settings_data.get("volume", 1.0))
 	cfg.set_value("controls", "sensitivity", settings_data.get("sensitivity", 2.5))
 	cfg.set_value("controls", "fov", settings_data.get("fov", 75.0))
+	cfg.set_value("controls", "vibration", settings_data.get("vibration", true))
+	cfg.set_value("controls", "joystick_style", settings_data.get("joystick_style", 0))
+	cfg.set_value("controls", "touch_ui_scale", settings_data.get("touch_ui_scale", 1.0))
 	cfg.save(SETTINGS_SAVE_PATH)
 
 func apply_graphics_settings() -> void:
@@ -3015,7 +3071,7 @@ func apply_graphics_settings() -> void:
 	if sun:
 		sun.shadow_enabled = shadows_on
 		if shadows_on:
-			sun.directional_shadow_max_distance = 60.0 if int(settings_data.get("preset", 0)) <= 2 else 150.0
+			sun.directional_shadow_max_distance = 35.0 if int(settings_data.get("preset", 0)) <= 1 else (60.0 if int(settings_data.get("preset", 0)) == 2 else 120.0)
 
 	# 3. Glow & Bloom
 	var glow_on: bool = bool(settings_data.get("glow", false))
@@ -3040,6 +3096,9 @@ func apply_graphics_settings() -> void:
 	_apply_audio_volume(float(settings_data.get("volume", 1.0)))
 	_apply_sensitivity(float(settings_data.get("sensitivity", 2.5)))
 	_apply_fov(float(settings_data.get("fov", 75.0)))
+
+	# 8. Mobile Controls & Haptics
+	_apply_mobile_controls_settings()
 
 func _apply_preset(preset_idx: int) -> void:
 	match preset_idx:
@@ -3108,6 +3167,51 @@ func _sync_settings_ui() -> void:
 		sensitivity_slider.set_value_no_signal(float(settings_data.get("sensitivity", 2.5)))
 	if fov_slider:
 		fov_slider.set_value_no_signal(float(settings_data.get("fov", 75.0)))
+
+	if vibration_check:
+		vibration_check.set_pressed_no_signal(bool(settings_data.get("vibration", true)))
+	if joystick_style_option:
+		joystick_style_option.select(int(settings_data.get("joystick_style", 0)))
+	var u_scale: float = float(settings_data.get("touch_ui_scale", 1.0))
+	if ui_scale_slider:
+		ui_scale_slider.set_value_no_signal(u_scale)
+	if ui_scale_label:
+		ui_scale_label.text = "Laki ng Touch Pindutan: %d%%" % int(u_scale * 100.0)
+
+func is_vibration_enabled() -> bool:
+	return bool(settings_data.get("vibration", true))
+
+func set_vibration_enabled(enabled: bool) -> void:
+	settings_data["vibration"] = enabled
+	_save_settings()
+
+func set_joystick_style(style: int) -> void:
+	settings_data["joystick_style"] = style
+	_apply_mobile_controls_settings()
+	_save_settings()
+
+func set_touch_ui_scale(scale_val: float) -> void:
+	settings_data["touch_ui_scale"] = clampf(scale_val, 0.6, 1.4)
+	_apply_mobile_controls_settings()
+	_save_settings()
+
+func _apply_mobile_controls_settings() -> void:
+	var j_mode: int = int(settings_data.get("joystick_style", 0))
+	var u_scale: float = float(settings_data.get("touch_ui_scale", 1.0))
+	if is_inside_tree() and get_tree():
+		for node in get_tree().get_nodes_in_group("mobile_controls"):
+			if node and is_instance_valid(node):
+				if node.has_method("set_joystick_mode"):
+					node.set_joystick_mode(j_mode)
+				if node.has_method("set_ui_scale"):
+					node.set_ui_scale(u_scale)
+	if players_container and is_instance_valid(players_container):
+		for p in players_container.get_children():
+			if p is PlayerController and ("mobile_ui" in p) and p.mobile_ui and is_instance_valid(p.mobile_ui):
+				if p.mobile_ui.has_method("set_joystick_mode"):
+					p.mobile_ui.set_joystick_mode(j_mode)
+				if p.mobile_ui.has_method("set_ui_scale"):
+					p.mobile_ui.set_ui_scale(u_scale)
 
 func _open_settings(from_source: String) -> void:
 	settings_opened_from = from_source
@@ -3460,9 +3564,10 @@ func _update_lobby_player_list() -> void:
 				var pid = pids[i]
 				var pinfo: Dictionary = network_manager.players[pid]
 				var is_h: bool = (int(pid) == 1)
-				var tag := " [HOST]" if is_h else ""
+				var is_b: bool = bool(pinfo.get("is_bot", false)) or int(pid) in [97, 98, 99] or (int(pid) >= 80 and int(pid) < 120)
+				var tag := " [BOT]" if is_b else (" [HOST]" if is_h else "")
 				lbl.text = "Slot %d: %s%s" % [i + 1, pinfo.get("name", "Player"), tag]
-				lbl.modulate = Color(0.95, 0.98, 1.0, 1.0)
+				lbl.modulate = Color(0.4, 0.85, 1.0) if is_b else Color(0.95, 0.98, 1.0, 1.0)
 			else:
 				lbl.text = "Slot %d: (Empty)" % (i + 1)
 				lbl.modulate = Color(0.45, 0.55, 0.68, 0.8)

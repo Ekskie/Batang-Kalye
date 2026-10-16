@@ -110,6 +110,86 @@ func create_game(player_name: String, port: int = DEFAULT_PORT) -> Error:
 	player_list_updated.emit()
 	return OK
 
+const BOT_ID_BASE: int = 90
+const BOT_NAMES: Array[String] = [
+	"Baldo", "Totoy", "Nene", "Kulot", "Baste", 
+	"Inday", "Kiko", "Ding", "Tisoy", "Enteng", 
+	"Maya", "Lando", "Gardo", "Bong", "Nonoy"
+]
+
+func add_bot(bot_name: String = "", preset: int = -1, color_idx: int = -1) -> int:
+	if not is_host:
+		return -1
+	if players.size() >= MAX_PLAYERS:
+		return -1
+
+	var next_id := BOT_ID_BASE
+	while players.has(next_id) or players.has(str(next_id)):
+		next_id += 1
+		if next_id >= BOT_ID_BASE + 25:
+			return -1
+
+	var cur_bots := get_bot_count()
+	var b_name := bot_name
+	if b_name.is_empty():
+		b_name = BOT_NAMES[cur_bots % BOT_NAMES.size()]
+
+	var p_type := preset if preset >= 0 else (cur_bots % 8)
+	var c_idx := color_idx if color_idx >= 0 else ((cur_bots + 1) % 6)
+
+	players[next_id] = {
+		"name": b_name,
+		"score": 0,
+		"role": 0,
+		"character": p_type,
+		"color_idx": c_idx,
+		"outfit": {
+			"archetype": p_type,
+			"base": p_type,
+			"skin": 0,
+			"hair": 0,
+			"headwear": 0,
+			"body": 0,
+			"footwear": 0,
+			"color": c_idx,
+			"title": "Bata (Bot)"
+		},
+		"is_bot": true
+	}
+
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		rpc("sync_player_list", players)
+	player_list_updated.emit()
+	return next_id
+
+func remove_bot() -> bool:
+	if not is_host:
+		return false
+	var bot_ids: Array[int] = []
+	for pid in players.keys():
+		var pinfo = players[pid]
+		if (pinfo is Dictionary and pinfo.get("is_bot", false)) or int(pid) in [97, 98, 99] or (int(pid) >= 80 and int(pid) < 120):
+			bot_ids.append(int(pid))
+	if bot_ids.is_empty():
+		return false
+	bot_ids.sort()
+	var to_remove = bot_ids.back()
+	players.erase(to_remove)
+	players.erase(str(to_remove))
+
+	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		rpc("sync_player_list", players)
+	player_list_updated.emit()
+	return true
+
+func get_bot_count() -> int:
+	var count := 0
+	for pid in players.keys():
+		var pinfo = players[pid]
+		if (pinfo is Dictionary and pinfo.get("is_bot", false)) or int(pid) in [97, 98, 99] or (int(pid) >= 80 and int(pid) < 120):
+			count += 1
+	return count
+
 func join_game(address: String, player_name: String, port: int = DEFAULT_PORT) -> Error:
 	local_player_name = player_name
 	is_host = false

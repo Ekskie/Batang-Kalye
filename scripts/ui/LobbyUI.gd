@@ -186,6 +186,11 @@ func _init_references() -> void:
 	if not info_tip_label: info_tip_label = get_node_or_null("Margin/VBox/BottomBar/TipHBox/TipLabel")
 	if not btn_start_game: btn_start_game = get_node_or_null("Margin/VBox/BottomBar/BtnStartGame")
 
+func update_bot_controls(_p_bot_count: int = 0, _max_bots: int = 15, _is_host: bool = false) -> void:
+	# Obsolete 2D lobby bot controls removed; bots are handled in 3D enclosed court via BotStation3D
+	pass
+
+
 func _process(delta: float) -> void:
 	if preview_char and is_instance_valid(preview_char):
 		preview_char.rotate_y(delta * 0.65)
@@ -514,9 +519,21 @@ func set_room_waiting_state(in_room: bool, is_host: bool = false, room_name: Str
 				if i < pids.size():
 					var pid = pids[i]
 					var pinfo: Dictionary = players[pid]
-					var is_p_host := (i == 0)
-					slot_lbl.text = "Slot %d: %s %s" % [i + 1, pinfo.get("name", "Player"), "[HOST]" if is_p_host else ""]
-					slot_lbl.add_theme_color_override("font_color", Color(0.95, 0.98, 1.0))
+					var is_p_host := (int(pid) == 1)
+					var is_bot: bool = bool(pinfo.get("is_bot", false)) or (int(pid) in [97, 98, 99]) or (int(pid) >= 80 and int(pid) < 120)
+					if is_bot:
+						var bname: String = str(pinfo.get("name", "Bot"))
+						if not bname.begins_with("[BOT]"):
+							slot_lbl.text = "Slot %d: [BOT] %s" % [i + 1, bname]
+						else:
+							slot_lbl.text = "Slot %d: %s" % [i + 1, bname]
+						slot_lbl.add_theme_color_override("font_color", Color(0.4, 0.85, 1.0))
+					elif is_p_host:
+						slot_lbl.text = "Slot %d: %s [HOST]" % [i + 1, pinfo.get("name", "Player")]
+						slot_lbl.add_theme_color_override("font_color", Color(0.95, 0.98, 1.0))
+					else:
+						slot_lbl.text = "Slot %d: %s" % [i + 1, pinfo.get("name", "Player")]
+						slot_lbl.add_theme_color_override("font_color", Color(0.95, 0.98, 1.0))
 				else:
 					slot_lbl.text = "Slot %d: (Bakante)" % (i + 1)
 					slot_lbl.add_theme_color_override("font_color", Color(0.45, 0.50, 0.58, 0.6))

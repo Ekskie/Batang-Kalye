@@ -99,7 +99,7 @@ func get_interaction_action() -> String:
 func get_interaction_icon() -> String:
 	return "🗳️"
 
-func interact(player: PlayerController = null) -> void:
+func interact(_player: PlayerController = null) -> void:
 	if not vote_manager:
 		_find_and_connect_vote_manager()
 

@@ -2,7 +2,7 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://iuns6rrdp4jf"
+uid="uid://dk3kliyfhijum"
 path.s3tc="res://.godot/imported/Batang Kalye_Wall_Yellow.png-684798ec7e78ed6b5ff4d8434a9e102d.s3tc.ctex"
 path.etc2="res://.godot/imported/Batang Kalye_Wall_Yellow.png-684798ec7e78ed6b5ff4d8434a9e102d.etc2.ctex"
 metadata={
@@ -10,7 +10,7 @@ metadata={
 "vram_texture": true
 }
 generator_parameters={
-"md5": "89f21c49d2ca5f2f0390e0b2a24765de"
+"md5": "dbc0fe69fbdc64c23e2a9e58de232a90"
 }
 
 [deps]

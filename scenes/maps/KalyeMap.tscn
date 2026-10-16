@@ -32,6 +32,7 @@
 [ext_resource type="PackedScene" path="res://scenes/gameplay/VotingStation3D.tscn" id="30_voting_station"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/VotingCourtScoreboard3D.tscn" id="31_court_scoreboard"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/VotingStartButton3D.tscn" id="32_voting_start_button"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/BotStation3D.tscn" id="33_bot_station"]
 
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ph"]
@@ -345,6 +346,9 @@ theme_color = Color(0.2, 0.65, 1, 1)
 
 [node name="CourtScoreboard" parent="Ground/BarangayBasketballCourt" instance=ExtResource("31_court_scoreboard")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.2, -17.2)
+
+[node name="BotStation" parent="Ground/BarangayBasketballCourt" instance=ExtResource("33_bot_station")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 0.02, 6)
 
 [node name="LineNorth" type="CSGBox3D" parent="Ground/BarangayBasketballCourt"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.022, -17)

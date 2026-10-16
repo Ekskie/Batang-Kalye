@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://jkep6t4bgdcs"
-path.s3tc="res://.godot/imported/Batang Kalye_Roof_Yellow.png-220c928b5c9eddcfa4c64a77f785c1bd.s3tc.ctex"
-path.etc2="res://.godot/imported/Batang Kalye_Roof_Yellow.png-220c928b5c9eddcfa4c64a77f785c1bd.etc2.ctex"
+uid="uid://3m6vruku1xqf"
+path.s3tc="res://.godot/imported/Batang Kalye_chain.png-68abcc491c678a77d9ed9f6aafbcd42b.s3tc.ctex"
+path.etc2="res://.godot/imported/Batang Kalye_chain.png-68abcc491c678a77d9ed9f6aafbcd42b.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "3d6d52b3a36d3a35c25e6fe632174de8"
+"md5": "fc24161ed1edbbddb407a54c7d3bf92b"
 }
 
 [deps]
 
-source_file="res://assets/models/For maps/Batang Kalye_Roof_Yellow.png"
-dest_files=["res://.godot/imported/Batang Kalye_Roof_Yellow.png-220c928b5c9eddcfa4c64a77f785c1bd.s3tc.ctex", "res://.godot/imported/Batang Kalye_Roof_Yellow.png-220c928b5c9eddcfa4c64a77f785c1bd.etc2.ctex"]
+source_file="res://assets/models/For maps/Batang Kalye_chain.png"
+dest_files=["res://.godot/imported/Batang Kalye_chain.png-68abcc491c678a77d9ed9f6aafbcd42b.s3tc.ctex", "res://.godot/imported/Batang Kalye_chain.png-68abcc491c678a77d9ed9f6aafbcd42b.etc2.ctex"]
 
 [params]
 

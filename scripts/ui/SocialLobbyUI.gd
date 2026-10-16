@@ -66,7 +66,7 @@ func _toggle_emotes() -> void:
 	if emotes_bar:
 		emotes_bar.visible = not emotes_bar.visible
 
-func update_lobby_info(room_name: String, ip_str: String, count: int, max_players: int, is_host: bool) -> void:
+func update_lobby_info(room_name: String, ip_str: String, count: int, max_players: int, _is_host: bool) -> void:
 	if room_title_label:
 		room_title_label.text = "BARANGAY LOBBY: %s" % room_name.to_upper()
 	if room_ip_label:

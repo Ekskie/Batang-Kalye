@@ -130,8 +130,8 @@ func test_player_visibility_and_court_spawn() -> void:
 	assert_true(is_instance_valid(host_p), "Host player spawned successfully")
 	assert_true(is_instance_valid(client_p), "Client player spawned successfully")
 
-	# Court spawn points are around Vector3(15.0, 0.5, -6.0)
-	var court_center := Vector3(15.0, 0.5, -6.0)
+	# Court spawn points are around Vector3(35.5, 0.5, -6.0)
+	var court_center := Vector3(35.5, 0.5, -6.0)
 	assert_true(host_p.global_position.distance_to(court_center) < 10.0, "Host spawned within basketball court boundary")
 	assert_true(client_p.global_position.distance_to(court_center) < 10.0, "Client spawned within basketball court boundary")
 
@@ -141,7 +141,7 @@ func test_player_visibility_and_court_spawn() -> void:
 	assert_true(client_p.target_position.distance_to(court_center) < 10.0, "Client target_position matches court spawn (prevents being sucked off court)")
 
 	# Verify reset_network_interpolation updates both target_position and _last_sent_position
-	var new_court_pos := Vector3(16.0, 0.5, -5.0)
+	var new_court_pos := Vector3(36.0, 0.5, -5.0)
 	client_p.reset_network_interpolation(new_court_pos)
 	assert_eq(client_p.global_position, new_court_pos, "reset_network_interpolation sets global_position")
 	assert_eq(client_p.target_position, new_court_pos, "reset_network_interpolation synchronizes target_position")

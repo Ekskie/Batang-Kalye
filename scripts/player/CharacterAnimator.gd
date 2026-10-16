@@ -237,6 +237,9 @@ var is_dashing: bool = false
 var is_vaulting: bool = false
 var is_slipping: bool = false
 var slip_anim_timer: float = 0.0
+var is_stunned: bool = false
+const DizzyStarsScript = preload("res://scripts/player/DizzyStars.gd")
+var dizzy_stars: Node3D = null
 var has_superspeed: bool = false
 var held_anchor_base_y: float = 0.70
 
@@ -271,6 +274,11 @@ func _ready() -> void:
 	_setup_modular_accessories()
 	apply_preset(current_archetype)
 	set_held_trash(-1)
+
+	dizzy_stars = DizzyStarsScript.new()
+	dizzy_stars.name = "DizzyStars"
+	add_child(dizzy_stars)
+	dizzy_stars.top_level = true
 
 func _exit_tree() -> void:
 	if is_taya:
@@ -1065,10 +1073,27 @@ func trigger_slip_animation(duration: float = 1.4) -> void:
 		active_anim.speed_scale = clampf(3.36 / max(0.5, duration), 1.2, 2.5)
 
 func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed: float) -> void:
-	if slip_anim_timer > 0.0:
+	if not is_slipping and not is_stunned:
+		slip_anim_timer = 0.0
+	elif slip_anim_timer > 0.0:
 		slip_anim_timer -= delta
-		if slip_anim_timer <= 0.0 and not is_slipping:
+		if slip_anim_timer <= 0.0:
 			is_slipping = false
+
+	# Comic Dizzy Stars feedback for stun & slip
+	if dizzy_stars:
+		if is_slipping or is_stunned or slip_anim_timer > 0.0:
+			dizzy_stars.set_active(true)
+			var target_head_pos := global_position + Vector3(0.0, 1.85, 0.0)
+			if is_skeletal and active_model:
+				var head_node = active_model.get_node_or_null("Armature/Skeleton3D/Attach_Head")
+				if head_node:
+					target_head_pos = head_node.global_position + Vector3(0.0, 0.22, 0.0)
+			elif head_mesh:
+				target_head_pos = head_mesh.global_position + Vector3(0.0, 0.32, 0.0)
+			dizzy_stars.global_position = target_head_pos
+		else:
+			dizzy_stars.set_active(false)
 
 	var using_naruto: bool = (has_superspeed or is_dashing or horizontal_speed > 13.0)
 

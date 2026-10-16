@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://l2w73obr5xc5"
-path.s3tc="res://.godot/imported/Batang Kalye_Roof_Blue.png-6de619e7a5010de9e1c45f1ad180a621.s3tc.ctex"
-path.etc2="res://.godot/imported/Batang Kalye_Roof_Blue.png-6de619e7a5010de9e1c45f1ad180a621.etc2.ctex"
+uid="uid://creeqsyei78ge"
+path.s3tc="res://.godot/imported/Batang Kalye_Yero.png-f3ad2a835b4494760d727ea6703ac228.s3tc.ctex"
+path.etc2="res://.godot/imported/Batang Kalye_Yero.png-f3ad2a835b4494760d727ea6703ac228.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "dd41a9defbde899c24ac435a46a110f7"
+"md5": "b0ebe541c0eeb75bf1b998e7c977d617"
 }
 
 [deps]
 
-source_file="res://assets/models/For maps/Batang Kalye_Roof_Blue.png"
-dest_files=["res://.godot/imported/Batang Kalye_Roof_Blue.png-6de619e7a5010de9e1c45f1ad180a621.s3tc.ctex", "res://.godot/imported/Batang Kalye_Roof_Blue.png-6de619e7a5010de9e1c45f1ad180a621.etc2.ctex"]
+source_file="res://assets/models/For maps/Batang Kalye_Yero.png"
+dest_files=["res://.godot/imported/Batang Kalye_Yero.png-f3ad2a835b4494760d727ea6703ac228.s3tc.ctex", "res://.godot/imported/Batang Kalye_Yero.png-f3ad2a835b4494760d727ea6703ac228.etc2.ctex"]
 
 [params]
 

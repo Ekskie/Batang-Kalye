@@ -11,6 +11,7 @@ signal tag_pressed()
 signal interact_pressed()
 signal drop_pressed()
 signal item_pressed()
+signal item_released()
 signal prev_spectate_pressed()
 signal next_spectate_pressed()
 
@@ -48,6 +49,7 @@ var is_spectator: bool = false
 var is_vault_available: bool = false
 
 func _ready() -> void:
+	add_to_group("mobile_controls")
 	var buttons: Array[Button] = [btn_jump, btn_sprint, btn_slide, btn_dash, btn_tag, btn_interact, btn_drop, btn_item]
 	if btn_prev_spectate: buttons.append(btn_prev_spectate)
 	if btn_next_spectate: buttons.append(btn_next_spectate)
@@ -75,7 +77,8 @@ func _ready() -> void:
 	if btn_drop:
 		btn_drop.pressed.connect(func(): drop_pressed.emit())
 	if btn_item:
-		btn_item.pressed.connect(func(): item_pressed.emit())
+		btn_item.button_down.connect(func(): item_pressed.emit())
+		btn_item.button_up.connect(func(): item_released.emit())
 	if btn_prev_spectate:
 		btn_prev_spectate.pressed.connect(func(): prev_spectate_pressed.emit())
 	if btn_next_spectate:
@@ -91,9 +94,26 @@ func _ready() -> void:
 	set_item_button_visible(false)
 	set_spectator_mode(false)
 
+	_adapt_display_safe_area()
+	if get_tree() and get_tree().root:
+		get_tree().root.size_changed.connect(_adapt_display_safe_area)
+
+	var gm = get_node_or_null("/root/Main")
+	if gm and "settings_data" in gm:
+		set_joystick_mode(int(gm.settings_data.get("joystick_style", 0)))
+		set_ui_scale(float(gm.settings_data.get("touch_ui_scale", 1.0)))
+
+func trigger_haptic(duration_ms: int = 18) -> void:
+	var gm = get_node_or_null("/root/Main")
+	if gm and gm.has_method("is_vibration_enabled") and not gm.is_vibration_enabled():
+		return
+	if Input.has_method("vibrate_handheld"):
+		Input.vibrate_handheld(duration_ms)
+
 func _setup_button_juice(btn: Button) -> void:
 	btn.pivot_offset = btn.custom_minimum_size * 0.5
 	btn.button_down.connect(func():
+		trigger_haptic(18)
 		var tw := btn.create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		tw.tween_property(btn, "scale", Vector2(0.92, 0.92), 0.05)
 	)
@@ -249,3 +269,37 @@ func set_ui_scale(new_scale: float) -> void:
 
 func set_ui_opacity(new_opacity: float) -> void:
 	modulate.a = clampf(new_opacity, 0.2, 1.0)
+
+func set_joystick_mode(mode: int) -> void:
+	if joystick and joystick.has_method("set_joystick_mode"):
+		joystick.set_joystick_mode(mode)
+
+func _adapt_display_safe_area() -> void:
+	if not is_inside_tree():
+		return
+	var vp_size: Vector2 = get_viewport_rect().size
+	if vp_size.x <= 0.0 or vp_size.y <= 0.0:
+		return
+
+	var safe_rect: Rect2i = DisplayServer.get_display_safe_area()
+	if safe_rect.size.x <= 0 or safe_rect.size.y <= 0:
+		return
+
+	var window_size: Vector2i = DisplayServer.window_get_size()
+	if window_size.x <= 0 or window_size.y <= 0:
+		return
+
+	var scale_x: float = vp_size.x / float(window_size.x)
+	var scale_y: float = vp_size.y / float(window_size.y)
+
+	var margin_left: float = float(safe_rect.position.x) * scale_x
+	var margin_right: float = float(window_size.x - (safe_rect.position.x + safe_rect.size.x)) * scale_x
+	var margin_bottom: float = float(window_size.y - (safe_rect.position.y + safe_rect.size.y)) * scale_y
+
+	# Apply safe margins to touch zones so phone cutouts / curved corners don't clip controls
+	if left_touch_zone:
+		left_touch_zone.offset_left = maxf(margin_left, 0.0)
+		left_touch_zone.offset_bottom = -maxf(margin_bottom, 0.0)
+	if action_buttons:
+		action_buttons.offset_right = -maxf(margin_right, 0.0)
+		action_buttons.offset_bottom = -maxf(margin_bottom, 0.0)

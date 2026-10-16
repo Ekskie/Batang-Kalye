@@ -56,6 +56,13 @@ func _get_main_node() -> Node:
 		return m
 	return get_tree().current_scene if (is_inside_tree() and get_tree()) else null
 
+func trigger_device_vibration(duration_ms: int) -> void:
+	var gm = _get_main_node()
+	if gm and gm.has_method("is_vibration_enabled") and not gm.is_vibration_enabled():
+		return
+	if Input.has_method("vibrate_handheld"):
+		Input.vibrate_handheld(duration_ms)
+
 func is_local_human() -> bool:
 	if is_bot:
 		return false
@@ -63,6 +70,11 @@ func is_local_human() -> bool:
 		var my_id := multiplayer.get_unique_id()
 		return player_id == my_id or get_multiplayer_authority() == my_id
 	return player_id == 1
+
+func is_local_controlled() -> bool:
+	if is_bot:
+		return is_multiplayer_authority()
+	return is_local_human()
 
 @export var player_name: String = "Player"
 var player_title: String = ""
@@ -231,6 +243,9 @@ var is_slipping: bool = false
 var slip_timer: float = 0.0
 var slip_velocity: Vector3 = Vector3.ZERO
 var chalk_blind_timer: float = 0.0
+var is_aiming_throw: bool = false
+const TrajectoryPreviewScript = preload("res://scripts/player/TrajectoryPreview.gd")
+var trajectory_preview: Node3D = null
 
 # Tournament & Crab Game Elimination State
 var is_eliminated: bool = false
@@ -343,6 +358,10 @@ func _ready() -> void:
 
 		if not is_mobile and not DisplayServer.is_touchscreen_available() and camera:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+		trajectory_preview = TrajectoryPreviewScript.new()
+		trajectory_preview.name = "TrajectoryPreview"
+		add_child(trajectory_preview)
 	else:
 		if camera:
 			camera.current = false
@@ -390,7 +409,9 @@ func _setup_mobile_ui() -> void:
 	mobile_ui.dash_pressed.connect(func(): _try_dash())
 	mobile_ui.tag_pressed.connect(func(): _try_tag())
 	if mobile_ui.has_signal("item_pressed"):
-		mobile_ui.item_pressed.connect(func(): use_current_item())
+		mobile_ui.item_pressed.connect(func(): _on_item_input_pressed())
+	if mobile_ui.has_signal("item_released"):
+		mobile_ui.item_released.connect(func(): _on_item_input_released())
 	if mobile_ui.has_signal("interact_pressed"):
 		mobile_ui.interact_pressed.connect(func(): _try_interact())
 	if mobile_ui.has_signal("drop_pressed"):
@@ -460,20 +481,27 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			_try_tag()
 
-	# Right-Click: Use/Throw street item
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+	# Right-Click: Use/Throw street item (Hold to Aim, Release to Throw)
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
 		if not is_cursor_free and not _is_game_paused() and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-			use_current_item()
+			if event.pressed:
+				_on_item_input_pressed()
+			else:
+				_on_item_input_released()
 			get_viewport().set_input_as_handled()
 			return
 
 	# Key inputs for Items & Hiding
-	if event is InputEventKey and event.pressed and not event.is_echo():
+	if event is InputEventKey and not event.is_echo():
 		if event.keycode == KEY_G:
-			use_current_item()
-			get_viewport().set_input_as_handled()
-			return
-		elif event.keycode == KEY_E:
+			if not is_cursor_free and not _is_game_paused():
+				if event.pressed:
+					_on_item_input_pressed()
+				else:
+					_on_item_input_released()
+				get_viewport().set_input_as_handled()
+				return
+		elif event.keycode == KEY_E and event.pressed:
 			_try_interact()
 			get_viewport().set_input_as_handled()
 			return
@@ -537,6 +565,8 @@ func trigger_hit_stop(duration_ms: float = 55.0) -> void:
 
 func set_eliminated(elim: bool) -> void:
 	is_eliminated = elim
+	if elim and is_aiming_throw:
+		_cancel_throw_aim()
 	if elim and is_hiding:
 		exit_hiding_spot()
 	if collision_shape:
@@ -555,8 +585,7 @@ func set_eliminated(elim: bool) -> void:
 			mobile_ui.set_spectator_mode(elim)
 		if elim:
 			add_shake(0.85)
-			if Input.has_method("vibrate_handheld"):
-				Input.vibrate_handheld(250)
+			trigger_device_vibration(250)
 			_cycle_spectate_target(1)
 		else:
 			spectating_target = null
@@ -692,6 +721,7 @@ func _physics_process(delta: float) -> void:
 		model.is_dashing = is_dashing
 		model.is_vaulting = is_vaulting
 		model.is_slipping = is_slipping or (is_stunned and stun_timer > 0.0)
+		model.is_stunned = is_stunned and stun_timer > 0.0
 		model.has_superspeed = (active_powerup == PowerupType.SUPER_SPEED)
 		model.animate(delta, horizontal_speed, current_floor, current_max)
 
@@ -776,6 +806,8 @@ func _update_timers(delta: float) -> void:
 			coyote_timer -= delta
 
 func apply_stun(duration: float) -> void:
+	if is_aiming_throw:
+		_cancel_throw_aim()
 	is_stunned = true
 	stun_timer = duration
 	velocity = Vector3.ZERO
@@ -789,14 +821,14 @@ func apply_stun(duration: float) -> void:
 	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "ARF! NA-STUN!", Color(1.0, 0.7, 0.2))
 	if is_local_human():
 		add_shake(0.7)
-		if Input.has_method("vibrate_handheld"):
-			Input.vibrate_handheld(200)
+		trigger_device_vibration(200)
 		notification_displayed.emit("Kinagat ng aso!", false)
 
 func _process_authority_movement(delta: float) -> void:
 	# Decoupled camera tracking player smoothly
 	if camera_mount:
-		camera_mount.global_position = camera_mount.global_position.lerp(global_position + Vector3(0, 1.4, 0), delta * 25.0)
+		var cam_speed: float = 35.0 if (is_slipping or is_stunned) else 25.0
+		camera_mount.global_position = camera_mount.global_position.lerp(global_position + Vector3(0, 1.4, 0), delta * cam_speed)
 
 	# Fall safeguard
 	if global_position.y < -10.0:
@@ -804,7 +836,7 @@ func _process_authority_movement(delta: float) -> void:
 		velocity = Vector3.ZERO
 
 	# Asymmetric Gravity
-	if not is_on_floor() and not is_wall_running:
+	if not is_on_floor() and not is_wall_running and not is_slipping:
 		if velocity.y > 0.0:
 			velocity.y += jump_gravity * delta
 		else:
@@ -812,6 +844,10 @@ func _process_authority_movement(delta: float) -> void:
 
 	# Stun & Slip gate — freeze all input while stunned or slipping in exact place
 	if is_stunned or is_slipping:
+		if is_aiming_throw:
+			_cancel_throw_aim()
+		if is_slipping:
+			velocity.y = 0.0
 		velocity.x = move_toward(velocity.x, 0.0, friction * 2.0 * delta)
 		velocity.z = move_toward(velocity.z, 0.0, friction * 2.0 * delta)
 		move_and_slide()
@@ -819,6 +855,8 @@ func _process_authority_movement(delta: float) -> void:
 
 	# Handle active Vault
 	if is_vaulting:
+		if is_aiming_throw:
+			_cancel_throw_aim()
 		_process_vault(delta)
 		if not is_vaulting:
 			move_and_slide()
@@ -827,6 +865,8 @@ func _process_authority_movement(delta: float) -> void:
 
 	# In-game pause menu or cursor-free gate: freeze gameplay movement/actions while maintaining physics & gravity
 	if _is_game_paused() or is_cursor_free:
+		if is_aiming_throw:
+			_cancel_throw_aim()
 		if is_sliding:
 			_end_slide()
 		is_sprinting = false
@@ -1006,6 +1046,10 @@ func _process_authority_movement(delta: float) -> void:
 	if has_trash():
 		target_speed *= 0.85 # High risk: 15% carrying slowdown
 
+	# Tactical aiming speed constraint
+	if is_aiming_throw:
+		target_speed = min(target_speed, current_walk_spd * 0.72)
+
 	# Water zone physics
 	if is_in_water:
 		if active_powerup == PowerupType.WATER_RUN:
@@ -1030,13 +1074,23 @@ func _process_authority_movement(delta: float) -> void:
 	if move_dir.length() > 0.1:
 		velocity.x = move_toward(velocity.x, target_vel_x, accel_factor * delta)
 		velocity.z = move_toward(velocity.z, target_vel_z, accel_factor * delta)
-
-		var target_facing := wrapf(atan2(-move_dir.x, -move_dir.z) - global_rotation.y, -PI, PI)
-		model.rotation.y = lerp_angle(model.rotation.y, target_facing, rotation_speed * delta)
-		tag_area.rotation.y = model.rotation.y
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 		velocity.z = move_toward(velocity.z, 0.0, friction * delta)
+
+	# Character facing: face camera/aim while aiming throw, otherwise face movement direction
+	if is_aiming_throw and cam_forward.length() > 0.1:
+		var aim_facing := wrapf(atan2(-cam_forward.x, -cam_forward.z) - global_rotation.y, -PI, PI)
+		model.rotation.y = lerp_angle(model.rotation.y, aim_facing, rotation_speed * delta * 1.5)
+		tag_area.rotation.y = model.rotation.y
+	elif move_dir.length() > 0.1:
+		var target_facing := wrapf(atan2(-move_dir.x, -move_dir.z) - global_rotation.y, -PI, PI)
+		model.rotation.y = lerp_angle(model.rotation.y, target_facing, rotation_speed * delta)
+		tag_area.rotation.y = model.rotation.y
+
+	# Update throw aiming arc if actively aiming
+	if is_aiming_throw:
+		_update_throw_aim_trajectory()
 
 	move_and_slide()
 	_process_landing_and_footsteps(delta)
@@ -1257,7 +1311,7 @@ func _trigger_vault(start_pos: Vector3, apex_pos: Vector3, end_pos: Vector3) -> 
 	squash_target = Vector3(0.85, 1.25, 0.85)
 	add_shake(0.2)
 	_play_sfx("play_vault")
-	if is_local_human() and multiplayer.has_multiplayer_peer() and not is_solo_practice:
+	if is_local_controlled() and multiplayer.has_multiplayer_peer() and not is_solo_practice:
 		rpc("sync_vault_trigger", vault_start_pos, vault_apex_pos, vault_end_pos)
 
 func _process_vault(delta: float) -> void:
@@ -1290,7 +1344,7 @@ func _try_vault() -> bool:
 
 @rpc("call_local", "reliable")
 func sync_vault_trigger(start_p: Vector3, apex_p: Vector3, end_p: Vector3) -> void:
-	if not is_local_human():
+	if not is_local_controlled():
 		_trigger_vault(start_p, apex_p, end_p)
 
 # --- Social Emotes ---
@@ -1452,7 +1506,9 @@ func _update_camera_fov(delta: float) -> void:
 	if not camera:
 		return
 	var target_fov := base_fov
-	if is_exhausted:
+	if is_aiming_throw:
+		target_fov = base_fov - 10.0
+	elif is_exhausted:
 		target_fov = base_fov - 4.0
 	elif is_dashing:
 		target_fov = dash_fov
@@ -1623,8 +1679,7 @@ func perform_tag_on(target_to_tag: PlayerController) -> void:
 		var main_node = get_node_or_null("/root/Main")
 		if main_node and ("hud" in main_node) and main_node.hud and main_node.hud.has_method("trigger_hit_flash"):
 			main_node.hud.trigger_hit_flash(Color(1.0, 0.85, 0.2, 0.45), 0.22)
-		if Input.has_method("vibrate_handheld"):
-			Input.vibrate_handheld(80)
+		trigger_device_vibration(80)
 
 	# Spawn visual hit effect locally & popup score combat text
 	spawn_hit_vfx(target_to_tag.global_position + Vector3(0, 1.2, 0))
@@ -2027,8 +2082,7 @@ func apply_tagged(_chaser_id: int) -> void:
 		var main_node = get_node_or_null("/root/Main")
 		if main_node and main_node.hud and main_node.hud.has_method("trigger_hit_flash"):
 			main_node.hud.trigger_hit_flash(Color(1.0, 0.15, 0.15, 0.55), 0.28)
-		if Input.has_method("vibrate_handheld"):
-			Input.vibrate_handheld(150)
+		trigger_device_vibration(150)
 
 	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "NA-TAYA!", Color(1.0, 0.25, 0.25))
 
@@ -2404,7 +2458,86 @@ func pickup_street_item(i_type: int, i_name: String) -> void:
 			mobile_ui.set_item_button_visible(true, i_name.substr(0, 7))
 		notification_displayed.emit("Nakuha: %s! [Right-Click / G para gamitin]" % i_name, true)
 
+func _on_item_input_pressed() -> void:
+	if _is_game_paused() or is_eliminated or is_stunned or is_slipping or is_hiding:
+		return
+	if held_street_item == -1 or held_street_item_count <= 0:
+		return
+
+	# If throwable item (Tsinelas or Chalk Bag), enter Aiming Mode
+	if held_street_item == 0 or held_street_item == 3:
+		is_aiming_throw = true
+		_update_throw_aim_trajectory()
+	else:
+		# Immediate use for non-throwables (Banana, Whistle, Ice Candy)
+		use_current_item()
+
+func _on_item_input_released() -> void:
+	if is_aiming_throw:
+		_cancel_throw_aim()
+		use_current_item()
+
+func _cancel_throw_aim() -> void:
+	is_aiming_throw = false
+	if trajectory_preview:
+		trajectory_preview.hide_preview()
+	var main_node = _get_main_node()
+	if main_node and main_node.hud and main_node.hud.has_method("set_aiming_mode"):
+		main_node.hud.set_aiming_mode(false, false)
+
+func _update_throw_aim_trajectory() -> void:
+	if not trajectory_preview:
+		return
+	if (held_street_item != 0 and held_street_item != 3) or is_stunned or is_slipping or is_eliminated or is_hiding:
+		_cancel_throw_aim()
+		return
+
+	var shoulder_offset := global_transform.basis * Vector3(0.35, 1.25, -0.2)
+	var start_pos := global_position + shoulder_offset
+
+	var aim_target: Vector3
+	var is_locked: bool = false
+	if camera:
+		var space_state := get_world_3d().direct_space_state
+		var cam_pos := camera.global_position
+		var cam_forward := -camera.global_transform.basis.z
+		var ray_end := cam_pos + cam_forward * 50.0
+		var query := PhysicsRayQueryParameters3D.create(cam_pos, ray_end)
+		query.exclude = [get_rid()]
+		query.collision_mask = 1 | 2 # Environment & Players
+		var hit := space_state.intersect_ray(query)
+		if hit:
+			aim_target = hit.position
+			var hit_col = hit.get("collider")
+			if hit_col and hit_col != self and (hit_col is PlayerController or (hit_col is Node and hit_col.is_in_group("players"))):
+				is_locked = true
+		else:
+			aim_target = ray_end
+	else:
+		aim_target = global_position - global_transform.basis.z * 20.0 + Vector3(0, 1.2, 0)
+
+	var dir := (aim_target - start_pos).normalized()
+	var throw_speed: float = 24.0
+	var throw_gravity: float = -9.0
+	var initial_vel: Vector3 = dir * throw_speed + Vector3(0, 1.5, 0)
+
+	var exclude_rids: Array[RID] = [get_rid()]
+	var traj_info: Dictionary = trajectory_preview.update_trajectory(
+		start_pos,
+		initial_vel,
+		throw_gravity,
+		get_world_3d().direct_space_state,
+		exclude_rids
+	)
+
+	var locked_status: bool = is_locked or traj_info.get("is_locked", false)
+	var main_node = _get_main_node()
+	if main_node and main_node.hud and main_node.hud.has_method("set_aiming_mode"):
+		main_node.hud.set_aiming_mode(true, locked_status)
+
 func use_current_item() -> void:
+	if is_aiming_throw:
+		_cancel_throw_aim()
 	if _is_game_paused() or is_eliminated or is_stunned or is_slipping or is_hiding:
 		return
 	if held_street_item == -1 or held_street_item_count <= 0:
@@ -2433,12 +2566,12 @@ func use_current_item() -> void:
 		4: # ICE_CANDY (Pampalakas)
 			_consume_ice_candy()
 
-	if multiplayer.has_multiplayer_peer() and is_local_human():
+	if multiplayer.has_multiplayer_peer() and is_local_controlled():
 		rpc("sync_use_item_rpc", used_type)
 
 @rpc("any_peer", "call_local", "reliable")
 func sync_use_item_rpc(used_type: int) -> void:
-	if not is_local_human():
+	if not is_local_controlled():
 		match used_type:
 			0: _throw_tsinelas()
 			1: _drop_banana()
@@ -2559,6 +2692,8 @@ func _consume_ice_candy() -> void:
 func apply_slipper_stun(duration: float, attacker_name: String) -> void:
 	if is_immune or is_eliminated:
 		return
+	if is_aiming_throw:
+		_cancel_throw_aim()
 	is_stunned = true
 	stun_timer = max(stun_timer, duration)
 	velocity = velocity * 0.15
@@ -2575,10 +2710,13 @@ func apply_slipper_stun(duration: float, attacker_name: String) -> void:
 func apply_banana_slip(planter_name: String) -> void:
 	if is_eliminated:
 		return
+	if is_aiming_throw:
+		_cancel_throw_aim()
 	stats_slips += 1
 	is_slipping = true
 	slip_timer = 1.4
 	velocity.x = 0.0
+	velocity.y = 0.0
 	velocity.z = 0.0
 	slip_velocity = Vector3.ZERO
 	squash_current = Vector3(1.2, 0.65, 1.2)
@@ -2588,6 +2726,7 @@ func apply_banana_slip(planter_name: String) -> void:
 	if is_inside_tree() and multiplayer and multiplayer.has_multiplayer_peer():
 		rpc("play_slip_anim_rpc", 1.4)
 	if is_local_human():
+		trigger_device_vibration(180)
 		notification_displayed.emit("NANDULAS SA SAGING ni %s!" % planter_name, false)
 
 func apply_chalk_blind(duration: float) -> void:
