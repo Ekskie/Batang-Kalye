@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://c3faxbr0e7gpa"
+path="res://.godot/imported/Taya 3.wav-4dabf7daf6b10b7176dea53b91a834a8.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/Voice Packs/Male 1/Taya!/Taya 3.wav"
+dest_files=["res://.godot/imported/Taya 3.wav-4dabf7daf6b10b7176dea53b91a834a8.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

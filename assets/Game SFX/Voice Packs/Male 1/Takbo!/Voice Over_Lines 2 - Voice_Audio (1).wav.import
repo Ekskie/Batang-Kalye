@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dk7pwl7b4pwge"
+path="res://.godot/imported/Voice Over_Lines 2 - Voice_Audio (1).wav-78eb391b746f72c2c046c475f8cc9132.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/Voice Packs/Male 1/Takbo!/Voice Over_Lines 2 - Voice_Audio (1).wav"
+dest_files=["res://.godot/imported/Voice Over_Lines 2 - Voice_Audio (1).wav-78eb391b746f72c2c046c475f8cc9132.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

@@ -1,8 +1,96 @@
-[gd_scene load_steps=2 format=3 uid="uid://c8m4e1s2guideui"]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/QuickGuideUI.gd" id="1_guideui"]
+[ext_resource type="Texture2D" path="res://assets/Backgrounds/Gabay_Background_v2.png" id="2_notebook_bg"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/No_Close.png" id="3_close_btn"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/No_Close.png" id="4_close_btn_tap"]
 
-[node name="QuickGuideUI" type="Control"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tip"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0.98, 0.94, 0.85, 0.98)
+border_width_left = 4
+border_color = Color(0.82, 0.6, 0.2, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_pencil"]
+color = Color(0.78, 0.72, 0.64, 0.9)
+grow_begin = 0.0
+grow_end = 0.0
+thickness = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gabay_btn_normal"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.88, 0.58, 0.16, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 4
+border_color = Color(0.32, 0.18, 0.05, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gabay_btn_hover"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.96, 0.67, 0.24, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 4
+border_color = Color(0.32, 0.18, 0.05, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gabay_btn_pressed"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 6.0
+bg_color = Color(0.78, 0.49, 0.12, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.32, 0.18, 0.05, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gabay_btn_disabled"]
+content_margin_left = 14.0
+content_margin_top = 6.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.82, 0.78, 0.72, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+border_color = Color(0.6, 0.55, 0.5, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tab"]
+
+[node name="QuickGuideUI" type="Control" unique_id=385879083]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,16 +99,16 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_guideui")
 
-[node name="Dimmer" type="ColorRect" parent="."]
+[node name="Dimmer" type="ColorRect" parent="." unique_id=528953124]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.8)
+color = Color(0, 0, 0, 0.75)
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="NotebookContainer" type="Control" parent="." unique_id=151240674]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -28,133 +116,269 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(860, 520)
-layout_mode = 2
+[node name="NotebookBg" type="TextureRect" parent="NotebookContainer" unique_id=2047521275]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_notebook_bg")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer"]
-layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 20
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="HeaderBar" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="MainTitle" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HeaderBar"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "📖 GABAY SA KALYE (HOW TO PLAY)"
-
-[node name="Spacer" type="Control" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HeaderBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="CloseButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HeaderBar"]
+[node name="CloseButton" type="TextureButton" parent="NotebookContainer" unique_id=1036163265]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 36)
-layout_mode = 2
-text = "✕ ISARA"
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 428.0
+offset_top = -290.0
+offset_right = 468.0
+offset_bottom = -250.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+texture_normal = ExtResource("3_close_btn")
+texture_pressed = ExtResource("4_close_btn_tap")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="TabBar" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
+[node name="TabMaiba" type="Button" parent="NotebookContainer" unique_id=1770582636]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -534.0
+offset_top = -260.0
+offset_right = -438.0
+offset_bottom = -208.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 2
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxEmpty_tab")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_tab")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_tab")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_tab")
+flat = true
+text = "MAIBA"
+
+[node name="TabStamina" type="Button" parent="NotebookContainer" unique_id=244732444]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -534.0
+offset_top = -194.0
+offset_right = -438.0
+offset_bottom = -142.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 2
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxEmpty_tab")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_tab")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_tab")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_tab")
+flat = true
+text = "BILIS"
+
+[node name="TabItems" type="Button" parent="NotebookContainer" unique_id=1440074682]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -534.0
+offset_top = -128.0
+offset_right = -438.0
+offset_bottom = -76.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 2
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxEmpty_tab")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_tab")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_tab")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_tab")
+flat = true
+text = "GAMIT"
+
+[node name="TabModes" type="Button" parent="NotebookContainer" unique_id=1551525035]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -534.0
+offset_top = -62.0
+offset_right = -438.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 2
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxEmpty_tab")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_tab")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_tab")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_tab")
+flat = true
+text = "MODES"
+
+[node name="LeftPage" type="VBoxContainer" parent="NotebookContainer" unique_id=2097162148]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -440.0
+offset_top = -265.0
+offset_right = -85.0
+offset_bottom = 255.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 8
 
-[node name="TabMaiba" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(180, 38)
-layout_mode = 2
-toggle_mode = true
-button_pressed = true
-text = "🖐️ Maiba Taya"
-
-[node name="TabStamina" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(180, 38)
-layout_mode = 2
-toggle_mode = true
-text = "⚡ Stamina & Bilis"
-
-[node name="TabItems" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(180, 38)
-layout_mode = 2
-toggle_mode = true
-text = "🩴 Mga Gamit"
-
-[node name="TabModes" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(180, 38)
-layout_mode = 2
-toggle_mode = true
-text = "♻️ Basura & Modes"
-
-[node name="ContentCard" type="PanelContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
-
-[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="GuideTitle" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard/Margin/VBox"]
+[node name="GuideTitle" type="Label" parent="NotebookContainer/LeftPage" unique_id=1621060931]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.25, 1)
-theme_override_font_sizes/font_size = 20
-text = "🖐️ MAIBA TAYA (Puti o Itim?)"
+theme_override_colors/font_color = Color(0.14, 0.09, 0.04, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 22
+text = "MAIBA TAYA"
 
-[node name="GuideSubtitle" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard/Margin/VBox"]
+[node name="GuideSubtitle" type="Label" parent="NotebookContainer/LeftPage" unique_id=817134796]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.8, 0.88, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.42, 0.32, 0.22, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 13
 text = "Ang tradisyonal na ritwal bago magsimula ang laro sa kalye."
+autowrap_mode = 2
 
-[node name="HSeparator" type="HSeparator" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard/Margin/VBox"]
+[node name="HSeparator" type="HSeparator" parent="NotebookContainer/LeftPage" unique_id=2145566133]
 layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxLine_pencil")
 
-[node name="GuideBody" type="RichTextLabel" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard/Margin/VBox"]
+[node name="GuideBody" type="RichTextLabel" parent="NotebookContainer/LeftPage" unique_id=830231504]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.14, 0.09, 0.04, 1)
+theme_override_constants/outline_size = 0
+theme_override_constants/shadow_outline_size = 0
+theme_override_constants/line_separation = 3
+theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/bold_font_size = 15
 bbcode_enabled = true
 text = "Ipaliwanag dito..."
 
-[node name="GuideTip" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ContentCard/Margin/VBox"]
+[node name="RightPage" type="VBoxContainer" parent="NotebookContainer" unique_id=2025574226]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 65.0
+offset_top = -265.0
+offset_right = 410.0
+offset_bottom = 240.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="RightPageHeader" type="Label" parent="NotebookContainer/RightPage" unique_id=1907593513]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.25, 0.16, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 14
+text = "MGA PAALALA AT ESTRATEHIYA"
+
+[node name="HSeparatorRight" type="HSeparator" parent="NotebookContainer/RightPage" unique_id=378858413]
+layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxLine_pencil")
+
+[node name="GuideRightBody" type="RichTextLabel" parent="NotebookContainer/RightPage" unique_id=830231505]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 13
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.14, 0.09, 0.04, 1)
+theme_override_constants/outline_size = 0
+theme_override_constants/shadow_outline_size = 0
+theme_override_constants/line_separation = 3
+theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/bold_font_size = 15
+bbcode_enabled = true
+text = "Mga paalala..."
+
+[node name="TipPanel" type="PanelContainer" parent="NotebookContainer/RightPage" unique_id=1469458051]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_tip")
+
+[node name="GuideTip" type="Label" parent="NotebookContainer/RightPage/TipPanel" unique_id=1594570590]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.24, 0.14, 0.04, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 12
 text = "💡 Tip: ..."
+autowrap_mode = 2
 
-[node name="FooterBar" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="NavRow" type="HBoxContainer" parent="NotebookContainer/RightPage" unique_id=1668709610]
 layout_mode = 2
+theme_override_constants/separation = 12
 
-[node name="PrevButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/FooterBar"]
+[node name="PrevButton" type="Button" parent="NotebookContainer/RightPage/NavRow" unique_id=1011451660]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(130, 40)
+custom_minimum_size = Vector2(110, 36)
 layout_mode = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.16, 0.1, 0.04, 1)
+theme_override_colors/font_hover_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_colors/font_disabled_color = Color(0.5, 0.45, 0.4, 0.8)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_gabay_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_gabay_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gabay_btn_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_gabay_btn_disabled")
 text = "◀ NAKARAAN"
 
-[node name="Spacer" type="Control" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/FooterBar"]
+[node name="Spacer" type="Control" parent="NotebookContainer/RightPage/NavRow" unique_id=1212206384]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="NextButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/FooterBar"]
+[node name="NextButton" type="Button" parent="NotebookContainer/RightPage/NavRow" unique_id=895404499]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 40)
+custom_minimum_size = Vector2(130, 36)
 layout_mode = 2
+focus_mode = 2
+theme_override_colors/font_color = Color(0.16, 0.1, 0.04, 1)
+theme_override_colors/font_hover_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("StyleBoxFlat_gabay_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_gabay_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_gabay_btn_pressed")
 text = "SUSUNOD ▶"

@@ -1,121 +1,37 @@
-[gd_scene load_steps=10 format=3 uid="uid://b2p3p5n7jkv11"]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/MobileControls.gd" id="1_controls"]
 [ext_resource type="Script" path="res://scripts/ui/VirtualJoystick.gd" id="2_joystick"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Talon.png" id="3_talon"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Talon.png" id="4_talon_tap"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Dulas.png" id="5_dulas"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Dulas.png" id="6_dulas_tap"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Takbo_Sprint.png" id="7_sprint"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Takbo_Sprint.png" id="8_sprint_tap"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Karipas_Dash.png" id="9_dash"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Karipas_Dash.png" id="10_dash_tap"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W- Text ver_/Taya_Hampas.png" id="11_tag"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W- Text ver_/When Tap/Taya_Hampas.png" id="12_tag_tap"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Pulot.png" id="13_pulot"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Pulot.png" id="14_pulot_tap"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/No_Close.png" id="15_drop"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/No_Close.png" id="16_drop_tap"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Tapon.png" id="17_tapon"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Tapon.png" id="18_tapon_tap"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_jump"]
-bg_color = Color(0.08, 0.1, 0.15, 0.62)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_circle_btn"]
+bg_color = Color(0.08, 0.07, 0.16, 0.55)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.95, 0.98, 1, 0.35)
-corner_radius_top_left = 45
-corner_radius_top_right = 45
-corner_radius_bottom_right = 45
-corner_radius_bottom_left = 45
-shadow_color = Color(0, 0, 0, 0.25)
-shadow_size = 4
+border_color = Color(1, 1, 1, 0.25)
+corner_radius_top_left = 60
+corner_radius_top_right = 60
+corner_radius_bottom_right = 60
+corner_radius_bottom_left = 60
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_slide"]
-bg_color = Color(0.08, 0.1, 0.15, 0.62)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.95, 0.98, 1, 0.3)
-corner_radius_top_left = 32
-corner_radius_top_right = 32
-corner_radius_bottom_right = 32
-corner_radius_bottom_left = 32
-shadow_color = Color(0, 0, 0, 0.25)
-shadow_size = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_dash"]
-bg_color = Color(0.08, 0.1, 0.15, 0.62)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.95, 0.98, 1, 0.3)
-corner_radius_top_left = 31
-corner_radius_top_right = 31
-corner_radius_bottom_right = 31
-corner_radius_bottom_left = 31
-shadow_color = Color(0, 0, 0, 0.25)
-shadow_size = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_sprint"]
-bg_color = Color(0.08, 0.1, 0.15, 0.62)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.95, 0.98, 1, 0.3)
-corner_radius_top_left = 25
-corner_radius_top_right = 25
-corner_radius_bottom_right = 25
-corner_radius_bottom_left = 25
-shadow_color = Color(0, 0, 0, 0.25)
-shadow_size = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_tag"]
-bg_color = Color(0.72, 0.16, 0.18, 0.78)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 0.45, 0.45, 0.85)
-corner_radius_top_left = 37
-corner_radius_top_right = 37
-corner_radius_bottom_right = 37
-corner_radius_bottom_left = 37
-shadow_color = Color(0.5, 0.05, 0.05, 0.35)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_interact"]
-bg_color = Color(0.08, 0.1, 0.15, 0.78)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 0.85, 0.35, 0.8)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.25)
-shadow_size = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_drop"]
-bg_color = Color(0.08, 0.1, 0.15, 0.78)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.9, 0.3, 0.3, 0.75)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.25)
-shadow_size = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_item"]
-bg_color = Color(0.12, 0.45, 0.85, 0.85)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.35, 0.85, 1, 0.9)
-corner_radius_top_left = 26
-corner_radius_top_right = 26
-corner_radius_bottom_right = 26
-corner_radius_bottom_left = 26
-shadow_color = Color(0, 0, 0, 0.25)
-shadow_size = 4
-
-[node name="MobileControlsUI" type="Control"]
+[node name="MobileControlsUI" type="Control" unique_id=495241052]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -125,7 +41,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_controls")
 
-[node name="LeftTouchZone" type="Control" parent="."]
+[node name="LeftTouchZone" type="Control" parent="." unique_id=1263667284]
 layout_mode = 1
 anchor_top = 0.35
 anchor_right = 0.45
@@ -133,7 +49,7 @@ anchor_bottom = 1.0
 grow_vertical = 0
 mouse_filter = 1
 
-[node name="VirtualJoystick" type="Control" parent="LeftTouchZone"]
+[node name="VirtualJoystick" type="Control" parent="LeftTouchZone" unique_id=316391405]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -143,7 +59,7 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("2_joystick")
 
-[node name="RightTouchZone" type="Control" parent="."]
+[node name="RightTouchZone" type="Control" parent="." unique_id=815807111]
 layout_mode = 1
 anchor_left = 0.45
 anchor_right = 1.0
@@ -151,7 +67,7 @@ anchor_bottom = 0.65
 grow_horizontal = 0
 mouse_filter = 1
 
-[node name="ActionButtons" type="Control" parent="."]
+[node name="ActionButtons" type="Control" parent="." unique_id=1744694871]
 layout_mode = 1
 anchor_left = 0.55
 anchor_top = 0.45
@@ -161,7 +77,7 @@ grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 2
 
-[node name="BtnJump" type="Button" parent="ActionButtons"]
+[node name="BtnJump" type="TextureButton" parent="ActionButtons" unique_id=1127326981]
 custom_minimum_size = Vector2(86, 86)
 layout_mode = 1
 anchors_preset = 3
@@ -176,15 +92,42 @@ offset_bottom = -24.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
-theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 17
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_jump")
-text = "TALON"
+texture_normal = ExtResource("3_talon")
+texture_pressed = ExtResource("4_talon_tap")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="BtnSlide" type="Button" parent="ActionButtons"]
-custom_minimum_size = Vector2(64, 64)
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnJump"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_circle_btn")
+
+[node name="Badge" type="Label" parent="ActionButtons/BtnJump" unique_id=1127326982]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -18.0
+offset_right = 40.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.88, 0.25, 1)
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+
+[node name="BtnSlide" type="TextureButton" parent="ActionButtons" unique_id=1130975003]
+custom_minimum_size = Vector2(66, 66)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -192,21 +135,46 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -188.0
-offset_top = -88.0
-offset_right = -124.0
+offset_top = -90.0
+offset_right = -122.0
 offset_bottom = -24.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
-theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_slide")
-text = "DULAS"
+texture_normal = ExtResource("5_dulas")
+texture_pressed = ExtResource("6_dulas_tap")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="BtnSprint" type="Button" parent="ActionButtons"]
-custom_minimum_size = Vector2(74, 50)
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnSlide"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_circle_btn")
+
+[node name="Badge" type="Label" parent="ActionButtons/BtnSlide" unique_id=1130975004]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -30.0
+offset_top = -16.0
+offset_right = 30.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
+
+[node name="BtnSprint" type="TextureButton" parent="ActionButtons" unique_id=1319652832]
+custom_minimum_size = Vector2(72, 72)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -214,22 +182,47 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -104.0
-offset_top = -178.0
-offset_right = -30.0
-offset_bottom = -128.0
+offset_top = -188.0
+offset_right = -32.0
+offset_bottom = -116.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
 toggle_mode = true
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
-theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_sprint")
-text = "SPRINT"
+texture_normal = ExtResource("7_sprint")
+texture_pressed = ExtResource("8_sprint_tap")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="BtnDash" type="Button" parent="ActionButtons"]
-custom_minimum_size = Vector2(62, 62)
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnSprint"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_circle_btn")
+
+[node name="Badge" type="Label" parent="ActionButtons/BtnSprint" unique_id=1319652833]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -30.0
+offset_top = -16.0
+offset_right = 30.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
+
+[node name="BtnDash" type="TextureButton" parent="ActionButtons" unique_id=123008399]
+custom_minimum_size = Vector2(66, 66)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -237,91 +230,48 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -184.0
-offset_top = -166.0
-offset_right = -122.0
+offset_top = -170.0
+offset_right = -118.0
 offset_bottom = -104.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
-theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_dash")
-text = "DASH"
+texture_normal = ExtResource("9_dash")
+texture_pressed = ExtResource("10_dash_tap")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="BtnTag" type="Button" parent="ActionButtons"]
-visible = false
-custom_minimum_size = Vector2(74, 74)
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnDash"]
+show_behind_parent = true
 layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -268.0
-offset_top = -112.0
-offset_right = -194.0
-offset_bottom = -38.0
-grow_horizontal = 0
-grow_vertical = 0
-focus_mode = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.7)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_tag")
-text = "HAMPAS"
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_circle_btn")
 
-[node name="BtnInteract" type="Button" parent="ActionButtons"]
+[node name="Badge" type="Label" parent="ActionButtons/BtnDash" unique_id=123008400]
 visible = false
-custom_minimum_size = Vector2(130, 48)
 layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
+anchors_preset = 7
+anchor_left = 0.5
 anchor_top = 1.0
-anchor_right = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -250.0
-offset_top = -236.0
-offset_right = -120.0
-offset_bottom = -188.0
-grow_horizontal = 0
+offset_left = -30.0
+offset_top = -16.0
+offset_right = 30.0
+grow_horizontal = 2
 grow_vertical = 0
-focus_mode = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
-theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_interact")
-text = "PULUTIN"
+theme_override_colors/font_color = Color(0.6, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
 
-[node name="BtnDrop" type="Button" parent="ActionButtons"]
+[node name="BtnTag" type="TextureButton" parent="ActionButtons" unique_id=695422723]
 visible = false
-custom_minimum_size = Vector2(100, 48)
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -110.0
-offset_top = -236.0
-offset_right = -10.0
-offset_bottom = -188.0
-grow_horizontal = 0
-grow_vertical = 0
-focus_mode = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.6)
-theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_drop")
-text = "BITAW"
-
-[node name="BtnItem" type="Button" parent="ActionButtons"]
-visible = false
-custom_minimum_size = Vector2(80, 52)
+custom_minimum_size = Vector2(80, 80)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -329,20 +279,190 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -272.0
-offset_top = -174.0
+offset_top = -116.0
 offset_right = -192.0
-offset_bottom = -122.0
+offset_bottom = -36.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.7)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 13
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_item")
-text = "BATO"
+texture_normal = ExtResource("11_tag")
+texture_pressed = ExtResource("12_tag_tap")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="SpectatorControls" type="HBoxContainer" parent="."]
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnTag"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_circle_btn")
+
+[node name="Badge" type="Label" parent="ActionButtons/BtnTag" unique_id=695422724]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -30.0
+offset_top = -16.0
+offset_right = 30.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
+
+[node name="BtnInteract" type="TextureButton" parent="ActionButtons" unique_id=1685395767]
+visible = false
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -264.0
+offset_top = -246.0
+offset_right = -194.0
+offset_bottom = -176.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+texture_normal = ExtResource("13_pulot")
+texture_pressed = ExtResource("14_pulot_tap")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnInteract"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_circle_btn")
+
+[node name="Badge" type="Label" parent="ActionButtons/BtnInteract" unique_id=1685395768]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -16.0
+offset_right = 40.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
+
+[node name="BtnDrop" type="TextureButton" parent="ActionButtons" unique_id=949041659]
+visible = false
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -110.0
+offset_top = -250.0
+offset_right = -52.0
+offset_bottom = -192.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+texture_normal = ExtResource("15_drop")
+texture_pressed = ExtResource("16_drop_tap")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnDrop"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_circle_btn")
+
+[node name="Badge" type="Label" parent="ActionButtons/BtnDrop" unique_id=949041660]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -30.0
+offset_top = -16.0
+offset_right = 30.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
+
+[node name="BtnItem" type="TextureButton" parent="ActionButtons" unique_id=547233188]
+visible = false
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -264.0
+offset_top = -184.0
+offset_right = -194.0
+offset_bottom = -114.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+texture_normal = ExtResource("17_tapon")
+texture_pressed = ExtResource("18_tapon_tap")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnItem"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_circle_btn")
+
+[node name="Badge" type="Label" parent="ActionButtons/BtnItem" unique_id=547233189]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -30.0
+offset_top = -16.0
+offset_right = 30.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
+
+[node name="SpectatorControls" type="HBoxContainer" parent="." unique_id=1858240596]
 visible = false
 layout_mode = 1
 anchors_preset = 7
@@ -359,14 +479,14 @@ grow_vertical = 0
 theme_override_constants/separation = 24
 alignment = 1
 
-[node name="BtnPrevSpectate" type="Button" parent="SpectatorControls"]
+[node name="BtnPrevSpectate" type="Button" parent="SpectatorControls" unique_id=1314403082]
 custom_minimum_size = Vector2(150, 48)
 layout_mode = 2
+theme_type_variation = &"BtnRound"
 text = "◀ NAKARAAN"
 
-[node name="BtnNextSpectate" type="Button" parent="SpectatorControls"]
+[node name="BtnNextSpectate" type="Button" parent="SpectatorControls" unique_id=387053044]
 custom_minimum_size = Vector2(150, 48)
 layout_mode = 2
+theme_type_variation = &"BtnRound"
 text = "SUSUNOD ▶"
-
-

@@ -3,9 +3,10 @@ extends Control
 
 # Top Bar (Tournament Pill Header)
 @onready var timer_label: Label = get_node_or_null("TopBar/TimerContainer/TimerLabel")
-@onready var btn_hud_pause: Button = get_node_or_null("TopBar/BtnHudPause")
+@onready var btn_hud_pause: BaseButton = get_node_or_null("TopBar/BtnHudPause")
 @onready var round_label: Label = get_node_or_null("TopBar/RoundContainer/Margin/RoundLabel")
 @onready var alive_label: Label = get_node_or_null("TopBar/AliveContainer/Margin/AliveLabel")
+@onready var barya_label: Label = get_node_or_null("TopBar/BaryaContainer/Margin/HBox/BaryaLabel")
 
 # Player Status Deck (Bottom-Left Dashboard)
 @onready var player_deck: PanelContainer = get_node_or_null("PlayerDeck")
@@ -92,8 +93,8 @@ var stamina_warning_tween: Tween
 var crosshair_tween: Tween
 var deck_pulse_tween: Tween
 
-var deck_style_runner: StyleBoxFlat
-var deck_style_taya: StyleBoxFlat
+var deck_style_runner: StyleBox
+var deck_style_taya: StyleBox
 
 var is_taya_local: bool = false
 var prev_tags: int = -1
@@ -110,6 +111,12 @@ func _ready() -> void:
 			if main_node and main_node.has_method("toggle_pause"):
 				main_node.toggle_pause()
 		)
+
+	var gm = get_node_or_null("/root/Main")
+	if gm and "economy_manager" in gm and gm.economy_manager:
+		update_barya(gm.economy_manager.barya_balance)
+		if gm.economy_manager.has_signal("balance_changed"):
+			gm.economy_manager.balance_changed.connect(func(nb, _nr): update_barya(nb))
 	if contextual_prompt:
 		contextual_prompt.visible = false
 	if danger_overlay:
@@ -125,7 +132,7 @@ func _ready() -> void:
 	if intermission_banner:
 		intermission_banner.visible = false
 
-func _apply_button_squash(btn: Button) -> void:
+func _apply_button_squash(btn: BaseButton) -> void:
 	if not btn:
 		return
 	btn.pivot_offset = btn.size * 0.5
@@ -143,27 +150,13 @@ func _apply_button_squash(btn: Button) -> void:
 	_set_crosshair_throwable_mode(false)
 
 func _init_deck_styles() -> void:
-	deck_style_runner = StyleBoxFlat.new()
-	deck_style_runner.bg_color = Color(0.05, 0.06, 0.09, 0.85)
-	deck_style_runner.border_width_left = 1
-	deck_style_runner.border_width_top = 1
-	deck_style_runner.border_width_right = 1
-	deck_style_runner.border_width_bottom = 1
-	deck_style_runner.border_color = Color(1.0, 1.0, 1.0, 0.4)
-	deck_style_runner.set_corner_radius_all(20)
-	deck_style_runner.shadow_color = Color(0, 0, 0, 0.5)
-	deck_style_runner.shadow_size = 8
-
-	deck_style_taya = StyleBoxFlat.new()
-	deck_style_taya.bg_color = Color(0.14, 0.04, 0.06, 0.9)
-	deck_style_taya.border_width_left = 2
-	deck_style_taya.border_width_top = 2
-	deck_style_taya.border_width_right = 2
-	deck_style_taya.border_width_bottom = 2
-	deck_style_taya.border_color = Color(0.9, 0.2, 0.2, 0.95)
-	deck_style_taya.set_corner_radius_all(20)
-	deck_style_taya.shadow_color = Color(0.8, 0.1, 0.1, 0.35)
-	deck_style_taya.shadow_size = 12
+	deck_style_runner = KalyeStyle.surface_style(KalyeStyle.Surface.HUD)
+	deck_style_taya = KalyeStyle.box(Color(0.28, 0.06, 0.10, 0.90), Color(0.14, 0.02, 0.05, 0.94), 14, 2, 3, 0.12, 2)
+	deck_style_taya.ink = KalyeStyle.RED
+	deck_style_taya.content_margin_left = 12.0
+	deck_style_taya.content_margin_right = 12.0
+	deck_style_taya.content_margin_top = 6.0
+	deck_style_taya.content_margin_bottom = 7.0
 
 func update_speed_lines(intensity: float) -> void:
 	if speed_lines and speed_lines.material:
@@ -247,11 +240,44 @@ func update_role_display(is_taya: bool, is_eliminated: bool = false) -> void:
 			t.tween_property(role_badge, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 		if is_taya:
-			role_badge.text = "TAYA"
-			role_badge.modulate = Color(1.0, 0.2, 0.35)
+			var is_infected_mode := false
+			var main_node = get_node_or_null("/root/Main")
+			if main_node and main_node.has_method("is_infection"):
+				is_infected_mode = main_node.is_infection()
+			if is_infected_mode:
+				role_badge.text = "☣ HAWA"
+				role_badge.modulate = Color(0.45, 1.0, 0.25)
+			else:
+				role_badge.text = "TAYA"
+				role_badge.modulate = Color(1.0, 0.2, 0.35)
 		else:
 			role_badge.text = "LIGTAS"
 			role_badge.modulate = Color(0.2, 0.95, 0.5)
+
+func on_tag_cooldown_started(duration: float, is_hit: bool) -> void:
+	if not crosshair:
+		return
+	if crosshair_tween and crosshair_tween.is_valid():
+		crosshair_tween.kill()
+	crosshair_tween = create_tween().set_parallel(true)
+	if is_hit:
+		crosshair.scale = Vector2(1.45, 1.45)
+		crosshair_tween.tween_property(crosshair, "scale", Vector2.ONE, maxf(0.18, duration)).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+		if crosshair_dot:
+			crosshair_dot.color = Color(0.25, 1.0, 0.5, 1.0)
+			crosshair_tween.tween_property(crosshair_dot, "color", Color(1.0, 1.0, 1.0, 0.85), maxf(0.2, duration))
+	else:
+		# Missed tag (whiff): contract reticle briefly and recover over cooldown duration
+		crosshair.scale = Vector2(0.68, 0.68)
+		crosshair_tween.tween_property(crosshair, "scale", Vector2.ONE, maxf(0.15, duration)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		if crosshair_dot:
+			crosshair_dot.color = Color(0.95, 0.55, 0.25, 0.75)
+			crosshair_tween.tween_property(crosshair_dot, "color", Color(1.0, 1.0, 1.0, 0.85), maxf(0.15, duration))
+		for tick in crosshair_ticks:
+			if is_instance_valid(tick):
+				tick.visible = true
+				tick.color = Color(0.95, 0.55, 0.25, 0.7)
+				crosshair_tween.tween_property(tick, "color", Color(1.0, 1.0, 1.0, 0.7), maxf(0.15, duration))
 
 func update_score(survival_seconds: float, tags: int, is_taya: bool) -> void:
 	if score_label:
@@ -274,6 +300,10 @@ func _pulse_score_label() -> void:
 	score_pulse_tween = create_tween()
 	score_pulse_tween.tween_property(score_label, "scale", Vector2(1.35, 1.35), 0.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	score_pulse_tween.tween_property(score_label, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+
+func update_barya(count: int) -> void:
+	if barya_label:
+		barya_label.text = str(count)
 
 func update_match_timer(time_left: float) -> void:
 	if timer_label:

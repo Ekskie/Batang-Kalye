@@ -1,33 +1,34 @@
 class_name GameOverUI
 extends Control
 
+## GameOverUI (Uwian Na! Minimalist Match Results)
+## Displays a clean, spacious post-match leaderboard, 3D MVP Champion showcase,
+## match earnings, and modern action buttons in our cohesive street celebration aesthetic.
+
 signal rematch_requested
 signal store_requested
+signal lobby_requested
+
+const CharacterModelScene = preload("res://scenes/player/CharacterModel.tscn")
+const LilitaFont = preload("res://assets/fonts/LilitaOne-Regular.ttf")
 
 @onready var bg_texture: TextureRect = get_node_or_null("BgTexture")
+@onready var mode_label: Label = get_node_or_null("Margin/MainVBox/HeaderBar/RightHeaderChips/ModeChip/ModeLabel")
+@onready var meta_summary_label: Label = get_node_or_null("Margin/MainVBox/HeaderBar/RightHeaderChips/MetaChip/MetaSummaryLabel")
 @onready var rows_container: VBoxContainer = get_node_or_null("Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/ScrollContainer/RowsContainer")
-@onready var meta_players_label: Label = get_node_or_null("Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox/PlayersBox/Val")
-@onready var meta_duration_label: Label = get_node_or_null("Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox/DurationBox/Val")
-@onready var meta_taya_label: Label = get_node_or_null("Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox/TayaBox/Val")
-@onready var meta_mode_label: Label = get_node_or_null("Margin/MainVBox/MainHBox/LeftColumn/MetaBar/HBox/ModeBox/Val")
 
-# Top Player Card
-@onready var mvp_portrait: TextureRect = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/PortraitContainer/Portrait")
+# Top Player (MVP) 3D Viewport & Details
+@onready var mvp_preview_root: Node3D = get_node_or_null("%MvpPreviewRoot")
 @onready var mvp_role_badge: Label = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/RoleBadge")
 @onready var mvp_name_label: Label = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/NameLabel")
-@onready var mvp_stat_huli: Label = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxHuli/V/Num")
-@onready var mvp_stat_dulas: Label = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxDulas/V/Num")
-@onready var mvp_stat_basura: Label = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxBasura/V/Num")
-@onready var mvp_stat_tago: Label = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/StatsGrid/BoxTago/V/Num")
-@onready var mvp_quote_label: Label = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/QuoteLabel")
+@onready var earnings_val_label: Label = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/EarningsPill/EarningsValue")
 
-# Awards Card
-@onready var awards_container: VBoxContainer = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/AwardsCard/VBox/AwardsList")
-
-# Earnings Card & Buttons
-@onready var earnings_val_label: Label = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/EarningsCard/VBox/EarningsValue")
+# Action Buttons
+@onready var btn_rematch: Button = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/ButtonsHBox/BtnRematch")
+@onready var btn_lobby: Button = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/ButtonsHBox/BtnLobby")
 @onready var btn_store: Button = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/BtnStore")
-@onready var btn_lobby: Button = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/BtnLobby")
+
+var mvp_model: Node3D = null
 
 const PORTRAITS: Dictionary = {
 	0: preload("res://assets/portraits/portrait_tsuna.jpg"),
@@ -41,59 +42,95 @@ const PORTRAITS: Dictionary = {
 }
 const DEFAULT_PORTRAIT: Texture2D = preload("res://assets/portraits/portrait_mvp.jpg")
 
-const MVP_QUOTES: Array[String] = [
-	"\"PINAKA-MATALINO SA KALYE!\"",
-	"\"HARI NG KANTO!\"",
-	"\"LAKAS NG RESBAK!\"",
-	"\"DI NAHULI, WALANG SUKO!\"",
-	"\"IDOL SA LARONG PINOY!\""
-]
+func _init_node_references() -> void:
+	if not bg_texture: bg_texture = get_node_or_null("BgTexture")
+	if not mode_label: mode_label = get_node_or_null("Margin/MainVBox/HeaderBar/RightHeaderChips/ModeChip/ModeLabel")
+	if not meta_summary_label: meta_summary_label = get_node_or_null("Margin/MainVBox/HeaderBar/RightHeaderChips/MetaChip/MetaSummaryLabel")
+	if not rows_container: rows_container = get_node_or_null("Margin/MainVBox/MainHBox/LeftColumn/TablePanel/Margin/VBox/ScrollContainer/RowsContainer")
+	if not mvp_preview_root: mvp_preview_root = get_node_or_null("%MvpPreviewRoot")
+	if not mvp_role_badge: mvp_role_badge = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/RoleBadge")
+	if not mvp_name_label: mvp_name_label = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/NameLabel")
+	if not earnings_val_label: earnings_val_label = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/TopPlayerCard/VBox/EarningsPill/EarningsValue")
+	if not btn_rematch: btn_rematch = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/ButtonsHBox/BtnRematch")
+	if not btn_lobby: btn_lobby = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/ButtonsHBox/BtnLobby")
+	if not btn_store: btn_store = get_node_or_null("Margin/MainVBox/MainHBox/RightColumn/BtnStore")
 
 func _ready() -> void:
-	if btn_lobby:
-		btn_lobby.text = "BUMALIK SA BARANGAY"
-		btn_lobby.pressed.connect(func(): rematch_requested.emit())
-	if btn_store:
+	_init_node_references()
+	_setup_3d_preview()
+	_setup_buttons()
+
+func _process(delta: float) -> void:
+	if not visible:
+		return
+	if mvp_model and is_instance_valid(mvp_model):
+		mvp_model.rotate_y(delta * 0.70)
+		if mvp_model.has_method("animate"):
+			mvp_model.animate(delta, 0.0, true, 7.0)
+
+func _setup_3d_preview() -> void:
+	_init_node_references()
+	if not mvp_preview_root:
+		return
+	if CharacterModelScene and not mvp_model:
+		mvp_model = CharacterModelScene.instantiate() as Node3D
+		mvp_model.rotation.y = PI
+		mvp_preview_root.add_child(mvp_model)
+
+func _setup_buttons() -> void:
+	_init_node_references()
+	if btn_rematch and not btn_rematch.pressed.is_connected(_on_btn_rematch_pressed):
+		btn_rematch.pressed.connect(_on_btn_rematch_pressed)
+	if btn_lobby and not btn_lobby.pressed.is_connected(_on_btn_lobby_pressed):
+		btn_lobby.pressed.connect(_on_btn_lobby_pressed)
+	if btn_store and not btn_store.pressed.is_connected(_on_btn_store_pressed):
 		btn_store.pressed.connect(_on_btn_store_pressed)
 
-func _on_btn_store_pressed() -> void:
-	store_requested.emit()
-	var main_node = get_node_or_null("/root/Main")
-	if main_node and ("store_ui" in main_node) and main_node.store_ui:
-		main_node.store_ui.open_store()
+func _on_btn_rematch_pressed() -> void:
+	_play_ui_pop()
+	rematch_requested.emit()
 
-func display_game_over(players_data: Array[Dictionary], match_meta: Dictionary, awards_data: Dictionary) -> void:
+func _on_btn_lobby_pressed() -> void:
+	_play_ui_pop()
+	lobby_requested.emit()
+	rematch_requested.emit()
+
+func _on_btn_store_pressed() -> void:
+	_play_ui_click()
+	store_requested.emit()
+	if is_inside_tree():
+		var main_node = get_node_or_null("/root/Main")
+		if main_node and ("store_ui" in main_node) and main_node.store_ui:
+			main_node.store_ui.open_store()
+
+func display_game_over(players_data: Array[Dictionary], match_meta: Dictionary, _awards_data: Dictionary = {}) -> void:
+	_init_node_references()
+	_setup_3d_preview()
+	_setup_buttons()
 	visible = true
+
 	if is_inside_tree():
 		modulate = Color(1, 1, 1, 0)
 		var tw := create_tween()
 		if tw:
 			tw.tween_property(self, "modulate", Color(1, 1, 1, 1), 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
-	# Sound fanfare
-	var audio_mgr = get_node_or_null("/root/AudioManager")
-	if audio_mgr and audio_mgr.has_method("play_whistle"):
-		audio_mgr.play_whistle()
+		var audio_mgr = get_node_or_null("/root/AudioManager")
+		if audio_mgr and audio_mgr.has_method("play_ui_game_over"):
+			audio_mgr.play_ui_game_over()
+		elif audio_mgr and audio_mgr.has_method("play_whistle"):
+			audio_mgr.play_whistle()
 
-	if get_tree():
-		get_tree().create_timer(0.25).timeout.connect(func():
-			var am = get_node_or_null("/root/AudioManager")
-			if am and am.has_method("play_powerup"):
-				am.play_powerup()
-		)
-
-	# 1. Update Match Meta
-	if meta_players_label:
-		meta_players_label.text = "%d / %d" % [players_data.size(), match_meta.get("max_players", 8)]
-	if meta_duration_label:
+	# 1. Update Match Header Chips
+	if mode_label:
+		var mode_str: String = match_meta.get("mode_name", "TAYAAN SA KANTO").to_upper()
+		mode_label.text = "🎮 " + mode_str
+	if meta_summary_label:
 		var sec: int = int(match_meta.get("duration", 0.0))
-		meta_duration_label.text = "%02d:%02d" % [int(float(sec) / 60.0), sec % 60]
-	if meta_taya_label:
-		meta_taya_label.text = match_meta.get("taya_name", "Walang Taya")
-	if meta_mode_label:
-		meta_mode_label.text = match_meta.get("mode_name", "TAYAAN SA KANTO").to_upper()
+		var time_str: String = "%02d:%02d" % [int(float(sec) / 60.0), sec % 60]
+		meta_summary_label.text = "⏱️ %s  •  👥 %d BATA" % [time_str, players_data.size()]
 
-	# 2. Populate Leaderboard Rows
+	# 2. Populate Minimalist 4-Column Leaderboard Rows
 	if rows_container:
 		for c in rows_container.get_children():
 			c.queue_free()
@@ -103,32 +140,58 @@ func display_game_over(players_data: Array[Dictionary], match_meta: Dictionary, 
 			var row := _build_player_row(i + 1, p)
 			rows_container.add_child(row)
 
-	# 3. Populate Top Player (MVP) Card
+	# 3. Populate Top Player (MVP) 3D Card
 	if not players_data.is_empty():
 		var mvp: Dictionary = players_data[0]
 		_populate_top_player_card(mvp)
 
-	# 4. Populate Mga Parangal (Awards) Card
-	_populate_awards_card(awards_data)
-
-	# 5. Award and Display Economy Earnings
+	# 4. Award and Display Economy Earnings
 	_award_and_display_earnings(players_data)
 
+func _populate_top_player_card(mvp: Dictionary) -> void:
+	var char_idx: int = mvp.get("character", 0)
+
+	# Apply archetype & visuals to 3D model
+	if mvp_model:
+		if mvp.has("outfit") and mvp["outfit"] is Dictionary and not mvp["outfit"].is_empty():
+			if mvp_model.has_method("apply_outfit_dict"):
+				mvp_model.apply_outfit_dict(mvp["outfit"])
+		elif mvp_model.has_method("apply_preset"):
+			mvp_model.apply_preset(char_idx)
+
+		if mvp.has("color") and mvp_model.has_method("set_player_color"):
+			var c_idx = int(mvp.get("color", 0))
+			if c_idx >= 0 and c_idx < CharacterAnimator.COLOR_OPTIONS.size():
+				mvp_model.set_player_color(CharacterAnimator.COLOR_OPTIONS[c_idx]["color"])
+
+	if mvp_name_label:
+		mvp_name_label.text = str(mvp.get("name", "KAMPEON")).to_upper()
+
+	if mvp_role_badge:
+		if mvp.get("is_taya", false):
+			mvp_role_badge.text = "● TAYA"
+			mvp_role_badge.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2, 1.0))
+		else:
+			mvp_role_badge.text = "● KAMPEON"
+			mvp_role_badge.add_theme_color_override("font_color", Color(0.28, 0.95, 0.50, 1.0))
+
 func _award_and_display_earnings(players_data: Array[Dictionary]) -> void:
+	if not is_inside_tree():
+		return
 	var eco: EconomyManager = get_node_or_null("/root/Main/EconomyManager")
 	if not eco:
 		var gm = get_node_or_null("/root/Main")
 		if gm and "economy_manager" in gm:
 			eco = gm.economy_manager
-	
+
 	if not eco or players_data.is_empty():
 		return
-	
+
 	var local_pid: int = 1
 	var nm = get_node_or_null("/root/Main/NetworkManager")
 	if nm and multiplayer.has_multiplayer_peer():
 		local_pid = multiplayer.get_unique_id()
-	
+
 	var my_data: Dictionary = {}
 	for p in players_data:
 		if p.get("id", 0) == local_pid or (nm and p.get("name") == nm.local_player_name):
@@ -136,137 +199,83 @@ func _award_and_display_earnings(players_data: Array[Dictionary]) -> void:
 			break
 	if my_data.is_empty():
 		my_data = players_data[0]
-	
+
 	var my_score: int = int(my_data.get("score", 0))
 	var my_tags: int = int(my_data.get("huli", 0))
 	var my_recycled: int = int(my_data.get("basura", 0))
 	var is_win: bool = (players_data[0].get("id", 0) == local_pid) or (my_data.get("status") == "LIGTAS")
-	
+
 	var earnings := eco.award_match_earnings(my_score, my_tags, my_recycled, is_win)
 	if earnings_val_label:
-		earnings_val_label.text = "🪙 +%d Barya  |  ⭐ +%d Rep  (Total: %d)" % [
+		earnings_val_label.text = "🪙 +%d Barya   ⭐ +%d Rep" % [
 			earnings.get("barya_earned", 0),
-			earnings.get("rep_earned", 0),
-			earnings.get("total_barya", 0)
+			earnings.get("rep_earned", 0)
 		]
-
-func _populate_top_player_card(mvp: Dictionary) -> void:
-	var char_idx: int = mvp.get("character", 0)
-	var tex: Texture2D = PORTRAITS.get(char_idx, DEFAULT_PORTRAIT)
-	if mvp_portrait:
-		mvp_portrait.texture = tex
-
-	if mvp_role_badge:
-		if mvp.get("is_taya", false):
-			mvp_role_badge.text = "TAYA"
-			mvp_role_badge.modulate = Color(1.0, 0.85, 0.2, 1.0)
-		else:
-			mvp_role_badge.text = "KAMPEON"
-			mvp_role_badge.modulate = Color(0.25, 0.9, 0.45, 1.0)
-
-	if mvp_name_label:
-		mvp_name_label.text = str(mvp.get("name", "KAMPEON")).to_upper()
-
-	if mvp_stat_huli: mvp_stat_huli.text = str(mvp.get("huli", 0))
-	if mvp_stat_dulas: mvp_stat_dulas.text = str(mvp.get("dulas", 0))
-	if mvp_stat_basura: mvp_stat_basura.text = str(mvp.get("basura", 0))
-	if mvp_stat_tago: mvp_stat_tago.text = str(mvp.get("tago", 0))
-
-	if mvp_quote_label:
-		mvp_quote_label.text = MVP_QUOTES[randi() % MVP_QUOTES.size()]
-
-func _populate_awards_card(awards_data: Dictionary) -> void:
-	if not awards_container:
-		return
-	for c in awards_container.get_children():
-		c.queue_free()
-
-	var awards_def: Array[Dictionary] = [
-		{ "icon": "👑", "title": "TAYA MASTER", "key": "taya_master" },
-		{ "icon": "🏃‍♂️", "title": "ESCAPE ARTIST", "key": "escape_artist" },
-		{ "icon": "🤸", "title": "VAULT KING", "key": "vault_king" },
-		{ "icon": "⚡", "title": "SPRINT KING", "key": "sprint_king" },
-		{ "icon": "🗑️", "title": "BASURA CHAMPION", "key": "basura" }
-	]
-
-	for a in awards_def:
-		var winner: String = awards_data.get(a["key"], "Walang Award")
-		var row := HBoxContainer.new()
-		row.custom_minimum_size = Vector2(0, 24)
-
-		var icon_label := Label.new()
-		icon_label.text = a["icon"]
-		icon_label.custom_minimum_size = Vector2(24, 0)
-		row.add_child(icon_label)
-
-		var title_label := Label.new()
-		title_label.text = a["title"]
-		title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		title_label.add_theme_color_override("font_color", Color(0.75, 0.78, 0.82, 1.0))
-		title_label.add_theme_font_size_override("font_size", 12)
-		row.add_child(title_label)
-
-		var name_label := Label.new()
-		if winner == "Walang Award" or winner.is_empty():
-			name_label.text = "-"
-			name_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.62, 0.6))
-		else:
-			name_label.text = winner
-			name_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.35, 1.0))
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		name_label.add_theme_font_size_override("font_size", 12)
-		row.add_child(name_label)
-
-		awards_container.add_child(row)
 
 func _build_player_row(rank: int, p: Dictionary) -> PanelContainer:
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0, 42)
+	panel.custom_minimum_size = Vector2(0, 46)
 
 	var sb := StyleBoxFlat.new()
-	sb.set_corner_radius_all(6)
+	sb.set_corner_radius_all(10)
+	sb.content_margin_left = 12.0
+	sb.content_margin_right = 12.0
+	sb.content_margin_top = 6.0
+	sb.content_margin_bottom = 6.0
+
 	if rank == 1:
-		sb.bg_color = Color(0.20, 0.16, 0.05, 0.70)
-		sb.border_color = Color(0.92, 0.75, 0.18, 0.90)
-		sb.set_border_width_all(1)
+		sb.bg_color = Color(0.12, 0.17, 0.32, 0.95)
+		sb.set_border_width_all(2)
+		sb.border_color = Color(1.0, 0.85, 0.28, 1.0) # Golden champion border
+		sb.shadow_color = Color(1.0, 0.85, 0.28, 0.2)
+		sb.shadow_size = 4
 	else:
-		sb.bg_color = Color(0.08, 0.09, 0.12, 0.65)
-		sb.border_color = Color(0.18, 0.20, 0.24, 0.35)
+		sb.bg_color = Color(0.08, 0.11, 0.20, 0.90)
 		sb.set_border_width_all(1)
+		sb.border_color = Color(1.0, 1.0, 1.0, 0.70)
+		sb.shadow_color = Color(0, 0, 0, 0.25)
+		sb.shadow_size = 2
+
 	panel.add_theme_stylebox_override("panel", sb)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 8)
-	margin.add_theme_constant_override("margin_right", 8)
-	margin.add_theme_constant_override("margin_top", 4)
-	margin.add_theme_constant_override("margin_bottom", 4)
+	margin.add_theme_constant_override("margin_left", 4)
+	margin.add_theme_constant_override("margin_right", 4)
 	panel.add_child(margin)
 
 	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 6)
+	hbox.add_theme_constant_override("separation", 8)
 	margin.add_child(hbox)
 
-	# 1. Rank
+	# 1. Rank (#)
 	var rank_label := Label.new()
-	rank_label.custom_minimum_size = Vector2(32, 0)
+	rank_label.custom_minimum_size = Vector2(44, 0)
 	rank_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	rank_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	if LilitaFont: rank_label.add_theme_font_override("font", LilitaFont)
+	rank_label.add_theme_font_size_override("font_size", 15)
 	if rank == 1:
 		rank_label.text = "👑 1"
-		rank_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+		rank_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.28, 1.0))
+	elif rank == 2:
+		rank_label.text = "🥈 2"
+		rank_label.add_theme_color_override("font_color", Color(0.88, 0.90, 0.95, 1.0))
+	elif rank == 3:
+		rank_label.text = "🥉 3"
+		rank_label.add_theme_color_override("font_color", Color(0.92, 0.70, 0.50, 1.0))
 	else:
 		rank_label.text = str(rank)
-		rank_label.add_theme_color_override("font_color", Color(0.7, 0.72, 0.75))
-	rank_label.add_theme_font_size_override("font_size", 13)
+		rank_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.75))
 	hbox.add_child(rank_label)
 
-	# 2. Player (Avatar + Name)
+	# 2. Player (Bata: Avatar + Clean Single Name)
 	var player_box := HBoxContainer.new()
-	player_box.custom_minimum_size = Vector2(170, 0)
 	player_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	player_box.add_theme_constant_override("separation", 8)
+	player_box.add_theme_constant_override("separation", 10)
+	player_box.alignment = BoxContainer.ALIGNMENT_CENTER
 
 	var avatar := TextureRect.new()
-	avatar.custom_minimum_size = Vector2(30, 30)
+	avatar.custom_minimum_size = Vector2(34, 34)
 	avatar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	avatar.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	var char_idx: int = p.get("character", 0)
@@ -274,63 +283,66 @@ func _build_player_row(rank: int, p: Dictionary) -> PanelContainer:
 	player_box.add_child(avatar)
 
 	var name_label := Label.new()
-	name_label.text = p.get("name", "Player")
+	name_label.text = str(p.get("name", "Player"))
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if LilitaFont: name_label.add_theme_font_override("font", LilitaFont)
+	name_label.add_theme_font_size_override("font_size", 15)
 	if rank == 1:
-		name_label.add_theme_color_override("font_color", Color(1.0, 0.95, 0.75))
+		name_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.35, 1.0))
 	else:
-		name_label.add_theme_color_override("font_color", Color(0.92, 0.92, 0.95))
-	name_label.add_theme_font_size_override("font_size", 13)
+		name_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	player_box.add_child(name_label)
 	hbox.add_child(player_box)
 
-	# 3. Status Badge
+	# 3. Status Badge (Katayuan)
 	var status_text: String = p.get("status", "LIGTAS")
 	var status_label := Label.new()
-	status_label.custom_minimum_size = Vector2(85, 0)
+	status_label.custom_minimum_size = Vector2(100, 0)
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	status_label.text = status_text
-	status_label.add_theme_font_size_override("font_size", 11)
+	if LilitaFont: status_label.add_theme_font_override("font", LilitaFont)
+	status_label.add_theme_font_size_override("font_size", 13)
 
 	match status_text:
 		"TAYA":
 			status_label.text = "● TAYA"
-			status_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+			status_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.28, 1.0))
 		"LIGTAS":
 			status_label.text = "● LIGTAS"
-			status_label.add_theme_color_override("font_color", Color(0.25, 0.9, 0.45))
+			status_label.add_theme_color_override("font_color", Color(0.28, 0.95, 0.50, 1.0))
 		"HULI":
 			status_label.text = "● HULI"
-			status_label.add_theme_color_override("font_color", Color(0.95, 0.3, 0.3))
+			status_label.add_theme_color_override("font_color", Color(0.95, 0.30, 0.30, 1.0))
 		_:
-			status_label.text = "● OUT"
-			status_label.add_theme_color_override("font_color", Color(0.65, 0.65, 0.7))
+			status_label.text = "● " + status_text
+			status_label.add_theme_color_override("font_color", Color(0.75, 0.65, 0.95, 1.0))
 	hbox.add_child(status_label)
 
-	# 4. Huli, Dulas, Basura, Patama, Tago
-	for col_key in ["huli", "dulas", "basura", "patama", "tago"]:
-		var val_label := Label.new()
-		val_label.custom_minimum_size = Vector2(55, 0)
-		val_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		val_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		val_label.text = str(p.get(col_key, 0))
-		val_label.add_theme_color_override("font_color", Color(0.85, 0.88, 0.92))
-		val_label.add_theme_font_size_override("font_size", 12)
-		hbox.add_child(val_label)
-
-	# 5. Score
+	# 4. Score (Puntos)
 	var score_label := Label.new()
-	score_label.custom_minimum_size = Vector2(65, 0)
+	score_label.custom_minimum_size = Vector2(80, 0)
 	score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	score_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	score_label.text = str(int(p.get("score", 0)))
+	if LilitaFont: score_label.add_theme_font_override("font", LilitaFont)
+	score_label.add_theme_font_size_override("font_size", 16)
 	if rank == 1:
-		score_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+		score_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.32, 1.0))
 	else:
-		score_label.add_theme_color_override("font_color", Color(0.95, 0.95, 0.98))
-	score_label.add_theme_font_size_override("font_size", 13)
+		score_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	hbox.add_child(score_label)
 
 	return panel
+
+func _play_ui_pop() -> void:
+	if is_inside_tree():
+		var am = get_node_or_null("/root/AudioManager")
+		if am and am.has_method("play_ui_pop"):
+			am.play_ui_pop()
+
+func _play_ui_click() -> void:
+	if is_inside_tree():
+		var am = get_node_or_null("/root/AudioManager")
+		if am and am.has_method("play_ui_click"):
+			am.play_ui_click()

@@ -77,7 +77,6 @@ shadow_bias = 0.03
 directional_shadow_max_distance = 200.0
 
 [node name="Ground" type="Node3D" parent="." unique_id=2028515386]
-visible = false
 
 [node name="RoadFloor" type="StaticBody3D" parent="Ground" unique_id=927620159]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)

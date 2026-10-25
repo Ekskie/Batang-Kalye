@@ -1,0 +1,68 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/UwianNaUI.gd" id="1_uwian_script"]
+[ext_resource type="Texture2D" path="res://assets/Backgrounds/Uwian_Banner.png" id="2_uwian_banner"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/No_Close.png" id="3_no_close"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/No_Close.png" id="4_no_tap"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/Yes.png" id="5_yes_check"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/Yes.png" id="6_yes_tap"]
+
+[node name="UwianNaUI" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_uwian_script")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Banner" type="TextureRect" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(420, 105)
+layout_mode = 2
+texture = ExtResource("2_uwian_banner")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ButtonsRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 32
+alignment = 1
+
+[node name="BtnNo" type="TextureButton" parent="CenterContainer/VBoxContainer/ButtonsRow"]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+texture_normal = ExtResource("3_no_close")
+texture_pressed = ExtResource("4_no_tap")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="BtnYes" type="TextureButton" parent="CenterContainer/VBoxContainer/ButtonsRow"]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+texture_normal = ExtResource("5_yes_check")
+texture_pressed = ExtResource("6_yes_tap")
+ignore_texture_size = true
+stretch_mode = 5

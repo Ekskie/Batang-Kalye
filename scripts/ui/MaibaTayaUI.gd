@@ -47,6 +47,11 @@ func show_chant(text: String) -> void:
 	visible = true
 	if result_label:
 		result_label.visible = false
+
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_maiba_taya_unison"):
+		am.play_maiba_taya_unison()
+
 	if chant_label:
 		chant_label.visible = true
 		chant_label.text = text
@@ -71,6 +76,9 @@ func request_choice(_time_limit: float) -> void:
 
 func _choose(choice: int) -> void:
 	selected_choice = choice
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_ui_pop"):
+		am.play_ui_pop()
 	if btn_palm_up:
 		btn_palm_up.disabled = true
 	if btn_palm_down:

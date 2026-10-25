@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cu0eryia0le62"
+path="res://.godot/imported/Taya 1 - Voice_Audio.wav-bcdce41162efb654f9a4b8eff6ab3de6.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/Voice Packs/Female 1/Taya!/Taya 1 - Voice_Audio.wav"
+dest_files=["res://.godot/imported/Taya 1 - Voice_Audio.wav-bcdce41162efb654f9a4b8eff6ab3de6.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

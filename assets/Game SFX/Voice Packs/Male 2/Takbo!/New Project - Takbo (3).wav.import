@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://xqtv8osi0wii"
+path="res://.godot/imported/New Project - Takbo (3).wav-6a89f19dbd492d032a1cd22481187230.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/Voice Packs/Male 2/Takbo!/New Project - Takbo (3).wav"
+dest_files=["res://.godot/imported/New Project - Takbo (3).wav-6a89f19dbd492d032a1cd22481187230.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://ctb8n4p7kqn3v"]
+[gd_scene format=3]
 
-[ext_resource type="Script" uid="uid://dpgetoqgvxi6v" path="res://scripts/ui/TagPointerUI.gd" id="1_pointer"]
+[ext_resource type="Script" path="res://scripts/ui/TagPointerUI.gd" id="1_pointer"]
 
 [node name="TagPointerUI" type="Control" unique_id=1454891062]
 layout_mode = 3
@@ -25,8 +25,7 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 30.0
 grow_horizontal = 2
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
+theme_type_variation = &"LabelHeader"
 theme_override_font_sizes/font_size = 22
 text = "[TARGET]"
 horizontal_alignment = 1
@@ -40,8 +39,6 @@ anchor_bottom = 1.0
 offset_top = -26.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 14
 text = "Target (4.2m)"
 horizontal_alignment = 1
@@ -63,8 +60,7 @@ offset_top = -15.0
 offset_right = 20.0
 offset_bottom = 25.0
 grow_horizontal = 2
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 8
+theme_type_variation = &"LabelHeader"
 theme_override_font_sizes/font_size = 28
 text = "▲"
 horizontal_alignment = 1
@@ -81,8 +77,7 @@ offset_top = -25.0
 offset_right = 40.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
+theme_type_variation = &"LabelSmall"
 theme_override_font_sizes/font_size = 13
 text = "12m"
 horizontal_alignment = 1
@@ -98,12 +93,12 @@ offset_right = 188.0
 offset_bottom = 158.0
 grow_horizontal = 2
 mouse_filter = 2
+theme_type_variation = &"PanelHUD"
+metadata/_kalye_surface = "PanelHUD"
 
 [node name="Label" type="Label" parent="WarningBanner" unique_id=1959445972]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.25, 0.2, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1, 0.47843137, 0.5254902, 1)
 text = "DELIKADO! MALAPIT ANG TAYA!"
 horizontal_alignment = 1

@@ -20,6 +20,13 @@ var sent_home_ids: Array = []
 
 const TINDAHAN_POS := Vector3(-8.5, 0.5, 0.0)
 
+func _get_tindahan_pos() -> Vector3:
+	if is_inside_tree():
+		var safe_base = get_tree().get_first_node_in_group("safe_bases")
+		if safe_base and is_instance_valid(safe_base):
+			return safe_base.global_position
+	return TINDAHAN_POS
+
 func _ready() -> void:
 	_reset_nanay_timer()
 
@@ -55,7 +62,7 @@ func setup(gm: GameManager, pc: Node3D) -> void:
 	event_label.position = Vector3(0, 2.5, 0)
 	home_marker.add_child(event_label)
 
-	home_marker.global_position = TINDAHAN_POS
+	home_marker.global_position = _get_tindahan_pos()
 	home_marker.visible = false
 
 func _physics_process(delta: float) -> void:
@@ -110,9 +117,14 @@ func sync_nanay_event(pid: int, pname: String) -> void:
 	event_target_id = pid
 	event_timer = event_duration
 	if home_marker:
+		home_marker.global_position = _get_tindahan_pos()
 		home_marker.visible = true
 	if event_label:
 		event_label.text = "UWI NA, %s!\nPINAPAUWI KA NI NANAY!" % pname.to_upper()
+
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_nanay_callout"):
+		am.play_nanay_callout(_get_tindahan_pos())
 
 	var local_id := multiplayer.get_unique_id()
 	if local_id == pid or not multiplayer.has_multiplayer_peer():
@@ -129,7 +141,7 @@ func _tick_event(delta: float) -> void:
 			target = node as PlayerController
 
 	if is_instance_valid(target):
-		var dist: float = target.global_position.distance_to(TINDAHAN_POS)
+		var dist: float = target.global_position.distance_to(_get_tindahan_pos())
 		if dist < home_reach_radius:
 			_send_player_home(event_target_id, target.player_name)
 			return
@@ -161,6 +173,10 @@ func sync_sent_home(pid: int, pname: String) -> void:
 		home_marker.visible = false
 	if event_label:
 		event_label.text = ""
+
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_nanay_hoy"):
+		am.play_nanay_hoy(_get_tindahan_pos())
 
 	player_sent_home.emit(pid, pname)
 

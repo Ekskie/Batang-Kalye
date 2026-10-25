@@ -1,0 +1,57 @@
+CHIFREQ SOUNDWORKS
+
+BATANG KALYE GAME AUDIO COLLECTION — VOL. 01
+
+CREDITS & SOUND PACK INFORMATION
+
+Studio: CHIFREQ Soundworks
+Creator & Audio Director: Daniel Melchizedek A. Jimenez
+Version: 1.0
+
+Studio Tagline: Sculpting Sound. Shaping Experience.
+Collection Tagline: Small Sounds. Big Worlds.
+
+ABOUT THIS PACK
+Batang Kalye Game Audio Collection — Vol. 01 is a curated collection of stylized sound effects and voice lines developed for video games and interactive media. 
+Designed to complement the personality and atmosphere of the Batang Kalye project, the collection focuses on expressive audio, playful character, and responsive gameplay feedback.
+
+CONTENTS
+The collection includes the following audio assets:
+
+• Movement SFX — Walking and running sound effects
+• Jump SFX — Jumping and airborne movement effects
+• Sliding SFX — Sliding and directional movement effects
+• User Interface SFX — Button interactions, confirmations, cancellations, rewards, and game-over cues
+• Voice Lines — Character vocalizations and other voice-based audio elements
+
+AUDIO PRODUCTION
+The audio assets in this collection were prepared for interactive use, with attention to tonal character, timing, rhythmic consistency, clarity, 
+and overall sound quality. Each effect was developed to support the intended gameplay experience and reinforce the project's distinct audio identity.
+
+OFFICIAL CREDITS
+Sound Design & Audio Production: CHIFREQ Soundworks
+Creator & Audio Director: Daniel Melchizedek A. Jimenez
+
+project credit:
+“Sound Design and Audio Production by CHIFREQ Soundworks. Created by Daniel Melchizedek A. Jimenez for the Batang Kalye Game Audio Collection — Vol. 01.”
+
+When using individual assets, the following abbreviated credit may also be used:
+
+“Sound Effects: CHIFREQ Soundworks.”
+
+COPYRIGHT & INTELLECTUAL PROPERTY
+
+The sound effects and original creative arrangements in this collection are claimed as the intellectual property of CHIFREQ Soundworks, 
+created and curated by Daniel Melchizedek A. Jimenez. All rights are reserved to the extent permitted by applicable law and the accompanying license.
+
+Unauthorized reproduction, redistribution, resale, or repackaging of the audio assets as standalone files or as part of another sound library is prohibited 
+without prior written permission from the rights holder, except where expressly permitted by the applicable license or law.
+
+Use of these assets in a finished game, video, animation, or other authorized project is governed by the accompanying license terms.
+
+LICENSE & DISTRIBUTION NOTICE
+
+Users are responsible for reviewing and complying with the license supplied with the version of the collection they received. 
+The applicable license governs permitted uses, redistribution restrictions, attribution requirements, and other conditions.
+
+Recipients are encouraged to retain a copy of the license and the accompanying documentation for reference.

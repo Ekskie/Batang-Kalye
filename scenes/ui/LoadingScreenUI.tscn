@@ -1,0 +1,109 @@
+[gd_scene format=3 uid="uid://c34k5m6n7p8ra"]
+
+[ext_resource type="Script" uid="uid://cx30f3gxd57dk" path="res://scripts/ui/LoadingScreenUI.gd" id="1_loading"]
+[ext_resource type="Texture2D" uid="uid://b4stl5waa41na" path="res://assets/Logo/Logo.png" id="2_logo"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_progress_bg"]
+bg_color = Color(0.12, 0.14, 0.18, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_progress_fill"]
+bg_color = Color(1, 0.847, 0.29, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="LoadingScreenUI" type="Control" unique_id=749102837]
+process_mode = 3
+z_index = 150
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_loading")
+
+[node name="DarkBg" type="ColorRect" parent="." unique_id=987162534]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="LogoRect" type="TextureRect" parent="." unique_id=987162599]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 48.0
+offset_top = -140.0
+offset_right = 320.0
+offset_bottom = -30.0
+grow_vertical = 0
+texture = ExtResource("2_logo")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BottomRightContainer" type="VBoxContainer" parent="." unique_id=892347103]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -260.0
+offset_top = -240.0
+offset_right = -48.0
+offset_bottom = -30.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 6
+alignment = 2
+
+[node name="RunnerContainer" type="Control" parent="BottomRightContainer" unique_id=381920475]
+custom_minimum_size = Vector2(170, 160)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="RunnerRect" type="TextureRect" parent="BottomRightContainer/RunnerContainer" unique_id=581920384]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="BottomRightContainer" unique_id=129384756]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "Teka lang..."
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="." unique_id=746281930]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+theme_override_styles/background = SubResource("StyleBoxFlat_progress_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_progress_fill")
+
+[node name="TipPanel" type="PanelContainer" parent="." unique_id=615243980]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+
+[node name="TipLabel" type="Label" parent="TipPanel" unique_id=983746251]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2

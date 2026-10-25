@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://c1c8y2fbwq8rq"
+path="res://.godot/imported/WALKING SFX - Walking 3.wav-bb205795d73451a291521c9d8bb5acb4.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/SFX/Action SFX/Walking/WALKING SFX - Walking 3.wav"
+dest_files=["res://.godot/imported/WALKING SFX - Walking 3.wav-bb205795d73451a291521c9d8bb5acb4.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

@@ -221,15 +221,26 @@ var model_base_pos: Vector3 = Vector3.ZERO
 var model_base_rot_y: float = PI
 
 var walk_cycle_time: float = 0.0
+var idle_breath_time: float = 0.0
+var turn_lean: float = 0.0
+var is_infected_role: bool = false
+
 var is_tag_swinging: bool = false
 var tag_swing_timer: float = 0.0
 var tag_swing_duration: float = 0.40
+var tag_whiff_timer: float = 0.0
+var hit_reaction_timer: float = 0.0
+var landing_compression_timer: float = 0.0
+var landing_compression_strength: float = 0.0
+var victory_pose_active: bool = false
+var defeat_pose_active: bool = false
 
 var is_carrying: bool = false
 var held_trash_type: int = -1
 
 var runner_mat: Material = preload("res://assets/materials/mat_runner.tres")
 var taya_mat: Material = preload("res://assets/materials/mat_taya_glow.tres")
+var infected_mat: StandardMaterial3D = null
 var current_player_color: Color = Color(0.18, 0.58, 0.95, 1.0)
 
 var is_sliding: bool = false
@@ -595,6 +606,52 @@ func _build_chest_accessories(parent: Node3D) -> void:
 	badge.scale = Vector3(0.03, 0.03, 0.03)
 	parent.add_child(badge)
 
+	# Kanto Sling Bag / Backpack (Street T-Shirt silhouette)
+	var sling := Node3D.new()
+	sling.name = "Acc_SlingBag"
+	sling.visible = false
+	var bag_mat := StandardMaterial3D.new()
+	bag_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	bag_mat.albedo_color = Color(0.18, 0.20, 0.24, 1.0)
+	bag_mat.roughness = 0.75
+	var bag_pack := MeshInstance3D.new()
+	var bp_mesh := BoxMesh.new()
+	bp_mesh.size = Vector3(0.024, 0.032, 0.014)
+	bp_mesh.material = bag_mat
+	bag_pack.mesh = bp_mesh
+	bag_pack.material_override = bag_mat
+	bag_pack.position = Vector3(0.0, 0.0, -0.020)
+	sling.add_child(bag_pack)
+	var strap_diag := MeshInstance3D.new()
+	var sd_mesh := BoxMesh.new()
+	sd_mesh.size = Vector3(0.006, 0.042, 0.030)
+	sd_mesh.material = bag_mat
+	strap_diag.mesh = sd_mesh
+	strap_diag.material_override = bag_mat
+	strap_diag.position = Vector3(0.008, 0.004, 0.0)
+	strap_diag.rotation.z = deg_to_rad(28.0)
+	sling.add_child(strap_diag)
+	parent.add_child(sling)
+
+	# Striped Pambahay Trim (Nene & Kikay silhouette)
+	var pambahay := Node3D.new()
+	pambahay.name = "Acc_StripedTrim"
+	pambahay.visible = false
+	var trim_mat := StandardMaterial3D.new()
+	trim_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	trim_mat.albedo_color = Color(0.98, 0.96, 0.90, 1.0)
+	for s_idx in range(2):
+		var stripe_ring := MeshInstance3D.new()
+		var sr_mesh := TorusMesh.new()
+		sr_mesh.inner_radius = 0.017
+		sr_mesh.outer_radius = 0.021
+		sr_mesh.material = trim_mat
+		stripe_ring.mesh = sr_mesh
+		stripe_ring.material_override = trim_mat
+		stripe_ring.position = Vector3(0.0, -0.004 - float(s_idx) * 0.014, 0.001)
+		pambahay.add_child(stripe_ring)
+	parent.add_child(pambahay)
+
 func _build_foot_accessories(parent: Node3D, _is_left: bool) -> void:
 	# A. Spartan Slippers (Asul Sole / Puti Strap)
 	var spartan := Node3D.new()
@@ -773,8 +830,12 @@ func _update_modular_visuals() -> void:
 	if chest:
 		var towel = chest.get_node_or_null("Acc_Towel")
 		var j23 = chest.get_node_or_null("Acc_Jersey23")
+		var sling = chest.get_node_or_null("Acc_SlingBag")
+		var striped = chest.get_node_or_null("Acc_StripedTrim")
 		if towel: towel.visible = (current_headwear == 2)
 		if j23: j23.visible = (current_body == 1 and current_base_char != CharacterType.TOTOY)
+		if sling: sling.visible = (current_body == 0 and current_headwear != 2)
+		if striped: striped.visible = (current_body == 2)
 
 	# 4. Footwear Slot
 	for f in [l_foot, r_foot]:
@@ -946,11 +1007,26 @@ func set_character(char_type: int) -> void:
 				if a:
 					a.loop_mode = Animation.LOOP_NONE
 
+		active_anim.playback_default_blend_time = 0.15
+
 		if _has_anim("idle"):
 			_play_anim("idle")
 
 	# Refresh materials on newly active model
 	_apply_active_mesh_color(current_player_color)
+	_update_taya_visuals()
+
+func _get_infected_material() -> StandardMaterial3D:
+	if not infected_mat:
+		infected_mat = StandardMaterial3D.new()
+		infected_mat.albedo_color = Color(0.22, 0.78, 0.25, 1.0)
+		infected_mat.emission_enabled = true
+		infected_mat.emission = Color(0.18, 0.95, 0.22, 1.0)
+		infected_mat.emission_energy_multiplier = 0.65
+		infected_mat.roughness = 0.45
+	return infected_mat
+
+func update_role_aura_style() -> void:
 	_update_taya_visuals()
 
 func _update_taya_visuals() -> void:
@@ -962,18 +1038,31 @@ func _update_taya_visuals() -> void:
 		taya_flame_particles.emitting = is_taya
 	if taya_badge:
 		taya_badge.visible = is_taya
+		if is_infected_role:
+			taya_badge.text = "☣ HAWA!"
+			taya_badge.modulate = Color(0.35, 1.0, 0.30, 1.0)
+		else:
+			taya_badge.text = "⚠ TAYA!"
+			taya_badge.modulate = Color(1.0, 0.30, 0.22, 1.0)
+
+	var active_role_mat: Material = _get_infected_material() if is_infected_role else taya_mat
+	if taya_aura:
+		for ring_name in ["OuterRing", "InnerRing"]:
+			var ring_node := taya_aura.get_node_or_null(ring_name) as MeshInstance3D
+			if ring_node:
+				ring_node.set_surface_override_material(0, active_role_mat)
 
 	if is_taya:
 		if active_mesh:
-			active_mesh.material_override = taya_mat
+			active_mesh.material_override = active_role_mat
 		if body_mesh:
-			body_mesh.material_override = taya_mat
+			body_mesh.material_override = active_role_mat
 		if active_model and active_model == model_totoy:
 			var parts_taya: Array[String] = ["Shirt_001", "Shirt.001", "short_001", "short.001", "hair_001", "hair.001", "face_001", "face.001"]
 			for part: String in parts_taya:
 				var p_node: MeshInstance3D = active_model.get_node_or_null("Armature/Skeleton3D/" + part) as MeshInstance3D
 				if p_node:
-					p_node.material_override = taya_mat
+					p_node.material_override = active_role_mat
 	else:
 		if active_model and active_model == model_totoy:
 			var parts_clear: Array[String] = ["Shirt_001", "Shirt.001", "short_001", "short.001", "hair_001", "hair.001", "face_001", "face.001"]
@@ -1054,9 +1143,10 @@ func _play_anim(anim_name: String, custom_blend: float = -1.0) -> void:
 	if not active_anim:
 		return
 	var target: String = _get_anim_name(anim_name)
+	var blend_t: float = 0.15 if custom_blend < 0.0 else custom_blend
 	if active_anim.has_animation(target):
 		if active_anim.current_animation != target:
-			active_anim.play(target, custom_blend)
+			active_anim.play(target, blend_t)
 
 func trigger_tag_animation() -> void:
 	is_tag_swinging = true
@@ -1064,6 +1154,24 @@ func trigger_tag_animation() -> void:
 	if active_anim and _has_anim("punching"):
 		_play_anim("punching", 0.08)
 		active_anim.speed_scale = 2.2 # Snappy 0.4s tag punch strike
+
+func trigger_tag_whiff() -> void:
+	tag_whiff_timer = 0.34
+
+func trigger_hit_reaction() -> void:
+	hit_reaction_timer = 0.36
+
+func trigger_landing_compression(strength: float = 0.5) -> void:
+	landing_compression_timer = 0.22
+	landing_compression_strength = clampf(strength, 0.2, 1.0)
+
+func trigger_victory_pose() -> void:
+	victory_pose_active = true
+	defeat_pose_active = false
+
+func trigger_defeat_pose() -> void:
+	defeat_pose_active = true
+	victory_pose_active = false
 
 func trigger_slip_animation(duration: float = 1.4) -> void:
 	is_slipping = true
@@ -1073,6 +1181,14 @@ func trigger_slip_animation(duration: float = 1.4) -> void:
 		active_anim.speed_scale = clampf(3.36 / max(0.5, duration), 1.2, 2.5)
 
 func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed: float) -> void:
+	idle_breath_time += delta
+	if tag_whiff_timer > 0.0:
+		tag_whiff_timer = maxf(0.0, tag_whiff_timer - delta)
+	if hit_reaction_timer > 0.0:
+		hit_reaction_timer = maxf(0.0, hit_reaction_timer - delta)
+	if landing_compression_timer > 0.0:
+		landing_compression_timer = maxf(0.0, landing_compression_timer - delta)
+
 	if not is_slipping and not is_stunned:
 		slip_anim_timer = 0.0
 	elif slip_anim_timer > 0.0:
@@ -1132,7 +1248,7 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 					active_anim.speed_scale = clamp(horizontal_speed / 7.0, 0.75, 1.4)
 			else:
 				if _has_anim("idle"):
-					_play_anim("idle", 0.25)
+					_play_anim("idle", 0.22)
 					active_anim.speed_scale = 1.0
 
 	# 2. Original Procedural Animation (Batang Kalye Retro Model)
@@ -1170,16 +1286,30 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 				if left_arm: left_arm.rotation.x = lerp_angle(left_arm.rotation.x, 0.0, delta * 12.0)
 				if right_arm: right_arm.rotation.x = lerp_angle(right_arm.rotation.x, 0.0, delta * 12.0)
 			if body_mesh:
-				body_mesh.position.y = lerp(body_mesh.position.y, 0.7, delta * 8.0)
+				body_mesh.position.y = lerp(body_mesh.position.y, 0.7 + sin(idle_breath_time * 2.4) * 0.015, delta * 8.0)
 
-	# 3. Tag Action Reach / Slap Lunge
+	# 3. Secondary Motion on Modular Accessories (Towel, Pigtails, SlingBag)
+	if active_model and modular_attachments.has(active_model):
+		var attaches: Dictionary = modular_attachments[active_model]
+		var chest_att: Node3D = attaches.get("chest")
+		if chest_att:
+			var towel_node := chest_att.get_node_or_null("Acc_Towel") as Node3D
+			if towel_node and towel_node.visible:
+				var spd_ratio: float = clampf(horizontal_speed / 10.0, 0.0, 1.3)
+				towel_node.rotation.x = deg_to_rad(-14.0 * spd_ratio + sin(idle_breath_time * 7.5) * 4.5 * spd_ratio)
+			var bag_node := chest_att.get_node_or_null("Acc_SlingBag") as Node3D
+			if bag_node and bag_node.visible:
+				var bag_spd: float = clampf(horizontal_speed / 10.0, 0.0, 1.2)
+				bag_node.rotation.z = sin(idle_breath_time * 9.0) * 0.06 * bag_spd
+
+	# 4. Tag Action Reach / Slap Lunge / Whiff / Hit Reaction
 	if is_tag_swinging:
 		tag_swing_timer -= delta
 		var progress: float = 1.0 - (tag_swing_timer / tag_swing_duration)
 		var swing_angle: float = sin(progress * PI) * 1.8
 
 		if active_model:
-			var lunge: float = sin(progress * PI) * 0.24
+			var lunge: float = sin(progress * PI) * (0.30 if tag_whiff_timer > 0.0 else 0.24)
 			active_model.position.z = model_base_pos.z - lunge
 			active_model.rotation.y = model_base_rot_y + sin(progress * PI) * 0.25
 
@@ -1199,42 +1329,62 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 			active_model.position.z = lerp(active_model.position.z, model_base_pos.z, delta * 12.0)
 			active_model.rotation.y = lerp_angle(active_model.rotation.y, model_base_rot_y, delta * 12.0)
 
-	# 4. Dynamic Tilt Overlays (Dash, Slide, Jump, Slip)
+	# 5. Dynamic Tilt & Secondary Motion Overlays (Dash, Slide, Jump, Slip, Turn Lean, Hit/Landing)
 	if is_slipping or slip_anim_timer > 0.0:
 		if not is_skeletal and active_model:
 			active_model.rotation.x = lerp_angle(active_model.rotation.x, deg_to_rad(-55.0), delta * 15.0)
 			active_model.position.y = lerp(active_model.position.y, model_base_pos.y - 0.22, delta * 15.0)
 		return
 
+	if hit_reaction_timer > 0.0 and active_model:
+		var hit_p: float = hit_reaction_timer / 0.36
+		active_model.rotation.x = lerp_angle(active_model.rotation.x, deg_to_rad(-22.0 * hit_p), delta * 22.0)
+		active_model.rotation.z = lerp_angle(active_model.rotation.z, turn_lean, delta * 12.0)
+		return
+
 	if is_dashing:
 		if active_model:
 			active_model.rotation.x = lerp_angle(active_model.rotation.x, deg_to_rad(28.0), delta * 15.0)
+			active_model.rotation.z = lerp_angle(active_model.rotation.z, turn_lean, delta * 14.0)
 		return
 
 	if is_sliding:
 		if active_model:
 			active_model.rotation.x = lerp_angle(active_model.rotation.x, deg_to_rad(-24.0), delta * 15.0)
+			active_model.rotation.z = lerp_angle(active_model.rotation.z, turn_lean * 0.5, delta * 12.0)
 			active_model.position.y = lerp(active_model.position.y, model_base_pos.y - 0.18, delta * 15.0)
 		return
 
 	if not is_on_floor:
 		if active_model:
 			active_model.rotation.x = lerp_angle(active_model.rotation.x, deg_to_rad(5.0), delta * 8.0)
+			active_model.rotation.z = lerp_angle(active_model.rotation.z, turn_lean * 0.6, delta * 10.0)
 			active_model.position.y = lerp(active_model.position.y, model_base_pos.y + 0.05, delta * 8.0)
 		_apply_carry_bob(delta)
 		return
 
-	# Reset orientation smoothly when normal walking/idling
+	# Reset orientation smoothly when normal walking/idling, with subtle breathing & turn banking
 	if active_model:
-		active_model.rotation.x = lerp_angle(active_model.rotation.x, 0.0, delta * 8.0)
+		var forward_pitch: float = clampf(horizontal_speed / max(max_speed, 1.0), 0.0, 1.2) * deg_to_rad(7.5)
+		if tag_whiff_timer > 0.0:
+			forward_pitch += deg_to_rad(14.0 * (tag_whiff_timer / 0.34))
+		elif defeat_pose_active:
+			forward_pitch = deg_to_rad(16.0)
+		var breath_y: float = sin(idle_breath_time * 2.5) * 0.012 if horizontal_speed < 0.3 else 0.0
+		if victory_pose_active:
+			breath_y = absf(sin(idle_breath_time * 6.5)) * 0.16
+		elif landing_compression_timer > 0.0:
+			breath_y = -0.10 * landing_compression_strength * (landing_compression_timer / 0.22)
+		active_model.rotation.x = lerp_angle(active_model.rotation.x, forward_pitch, delta * 10.0)
 		active_model.rotation.y = lerp_angle(active_model.rotation.y, model_base_rot_y, delta * 8.0)
-		active_model.position.y = lerp(active_model.position.y, model_base_pos.y, delta * 8.0)
+		active_model.rotation.z = lerp_angle(active_model.rotation.z, turn_lean, delta * 12.0)
+		active_model.position.y = lerp(active_model.position.y, model_base_pos.y + breath_y, delta * 10.0)
 
 	_apply_carry_bob(delta)
 
-	# 5. Rotate fiery aura rings if Taya
+	# 6. Rotate fiery/infected aura rings if Taya
 	if is_taya and taya_aura:
-		taya_aura.rotate_y(delta * 2.5)
+		taya_aura.rotate_y(delta * (3.2 if is_infected_role else 2.5))
 		var inner := taya_aura.get_node_or_null("InnerRing")
 		if inner:
 			inner.rotate_y(delta * -4.5)

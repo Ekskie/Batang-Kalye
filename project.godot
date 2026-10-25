@@ -37,7 +37,6 @@ window/handheld/orientation=4
 
 [gui]
 
-theme/custom="res://assets/themes/batang_kalye_theme.tres"
 theme/custom_font="res://assets/fonts/LilitaOne-Regular.ttf"
 
 [input]

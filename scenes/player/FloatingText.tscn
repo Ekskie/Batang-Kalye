@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/player/FloatingText.gd" id="1_script"]
+[ext_resource type="FontFile" path="res://assets/fonts/LilitaOne-Regular.ttf" id="2_font"]
 
 [node name="FloatingText" type="Node3D"]
 script = ExtResource("1_script")
@@ -10,7 +11,8 @@ billboard = 1
 double_sided = false
 no_depth_test = true
 modulate = Color(1, 0.9, 0.2, 1)
-outline_modulate = Color(0, 0, 0, 1)
+outline_modulate = Color(0.08, 0.07, 0.16, 1)
 text = "+30 SCORE!"
-font_size = 28
-outline_size = 8
+font = ExtResource("2_font")
+font_size = 36
+outline_size = 10

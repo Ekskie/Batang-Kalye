@@ -1,78 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://c515vpt0ygh45"]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/MaibaTayaUI.gd" id="1_maiba_ui"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_glass_card"]
-bg_color = Color(0.04, 0.05, 0.08, 0.94)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.3)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.6)
-shadow_size = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_palm_up"]
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(1, 1, 1, 0.25)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_palm_up_hover"]
-bg_color = Color(0.88, 0.88, 0.88, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(1, 1, 1, 0.35)
-shadow_size = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_palm_down"]
-bg_color = Color(0, 0, 0, 0.45)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.85)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_palm_down_hover"]
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(1, 1, 1, 0.25)
-shadow_size = 8
-
-[node name="MaibaTayaUI" type="Control"]
+[node name="MaibaTayaUI" type="Control" unique_id=1223149221]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -82,7 +12,7 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1_maiba_ui")
 
-[node name="BackgroundDim" type="ColorRect" parent="."]
+[node name="BackgroundDim" type="ColorRect" parent="." unique_id=1943844167]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -92,7 +22,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 0.65)
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=265170542]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -100,79 +30,54 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+[node name="Panel" type="PanelContainer" parent="CenterContainer" unique_id=1419908590]
 custom_minimum_size = Vector2(580, 280)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_glass_card")
+metadata/_kalye_surface = ""
 
-[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel" unique_id=675311264]
 layout_mode = 2
 theme_override_constants/margin_left = 32
 theme_override_constants/margin_top = 28
 theme_override_constants/margin_right = 32
 theme_override_constants/margin_bottom = 28
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel/Margin"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/Panel/Margin" unique_id=2123100969]
 layout_mode = 2
 theme_override_constants/separation = 22
 alignment = 1
 
-[node name="ChantLabel" type="Label" parent="CenterContainer/Panel/Margin/VBoxContainer"]
+[node name="ChantLabel" type="Label" parent="CenterContainer/Panel/Margin/VBoxContainer" unique_id=1336776156]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0)
-theme_override_constants/shadow_offset_y = 3
-theme_override_constants/outline_size = 0
+theme_type_variation = &"LabelTitle"
 theme_override_font_sizes/font_size = 46
 text = "MAIBA TAYA!"
 horizontal_alignment = 1
 
-[node name="ChoiceContainer" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBoxContainer"]
+[node name="ChoiceContainer" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBoxContainer" unique_id=1303277296]
 layout_mode = 2
 theme_override_constants/separation = 30
 alignment = 1
 
-[node name="BtnPalmUp" type="Button" parent="CenterContainer/Panel/Margin/VBoxContainer/ChoiceContainer"]
+[node name="BtnPalmUp" type="Button" parent="CenterContainer/Panel/Margin/VBoxContainer/ChoiceContainer" unique_id=420730007]
 custom_minimum_size = Vector2(230, 85)
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0)
-theme_override_constants/outline_size = 0
+theme_type_variation = &"BtnPrimary"
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_palm_up")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_palm_up_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_palm_up_hover")
 text = "PUTI / IBABAW
 (PALM UP)"
 
-[node name="BtnPalmDown" type="Button" parent="CenterContainer/Panel/Margin/VBoxContainer/ChoiceContainer"]
+[node name="BtnPalmDown" type="Button" parent="CenterContainer/Panel/Margin/VBoxContainer/ChoiceContainer" unique_id=219983916]
 custom_minimum_size = Vector2(230, 85)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0)
-theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_palm_down")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_palm_down_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_palm_down_hover")
 text = "ITIM / ILALIM
 (PALM DOWN)"
 
-[node name="ResultLabel" type="Label" parent="CenterContainer/Panel/Margin/VBoxContainer"]
+[node name="ResultLabel" type="Label" parent="CenterContainer/Panel/Margin/VBoxContainer" unique_id=1051203786]
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0)
-theme_override_constants/shadow_offset_y = 2
-theme_override_constants/outline_size = 0
+theme_type_variation = &"LabelHeader"
 theme_override_font_sizes/font_size = 28
 text = "MAY TAYA NA!"
 horizontal_alignment = 1

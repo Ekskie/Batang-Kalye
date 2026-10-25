@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://c4k3w85f17wja"
+path="res://.godot/imported/Jumping SFX - Jumping 1.wav-c07ab4721ad3e9988619be665374620a.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/SFX/Action SFX/Jump/Jumping SFX - Jumping 1.wav"
+dest_files=["res://.godot/imported/Jumping SFX - Jumping 1.wav-c07ab4721ad3e9988619be665374620a.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

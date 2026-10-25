@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cmgb6j65wqfjt"
+path="res://.godot/imported/Voice Over_Lines 1 - Takbo (4).wav-73f7df0693c696f0ff2ad4277c1c802f.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/Voice Packs/Female 2/Takbo/Voice Over_Lines 1 - Takbo (4).wav"
+dest_files=["res://.godot/imported/Voice Over_Lines 1 - Takbo (4).wav-73f7df0693c696f0ff2ad4277c1c802f.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

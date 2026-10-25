@@ -13,6 +13,7 @@ signal street_item_changed(item_type: int, item_name: String, count: int)
 signal hiding_state_changed(is_hiding: bool, time_left: float)
 signal vault_available_changed(is_available: bool)
 signal emote_triggered(emote_text: String)
+signal tag_cooldown_started(duration: float, is_hit: bool)
 
 enum Role {
 	RUNNER = 0,
@@ -168,6 +169,15 @@ var stats_recycled: int = 0
 var stats_hits: int = 0
 var stats_hiding_time: float = 0.0
 var stats_sprint_time: float = 0.0
+var stats_distance_travelled: float = 0.0
+var stats_escapes: int = 0
+var _is_in_active_chase: bool = false
+var _chase_intensity_timer: float = 0.0
+var _escape_cooldown_timer: float = 0.0
+var _last_distance_pos: Vector3 = Vector3.ZERO
+var _pos_initialized: bool = false
+var turn_lean_angle: float = 0.0
+var is_final_survivor: bool = false
 
 # State timers
 var camera_pitch: float = 0.0
@@ -231,6 +241,8 @@ var stun_timer: float = 0.0
 var nearby_interactables: Array[Node3D] = []
 var current_interactable: Node3D = null
 var danger_check_timer: float = 0.0
+var _threat_vo_cooldown: float = 0.0
+var _danger_sfx_timer: float = 0.0
 var is_cursor_free: bool = false  # True when user pressed Escape to free cursor
 
 # Street Items, Traps & Hiding State
@@ -395,6 +407,8 @@ func _ready() -> void:
 				street_item_changed.emit(held_street_item, held_street_item_name, held_street_item_count)
 			if hud_node.has_method("on_hiding_state_changed"):
 				hiding_state_changed.connect(hud_node.on_hiding_state_changed)
+			if hud_node.has_method("on_tag_cooldown_started"):
+				tag_cooldown_started.connect(hud_node.on_tag_cooldown_started)
 
 func _setup_mobile_ui() -> void:
 	if not mobile_ui:
@@ -538,7 +552,7 @@ func add_shake(amount: float) -> void:
 func _process_shake(delta: float) -> void:
 	if not camera:
 		return
-	var target_tilt: float = 0.0
+	var target_tilt: float = turn_lean_angle * 0.16
 	if is_sliding:
 		target_tilt = deg_to_rad(-2.5)
 	camera_tilt_current = lerp(camera_tilt_current, target_tilt, delta * 8.0)
@@ -723,6 +737,8 @@ func _physics_process(delta: float) -> void:
 		model.is_slipping = is_slipping or (is_stunned and stun_timer > 0.0)
 		model.is_stunned = is_stunned and stun_timer > 0.0
 		model.has_superspeed = (active_powerup == PowerupType.SUPER_SPEED)
+		if "turn_lean" in model:
+			model.turn_lean = turn_lean_angle
 		model.animate(delta, horizontal_speed, current_floor, current_max)
 
 	if slide_dust:
@@ -750,6 +766,9 @@ func _update_timers(delta: float) -> void:
 	if dash_cooldown > 0.0: dash_cooldown -= delta
 	if jump_buffer_timer > 0.0: jump_buffer_timer -= delta
 	if power_reveal_timer > 0.0: power_reveal_timer -= delta
+	if _escape_cooldown_timer > 0.0: _escape_cooldown_timer -= delta
+	if _threat_vo_cooldown > 0.0: _threat_vo_cooldown -= delta
+	if _danger_sfx_timer > 0.0: _danger_sfx_timer -= delta
 
 	if current_immunity_timer > 0.0:
 		current_immunity_timer -= delta
@@ -1079,6 +1098,7 @@ func _process_authority_movement(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0.0, friction * delta)
 
 	# Character facing: face camera/aim while aiming throw, otherwise face movement direction
+	var prev_model_rot_y: float = model.rotation.y if model else 0.0
 	if is_aiming_throw and cam_forward.length() > 0.1:
 		var aim_facing := wrapf(atan2(-cam_forward.x, -cam_forward.z) - global_rotation.y, -PI, PI)
 		model.rotation.y = lerp_angle(model.rotation.y, aim_facing, rotation_speed * delta * 1.5)
@@ -1087,6 +1107,12 @@ func _process_authority_movement(delta: float) -> void:
 		var target_facing := wrapf(atan2(-move_dir.x, -move_dir.z) - global_rotation.y, -PI, PI)
 		model.rotation.y = lerp_angle(model.rotation.y, target_facing, rotation_speed * delta)
 		tag_area.rotation.y = model.rotation.y
+
+	if model and delta > 0.0001:
+		var rot_delta: float = angle_difference(prev_model_rot_y, model.rotation.y) / delta
+		var speed_factor: float = clampf(Vector2(velocity.x, velocity.z).length() / maxf(sprint_speed, 0.01), 0.0, 1.2)
+		var target_lean: float = clampf(-rot_delta * 0.045 * speed_factor, -0.26, 0.26)
+		turn_lean_angle = lerp(turn_lean_angle, target_lean, clampf(delta * 12.0, 0.0, 1.0))
 
 	# Update throw aiming arc if actively aiming
 	if is_aiming_throw:
@@ -1104,30 +1130,67 @@ func _play_sfx(method_name: String, arg = null) -> void:
 	else:
 		am.call(method_name)
 
+func _detect_floor_surface() -> String:
+	if is_in_water:
+		return "water"
+	if get_slide_collision_count() > 0:
+		for i in range(get_slide_collision_count()):
+			var col := get_slide_collision(i)
+			if col and col.get_normal().y > 0.5:
+				var collider_obj := col.get_collider()
+				if collider_obj and collider_obj is Node:
+					var cname: String = (collider_obj as Node).name.to_lower()
+					var pname: String = (collider_obj as Node).get_parent().name.to_lower() if (collider_obj as Node).get_parent() else ""
+					var combined: String = cname + "_" + pname
+					if "roof" in combined or "yero" in combined or "drum" in combined or "metal" in combined or "gate" in combined or "tricycle" in combined or "jeep" in combined:
+						return "metal"
+					if "bench" in combined or "wood" in combined or "crate" in combined or "plank" in combined or "footbridge" in combined or "bridge" in combined or "table" in combined:
+						return "wood"
+					if "grass" in combined or "garden" in combined or "dirt" in combined or "plant" in combined or "soil" in combined:
+						return "grass"
+	return "concrete"
+
 func _process_landing_and_footsteps(delta: float) -> void:
 	# Dynamic Landing Juice
 	if is_on_floor() and not was_on_floor_prev:
 		if prev_vert_vel < -2.8:
 			var impact_spd: float = abs(prev_vert_vel)
 			squash_current = Vector3(1.22, 0.74, 1.22)
-			_play_sfx("play_land", impact_spd)
+			if model and model.has_method("trigger_landing_compression"):
+				model.trigger_landing_compression(clampf(impact_spd / 12.0, 0.25, 1.0))
+			if is_local_human():
+				_play_sfx("play_land", impact_spd)
+			else:
+				var am = get_node_or_null("/root/AudioManager")
+				if am and is_instance_valid(am) and am.has_method("play_sfx_3d") and am.sfx_land:
+					am.play_sfx_3d(am.sfx_land, global_position, 14.0, clampf(1.2 - (impact_spd / 30.0), 0.7, 1.2), -10.0)
 			if impact_spd > 5.5:
-				add_shake(clamp(impact_spd / 26.0, 0.06, 0.28))
+				if is_local_human():
+					add_shake(clamp(impact_spd / 26.0, 0.06, 0.28))
 				if slide_dust:
 					slide_dust.restart()
 					slide_dust.emitting = true
 	was_on_floor_prev = is_on_floor()
 	prev_vert_vel = velocity.y
 
-	# Dynamic Footstep Juice
+	# Dynamic Surface-Aware Footstep Juice
 	if is_on_floor() and not is_sliding and not is_dashing and not is_stunned and not is_wall_running:
 		var move_speed: float = Vector2(velocity.x, velocity.z).length()
 		if move_speed > 1.2:
-			var step_interval: float = 0.52 if is_exhausted else clampf(remap(move_speed, walk_speed, sprint_speed, 0.38, 0.22), 0.18, 0.42)
+			var step_interval: float = 0.52 if is_exhausted else clampf(remap(move_speed, walk_speed, sprint_speed, 0.38, 0.22), 0.20, 0.42)
 			footstep_timer -= delta
 			if footstep_timer <= 0.0:
 				footstep_timer = step_interval
-				_play_sfx("play_footstep", is_in_water)
+				var surface_type: String = _detect_floor_surface()
+				var am = get_node_or_null("/root/AudioManager")
+				if is_local_human():
+					if am and is_instance_valid(am) and am.has_method("play_surface_footstep"):
+						am.call("play_surface_footstep", surface_type, is_sprinting)
+					else:
+						_play_sfx("play_footstep", is_in_water)
+				else:
+					if am and is_instance_valid(am) and am.has_method("play_surface_footstep_3d"):
+						am.call("play_surface_footstep_3d", surface_type, global_position, is_sprinting)
 		else:
 			footstep_timer = 0.1
 	else:
@@ -1228,11 +1291,11 @@ func _check_vaultable_obstacle() -> bool:
 
 	var exclude_rids: Array[RID] = [get_rid()]
 
-	# 1. Forward obstacle detection ray (supports obstacles from 0.45m to 1.1m)
+	# 1. Forward obstacle detection ray (supports low benches/crates 0.38m up to fences/walls 1.15m)
 	var chest_hit := {}
-	for test_h in [0.70, 0.45]:
+	for test_h in [0.70, 0.45, 0.95, 0.35]:
 		var cast_start := global_position + Vector3(0.0, test_h, 0.0)
-		var cast_end := cast_start + fwd * 1.35
+		var cast_end := cast_start + fwd * 1.4
 		var cast_query := PhysicsRayQueryParameters3D.create(cast_start, cast_end, 1, exclude_rids)
 		var h := space_state.intersect_ray(cast_query)
 		if not h.is_empty():
@@ -1260,14 +1323,14 @@ func _check_vaultable_obstacle() -> bool:
 
 	# 3. Top surface downward ray (from over obstacle, trying multiple forward offsets)
 	var top_hit := {}
-	for fwd_offset in [0.15, 0.35, 0.05]:
-		var top_cast_start: Vector3 = hit_pt + fwd * float(fwd_offset) + Vector3(0.0, 1.2, 0.0)
-		var top_cast_end: Vector3 = top_cast_start - Vector3(0.0, 1.8, 0.0)
+	for fwd_offset in [0.15, 0.35, 0.05, 0.55]:
+		var top_cast_start: Vector3 = hit_pt + fwd * float(fwd_offset) + Vector3(0.0, 1.35, 0.0)
+		var top_cast_end: Vector3 = top_cast_start - Vector3(0.0, 2.0, 0.0)
 		var top_query := PhysicsRayQueryParameters3D.create(top_cast_start, top_cast_end, 1, exclude_rids)
 		var t_hit := space_state.intersect_ray(top_query)
 		if not t_hit.is_empty():
 			var h_diff: float = t_hit.position.y - global_position.y
-			if h_diff >= 0.3 and h_diff <= 1.4:
+			if h_diff >= 0.3 and h_diff <= 1.55:
 				top_hit = t_hit
 				break
 
@@ -1276,20 +1339,31 @@ func _check_vaultable_obstacle() -> bool:
 
 	var obs_top_y: float = top_hit.position.y
 	var height_diff: float = obs_top_y - global_position.y
-	if height_diff < 0.3 or height_diff > 1.4:
+	if height_diff < 0.3 or height_diff > 1.55:
 		return false
 
-	# 4. Landing spot downward ray (behind obstacle)
-	var land_cast_start := hit_pt + fwd * 1.35 + Vector3(0.0, 1.0, 0.0)
-	var land_cast_end := land_cast_start - Vector3(0.0, 2.6, 0.0)
-	var land_query := PhysicsRayQueryParameters3D.create(land_cast_start, land_cast_end, 1, exclude_rids)
-	var land_hit := space_state.intersect_ray(land_query)
+	# 4. Landing spot downward ray (behind obstacle for thin wall/fence vault, or atop wide ledge for climb-up)
+	var land_hit := {}
+	for land_dist in [1.35, 1.65, 1.05, 0.65]:
+		var land_cast_start := hit_pt + fwd * float(land_dist) + Vector3(0.0, 1.35, 0.0)
+		var land_cast_end := land_cast_start - Vector3(0.0, 2.95, 0.0)
+		var land_query := PhysicsRayQueryParameters3D.create(land_cast_start, land_cast_end, 1, exclude_rids)
+		var l_hit := space_state.intersect_ray(land_query)
+		if not l_hit.is_empty():
+			if abs(l_hit.position.y - global_position.y) <= 1.85:
+				# Verify capsule clearance at landing spot so player never clips into solid geometry
+				var clearance_start: Vector3 = l_hit.position + Vector3(0.0, 0.25, 0.0)
+				var clearance_end: Vector3 = l_hit.position + Vector3(0.0, 1.45, 0.0)
+				var clear_query := PhysicsRayQueryParameters3D.create(clearance_start, clearance_end, 1, exclude_rids)
+				if space_state.intersect_ray(clear_query).is_empty():
+					land_hit = l_hit
+					break
 
 	if land_hit.is_empty():
 		return false
 
 	var land_pos: Vector3 = land_hit.position
-	if abs(land_pos.y - global_position.y) > 1.8:
+	if abs(land_pos.y - global_position.y) > 1.85:
 		return false
 
 	vault_start_pos = global_position
@@ -1297,6 +1371,11 @@ func _check_vaultable_obstacle() -> bool:
 	vault_end_pos = land_pos + Vector3(0.0, 0.05, 0.0)
 	vault_forward_dir = fwd
 	return true
+
+func get_character_type() -> int:
+	if model and ("current_character_type" in model):
+		return int(model.current_character_type)
+	return 0
 
 func _trigger_vault(start_pos: Vector3, apex_pos: Vector3, end_pos: Vector3) -> void:
 	is_vaulting = true
@@ -1311,6 +1390,10 @@ func _trigger_vault(start_pos: Vector3, apex_pos: Vector3, end_pos: Vector3) -> 
 	squash_target = Vector3(0.85, 1.25, 0.85)
 	add_shake(0.2)
 	_play_sfx("play_vault")
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_vo_hup"):
+		am.play_vo_hup(global_position, get_character_type())
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 1.8, 0), "TALON!", Color(0.3, 1.0, 0.7))
 	if is_local_controlled() and multiplayer.has_multiplayer_peer() and not is_solo_practice:
 		rpc("sync_vault_trigger", vault_start_pos, vault_apex_pos, vault_end_pos)
 
@@ -1324,6 +1407,10 @@ func _process_vault(delta: float) -> void:
 		velocity = vault_forward_dir * sprint_speed
 		squash_target = Vector3(1.15, 0.85, 1.15)
 		_play_sfx("play_land", sprint_speed)
+		if slide_dust:
+			slide_dust.restart()
+			slide_dust.emitting = true
+		FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 1.8, 0), "SWABE!", Color(0.25, 0.95, 0.65))
 		return
 
 	var t: float = clampf(vault_progress, 0.0, 1.0)
@@ -1419,16 +1506,17 @@ func _try_dash() -> void:
 		clear_powerup()
 
 func _process_stamina(delta: float, is_moving: bool) -> void:
+	var final_survivor_mult: float = 1.35 if is_final_survivor else 1.0
 	if is_exhausted:
 		is_sprinting = false
 		# While exhausted, player must rest or walk slowly to catch their breath
 		if is_moving:
-			endurance_stamina = min(endurance_stamina_max, endurance_stamina + endurance_recovery_walk * delta)
+			endurance_stamina = min(endurance_stamina_max, endurance_stamina + endurance_recovery_walk * final_survivor_mult * delta)
 		else:
-			endurance_stamina = min(endurance_stamina_max, endurance_stamina + endurance_recovery_idle * delta)
+			endurance_stamina = min(endurance_stamina_max, endurance_stamina + endurance_recovery_idle * final_survivor_mult * delta)
 
 		# Burst stamina recovers slowly while catching breath
-		burst_stamina = min(burst_stamina_max, burst_stamina + (burst_recovery_walk * 0.4) * delta)
+		burst_stamina = min(burst_stamina_max, burst_stamina + (burst_recovery_walk * 0.4 * final_survivor_mult) * delta)
 
 		# Exhaustion panting loop
 		exhaust_pant_timer -= delta
@@ -1452,6 +1540,9 @@ func _process_stamina(delta: float, is_moving: bool) -> void:
 			if active_powerup == PowerupType.SUPER_SPEED:
 				burst_drain *= 0.5
 				end_drain *= 0.5
+			if is_final_survivor:
+				burst_drain *= 0.78
+				end_drain *= 0.78
 
 			burst_stamina = max(0.0, burst_stamina - burst_drain)
 			endurance_stamina = max(0.0, endurance_stamina - end_drain)
@@ -1480,7 +1571,7 @@ func _process_stamina(delta: float, is_moving: bool) -> void:
 			else:
 				# Burst recovery
 				if is_moving:
-					burst_stamina = min(burst_stamina_max, burst_stamina + burst_recovery_walk * delta)
+					burst_stamina = min(burst_stamina_max, burst_stamina + burst_recovery_walk * final_survivor_mult * delta)
 					# Running stamina drains slowly during continuous running/jogging
 					endurance_stamina = max(0.0, endurance_stamina - endurance_drain_run * delta)
 					if endurance_stamina <= 0.0:
@@ -1491,8 +1582,8 @@ func _process_stamina(delta: float, is_moving: bool) -> void:
 						FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "HINGAL! PAGOD NA...", Color(1.0, 0.35, 0.2))
 				else:
 					# Resting still — full recovery for both bars
-					burst_stamina = min(burst_stamina_max, burst_stamina + burst_recovery_idle * delta)
-					endurance_stamina = min(endurance_stamina_max, endurance_stamina + endurance_recovery_idle * delta)
+					burst_stamina = min(burst_stamina_max, burst_stamina + burst_recovery_idle * final_survivor_mult * delta)
+					endurance_stamina = min(endurance_stamina_max, endurance_stamina + endurance_recovery_idle * final_survivor_mult * delta)
 
 	burst_stamina = clampf(burst_stamina, 0.0, burst_stamina_max)
 	endurance_stamina = clampf(endurance_stamina, 0.0, endurance_stamina_max)
@@ -1636,17 +1727,64 @@ func _try_tag() -> void:
 					target_to_tag = candidate
 
 	if target_to_tag:
+		tag_cooldown_started.emit(tag_cooldown_max, true)
 		perform_tag_on(target_to_tag)
 	else:
+		tag_cooldown_started.emit(tag_cooldown_max, false)
 		var am = get_node_or_null("/root/AudioManager")
 		if am and am.has_method("play_tag_swing"):
 			am.play_tag_swing()
+		if model and model.has_method("trigger_tag_whiff"):
+			model.trigger_tag_whiff()
+		_spawn_tag_whiff_vfx()
 		# Check if Taya slapped a nearby hiding spot (Blue drum or Cardboard box)
 		var hiding_spots = get_tree().get_nodes_in_group("hiding_spots")
 		for spot in hiding_spots:
 			if spot.has_method("on_taya_slap") and global_position.distance_to(spot.global_position) <= TAG_REACH:
 				spot.call("on_taya_slap", self)
 				return
+		if is_local_human():
+			add_shake(0.12)
+			squash_current = Vector3(1.12, 0.88, 1.18)
+
+func _spawn_tag_whiff_vfx() -> void:
+	if not is_inside_tree():
+		return
+	var parent_node = get_parent()
+	if not parent_node:
+		return
+	var fwd: Vector3 = -model.global_transform.basis.z if model else -global_transform.basis.z
+	fwd.y = 0.0
+	fwd = fwd.normalized() if fwd.length_squared() > 0.01 else Vector3.FORWARD
+	var puff := CPUParticles3D.new()
+	puff.emitting = false
+	puff.one_shot = true
+	puff.amount = 10
+	puff.lifetime = 0.28
+	puff.explosiveness = 0.92
+	puff.direction = fwd
+	puff.spread = 38.0
+	puff.gravity = Vector3(0.0, 0.5, 0.0)
+	puff.initial_velocity_min = 2.5
+	puff.initial_velocity_max = 4.8
+	puff.scale_amount_min = 0.05
+	puff.scale_amount_max = 0.12
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(0.95, 0.95, 1.0, 0.55)
+	var mesh := SphereMesh.new()
+	mesh.radius = 0.08
+	mesh.height = 0.16
+	mesh.material = mat
+	puff.mesh = mesh
+	parent_node.add_child(puff)
+	puff.global_position = global_position + Vector3(0.0, 1.05, 0.0) + fwd * 0.85
+	puff.emitting = true
+	get_tree().create_timer(0.45).timeout.connect(func():
+		if is_instance_valid(puff):
+			puff.queue_free()
+	)
 
 func perform_tag_on(target_to_tag: PlayerController) -> void:
 	if not target_to_tag or target_to_tag.is_immune or target_to_tag.is_eliminated:
@@ -1674,6 +1812,8 @@ func perform_tag_on(target_to_tag: PlayerController) -> void:
 				am.play_tag_hit()
 			if am.has_method("play_score_ding"):
 				am.play_score_ding()
+			if am.has_method("play_vo_taya"):
+				am.play_vo_taya(global_position, get_character_type())
 		add_shake(0.4)
 		trigger_hit_stop(55.0)
 		var main_node = get_node_or_null("/root/Main")
@@ -1683,7 +1823,7 @@ func perform_tag_on(target_to_tag: PlayerController) -> void:
 
 	# Spawn visual hit effect locally & popup score combat text
 	spawn_hit_vfx(target_to_tag.global_position + Vector3(0, 1.2, 0))
-	FloatingTextScript.spawn(get_parent(), target_to_tag.global_position + Vector3(0, 2.0, 0), "HULI! +1", Color(1.0, 0.88, 0.2))
+	FloatingTextScript.spawn(get_parent(), target_to_tag.global_position + Vector3(0, 2.0, 0), "HULI KA! +1", Color(1.0, 0.88, 0.2))
 
 	# Execute tag on server or locally
 	tagged_other_player.emit(target_to_tag.player_id)
@@ -1960,9 +2100,45 @@ func reset_network_interpolation(new_pos: Vector3) -> void:
 func _process_scoring(delta: float) -> void:
 	var main_node = get_node_or_null("/root/Main")
 	if main_node and "current_state" in main_node and main_node.current_state != 3:
+		_pos_initialized = false
+		_is_in_active_chase = false
 		return
-	if current_role == Role.RUNNER:
+
+	if not is_eliminated:
+		if not _pos_initialized:
+			_last_distance_pos = global_position
+			_pos_initialized = true
+		else:
+			var step_dist: float = Vector2(global_position.x - _last_distance_pos.x, global_position.z - _last_distance_pos.z).length()
+			if step_dist > 0.01 and step_dist < 15.0:
+				stats_distance_travelled += step_dist
+			_last_distance_pos = global_position
+
+	if current_role == Role.RUNNER and not is_eliminated:
 		survival_time += delta
+		# Track active chase & successful escapes from Taya
+		var closest_taya_dist: float = 9999.0
+		var all_players = get_tree().get_nodes_in_group("players")
+		for p in all_players:
+			if p is PlayerController and p != self and p.current_role == Role.TAYA and not p.is_eliminated:
+				var d: float = global_position.distance_to(p.global_position)
+				if d < closest_taya_dist:
+					closest_taya_dist = d
+		if closest_taya_dist <= 6.2:
+			_is_in_active_chase = true
+			_chase_intensity_timer += delta
+		elif _is_in_active_chase and closest_taya_dist >= 14.5:
+			_is_in_active_chase = false
+			if _chase_intensity_timer >= 0.85 and _escape_cooldown_timer <= 0.0:
+				stats_escapes += 1
+				_escape_cooldown_timer = 5.5
+				if is_local_human():
+					FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.1, 0), "NAKALUSOT! +ESCAPE", Color(0.25, 0.95, 0.65))
+					_play_sfx("play_score_ding")
+			_chase_intensity_timer = 0.0
+	else:
+		_is_in_active_chase = false
+		_chase_intensity_timer = 0.0
 
 @rpc("call_local", "reliable")
 func play_tag_anim_rpc() -> void:
@@ -2072,19 +2248,35 @@ func _server_process_tag(chaser_id: int, target_id: int) -> void:
 func apply_tagged(_chaser_id: int) -> void:
 	if has_trash():
 		drop_trash()
-	_play_sfx("play_tag_boom")
+	is_final_survivor = false
+	var game_mgr = get_node_or_null("/root/Main")
+	var is_inf_mode: bool = game_mgr != null and game_mgr.has_method("is_infection") and game_mgr.is_infection()
+
+	if is_inf_mode:
+		_play_sfx("play_infection_spread")
+	else:
+		_play_sfx("play_tag_boom")
+
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_vo_aray"):
+		am.play_vo_aray(global_position, get_character_type())
 
 	squash_current = Vector3(1.3, 0.7, 1.3)
+	if model and model.has_method("trigger_hit_reaction"):
+		model.trigger_hit_reaction()
 
 	if is_local_human():
-		add_shake(0.7)
-		trigger_hit_stop(65.0)
+		add_shake(0.75 if is_inf_mode else 0.7)
+		trigger_hit_stop(75.0 if is_inf_mode else 65.0)
 		var main_node = get_node_or_null("/root/Main")
 		if main_node and main_node.hud and main_node.hud.has_method("trigger_hit_flash"):
-			main_node.hud.trigger_hit_flash(Color(1.0, 0.15, 0.15, 0.55), 0.28)
-		trigger_device_vibration(150)
+			var flash_col: Color = Color(0.25, 0.95, 0.2, 0.6) if is_inf_mode else Color(1.0, 0.15, 0.15, 0.55)
+			main_node.hud.trigger_hit_flash(flash_col, 0.34 if is_inf_mode else 0.28)
+		trigger_device_vibration(160)
 
-	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "NA-TAYA!", Color(1.0, 0.25, 0.25))
+	var popup_text: String = "NAHAWA KA NA!" if is_inf_mode else "NA-TAYA!"
+	var popup_col: Color = Color(0.35, 1.0, 0.25) if is_inf_mode else Color(1.0, 0.25, 0.25)
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), popup_text, popup_col)
 
 	set_role_rpc(Role.TAYA)
 	grant_immunity_rpc(immunity_time)
@@ -2114,13 +2306,42 @@ func grant_immunity_rpc(duration: float) -> void:
 	current_immunity_timer = duration
 
 func _update_role_state() -> void:
+	var game_mgr = get_node_or_null("/root/Main")
+	var is_inf_mode: bool = game_mgr != null and game_mgr.has_method("is_infection") and game_mgr.is_infection()
 	if model:
 		model.is_taya = (current_role == Role.TAYA)
+		if "is_infected_role" in model:
+			model.is_infected_role = (current_role == Role.TAYA and is_inf_mode)
+		if model.has_method("update_role_aura_style"):
+			model.update_role_aura_style()
 	if mobile_ui:
 		mobile_ui.set_tag_button_highlight(current_role == Role.TAYA)
 	if name_label:
-		name_label.text = player_name
-		name_label.modulate = Color(0.9, 0.9, 0.9)
+		if player_title != "":
+			name_label.text = "%s\n[%s]" % [player_name, player_title]
+		else:
+			name_label.text = player_name
+		if current_role == Role.TAYA:
+			name_label.modulate = Color(0.45, 1.0, 0.35) if is_inf_mode else Color(1.0, 0.38, 0.32)
+		else:
+			name_label.modulate = Color(0.95, 0.96, 1.0)
+
+@rpc("any_peer", "call_local", "reliable")
+func trigger_final_survivor_moment() -> void:
+	is_final_survivor = true
+	burst_stamina = burst_stamina_max
+	endurance_stamina = endurance_stamina_max
+	is_exhausted = false
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.25, 0), "HULING LIGTAS! MATATAG!", Color(1.0, 0.9, 0.2))
+	if is_local_human():
+		_play_sfx("play_final_survivor_sting")
+		add_shake(0.55)
+		var main_node = get_node_or_null("/root/Main")
+		if main_node and main_node.hud:
+			if main_node.hud.has_method("trigger_hit_flash"):
+				main_node.hud.trigger_hit_flash(Color(1.0, 0.85, 0.15, 0.5), 0.45)
+			if main_node.hud.has_method("show_notification"):
+				main_node.hud.show_notification("IKAW ANG HULING LIGTAS! Matatag ang hininga mo — wag magpahuli!", true)
 
 # --- Waste Segregation & Inventory System ---
 func has_trash() -> bool:
@@ -2257,6 +2478,13 @@ func get_powerup_name() -> String:
 
 func set_in_water(in_water: bool) -> void:
 	is_in_water = in_water
+	if is_in_water:
+		if water_splash:
+			water_splash.restart()
+			water_splash.emitting = true
+		var am = get_node_or_null("/root/AudioManager")
+		if am and am.has_method("play_footstep"):
+			am.play_footstep(true)
 	if is_in_water and active_powerup == PowerupType.WATER_RUN:
 		if is_local_human():
 			notification_displayed.emit("WATER RUN! Tumatakbo sa ibabaw ng baha!", true)
@@ -2266,6 +2494,10 @@ func enter_safe_base() -> void:
 	if is_local_human() and current_role == Role.RUNNER:
 		if base_shelter_timer > 0.0:
 			notification_displayed.emit("LIGTAS SA BASE! (Protektado sa Taya)", true)
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_vo_safe"):
+				am.play_vo_safe(global_position, get_character_type())
+			FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "LIGTAS SA BASE!", Color(0.2, 0.95, 0.5))
 		else:
 			notification_displayed.emit("UBOS NA ANG LIGTAS TIME! Kailangan lumabas muna!", false)
 
@@ -2413,21 +2645,28 @@ func _update_interactable_target() -> void:
 			mobile_ui.set_interact_prompt(false, "", "")
 
 func _check_danger_proximity() -> void:
-	if current_role != Role.RUNNER or power_reveal_timer <= 0.0:
+	if current_role != Role.RUNNER or is_eliminated or is_hiding:
 		danger_detected.emit(false, 0.0)
 		return
 
 	var min_dist: float = 999.0
 	for p in get_tree().get_nodes_in_group("players"):
-		if p is PlayerController and p != self and p.current_role == Role.TAYA:
+		if p is PlayerController and p != self and p.current_role == Role.TAYA and not p.is_eliminated:
 			var d := global_position.distance_to(p.global_position)
 			if d < min_dist:
 				min_dist = d
 
 	if min_dist < 14.0:
 		danger_detected.emit(true, min_dist)
-		if min_dist < 8.0:
+		if min_dist < 8.0 and _danger_sfx_timer <= 0.0:
+			_danger_sfx_timer = 1.8
 			_play_sfx("play_danger")
+		if min_dist <= 4.5 and _threat_vo_cooldown <= 0.0:
+			_threat_vo_cooldown = 7.5
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_vo_takbo"):
+				am.play_vo_takbo(global_position, get_character_type())
+			FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 1.9, 0), "TAKBO!", Color(1.0, 0.88, 0.2))
 	else:
 		danger_detected.emit(false, 0.0)
 
@@ -2700,6 +2939,10 @@ func apply_slipper_stun(duration: float, attacker_name: String) -> void:
 	squash_current = Vector3(1.3, 0.4, 1.3)
 	_play_sfx("play_stun")
 	add_shake(0.4)
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_vo_sapul"):
+		am.play_vo_sapul(global_position, get_character_type())
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.2, 0), "SAPUL!", Color(1.0, 0.25, 0.25))
 	if model and model.has_method("trigger_slip_animation"):
 		model.trigger_slip_animation(duration)
 	if is_inside_tree() and multiplayer and multiplayer.has_multiplayer_peer():
@@ -2721,6 +2964,10 @@ func apply_banana_slip(planter_name: String) -> void:
 	slip_velocity = Vector3.ZERO
 	squash_current = Vector3(1.2, 0.65, 1.2)
 	add_shake(0.25)
+	var am_slip = get_node_or_null("/root/AudioManager")
+	if am_slip and am_slip.has_method("play_vo_dulas"):
+		am_slip.play_vo_dulas(global_position, get_character_type())
+	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "DULAS!", Color(1.0, 0.9, 0.2))
 	if model and model.has_method("trigger_slip_animation"):
 		model.trigger_slip_animation(1.4)
 	if is_inside_tree() and multiplayer and multiplayer.has_multiplayer_peer():

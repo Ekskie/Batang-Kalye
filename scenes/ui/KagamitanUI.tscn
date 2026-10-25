@@ -1,0 +1,320 @@
+[gd_scene format=3 uid="uid://cx6r1a3g218up"]
+
+[ext_resource type="Script" uid="uid://bw4wewcwikhpn" path="res://scripts/ui/KagamitanUI.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://csjscyb6qe0r3" path="res://assets/Backgrounds/Renders_Menu_Backgrounds/2-Character Selection.png" id="2_bg"]
+[ext_resource type="FontFile" uid="uid://ddvehw18h6m7p" path="res://assets/fonts/LilitaOne-Regular.ttf" id="3_font"]
+[ext_resource type="Texture2D" uid="uid://dejxdtbenvit5" path="res://assets/Game Icons-Buttons/Other Buttons/Back.png" id="4_back"]
+[ext_resource type="Texture2D" uid="uid://b33fta4cyvq6r" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/Back.png" id="5_back_tap"]
+[ext_resource type="Texture2D" uid="uid://di7pcbcmuhgit" path="res://assets/Game Icons-Buttons/Other Buttons/Join.png" id="6_next"]
+[ext_resource type="Texture2D" uid="uid://c0mxargtlgpkj" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/Join.png" id="7_next_tap"]
+[ext_resource type="Texture2D" uid="uid://b4stl5waa41na" path="res://assets/Logo/Logo.png" id="8_logo"]
+[ext_resource type="Texture2D" uid="uid://cq1vjmtmtoapg" path="res://assets/Game Icons-Buttons/Other Buttons/No_Close.png" id="9_close"]
+[ext_resource type="Texture2D" uid="uid://taxdq2garjpg" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/No_Close.png" id="10_close_tap"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+content_margin_left = 22.0
+content_margin_top = 20.0
+content_margin_right = 22.0
+content_margin_bottom = 20.0
+bg_color = Color(0.07, 0.09, 0.15, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.95)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 10
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_navy_input"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+bg_color = Color(0.12, 0.18, 0.32, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_logo_btn"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.08, 0.09, 0.12, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.85)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_logo_btn_hover"]
+content_margin_left = 6.0
+content_margin_top = 6.0
+content_margin_right = 6.0
+content_margin_bottom = 6.0
+bg_color = Color(0.14, 0.16, 0.22, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.88, 0.2, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(1, 0.88, 0.2, 0.3)
+shadow_size = 4
+
+[node name="KagamitanUI" type="Control" unique_id=1807668480]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="BgTexture" type="TextureRect" parent="." unique_id=827607953]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="LayoutHBox" type="HBoxContainer" parent="." unique_id=110856107]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="PreviewContainer" type="Control" parent="LayoutHBox" unique_id=1805469483]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.15
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="LayoutHBox/PreviewContainer" unique_id=1021825949]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="PreviewSubViewport" type="SubViewport" parent="LayoutHBox/PreviewContainer/SubViewportContainer" unique_id=1062517459]
+unique_name_in_owner = true
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(736, 720)
+render_target_update_mode = 4
+
+[node name="World3D" type="Node3D" parent="LayoutHBox/PreviewContainer/SubViewportContainer/PreviewSubViewport" unique_id=1681942710]
+
+[node name="Camera3D" type="Camera3D" parent="LayoutHBox/PreviewContainer/SubViewportContainer/PreviewSubViewport/World3D" unique_id=1981470264]
+transform = Transform3D(1, 0, 0, 0, 0.9993909, 0.034899496, 0, -0.034899496, 0.9993909, 0, 1.295284, 3.25)
+fov = 44.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="LayoutHBox/PreviewContainer/SubViewportContainer/PreviewSubViewport/World3D" unique_id=365108484]
+transform = Transform3D(0.819152, -0.286788, 0.496732, 0, 0.866025, 0.5, -0.573576, -0.409576, 0.709406, 0, 3, 0)
+light_color = Color(1, 0.96, 0.9, 1)
+light_energy = 1.4
+
+[node name="OmniLight3D" type="OmniLight3D" parent="LayoutHBox/PreviewContainer/SubViewportContainer/PreviewSubViewport/World3D" unique_id=1847054392]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 1.5, 1.8)
+light_color = Color(0.8, 0.9, 1, 1)
+light_energy = 0.85
+omni_range = 8.0
+
+[node name="PreviewModelRoot" type="Node3D" parent="LayoutHBox/PreviewContainer/SubViewportContainer/PreviewSubViewport/World3D" unique_id=1033462782]
+unique_name_in_owner = true
+
+[node name="DragArea" type="Control" parent="LayoutHBox/PreviewContainer" unique_id=998292765]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 6
+
+[node name="CardMargin" type="CenterContainer" parent="LayoutHBox" unique_id=509428608]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.85
+
+[node name="CustomCard" type="PanelContainer" parent="LayoutHBox/CardMargin" unique_id=652997098]
+custom_minimum_size = Vector2(330, 420)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="VBox" type="VBoxContainer" parent="LayoutHBox/CardMargin/CustomCard" unique_id=1926666184]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="NicknameRow" type="HBoxContainer" parent="LayoutHBox/CardMargin/CustomCard/VBox" unique_id=1690101792]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="LayoutHBox/CardMargin/CustomCard/VBox/NicknameRow" unique_id=1451110693]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 16
+text = "Pangalan:"
+
+[node name="NicknameInput" type="LineEdit" parent="LayoutHBox/CardMargin/CustomCard/VBox/NicknameRow" unique_id=2025050483]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_navy_input")
+text = "Totoy"
+placeholder_text = "Totoy"
+max_length = 16
+
+[node name="Divider1" type="ColorRect" parent="LayoutHBox/CardMargin/CustomCard/VBox" unique_id=185393722]
+custom_minimum_size = Vector2(0, 1.5)
+layout_mode = 2
+color = Color(1, 1, 1, 0.4)
+
+[node name="ArchetypeRow" type="HBoxContainer" parent="LayoutHBox/CardMargin/CustomCard/VBox" unique_id=846630044]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="BtnPrevChar" type="TextureButton" parent="LayoutHBox/CardMargin/CustomCard/VBox/ArchetypeRow" unique_id=252675622]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("4_back")
+texture_pressed = ExtResource("5_back_tap")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="CharTextVBox" type="VBoxContainer" parent="LayoutHBox/CardMargin/CustomCard/VBox/ArchetypeRow" unique_id=886420532]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 1
+alignment = 1
+
+[node name="CharNameLabel" type="Label" parent="LayoutHBox/CardMargin/CustomCard/VBox/ArchetypeRow/CharTextVBox" unique_id=662696558]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 26
+text = "TSUNA"
+horizontal_alignment = 1
+
+[node name="CharTitleLabel" type="Label" parent="LayoutHBox/CardMargin/CustomCard/VBox/ArchetypeRow/CharTextVBox" unique_id=2034069402]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.85)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 15
+text = "(ANIME KID)"
+horizontal_alignment = 1
+
+[node name="BtnNextChar" type="TextureButton" parent="LayoutHBox/CardMargin/CustomCard/VBox/ArchetypeRow" unique_id=1543625310]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("6_next")
+texture_pressed = ExtResource("7_next_tap")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Divider2" type="ColorRect" parent="LayoutHBox/CardMargin/CustomCard/VBox" unique_id=1225078234]
+custom_minimum_size = Vector2(0, 1.5)
+layout_mode = 2
+color = Color(1, 1, 1, 0.4)
+
+[node name="ColorGridCenter" type="CenterContainer" parent="LayoutHBox/CardMargin/CustomCard/VBox" unique_id=1847948309]
+layout_mode = 2
+
+[node name="ColorGrid" type="GridContainer" parent="LayoutHBox/CardMargin/CustomCard/VBox/ColorGridCenter" unique_id=251197158]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 3
+
+[node name="BtnColorReset" type="Button" parent="LayoutHBox/CardMargin/CustomCard/VBox/ColorGridCenter/ColorGrid" unique_id=866406460]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_logo_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_logo_btn_hover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_logo_btn_hover")
+
+[node name="Center" type="CenterContainer" parent="LayoutHBox/CardMargin/CustomCard/VBox/ColorGridCenter/ColorGrid/BtnColorReset" unique_id=827330976]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LogoIcon" type="TextureRect" parent="LayoutHBox/CardMargin/CustomCard/VBox/ColorGridCenter/ColorGrid/BtnColorReset/Center" unique_id=1531606789]
+custom_minimum_size = Vector2(50, 40)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("8_logo")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BtnClose" type="TextureButton" parent="." unique_id=523210919]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -76.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 76.0
+grow_horizontal = 0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("9_close")
+texture_pressed = ExtResource("10_close_tap")
+ignore_texture_size = true
+stretch_mode = 5

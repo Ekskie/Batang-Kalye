@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bal5v0bqe7jva"
+path="res://.godot/imported/Aray 2.wav-1ab0f28750a9e615669aa9b0e4cfcfea.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/Voice Packs/Male 1/Aray!/Aray 2.wav"
+dest_files=["res://.godot/imported/Aray 2.wav-1ab0f28750a9e615669aa9b0e4cfcfea.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

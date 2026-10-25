@@ -140,6 +140,7 @@ const PLAYER_COLORS: Array[Color] = [
 const SAVE_PATH: String = "user://player_customization.cfg"
 
 # Character Customization State (8 Archetypes & Modular Slots)
+var player_name: String = "Totoy"
 var current_archetype: int = 0
 var current_base: int = 0
 var current_hair: int = 0
@@ -171,6 +172,7 @@ const TayaanModeScript = preload("res://scripts/gameplay/gamemodes/TayaanMode.gd
 
 var store_ui_scene: PackedScene = preload("res://scenes/ui/StoreUI.tscn")
 var quick_guide_scene: PackedScene = preload("res://scenes/ui/QuickGuideUI.tscn")
+var kagamitan_ui_scene: PackedScene = preload("res://scenes/ui/KagamitanUI.tscn")
 var vote_ui_scene: PackedScene = preload("res://scenes/ui/VoteUI.tscn")
 var social_lobby_ui_scene: PackedScene = preload("res://scenes/ui/SocialLobbyUI.tscn")
 
@@ -184,6 +186,7 @@ var active_game_mode: RefCounted = null
 @onready var economy_manager: EconomyManager = get_node_or_null("EconomyManager")
 var store_ui: StoreUI = null
 var quick_guide_ui: QuickGuideUI = null
+var kagamitan_ui: Control = null
 @onready var maiba_manager: MaibaTayaManager = get_node_or_null("MaibaTayaManager")
 @onready var map_node: Node3D = get_node_or_null("KalyeMap")
 @onready var lobby_camera: Camera3D = get_node_or_null("LobbyCamera3D")
@@ -218,7 +221,15 @@ var current_loaded_map_path: String = "res://scenes/maps/KalyeMap.tscn"
 
 # Title Screen UI elements
 @onready var title_ui: Control = get_node_or_null("TitleScreenUI")
-@onready var btn_enter_title: Button = get_node_or_null("TitleScreenUI/Center/VBox/BtnEnterTitle")
+@onready var splash_ui: Control = get_node_or_null("SplashScreenUI")
+@onready var loading_screen_ui: Control = get_node_or_null("LoadingScreenUI")
+@onready var uwian_na_ui: Control = get_node_or_null("UwianNaUI")
+var _splash_tween: Tween = null
+@onready var btn_enter_title: Button = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemTara/BtnEnterTitle") if get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemTara/BtnEnterTitle") else get_node_or_null("TitleScreenUI/Center/VBox/BtnEnterTitle")
+@onready var btn_title_customize: Button = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKagamitan/BtnTitleCustomize") if get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKagamitan/BtnTitleCustomize") else get_node_or_null("TitleScreenUI/Center/VBox/QuickRow/BtnTitleCustomize")
+@onready var btn_title_store: Button = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemTindahan/BtnTitleStore") if get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemTindahan/BtnTitleStore") else get_node_or_null("TitleScreenUI/Center/VBox/QuickRow/BtnTitleStore")
+@onready var btn_title_guide: Button = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemGabay/BtnTitleGuide") if get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemGabay/BtnTitleGuide") else get_node_or_null("TitleScreenUI/Center/VBox/QuickRow/BtnTitleGuide")
+@onready var btn_title_quit: Button = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemQuit/BtnTitleQuit")
 
 # Lobby UI elements & Supabase Matchmaking
 enum LobbyTab { BROWSE, HOST, DIRECT, ROOM_ACTIVE }
@@ -327,14 +338,14 @@ var settings_data: Dictionary = {
 
 @onready var pause_ui: Control = get_node_or_null("PauseUI")
 @onready var pause_panel: Control = get_node_or_null("PauseUI/PausePanel")
-@onready var btn_resume: Button = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnResume")
-@onready var btn_settings: Button = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnSettings")
-@onready var btn_pause_lobby: Button = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnPauseLobby")
-@onready var btn_pause_quit: Button = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnPauseQuit")
+@onready var btn_resume: Button = get_node_or_null("PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer/BtnResume") if get_node_or_null("PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer/BtnResume") else get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnResume")
+@onready var btn_settings: Button = get_node_or_null("PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer/BtnSettings") if get_node_or_null("PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer/BtnSettings") else get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnSettings")
+@onready var btn_pause_lobby: Button = get_node_or_null("PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer/BtnPauseLobby") if get_node_or_null("PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer/BtnPauseLobby") else get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnPauseLobby")
+@onready var btn_pause_quit: Button = get_node_or_null("PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer/BtnPauseQuit") if get_node_or_null("PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer/BtnPauseQuit") else get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnPauseQuit")
 @onready var settings_panel: Control = get_node_or_null("PauseUI/SettingsPanel")
 
-@onready var btn_title_settings: Button = get_node_or_null("TitleScreenUI/Center/VBox/BtnTitleSettings")
-@onready var btn_lobby_settings: Button = get_node_or_null("LobbyUI/Panel/VBoxContainer/TopBar/LeftControls/BtnLobbySettings")
+@onready var btn_title_settings: Button = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKontrol/BtnTitleSettings") if get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKontrol/BtnTitleSettings") else get_node_or_null("TitleScreenUI/Center/VBox/BtnTitleSettings")
+@onready var btn_lobby_settings: BaseButton = get_node_or_null("LobbyUI/Margin/VBox/TopBar/RightControls/BtnLobbySettings") if get_node_or_null("LobbyUI/Margin/VBox/TopBar/RightControls/BtnLobbySettings") else get_node_or_null("LobbyUI/Panel/VBoxContainer/TopBar/LeftControls/BtnLobbySettings")
 @onready var btn_preset_low: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetLow")
 @onready var btn_preset_med: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetMed")
 @onready var btn_preset_high: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetHigh")
@@ -349,6 +360,12 @@ var settings_data: Dictionary = {
 
 @onready var volume_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow/VolumeSlider")
 @onready var volume_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow/VolumeLabel")
+@onready var music_volume_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/MusicVolumeRow/MusicVolumeSlider")
+@onready var music_volume_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/MusicVolumeRow/MusicVolumeLabel")
+@onready var sfx_volume_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SfxVolumeRow/SfxVolumeSlider")
+@onready var sfx_volume_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SfxVolumeRow/SfxVolumeLabel")
+@onready var ambience_volume_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/AmbienceVolumeRow/AmbienceVolumeSlider")
+@onready var ambience_volume_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/AmbienceVolumeRow/AmbienceVolumeLabel")
 @onready var sensitivity_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow/SensitivitySlider")
 @onready var sensitivity_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow/SensitivityLabel")
 @onready var fov_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow/FovSlider")
@@ -358,6 +375,11 @@ var settings_data: Dictionary = {
 @onready var ui_scale_slider: HSlider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/UiScaleRow/UiScaleSlider")
 @onready var ui_scale_label: Label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/UiScaleRow/UiScaleLabel")
 @onready var btn_close_settings: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/BtnCloseSettings")
+@onready var btn_close_settings_top: TextureButton = get_node_or_null("PauseUI/SettingsPanel/BtnCloseTop")
+@onready var btn_tab_grapiks: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/TabRow/BtnTabGrapiks")
+@onready var btn_tab_tunog: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/TabRow/BtnTabTunog")
+@onready var btn_tab_kontrol: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/TabRow/BtnTabKontrol")
+var current_settings_tab: String = "GRAPIKS"
 @onready var fps_label: Label = get_node_or_null("FpsOverlay/FpsLabel")
 
 func _enter_tree() -> void:
@@ -378,28 +400,51 @@ func _init_node_references() -> void:
 	if not supabase_manager: supabase_manager = get_node_or_null("SupabaseLobbyManager")
 
 	if not title_ui: title_ui = get_node_or_null("TitleScreenUI")
-	if not btn_enter_title: btn_enter_title = get_node_or_null("TitleScreenUI/Center/Panel/VBox/BtnEnterTitle")
+	if not btn_enter_title:
+		btn_enter_title = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemTara/BtnEnterTitle")
+		if not btn_enter_title:
+			btn_enter_title = get_node_or_null("TitleScreenUI/Center/VBox/BtnEnterTitle")
+		if not btn_enter_title:
+			btn_enter_title = get_node_or_null("TitleScreenUI/Center/Panel/VBox/BtnEnterTitle")
+	if not btn_title_customize:
+		btn_title_customize = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKagamitan/BtnTitleCustomize")
+		if not btn_title_customize:
+			btn_title_customize = get_node_or_null("TitleScreenUI/Center/VBox/QuickRow/BtnTitleCustomize")
+	if not btn_title_store:
+		btn_title_store = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemTindahan/BtnTitleStore")
+		if not btn_title_store:
+			btn_title_store = get_node_or_null("TitleScreenUI/Center/VBox/QuickRow/BtnTitleStore")
+	if not btn_title_guide:
+		btn_title_guide = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemGabay/BtnTitleGuide")
+		if not btn_title_guide:
+			btn_title_guide = get_node_or_null("TitleScreenUI/Center/VBox/QuickRow/BtnTitleGuide")
+	if not btn_title_settings:
+		btn_title_settings = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKontrol/BtnTitleSettings")
+		if not btn_title_settings:
+			btn_title_settings = get_node_or_null("TitleScreenUI/Center/VBox/BtnTitleSettings")
+	if not btn_title_quit:
+		btn_title_quit = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemQuit/BtnTitleQuit")
 
 	if not lobby_ui: lobby_ui = get_node_or_null("LobbyUI")
 	if lobby_ui:
 		if not name_input:
-			name_input = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/NameRow/NameInput")
+			name_input = lobby_ui.player_name_input if ("player_name_input" in lobby_ui and lobby_ui.player_name_input) else lobby_ui.get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/NameRow/NameInput")
 		if not ip_input:
-			ip_input = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/IpRow/IpInput")
+			ip_input = lobby_ui.hotspot_ip_input if ("hotspot_ip_input" in lobby_ui and lobby_ui.hotspot_ip_input) else lobby_ui.get_node_or_null("Margin/VBox/BodyArea/SubScreens/PanelHotspot/CardPanel/Content/IpRow/IpInput")
 		if not hotspot_info_label:
-			hotspot_info_label = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/Footer/LocalIpLabel")
+			hotspot_info_label = lobby_ui.local_ip_label if ("local_ip_label" in lobby_ui and lobby_ui.local_ip_label) else lobby_ui.get_node_or_null("Margin/VBox/BodyArea/SubScreens/PanelHotspot/CardPanel/Content/Footer/LocalIpLabel")
 		if not btn_copy_ip:
-			btn_copy_ip = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/Footer/BtnCopyIp")
+			btn_copy_ip = lobby_ui.btn_copy_ip if ("btn_copy_ip" in lobby_ui and lobby_ui.btn_copy_ip) else lobby_ui.get_node_or_null("Margin/VBox/BodyArea/SubScreens/PanelHotspot/CardPanel/Content/Footer/BtnCopyIp")
 		if not btn_host:
-			btn_host = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/Actions/BtnHotspotHost")
+			btn_host = lobby_ui.btn_hotspot_host if ("btn_hotspot_host" in lobby_ui and lobby_ui.btn_hotspot_host) else lobby_ui.get_node_or_null("Margin/VBox/BodyArea/SubScreens/PanelHotspot/CardPanel/Content/Actions/BtnHotspotHost")
 		if not btn_join:
-			btn_join = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/Actions/BtnHotspotJoin")
+			btn_join = lobby_ui.btn_hotspot_join if ("btn_hotspot_join" in lobby_ui and lobby_ui.btn_hotspot_join) else lobby_ui.get_node_or_null("Margin/VBox/BodyArea/SubScreens/PanelHotspot/CardPanel/Content/IpRow/BtnHotspotJoin")
 		if not btn_solo:
-			btn_solo = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelHotspot/Actions/BtnSoloPractice")
+			btn_solo = lobby_ui.btn_solo_practice if ("btn_solo_practice" in lobby_ui and lobby_ui.btn_solo_practice) else lobby_ui.get_node_or_null("Margin/VBox/BodyArea/SubScreens/PanelHotspot/CardPanel/Content/Actions/BtnSoloPractice")
 		if not btn_refresh_lobbies:
-			btn_refresh_lobbies = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelLobbies/BtnRefreshLobbies")
+			btn_refresh_lobbies = lobby_ui.btn_refresh_lobbies if ("btn_refresh_lobbies" in lobby_ui and lobby_ui.btn_refresh_lobbies) else lobby_ui.get_node_or_null("Margin/VBox/BodyArea/SubScreens/PanelLobbies/CardPanel/Content/CodeRow/BtnRefreshLobbies")
 		if not lobby_list_container:
-			lobby_list_container = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/RightColumn/LobbyCard/Margin/VBox/ContentPanels/PanelLobbies/Scroll/LobbyListContainer")
+			lobby_list_container = lobby_ui.lobby_list_container if ("lobby_list_container" in lobby_ui and lobby_ui.lobby_list_container) else lobby_ui.get_node_or_null("Margin/VBox/BodyArea/SubScreens/PanelLobbies/CardPanel/Content/Scroll/LobbyListContainer")
 		if not preview_char:
 			preview_char = lobby_ui.get_node_or_null("Margin/VBox/MainHBox/LeftColumn/PreviewCard/Margin/VBox/ViewportFrame/PreviewViewportContainer/PreviewSubViewport/PreviewChar")
 		if not char_name_label:
@@ -559,13 +604,28 @@ func _init_node_references() -> void:
 
 	if not pause_ui: pause_ui = get_node_or_null("PauseUI")
 	if not pause_panel: pause_panel = get_node_or_null("PauseUI/PausePanel")
-	if not btn_resume: btn_resume = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnResume")
-	if not btn_settings: btn_settings = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnSettings")
-	if not btn_pause_lobby: btn_pause_lobby = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnPauseLobby")
-	if not btn_pause_quit: btn_pause_quit = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnPauseQuit")
+	if not btn_resume:
+		btn_resume = get_node_or_null("PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer/BtnResume")
+		if not btn_resume:
+			btn_resume = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnResume")
+	if not btn_settings:
+		btn_settings = get_node_or_null("PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer/BtnSettings")
+		if not btn_settings:
+			btn_settings = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnSettings")
+	if not btn_pause_lobby:
+		btn_pause_lobby = get_node_or_null("PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer/BtnPauseLobby")
+		if not btn_pause_lobby:
+			btn_pause_lobby = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnPauseLobby")
+	if not btn_pause_quit:
+		btn_pause_quit = get_node_or_null("PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer/BtnPauseQuit")
+		if not btn_pause_quit:
+			btn_pause_quit = get_node_or_null("PauseUI/PausePanel/VBoxContainer/BtnPauseQuit")
 	if not settings_panel: settings_panel = get_node_or_null("PauseUI/SettingsPanel")
 
-	if not btn_title_settings: btn_title_settings = get_node_or_null("TitleScreenUI/Center/VBox/BtnTitleSettings")
+	if not btn_title_settings:
+		btn_title_settings = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKontrol/BtnTitleSettings")
+		if not btn_title_settings:
+			btn_title_settings = get_node_or_null("TitleScreenUI/Center/VBox/BtnTitleSettings")
 	if not btn_lobby_settings:
 		btn_lobby_settings = get_node_or_null("LobbyUI/Margin/VBox/TopBar/RightControls/BtnLobbySettings")
 		if not btn_lobby_settings:
@@ -584,6 +644,12 @@ func _init_node_references() -> void:
 
 	if not volume_slider: volume_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow/VolumeSlider")
 	if not volume_label: volume_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow/VolumeLabel")
+	if not music_volume_slider: music_volume_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/MusicVolumeRow/MusicVolumeSlider")
+	if not music_volume_label: music_volume_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/MusicVolumeRow/MusicVolumeLabel")
+	if not sfx_volume_slider: sfx_volume_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SfxVolumeRow/SfxVolumeSlider")
+	if not sfx_volume_label: sfx_volume_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SfxVolumeRow/SfxVolumeLabel")
+	if not ambience_volume_slider: ambience_volume_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/AmbienceVolumeRow/AmbienceVolumeSlider")
+	if not ambience_volume_label: ambience_volume_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/AmbienceVolumeRow/AmbienceVolumeLabel")
 	if not sensitivity_slider: sensitivity_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow/SensitivitySlider")
 	if not sensitivity_label: sensitivity_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow/SensitivityLabel")
 	if not fov_slider: fov_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow/FovSlider")
@@ -593,6 +659,10 @@ func _init_node_references() -> void:
 	if not ui_scale_slider: ui_scale_slider = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/UiScaleRow/UiScaleSlider")
 	if not ui_scale_label: ui_scale_label = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/UiScaleRow/UiScaleLabel")
 	if not btn_close_settings: btn_close_settings = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/BtnCloseSettings")
+	if not btn_close_settings_top: btn_close_settings_top = get_node_or_null("PauseUI/SettingsPanel/BtnCloseTop")
+	if not btn_tab_grapiks: btn_tab_grapiks = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/TabRow/BtnTabGrapiks")
+	if not btn_tab_tunog: btn_tab_tunog = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/TabRow/BtnTabTunog")
+	if not btn_tab_kontrol: btn_tab_kontrol = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/TabRow/BtnTabKontrol")
 	if not fps_label: fps_label = get_node_or_null("FpsOverlay/FpsLabel")
 
 func _notification(what: int) -> void:
@@ -601,6 +671,8 @@ func _notification(what: int) -> void:
 			supabase_manager.delete_lobby()
 
 func _ready() -> void:
+	if get_tree() and get_tree().root and not get_tree().root.theme:
+		get_tree().root.theme = load("res://assets/themes/batang_kalye_theme.tres")
 	# Lock orientation to landscape on mobile / handheld devices
 	if DisplayServer.has_feature(DisplayServer.FEATURE_ORIENTATION):
 		DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_LANDSCAPE)
@@ -643,6 +715,31 @@ func _ready() -> void:
 		quick_guide_ui.name = "QuickGuideUI"
 		quick_guide_ui.visible = false
 		add_child(quick_guide_ui)
+
+	if kagamitan_ui_scene:
+		kagamitan_ui = kagamitan_ui_scene.instantiate()
+		kagamitan_ui.name = "KagamitanUI"
+		kagamitan_ui.visible = false
+		add_child(kagamitan_ui)
+		if kagamitan_ui.has_signal("closed"):
+			kagamitan_ui.closed.connect(func():
+				if btn_title_customize and btn_title_customize.is_inside_tree() and btn_title_customize.visible:
+					btn_title_customize.grab_focus()
+			)
+		if kagamitan_ui.has_signal("outfit_changed"):
+			kagamitan_ui.outfit_changed.connect(func(d: Dictionary):
+				current_archetype = d.get("archetype", current_archetype)
+				current_color_idx = d.get("color", current_color_idx)
+				player_name = d.get("name", player_name)
+				if lobby_ui and lobby_ui.has_method("set_player_name"):
+					lobby_ui.set_player_name(player_name)
+			)
+		if kagamitan_ui.has_signal("name_changed"):
+			kagamitan_ui.name_changed.connect(func(new_name: String):
+				player_name = new_name
+				if lobby_ui and lobby_ui.has_method("set_player_name"):
+					lobby_ui.set_player_name(player_name)
+			)
 
 	# Initialize VoteManager, VoteUI & SocialLobbyUI
 	if not vote_manager:
@@ -689,6 +786,7 @@ func _ready() -> void:
 		_set_game_state(GameState.LOBBY)
 	else:
 		_set_game_state(GameState.TITLE)
+		_start_splash_sequence()
 		if not QuickGuideUI.has_seen_guide() and quick_guide_ui:
 			quick_guide_ui.call_deferred("open_guide")
 
@@ -719,6 +817,44 @@ func _ready() -> void:
 	elif run_test:
 		call_deferred("_run_automated_self_test")
 
+func _start_splash_sequence() -> void:
+	if not splash_ui or is_running_automated_test:
+		if splash_ui: splash_ui.visible = false
+		return
+	splash_ui.visible = true
+	splash_ui.modulate = Color(1, 1, 1, 1)
+	var logo = splash_ui.get_node_or_null("SplashCenter/SplashLogo") as CanvasItem
+	if logo:
+		logo.modulate.a = 0.0
+		_splash_tween = create_tween()
+		_splash_tween.tween_property(logo, "modulate:a", 1.0, 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		_splash_tween.tween_interval(0.6)
+		_splash_tween.tween_property(splash_ui, "modulate:a", 0.0, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		_splash_tween.tween_callback(func():
+			if is_instance_valid(splash_ui):
+				splash_ui.visible = false
+		)
+
+func _skip_splash() -> void:
+	if _splash_tween and _splash_tween.is_valid():
+		_splash_tween.kill()
+		_splash_tween = null
+	if splash_ui and splash_ui.visible:
+		var tw := create_tween()
+		tw.tween_property(splash_ui, "modulate:a", 0.0, 0.15)
+		tw.tween_callback(func():
+			if is_instance_valid(splash_ui):
+				splash_ui.visible = false
+		)
+
+func show_loading_screen(task_name: String = "PAPUNTA SA BARANGAY...") -> void:
+	if loading_screen_ui and not is_running_automated_test:
+		loading_screen_ui.show_loading(task_name)
+
+func finish_loading_screen() -> void:
+	if loading_screen_ui and loading_screen_ui.visible:
+		loading_screen_ui.finish_loading()
+
 func _setup_network_signals() -> void:
 	network_manager.server_created.connect(_on_server_created)
 	network_manager.join_success.connect(_on_join_success)
@@ -737,6 +873,39 @@ func _setup_network_signals() -> void:
 func _setup_ui_signals() -> void:
 	if btn_enter_title:
 		btn_enter_title.pressed.connect(_on_btn_enter_title_pressed)
+	if btn_title_customize:
+		btn_title_customize.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_click"): am.play_ui_click()
+			if kagamitan_ui:
+				kagamitan_ui.open_kagamitan()
+		)
+	if btn_title_store:
+		btn_title_store.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_click"): am.play_ui_click()
+			if store_ui:
+				store_ui.open_store()
+		)
+	if btn_title_guide:
+		btn_title_guide.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_click"): am.play_ui_click()
+			if quick_guide_ui:
+				quick_guide_ui.open_guide()
+		)
+	if btn_title_quit:
+		btn_title_quit.pressed.connect(func():
+			if uwian_na_ui and uwian_na_ui.has_method("open"):
+				uwian_na_ui.open()
+			else:
+				var am = get_node_or_null("/root/AudioManager")
+				if am and am.has_method("play_ui_cancel"): am.play_ui_cancel()
+				if supabase_manager and supabase_manager.is_hosting_lobby:
+					supabase_manager.delete_lobby()
+				get_tree().quit()
+		)
+	_setup_title_menu_pointers()
 
 	_setup_lobby_ui_signals()
 
@@ -803,31 +972,72 @@ func _setup_ui_signals() -> void:
 
 	# Pause menu buttons & settings
 	if btn_resume:
-		btn_resume.pressed.connect(func(): set_paused(false))
+		btn_resume.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_pop"): am.play_ui_pop()
+			set_paused(false)
+		)
 	if btn_settings:
-		btn_settings.pressed.connect(func(): _open_settings("PAUSE"))
+		btn_settings.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_click"): am.play_ui_click()
+			_open_settings("PAUSE")
+		)
 	if btn_title_settings:
-		btn_title_settings.pressed.connect(func(): _open_settings("TITLE"))
+		btn_title_settings.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_click"): am.play_ui_click()
+			_open_settings("TITLE")
+		)
 	if btn_lobby_settings:
-		btn_lobby_settings.pressed.connect(func(): _open_settings("LOBBY"))
+		btn_lobby_settings.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_click"): am.play_ui_click()
+			_open_settings("LOBBY")
+		)
 	if btn_close_settings:
-		btn_close_settings.pressed.connect(_close_settings)
+		btn_close_settings.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_cancel"): am.play_ui_cancel()
+			_close_settings()
+		)
 	if btn_pause_lobby:
-		btn_pause_lobby.pressed.connect(_on_btn_pause_lobby_pressed)
+		btn_pause_lobby.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_cancel"): am.play_ui_cancel()
+			_on_btn_pause_lobby_pressed()
+		)
 	if btn_pause_quit:
 		btn_pause_quit.pressed.connect(func():
-			if supabase_manager and supabase_manager.is_hosting_lobby:
-				supabase_manager.delete_lobby()
-			get_tree().quit()
+			if uwian_na_ui and uwian_na_ui.has_method("open"):
+				uwian_na_ui.open()
+			else:
+				var am = get_node_or_null("/root/AudioManager")
+				if am and am.has_method("play_ui_cancel"): am.play_ui_cancel()
+				if supabase_manager and supabase_manager.is_hosting_lobby:
+					supabase_manager.delete_lobby()
+				get_tree().quit()
 		)
 
 	# Quick Graphics Presets
 	if btn_preset_low:
-		btn_preset_low.pressed.connect(func(): _apply_preset(1))
+		btn_preset_low.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_click"): am.play_ui_click()
+			_apply_preset(1)
+		)
 	if btn_preset_med:
-		btn_preset_med.pressed.connect(func(): _apply_preset(2))
+		btn_preset_med.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_click"): am.play_ui_click()
+			_apply_preset(2)
+		)
 	if btn_preset_high:
-		btn_preset_high.pressed.connect(func(): _apply_preset(3))
+		btn_preset_high.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_click"): am.play_ui_click()
+			_apply_preset(3)
+		)
 
 	# Detailed Graphics Controls
 	if scale_slider:
@@ -846,6 +1056,12 @@ func _setup_ui_signals() -> void:
 	# Audio & Controls
 	if volume_slider:
 		volume_slider.value_changed.connect(_on_volume_changed)
+	if music_volume_slider:
+		music_volume_slider.value_changed.connect(_on_music_volume_changed)
+	if sfx_volume_slider:
+		sfx_volume_slider.value_changed.connect(_on_sfx_volume_changed)
+	if ambience_volume_slider:
+		ambience_volume_slider.value_changed.connect(_on_ambience_volume_changed)
 	if sensitivity_slider:
 		sensitivity_slider.value_changed.connect(_on_sensitivity_changed)
 	if fov_slider:
@@ -867,6 +1083,19 @@ func _setup_ui_signals() -> void:
 				ui_scale_label.text = "Laki ng Touch Pindutan: %d%%" % int(val * 100.0)
 		)
 
+	if btn_close_settings_top:
+		btn_close_settings_top.pressed.connect(func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_cancel"): am.play_ui_cancel()
+			_close_settings()
+		)
+	if btn_tab_grapiks:
+		btn_tab_grapiks.pressed.connect(func(): _switch_settings_tab("GRAPIKS"))
+	if btn_tab_tunog:
+		btn_tab_tunog.pressed.connect(func(): _switch_settings_tab("TUNOG"))
+	if btn_tab_kontrol:
+		btn_tab_kontrol.pressed.connect(func(): _switch_settings_tab("KONTROL"))
+
 	_update_customization_ui()
 
 	var btn_rematch = get_node_or_null("GameOverUI/Panel/VBoxContainer/BtnRematch")
@@ -874,6 +1103,34 @@ func _setup_ui_signals() -> void:
 		btn_rematch.pressed.connect(_on_rematch_or_lobby_return_requested)
 	if game_over_ui and game_over_ui.has_signal("rematch_requested"):
 		game_over_ui.rematch_requested.connect(_on_rematch_or_lobby_return_requested)
+
+func _setup_title_menu_pointers() -> void:
+	var items = [
+		{"btn": btn_enter_title, "ptr": get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemTara/Pointer")},
+		{"btn": btn_title_guide, "ptr": get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemGabay/Pointer")},
+		{"btn": btn_title_store, "ptr": get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemTindahan/Pointer")},
+		{"btn": btn_title_customize, "ptr": get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKagamitan/Pointer")},
+		{"btn": btn_title_settings, "ptr": get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKontrol/Pointer")},
+		{"btn": btn_title_quit, "ptr": get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemQuit/Pointer")},
+	]
+	for item in items:
+		var b: Button = item["btn"]
+		var p: TextureRect = item["ptr"]
+		if not b:
+			continue
+		var on_hover = func():
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("play_ui_click"):
+				am.play_ui_click(1.08)
+			for other in items:
+				var is_active: bool = (other["ptr"] == p)
+				if other["ptr"]:
+					other["ptr"].visible = is_active
+				var ob: Button = other["btn"]
+				if ob:
+					ob.add_theme_color_override("font_color", Color(1.0, 0.84, 0.2, 1.0) if is_active else Color(0.96, 0.94, 0.9, 0.92))
+		b.mouse_entered.connect(on_hover)
+		b.focus_entered.connect(on_hover)
 
 var _lobby_signals_connected: bool = false
 
@@ -895,8 +1152,19 @@ func _setup_lobby_ui_signals() -> void:
 		lobby_ui.store_requested.connect(func(): if store_ui: store_ui.open_store())
 	if lobby_ui.has_signal("guide_requested"):
 		lobby_ui.guide_requested.connect(func(): if quick_guide_ui: quick_guide_ui.open_guide())
+	if lobby_ui.has_signal("customization_requested"):
+		lobby_ui.customization_requested.connect(func():
+			if kagamitan_ui:
+				kagamitan_ui.open_kagamitan()
+			else:
+				_set_game_state(GameState.TITLE)
+				if btn_title_customize:
+					btn_title_customize.grab_focus()
+		)
 	if game_over_ui and game_over_ui.has_signal("store_requested"):
 		game_over_ui.store_requested.connect(func(): if store_ui: store_ui.open_store())
+	if game_over_ui and game_over_ui.has_signal("lobby_requested"):
+		game_over_ui.lobby_requested.connect(_on_rematch_or_lobby_return_requested)
 	if lobby_ui.has_signal("prev_char_requested"):
 		lobby_ui.prev_char_requested.connect(_on_prev_char_pressed)
 	if lobby_ui.has_signal("next_char_requested"):
@@ -1016,9 +1284,15 @@ func _on_lobby_start_game_requested() -> void:
 			_on_btn_solo_pressed()
 
 func _on_btn_enter_title_pressed() -> void:
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_ui_pop"):
+		am.play_ui_pop()
 	_set_game_state(GameState.LOBBY)
-	if lobby_ui and lobby_ui.has_method("switch_tab"):
-		lobby_ui.switch_tab(LobbyUI.LobbyTab.HOTSPOT_SOLO)
+	if lobby_ui:
+		if lobby_ui.has_method("open_hub"):
+			lobby_ui.open_hub()
+		elif lobby_ui.has_method("switch_tab"):
+			lobby_ui.switch_tab(LobbyUI.LobbyTab.HOTSPOT_SOLO)
 	else:
 		_switch_right_tab(LobbyTab.BROWSE)
 		_fetch_supabase_lobbies()
@@ -1131,6 +1405,7 @@ func apply_store_equip(category: String, item_id: Variant) -> void:
 			if network_manager:
 				network_manager.local_outfit["title"] = str(item_id)
 				network_manager.set_local_outfit(network_manager.local_outfit)
+			_save_player_outfit()
 
 func _save_player_outfit() -> void:
 	var cfg := ConfigFile.new()
@@ -1158,6 +1433,8 @@ func _load_player_outfit() -> void:
 		var saved_name: String = cfg.get_value("player", "name", "")
 		if saved_name.to_lower() == "dennrick" or saved_name.to_lower() == "kuya denn":
 			saved_name = ""
+		if not saved_name.is_empty():
+			player_name = saved_name
 		if name_input:
 			name_input.text = saved_name
 		if lobby_ui and lobby_ui.has_method("set_player_name"):
@@ -1190,6 +1467,10 @@ func _update_customization_ui() -> void:
 			)
 		if lobby_ui.has_method("set_color_swatches"):
 			lobby_ui.set_color_swatches(COLOR_OPTIONS, current_color_idx)
+		if lobby_ui.has_method("set_player_name"):
+			var p_name: String = network_manager.local_player_name if network_manager else "Totoy"
+			if p_name.is_empty(): p_name = "Totoy"
+			lobby_ui.set_player_name(p_name)
 
 	if char_name_label and current_archetype < CharacterAnimator.ARCHETYPES.size():
 		var arch := CharacterAnimator.ARCHETYPES[current_archetype]
@@ -1518,8 +1799,8 @@ func _on_supabase_lobbies_fetched(lobbies: Array) -> void:
 			if l is Dictionary:
 				typed_lobbies.append(l)
 		lobby_ui.populate_online_lobbies(typed_lobbies)
-
-	if not lobby_list_container:
+		if lobby_list_container == null and "lobby_list_container" in lobby_ui:
+			lobby_list_container = lobby_ui.lobby_list_container
 		return
 
 	# Remove any existing dynamically generated room cards
@@ -1545,19 +1826,7 @@ func _on_supabase_lobbies_fetched(lobbies: Array) -> void:
 			continue
 
 		var card := PanelContainer.new()
-		var card_style := StyleBoxFlat.new()
-		card_style.bg_color = Color(0.04, 0.05, 0.08, 0.88)
-		card_style.border_width_left = 1
-		card_style.border_width_top = 1
-		card_style.border_width_right = 1
-		card_style.border_width_bottom = 1
-		card_style.border_color = Color(1.0, 1.0, 1.0, 0.25)
-		card_style.set_corner_radius_all(14)
-		card_style.content_margin_left = 12
-		card_style.content_margin_top = 8
-		card_style.content_margin_right = 12
-		card_style.content_margin_bottom = 8
-		card.add_theme_stylebox_override("panel", card_style)
+		KalyeStyle.apply_panel(card, KalyeStyle.Surface.CARD)
 
 		var hbox := HBoxContainer.new()
 		hbox.set("theme_override_constants/separation", 8)
@@ -1580,8 +1849,7 @@ func _on_supabase_lobbies_fetched(lobbies: Array) -> void:
 			title_lbl.text = str(lobby.get("name", "Kalye Room")) + "  [HOTSPOT]"
 		else:
 			title_lbl.text = str(lobby.get("name", "Kalye Room")) + "  [ONLINE]"
-		title_lbl.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0))
-		title_lbl.add_theme_font_size_override("font_size", 13)
+		KalyeStyle.apply_label(title_lbl, KalyeStyle.Text.BODY, 13)
 		info_vbox.add_child(title_lbl)
 
 		var sub_lbl := Label.new()
@@ -1591,54 +1859,23 @@ func _on_supabase_lobbies_fetched(lobbies: Array) -> void:
 			sub_lbl.text = "Host: %s | %s | Iisang Wi-Fi o Hotspot" % [h_name, m_name]
 		else:
 			sub_lbl.text = "Host: %s | %s | Online Room" % [h_name, m_name]
-		sub_lbl.add_theme_color_override("font_color", Color(0.75, 0.82, 0.9))
-		sub_lbl.add_theme_font_size_override("font_size", 11)
+		KalyeStyle.apply_label(sub_lbl, KalyeStyle.Text.SMALL, 11)
 		info_vbox.add_child(sub_lbl)
 
 		var count_badge := PanelContainer.new()
-		var badge_style := StyleBoxFlat.new()
-		badge_style.bg_color = Color(0.08, 0.1, 0.14, 0.85)
-		badge_style.border_width_left = 1
-		badge_style.border_width_top = 1
-		badge_style.border_width_right = 1
-		badge_style.border_width_bottom = 1
-		badge_style.border_color = Color(1.0, 1.0, 1.0, 0.2)
-		badge_style.set_corner_radius_all(8)
-		badge_style.content_margin_left = 6
-		badge_style.content_margin_top = 3
-		badge_style.content_margin_right = 6
-		badge_style.content_margin_bottom = 3
-		count_badge.add_theme_stylebox_override("panel", badge_style)
+		KalyeStyle.apply_panel(count_badge, KalyeStyle.Surface.PILL)
 		count_badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
 		var count_lbl := Label.new()
 		count_lbl.text = "%d/%d" % [int(lobby.get("player_count", 1)), int(lobby.get("max_players", 8))]
-		count_lbl.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0))
-		count_lbl.add_theme_font_size_override("font_size", 11)
+		KalyeStyle.apply_label(count_lbl, KalyeStyle.Text.ACCENT, 11)
 		count_badge.add_child(count_lbl)
 		hbox.add_child(count_badge)
 
 		var join_btn := Button.new()
 		join_btn.text = "SUMALI"
-		join_btn.custom_minimum_size = Vector2(85, 32)
-		join_btn.add_theme_font_size_override("font_size", 12)
-		join_btn.add_theme_color_override("font_color", Color(1, 1, 1))
-
-		var btn_style := StyleBoxFlat.new()
-		btn_style.bg_color = Color(0.0, 0.0, 0.0, 0.45)
-		btn_style.border_width_left = 1
-		btn_style.border_width_top = 1
-		btn_style.border_width_right = 1
-		btn_style.border_width_bottom = 1
-		btn_style.border_color = Color(1.0, 1.0, 1.0, 0.85)
-		btn_style.set_corner_radius_all(12)
-		join_btn.add_theme_stylebox_override("normal", btn_style)
-
-		var btn_hover := StyleBoxFlat.new()
-		btn_hover.bg_color = Color(1.0, 1.0, 1.0, 1.0)
-		btn_hover.set_corner_radius_all(12)
-		join_btn.add_theme_stylebox_override("hover", btn_hover)
-		join_btn.add_theme_color_override("font_hover_color", Color(0, 0, 0, 1))
+		join_btn.custom_minimum_size = Vector2(90, 38)
+		KalyeStyle.apply_button(join_btn, KalyeStyle.Kind.PRIMARY, 12)
 
 		join_btn.pressed.connect(_join_supabase_lobby.bind(lobby))
 		hbox.add_child(join_btn)
@@ -1819,6 +2056,7 @@ func _on_supabase_create_failed(error_message: String) -> void:
 		host_status_label.text = "Hindi maikonekta ang room: " + error_message
 
 func _on_btn_solo_pressed() -> void:
+	show_loading_screen("PAPUNTA SA BARANGAY...")
 	_init_node_references()
 	switch_to_match_map()
 	var pname := ""
@@ -1901,6 +2139,7 @@ func _on_btn_solo_pressed() -> void:
 	if active_game_mode:
 		active_game_mode.start_mode(self)
 	_set_game_state(GameState.PLAYING)
+	finish_loading_screen()
 	if lobby_camera:
 		lobby_camera.current = false
 	if hud:
@@ -1985,6 +2224,7 @@ func sync_start_match() -> void:
 	_start_match_flow()
 
 func _start_match_flow() -> void:
+	show_loading_screen("PAPUNTA SA BARANGAY...")
 	switch_to_match_map()
 	current_round = 1
 	eliminated_player_ids.clear()
@@ -2000,6 +2240,7 @@ func _start_match_flow() -> void:
 
 	_set_game_state(GameState.MAIBA_TAYA)
 	_spawn_all_players()
+	finish_loading_screen()
 
 	if is_server_or_solo():
 		maiba_manager.start_selection(alive_player_ids)
@@ -2177,6 +2418,12 @@ func sync_late_join_match(state: int, round_num: int, timer_left: float, mode: i
 	_set_game_state(state as GameState)
 
 func _input(event: InputEvent) -> void:
+	if splash_ui and splash_ui.visible:
+		if (event is InputEventKey and event.is_pressed()) or (event is InputEventMouseButton and event.is_pressed()) or (event is InputEventScreenTouch and event.is_pressed()):
+			_skip_splash()
+			get_viewport().set_input_as_handled()
+			return
+
 	if event is InputEventKey and event.is_pressed() and not event.is_echo() and event.keycode == KEY_ESCAPE:
 		if settings_panel and settings_panel.visible:
 			_close_settings()
@@ -2196,15 +2443,12 @@ func _input(event: InputEvent) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if current_state == GameState.TITLE:
-		if settings_panel and settings_panel.visible:
+		if (settings_panel and settings_panel.visible) or (store_ui and store_ui.visible) or (quick_guide_ui and quick_guide_ui.visible):
 			return
 		if event is InputEventKey and event.pressed:
 			if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER or event.keycode == KEY_SPACE:
 				_on_btn_enter_title_pressed()
 				get_viewport().set_input_as_handled()
-		elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			_on_btn_enter_title_pressed()
-			get_viewport().set_input_as_handled()
 	elif current_state == GameState.SOCIAL_LOBBY:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not (vote_ui and vote_ui.visible):
@@ -2217,6 +2461,12 @@ func _process(delta: float) -> void:
 		if btn_enter_title:
 			var pulse := 0.88 + 0.12 * sin(Time.get_ticks_msec() * 0.005)
 			btn_enter_title.modulate.a = pulse
+		# Smooth cinematic neighborhood camera pan over KalyeMap
+		if lobby_camera and lobby_camera.is_inside_tree():
+			var t_sec: float = Time.get_ticks_msec() * 0.00022
+			var cam_pos := Vector3(35.5 + sin(t_sec) * 6.5, 4.6 + sin(t_sec * 0.7) * 0.6, 5.5 + cos(t_sec) * 4.5)
+			lobby_camera.global_position = lobby_camera.global_position.lerp(cam_pos, clampf(delta * 3.0, 0.0, 1.0))
+			lobby_camera.look_at(Vector3(35.5 + cos(t_sec * 0.5) * 2.0, 1.6, -6.5), Vector3.UP)
 	elif current_state == GameState.LOBBY:
 		if preview_char:
 			preview_char.rotate_y(delta * 0.8)
@@ -2237,14 +2487,12 @@ func _process(delta: float) -> void:
 		if hud:
 			hud.update_match_timer(match_timer)
 
-		# Sound ticking when timer is critical (under 10s)
+		# 10s Countdown: Smoothly accelerate in-game BGM speed/pitch instead of switching tracks or loud ticks
 		if match_timer <= 10.0 and match_timer > 0.0:
-			var sec := int(match_timer)
-			if sec != last_tick_second:
-				last_tick_second = sec
-				var am = get_node_or_null("/root/AudioManager")
-				if am and am.has_method("play_tick"):
-					am.play_tick()
+			var am = get_node_or_null("/root/AudioManager")
+			if am and am.has_method("set_music_speed"):
+				if not am.get("is_music_sped_up"):
+					am.set_music_speed(1.25, 0.4)
 
 		# Update local player hud
 		var my_id := multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
@@ -2264,6 +2512,9 @@ func _process(delta: float) -> void:
 func _on_round_timer_expired() -> void:
 	if is_intermission:
 		return
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("set_music_speed"):
+		am.set_music_speed(1.0, 0.4)
 	match current_mode:
 		MatchMode.CLASSIC_TAG:
 			if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
@@ -2340,6 +2591,8 @@ func sync_round_multi_elimination(round_num: int, eliminated_ids: Array) -> void
 	# Transition to Intermission before next round
 	is_intermission = true
 	intermission_timer = 4.0
+	if am and am.has_method("set_music_speed"):
+		am.set_music_speed(1.0, 0.4)
 	if hud:
 		hud.show_round_intermission(round_num + 1, combined_names, alive_player_ids.size())
 
@@ -2357,6 +2610,9 @@ func _start_next_round() -> void:
 func sync_next_round_start(next_round: int) -> void:
 	current_round = next_round
 	is_intermission = false
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("set_music_speed"):
+		am.set_music_speed(1.0, 0.4)
 	_setup_round_timer()
 
 	var sp_idx := 0
@@ -2385,7 +2641,6 @@ func sync_next_round_start(next_round: int) -> void:
 		else:
 			sync_assign_multi_taya(new_taya_ids)
 
-	var am = get_node_or_null("/root/AudioManager")
 	if am and am.has_method("play_whistle"):
 		am.play_whistle()
 
@@ -2415,6 +2670,20 @@ func sync_assign_multi_taya(taya_ids: Array) -> void:
 @rpc("call_local", "reliable")
 func sync_assign_taya(taya_id: int) -> void:
 	sync_assign_multi_taya([taya_id])
+
+@rpc("call_local", "reliable")
+func sync_infection_final_survivor(survivor_id: int) -> void:
+	var surv_name: String = "Player %d" % survivor_id
+	if network_manager and network_manager.players.has(survivor_id):
+		surv_name = network_manager.players[survivor_id].get("name", surv_name)
+	var surv_node: PlayerController = players_container.get_node_or_null(str(survivor_id)) as PlayerController
+	if surv_node and surv_node.has_method("trigger_final_survivor_moment"):
+		surv_node.trigger_final_survivor_moment()
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_final_survivor_sting"):
+		am.play_final_survivor_sting()
+	if hud:
+		hud.show_tag_banner("HULING LIGTAS!", surv_name + " — MATIRA MATIBAY!")
 
 @rpc("call_local", "reliable")
 func sync_tournament_winner(winner_id: int) -> void:
@@ -2515,9 +2784,11 @@ func _compile_match_results(forced_winner_id: int = -1, infection_taya_won: bool
 		var surv: float = p_node.survival_time if p_node else 0.0
 		var vaults: int = p_node.stats_vaults if p_node else 0
 		var sprint_time: float = p_node.stats_sprint_time if (p_node and "stats_sprint_time" in p_node) else 0.0
+		var dist_travelled: float = p_node.stats_distance_travelled if (p_node and "stats_distance_travelled" in p_node) else 0.0
+		var escapes_cnt: int = p_node.stats_escapes if (p_node and "stats_escapes" in p_node) else 0
 
 		var stored_score: float = float(pinfo.get("score", 0))
-		var calc_score: int = int(surv + (huli * 30) + (basura * 30) + (patama * 15) + stored_score)
+		var calc_score: int = int(surv + (huli * 30) + (basura * 30) + (patama * 15) + (escapes_cnt * 20) + stored_score)
 
 		var is_taya_bool: bool = false
 		if p_node:
@@ -2564,6 +2835,8 @@ func _compile_match_results(forced_winner_id: int = -1, infection_taya_won: bool
 			"vaults": vaults,
 			"surv": surv,
 			"sprint_time": sprint_time,
+			"distance": dist_travelled,
+			"escapes": escapes_cnt,
 			"score": calc_score
 		})
 
@@ -2936,7 +3209,21 @@ func _set_game_state(new_state: GameState) -> void:
 	if vote_ui and new_state != GameState.SOCIAL_LOBBY:
 		vote_ui.visible = false
 	if pause_ui: pause_ui.visible = false
+	if new_state != GameState.TITLE and splash_ui:
+		splash_ui.visible = false
 	is_game_paused = false
+
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("set_music_speed"):
+		am.set_music_speed(1.0, 0.0)
+	if am and am.has_method("play_music_track"):
+		match new_state:
+			GameState.TITLE, GameState.LOBBY, GameState.SOCIAL_LOBBY, GameState.MAIBA_TAYA:
+				am.play_music_track("lobby")
+			GameState.PLAYING:
+				am.play_music_track("chase")
+			GameState.GAME_OVER:
+				am.play_music_track("victory")
 
 	if lobby_camera:
 		var has_local_cam := false
@@ -2999,6 +3286,9 @@ func _load_settings() -> void:
 			"anti_aliasing": 0,
 			"show_fps": false,
 			"volume": 1.0,
+			"music_volume": 0.80,
+			"sfx_volume": 1.0,
+			"ambience_volume": 0.85,
 			"sensitivity": 2.5,
 			"fov": 75.0,
 			"vibration": true,
@@ -3015,6 +3305,9 @@ func _load_settings() -> void:
 			"anti_aliasing": 1,
 			"show_fps": false,
 			"volume": 1.0,
+			"music_volume": 0.80,
+			"sfx_volume": 1.0,
+			"ambience_volume": 0.85,
 			"sensitivity": 2.5,
 			"fov": 75.0,
 			"vibration": false,
@@ -3033,6 +3326,9 @@ func _load_settings() -> void:
 		settings_data["anti_aliasing"] = cfg.get_value("graphics", "anti_aliasing", settings_data["anti_aliasing"])
 		settings_data["show_fps"] = cfg.get_value("graphics", "show_fps", settings_data["show_fps"])
 		settings_data["volume"] = cfg.get_value("audio", "volume", settings_data["volume"])
+		settings_data["music_volume"] = cfg.get_value("audio", "music_volume", settings_data.get("music_volume", 0.80))
+		settings_data["sfx_volume"] = cfg.get_value("audio", "sfx_volume", settings_data.get("sfx_volume", 1.0))
+		settings_data["ambience_volume"] = cfg.get_value("audio", "ambience_volume", settings_data.get("ambience_volume", 0.85))
 		settings_data["sensitivity"] = cfg.get_value("controls", "sensitivity", settings_data["sensitivity"])
 		settings_data["fov"] = cfg.get_value("controls", "fov", settings_data["fov"])
 		settings_data["vibration"] = cfg.get_value("controls", "vibration", settings_data.get("vibration", is_mobile))
@@ -3052,6 +3348,9 @@ func _save_settings() -> void:
 	cfg.set_value("graphics", "anti_aliasing", settings_data.get("anti_aliasing", 0))
 	cfg.set_value("graphics", "show_fps", settings_data.get("show_fps", false))
 	cfg.set_value("audio", "volume", settings_data.get("volume", 1.0))
+	cfg.set_value("audio", "music_volume", settings_data.get("music_volume", 0.80))
+	cfg.set_value("audio", "sfx_volume", settings_data.get("sfx_volume", 1.0))
+	cfg.set_value("audio", "ambience_volume", settings_data.get("ambience_volume", 0.85))
 	cfg.set_value("controls", "sensitivity", settings_data.get("sensitivity", 2.5))
 	cfg.set_value("controls", "fov", settings_data.get("fov", 75.0))
 	cfg.set_value("controls", "vibration", settings_data.get("vibration", true))
@@ -3094,6 +3393,9 @@ func apply_graphics_settings() -> void:
 
 	# 7. Volume, Sensitivity & FOV
 	_apply_audio_volume(float(settings_data.get("volume", 1.0)))
+	_apply_music_volume(float(settings_data.get("music_volume", 0.80)))
+	_apply_sfx_volume(float(settings_data.get("sfx_volume", 1.0)))
+	_apply_ambience_volume(float(settings_data.get("ambience_volume", 0.85)))
 	_apply_sensitivity(float(settings_data.get("sensitivity", 2.5)))
 	_apply_fov(float(settings_data.get("fov", 75.0)))
 
@@ -3163,6 +3465,12 @@ func _sync_settings_ui() -> void:
 
 	if volume_slider:
 		volume_slider.set_value_no_signal(float(settings_data.get("volume", 1.0)))
+	if music_volume_slider:
+		music_volume_slider.set_value_no_signal(float(settings_data.get("music_volume", 0.80)))
+	if sfx_volume_slider:
+		sfx_volume_slider.set_value_no_signal(float(settings_data.get("sfx_volume", 1.0)))
+	if ambience_volume_slider:
+		ambience_volume_slider.set_value_no_signal(float(settings_data.get("ambience_volume", 0.85)))
 	if sensitivity_slider:
 		sensitivity_slider.set_value_no_signal(float(settings_data.get("sensitivity", 2.5)))
 	if fov_slider:
@@ -3222,7 +3530,37 @@ func _open_settings(from_source: String) -> void:
 	if settings_panel:
 		settings_panel.visible = true
 	_sync_settings_ui()
+	_switch_settings_tab(current_settings_tab)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+func _switch_settings_tab(tab_name: String) -> void:
+	current_settings_tab = tab_name
+	var col_active = Color(0.22, 0.12, 0.04, 1)
+	var col_inactive = Color(0.35, 0.22, 0.12, 0.8)
+	
+	if btn_tab_grapiks:
+		btn_tab_grapiks.add_theme_color_override("font_color", col_active if tab_name == "GRAPIKS" else col_inactive)
+	if btn_tab_tunog:
+		btn_tab_tunog.add_theme_color_override("font_color", col_active if tab_name == "TUNOG" else col_inactive)
+	if btn_tab_kontrol:
+		btn_tab_kontrol.add_theme_color_override("font_color", col_active if tab_name == "KONTROL" else col_inactive)
+	
+	var gfx_names = ["PresetHeader", "PresetRow", "PresetSubLabel", "HSep1", "GfxHeader", "ScaleRow", "ShadowsRow", "GlowRow", "FpsLimitRow", "AaRow", "FpsCounterRow"]
+	var audio_names = ["AudioHeader", "VolumeRow", "MusicVolumeRow", "SfxVolumeRow", "AmbienceVolumeRow"]
+	var ctrl_names = ["SensitivityRow", "FovRow", "MobileHeader", "VibrationRow", "JoystickStyleRow", "UiScaleRow"]
+	
+	var scroll_content = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent")
+	if scroll_content:
+		for child in scroll_content.get_children():
+			var c_name = child.name
+			if c_name in gfx_names:
+				child.visible = (tab_name == "GRAPIKS")
+			elif c_name in audio_names:
+				child.visible = (tab_name == "TUNOG")
+			elif c_name in ctrl_names:
+				child.visible = (tab_name == "KONTROL")
+			else:
+				child.visible = false
 
 func _close_settings() -> void:
 	if settings_panel:
@@ -3295,6 +3633,42 @@ func _apply_audio_volume(val: float) -> void:
 func _on_volume_changed(val: float) -> void:
 	settings_data["volume"] = val
 	_apply_audio_volume(val)
+	_save_settings()
+
+func _apply_music_volume(val: float) -> void:
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("set_music_volume"):
+		am.set_music_volume(val)
+	if music_volume_label:
+		music_volume_label.text = "Music Volume (Tugtog sa Kalye): %d%%" % int(val * 100)
+
+func _on_music_volume_changed(val: float) -> void:
+	settings_data["music_volume"] = val
+	_apply_music_volume(val)
+	_save_settings()
+
+func _apply_sfx_volume(val: float) -> void:
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("set_sfx_volume"):
+		am.set_sfx_volume(val)
+	if sfx_volume_label:
+		sfx_volume_label.text = "SFX Volume (Yabag at Hampas): %d%%" % int(val * 100)
+
+func _on_sfx_volume_changed(val: float) -> void:
+	settings_data["sfx_volume"] = val
+	_apply_sfx_volume(val)
+	_save_settings()
+
+func _apply_ambience_volume(val: float) -> void:
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("set_ambience_volume"):
+		am.set_ambience_volume(val)
+	if ambience_volume_label:
+		ambience_volume_label.text = "Ambience Volume (Huni ng Barangay): %d%%" % int(val * 100)
+
+func _on_ambience_volume_changed(val: float) -> void:
+	settings_data["ambience_volume"] = val
+	_apply_ambience_volume(val)
 	_save_settings()
 
 func _apply_sensitivity(val: float) -> void:
@@ -3517,7 +3891,8 @@ func _update_lobby_player_list() -> void:
 
 	# Update modern LobbyUI room waiting view
 	if lobby_ui and lobby_ui.has_method("set_room_waiting_state"):
-		if multiplayer.has_multiplayer_peer() and not network_manager.is_solo_practice:
+		var has_active_peer: bool = multiplayer.has_multiplayer_peer() and not (multiplayer.multiplayer_peer is OfflineMultiplayerPeer)
+		if has_active_peer and not network_manager.is_solo_practice:
 			var r_name := current_joined_room_name
 			if r_name.is_empty():
 				r_name = "Hotspot Room" if network_manager.is_host else "Lobby Room"
@@ -3974,7 +4349,8 @@ func _run_automated_self_test() -> void:
 		"game_mode": "Klasikong Taya"
 	}
 	_on_supabase_lobbies_fetched([mock_lobby_lan, mock_lobby_webrtc])
-	if lobby_list_container and lobby_list_container.get_child_count() > 2:
+	var target_list = lobby_ui.lobby_list_container if (lobby_ui and "lobby_list_container" in lobby_ui and lobby_ui.lobby_list_container) else lobby_list_container
+	if target_list and target_list.get_child_count() >= 2:
 		results.append("[PASS] Supabase dynamic room cards (LAN & WebRTC Online P2P) rendered into lobby list successfully.")
 	else:
 		results.append("[FAIL] Supabase room cards failed to render!")
@@ -4179,6 +4555,54 @@ func _run_automated_self_test() -> void:
 		_write_test_results(results, 1)
 		return
 	results.append("[PASS] sync_assign_multi_taya and role sync verified.")
+
+	# 16. Test Audio & Studio Sound Effects Collection (CHIFREQ Soundworks)
+	results.append("[SELF-TEST] Testing Audio & Studio Sound Effects Collection...")
+	var am_test = get_node_or_null("/root/AudioManager")
+	if not am_test:
+		results.append("[FAIL] AudioManager autoload not found!")
+		_write_test_results(results, 1)
+		return
+	if am_test.sfx_jumps.is_empty():
+		results.append("[FAIL] sfx_jumps is empty!")
+		_write_test_results(results, 1)
+		return
+	if am_test.sfx_runs.is_empty() or am_test.sfx_walks.is_empty() or am_test.sfx_slides.is_empty():
+		results.append("[FAIL] Action SFX pools (runs/walks/slides) not loaded!")
+		_write_test_results(results, 1)
+		return
+	results.append("[PASS] Movement & Action SFX loaded (%d jumps, %d runs, %d walks, %d slides)." % [am_test.sfx_jumps.size(), am_test.sfx_runs.size(), am_test.sfx_walks.size(), am_test.sfx_slides.size()])
+
+	if not am_test.sfx_ui_click or not am_test.sfx_ui_pop or not am_test.sfx_ui_cancel or not am_test.sfx_ui_reward or not am_test.sfx_ui_game_over:
+		results.append("[FAIL] UI Sound Effects not fully loaded!")
+		_write_test_results(results, 1)
+		return
+	results.append("[PASS] UI Sound Effects verified (Click, Pop, Bloop, Reward, Game Over).")
+
+	var vp_keys: Array = ["male_1", "male_2", "female_1", "female_2"]
+	for k in vp_keys:
+		if not am_test.voice_packs.has(k):
+			results.append("[FAIL] Voice pack %s missing!" % k)
+			_write_test_results(results, 1)
+			return
+		var pack: Dictionary = am_test.voice_packs[k]
+		if pack["aray"].is_empty() or pack["takbo"].is_empty() or pack["taya"].is_empty():
+			results.append("[FAIL] Voice pack %s has missing line categories!" % k)
+			_write_test_results(results, 1)
+			return
+	results.append("[PASS] All 4 Character Voice Packs loaded with Aray, Takbo, and Taya lines.")
+
+	if not am_test.vo_maiba_taya_unison or am_test.vo_nanay_lines.is_empty() or not am_test.vo_nanay_hoy:
+		results.append("[FAIL] Maiba Taya unison or Nanay VO lines not loaded!")
+		_write_test_results(results, 1)
+		return
+	results.append("[PASS] Special Pinoy Vocals (Maiba Taya Unison & Nanay VO) verified.")
+
+	if not am_test.music_tracks.has("ambient") or not am_test.music_tracks.has("in_game"):
+		results.append("[FAIL] Studio BGM tracks (ambient / in_game) not loaded!")
+		_write_test_results(results, 1)
+		return
+	results.append("[PASS] Studio BGM tracks (Game Ambient Music & IN GAME BGM) verified.")
 
 	results.append("[ALL TESTS PASSED] ZERO RUNTIME ERRORS DETECTED!")
 	for child in players_container.get_children():

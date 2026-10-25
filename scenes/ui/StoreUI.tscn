@@ -1,8 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://c8m4e1s2toreui"]
+[gd_scene format=3 uid="uid://cfaedt6grog4u"]
 
-[ext_resource type="Script" path="res://scripts/ui/StoreUI.gd" id="1_storeui"]
+[ext_resource type="Script" uid="uid://uils4so7k6hb" path="res://scripts/ui/StoreUI.gd" id="1_storeui"]
+[ext_resource type="Texture2D" uid="uid://clxmelnryeygw" path="res://assets/Backgrounds/Tindahan_Background_v2.png" id="2_store_banner"]
+[ext_resource type="Texture2D" uid="uid://cirmpv80nos76" path="res://assets/Game Icons-Buttons/Barya.png" id="3_barya_icon"]
+[ext_resource type="Texture2D" uid="uid://ok7oe08fuwni" path="res://assets/Game Icons-Buttons/Star.png" id="4_star_icon"]
+[ext_resource type="Texture2D" uid="uid://cq1vjmtmtoapg" path="res://assets/Game Icons-Buttons/Other Buttons/No_Close.png" id="5_close_btn"]
+[ext_resource type="Texture2D" uid="uid://taxdq2garjpg" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/No_Close.png" id="6_close_btn_tap"]
 
-[node name="StoreUI" type="Control"]
+[node name="StoreUI" type="Control" unique_id=1841066410]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,7 +16,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_storeui")
 
-[node name="Dimmer" type="ColorRect" parent="."]
+[node name="Dimmer" type="ColorRect" parent="." unique_id=879891100]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,7 +25,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.784314)
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="StoreContainer" type="Control" parent="." unique_id=119775401]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -28,112 +33,260 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(920, 560)
-layout_mode = 2
+[node name="StoreBg" type="TextureRect" parent="StoreContainer" unique_id=267938209]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_store_banner")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer"]
-layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
+[node name="TopRightRow" type="HBoxContainer" parent="StoreContainer" unique_id=2104904696]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -340.0
+offset_top = 24.0
+offset_right = -30.0
+offset_bottom = 72.0
+grow_horizontal = 0
+theme_override_constants/separation = 14
+alignment = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer"]
+[node name="WalletRow" type="HBoxContainer" parent="StoreContainer/TopRightRow" unique_id=2104904695]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 6
 
-[node name="HeaderBar" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="BaryaIcon" type="TextureRect" parent="StoreContainer/TopRightRow/WalletRow" unique_id=2104904697]
+custom_minimum_size = Vector2(26, 26)
 layout_mode = 2
-theme_override_constants/separation = 16
+size_flags_vertical = 4
+texture = ExtResource("3_barya_icon")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="TitleLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HeaderBar"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "🏪 TINDAHAN NI ALING NENA"
-
-[node name="Spacer" type="Control" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HeaderBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="WalletLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HeaderBar"]
+[node name="WalletLabel" type="Label" parent="StoreContainer/TopRightRow/WalletRow" unique_id=1828473669]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_colors/font_color = Color(1, 0.84705883, 0.2901961, 1)
 theme_override_font_sizes/font_size = 18
-text = "🪙 BARYA: 150"
+text = "150"
 
-[node name="RepLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HeaderBar"]
+[node name="RepRow" type="HBoxContainer" parent="StoreContainer/TopRightRow" unique_id=2104904698]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StarIcon" type="TextureRect" parent="StoreContainer/TopRightRow/RepRow" unique_id=2104904699]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("4_star_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RepLabel" type="Label" parent="StoreContainer/TopRightRow/RepRow" unique_id=630177958]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.8, 1, 1)
+theme_override_colors/font_color = Color(0.4862745, 0.78431374, 1, 1)
 theme_override_font_sizes/font_size = 18
-text = "⭐ STREET REP: 10"
+text = "10"
 
-[node name="CloseButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HeaderBar"]
+[node name="CloseButton" type="TextureButton" parent="StoreContainer/TopRightRow" unique_id=173105066]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 36)
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-text = "✕ ISARA"
+focus_mode = 0
+texture_normal = ExtResource("5_close_btn")
+texture_pressed = ExtResource("6_close_btn_tap")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="AlingNenaDialogue" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="TabArchetypes" type="Button" parent="StoreContainer" unique_id=1021787124]
 unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.85, 0.7, 1)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -541.0
+offset_top = -120.0
+offset_right = -371.0
+offset_bottom = -74.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 14
-text = "\"Bawal ang utang dito sa Tindahan ni Aling Nena! Mag-segregate ka muna ng basura!\""
+text = "KARAKTER"
+flat = true
 
-[node name="TabBar" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="TabArchetypes" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
+[node name="TabHeadwear" type="Button" parent="StoreContainer" unique_id=1359852565]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 38)
-layout_mode = 2
-toggle_mode = true
-button_pressed = true
-text = "Karakter"
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -328.0
+offset_top = -123.0
+offset_right = -158.0
+offset_bottom = -77.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 14
+text = "PANG-ULO"
+flat = true
 
-[node name="TabHeadwear" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
+[node name="TabBody" type="Button" parent="StoreContainer" unique_id=2047425763]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 38)
-layout_mode = 2
-toggle_mode = true
-text = "Pang-ulo"
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -113.0
+offset_top = -126.0
+offset_right = 57.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 14
+text = "KASUOTAN"
+flat = true
 
-[node name="TabBody" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
+[node name="TabFootwear" type="Button" parent="StoreContainer" unique_id=1462191714]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 38)
-layout_mode = 2
-toggle_mode = true
-text = "Kasuotan"
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 95.0
+offset_top = -124.0
+offset_right = 265.0
+offset_bottom = -78.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 14
+text = "TSINELAS"
+flat = true
 
-[node name="TabFootwear" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
+[node name="TabTitles" type="Button" parent="StoreContainer" unique_id=1781342521]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 38)
-layout_mode = 2
-toggle_mode = true
-text = "Tsinelas"
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 300.0
+offset_top = -125.0
+offset_right = 470.0
+offset_bottom = -79.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "MGA TITULO"
+flat = true
 
-[node name="TabTitles" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/TabBar"]
+[node name="AlingNenaDialogue" type="Label" parent="StoreContainer" unique_id=1777790324]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 38)
-layout_mode = 2
-toggle_mode = true
-text = "Mga Titulo"
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -548.0
+offset_top = -70.0
+offset_right = 192.0
+offset_bottom = -44.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.72, 1)
+theme_override_colors/font_outline_color = Color(0.18, 0.12, 0.08, 0.9)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 13
+text = "\"Bawal ang utang dito sa Tindahan ni Aling Delia! Mag-segregate ka muna ng basura!\""
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 360)
-layout_mode = 2
-size_flags_vertical = 3
+[node name="ScrollContainer" type="ScrollContainer" parent="StoreContainer" unique_id=1938975442]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -572.0
+offset_top = -44.0
+offset_right = 240.0
+offset_bottom = 249.0
+grow_horizontal = 2
+grow_vertical = 2
 horizontal_scroll_mode = 0
 
-[node name="ItemsContainer" type="GridContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ScrollContainer"]
+[node name="ItemsContainer" type="GridContainer" parent="StoreContainer/ScrollContainer" unique_id=873163152]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 12
-columns = 3
+columns = 2
+
+[node name="PreviewFrame" type="Control" parent="StoreContainer" unique_id=1242948815]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 275.0
+offset_top = -42.0
+offset_right = 510.0
+offset_bottom = 315.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PreviewViewportContainer" type="SubViewportContainer" parent="StoreContainer/PreviewFrame" unique_id=2083597401]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="PreviewSubViewport" type="SubViewport" parent="StoreContainer/PreviewFrame/PreviewViewportContainer" unique_id=1903847291]
+unique_name_in_owner = true
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(235, 357)
+render_target_update_mode = 4
+
+[node name="PreviewWorld" type="Node3D" parent="StoreContainer/PreviewFrame/PreviewViewportContainer/PreviewSubViewport" unique_id=1498327492]
+unique_name_in_owner = true
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="StoreContainer/PreviewFrame/PreviewViewportContainer/PreviewSubViewport/PreviewWorld" unique_id=1855826852]
+transform = Transform3D(0.819152, -0.286788, 0.496732, 0, 0.866025, 0.5, -0.573576, -0.409576, 0.709406, 0, 2, 0)
+light_color = Color(1, 0.94, 0.85, 1)
+light_energy = 1.5
+
+[node name="OmniLight3D" type="OmniLight3D" parent="StoreContainer/PreviewFrame/PreviewViewportContainer/PreviewSubViewport/PreviewWorld" unique_id=785025589]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 1.5, 1.8)
+light_color = Color(0.75, 0.85, 1, 1)
+light_energy = 0.9
+omni_range = 8.0
+
+[node name="Camera3D" type="Camera3D" parent="StoreContainer/PreviewFrame/PreviewViewportContainer/PreviewSubViewport/PreviewWorld" unique_id=1472588725]
+transform = Transform3D(1, 0, 0, 0, 0.9993909, 0.034899496, 0, -0.034899496, 0.9993909, 0, 1.3388492, 3.966712)
+fov = 45.0

@@ -1,423 +1,482 @@
-[gd_scene format=3 uid="uid://cb5d5a6w8q001"]
+[gd_scene format=3 uid="uid://d1ewno6fpyvgr"]
 
 [ext_resource type="Script" uid="uid://cg3q06tlby1rw" path="res://scripts/gameplay/GameManager.gd" id="1_game_mgr"]
 [ext_resource type="Script" uid="uid://dreosmtesed3o" path="res://scripts/network/NetworkManager.gd" id="2_net_mgr"]
 [ext_resource type="Script" uid="uid://csj4jdu6vtu1t" path="res://scripts/gameplay/MaibaTayaManager.gd" id="3_maiba_mgr"]
 [ext_resource type="PackedScene" uid="uid://bvyg7u1g0xkps" path="res://scenes/maps/KalyeMap.tscn" id="4_map"]
-[ext_resource type="PackedScene" uid="uid://cx6g0q6m6101p" path="res://scenes/ui/HUD.tscn" id="5_hud"]
-[ext_resource type="PackedScene" uid="uid://c515vpt0ygh45" path="res://scenes/ui/MaibaTayaUI.tscn" id="6_maiba_ui"]
-[ext_resource type="Texture2D" uid="uid://bpndqeakdmjqj" path="res://assets/Background.jpg" id="7_3km4f"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/MaibaTayaUI.tscn" id="6_maiba_ui"]
 [ext_resource type="Script" uid="uid://bytm1u064jnxw" path="res://scripts/gameplay/NanayEvent.gd" id="7_nanay_event"]
-[ext_resource type="PackedScene" uid="uid://c8m8q44j5kd0q" path="res://scenes/player/CharacterModel.tscn" id="8_char_model"]
-[ext_resource type="Texture2D" uid="uid://dq77gemlgsgkn" path="res://assets/Title.png" id="8_p5fgu"]
-[ext_resource type="StyleBox" uid="uid://cxo4i2gvgvqxk" path="res://assets/themes/BatangKalye_Theme.tres" id="8_qkm1d"]
+[ext_resource type="Texture2D" uid="uid://dxy2m2185mcfe" path="res://assets/1-Title-Screen-ezgif.com-gif-to-sprite-converter.png" id="7_vc03v"]
 [ext_resource type="Script" uid="uid://dktlcbvk87myd" path="res://scripts/network/SupabaseLobbyManager.gd" id="9_supabase_mgr"]
 [ext_resource type="PackedScene" path="res://scenes/ui/GameOverUI.tscn" id="10_game_over_ui"]
 [ext_resource type="PackedScene" path="res://scenes/ui/LobbyUI.tscn" id="11_lobby_ui"]
+[ext_resource type="Texture2D" uid="uid://b4stl5waa41na" path="res://assets/Logo/Logo.png" id="13_splash_logo"]
+[ext_resource type="PackedScene" uid="uid://c34k5m6n7p8ra" path="res://scenes/ui/LoadingScreenUI.tscn" id="14_loading_ui"]
+[ext_resource type="Texture2D" uid="uid://ckc046ixeab3f" path="res://assets/Backgrounds/Taympers.png" id="15_taympers_banner"]
+[ext_resource type="Texture2D" uid="uid://dplklrkfpsxxl" path="res://assets/Game Icons-Buttons/Menu Pointer.png" id="16_menu_pointer"]
+[ext_resource type="PackedScene" path="res://scenes/ui/UwianNaUI.tscn" id="17_uwian_ui"]
+[ext_resource type="Texture2D" uid="uid://csnwf276afk75" path="res://assets/Backgrounds/Kontrol_Background_v1.png" id="18_kontrol_bg"]
+[ext_resource type="Texture2D" uid="uid://cq1vjmtmtoapg" path="res://assets/Game Icons-Buttons/Other Buttons/No_Close.png" id="19_no_close"]
+[ext_resource type="Texture2D" uid="uid://taxdq2garjpg" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/No_Close.png" id="20_no_close_tap"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_enter"]
-content_margin_left = 20.0
-content_margin_top = 10.0
-content_margin_right = 20.0
-content_margin_bottom = 14.0
-bg_color = Color(0, 0, 0, 0.37254903)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+[sub_resource type="AtlasTexture" id="AtlasTexture_grv7h"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(0, 0, 1400, 788)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3km4f"]
-content_margin_left = 16.0
-content_margin_top = 13.0
-content_margin_right = 16.0
-content_margin_bottom = 9.0
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+[sub_resource type="AtlasTexture" id="AtlasTexture_yub1f"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(1400, 0, 1400, 788)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lobby_bg"]
-content_margin_left = 20.0
-content_margin_top = 16.0
-content_margin_right = 20.0
-content_margin_bottom = 16.0
-bg_color = Color(0.04, 0.05, 0.08, 0.94)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.25)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0, 0, 0, 0.6)
-shadow_size = 20
+[sub_resource type="AtlasTexture" id="AtlasTexture_d8523"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(2800, 0, 1400, 788)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header_badge"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_roob6"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(4200, 0, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_enl7a"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(5600, 0, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j0f7u"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(0, 788, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n12rl"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(1400, 788, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0cxqb"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(2800, 788, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u7tt4"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(4200, 788, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ilqpp"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(5600, 788, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ftc2p"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(0, 1576, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_04n4k"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(1400, 1576, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8dhb5"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(2800, 1576, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ew7m7"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(4200, 1576, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fg4ko"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(5600, 1576, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m1khv"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(0, 2364, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vs4dm"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(1400, 2364, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gwlw1"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(2800, 2364, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vennj"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(4200, 2364, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dl125"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(5600, 2364, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qcd1j"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(0, 3152, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_12hjt"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(1400, 3152, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n7vst"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(2800, 3152, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8gxhd"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(4200, 3152, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o1ohc"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(5600, 3152, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_botte"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(0, 3940, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2cgg3"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(1400, 3940, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wke70"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(2800, 3940, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yq8p8"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(4200, 3940, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0mlv0"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(5600, 3940, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f4abt"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(0, 4728, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ctbwf"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(1400, 4728, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o80qj"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(2800, 4728, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0sk6p"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(4200, 4728, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e8pg6"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(5600, 4728, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h05k6"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(0, 5516, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ex0yv"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(1400, 5516, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s3bvh"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(2800, 5516, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hlhe2"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(4200, 5516, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_afy01"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(5600, 5516, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b6xsk"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(0, 6304, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6htk2"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(1400, 6304, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1r7qe"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(2800, 6304, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1j1g1"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(4200, 6304, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i10i2"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(5600, 6304, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7wpoh"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(0, 7092, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7wx6u"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(1400, 7092, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_umnx4"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(2800, 7092, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q8v2h"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(4200, 7092, 1400, 788)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a0vxn"]
+atlas = ExtResource("7_vc03v")
+region = Rect2(5600, 7092, 1400, 788)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_g4v7s"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_grv7h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yub1f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d8523")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_roob6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_enl7a")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j0f7u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n12rl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0cxqb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u7tt4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ilqpp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ftc2p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_04n4k")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8dhb5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ew7m7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fg4ko")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m1khv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vs4dm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gwlw1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vennj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dl125")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qcd1j")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_12hjt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n7vst")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8gxhd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o1ohc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_botte")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2cgg3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wke70")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yq8p8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0mlv0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f4abt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ctbwf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o80qj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0sk6p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e8pg6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h05k6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ex0yv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_s3bvh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hlhe2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_afy01")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b6xsk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6htk2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1r7qe")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1j1g1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i10i2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7wpoh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7wx6u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_umnx4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q8v2h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a0vxn")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 24.0
+}]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_title_menu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_warm_btn_normal"]
 content_margin_left = 14.0
-content_margin_top = 6.0
+content_margin_top = 8.0
 content_margin_right = 14.0
-content_margin_bottom = 8.0
-bg_color = Color(0.06, 0.07, 0.1, 0.85)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.3)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
+content_margin_bottom = 12.0
+bg_color = Color(0.88, 0.58, 0.16, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 5
+border_color = Color(0.32, 0.18, 0.05, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.15)
+shadow_size = 2
+shadow_offset = Vector2(0, 2)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_showroom_frame"]
-bg_color = Color(0.04, 0.04, 0.07, 0.88)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.2)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_warm_btn_pressed"]
+content_margin_left = 14.0
+content_margin_top = 11.0
+content_margin_right = 14.0
+content_margin_bottom = 9.0
+bg_color = Color(0.78, 0.49, 0.12, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.32, 0.18, 0.05, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pedestal"]
-albedo_color = Color(0.18, 0.19, 0.22, 1)
-metallic = 0.2
-roughness = 0.8
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_warm_btn_hover"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+bg_color = Color(0.96, 0.67, 0.24, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 5
+border_color = Color(0.32, 0.18, 0.05, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 3
+shadow_offset = Vector2(0, 2)
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_pedestal"]
-material = SubResource("StandardMaterial3D_pedestal")
-top_radius = 0.85
-bottom_radius = 0.9
-height = 0.08
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_warm_btn_focus"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.88, 0.4, 0.8)
+corner_radius_top_left = 11
+corner_radius_top_right = 11
+corner_radius_bottom_right = 11
+corner_radius_bottom_left = 11
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_cyan"]
-content_margin_left = 12.0
-content_margin_top = 6.0
-content_margin_right = 12.0
-content_margin_bottom = 8.0
-bg_color = Color(0, 0, 0, 0.42)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.6)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_badge_dark"]
-content_margin_top = 6.0
-content_margin_bottom = 6.0
-bg_color = Color(0.05, 0.06, 0.09, 0.85)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.25)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_preset_btn"]
-content_margin_left = 6.0
-content_margin_top = 6.0
-content_margin_right = 6.0
-content_margin_bottom = 8.0
-bg_color = Color(0, 0, 0, 0.4)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.35)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_active"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+bg_color = Color(0.98, 0.76, 0.18, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 4
+border_color = Color(0.32, 0.16, 0.04, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_label_badge"]
-content_margin_left = 14.0
-content_margin_top = 6.0
-content_margin_right = 14.0
-content_margin_bottom = 6.0
-bg_color = Color(0.05, 0.06, 0.09, 0.85)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.25)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input_navy"]
-content_margin_left = 12.0
-content_margin_top = 6.0
-content_margin_right = 12.0
-content_margin_bottom = 6.0
-bg_color = Color(0.04, 0.05, 0.08, 0.85)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.3)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_active"]
-content_margin_left = 14.0
-content_margin_top = 6.0
-content_margin_right = 14.0
-content_margin_bottom = 8.0
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_inactive"]
-content_margin_left = 14.0
-content_margin_top = 6.0
-content_margin_right = 14.0
-content_margin_bottom = 8.0
-bg_color = Color(0, 0, 0, 0.35)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.3)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_host_blue"]
 content_margin_left = 16.0
 content_margin_top = 8.0
 content_margin_right = 16.0
-content_margin_bottom = 12.0
-bg_color = Color(0, 0, 0, 0.45)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.85)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_host_blue_hover"]
-content_margin_left = 16.0
-content_margin_top = 8.0
-content_margin_right = 16.0
-content_margin_bottom = 12.0
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(1, 1, 1, 0.25)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_join_green"]
-content_margin_left = 16.0
-content_margin_top = 8.0
-content_margin_right = 16.0
-content_margin_bottom = 12.0
-bg_color = Color(0, 0, 0, 0.45)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.9)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_join_green_hover"]
-content_margin_left = 16.0
-content_margin_top = 8.0
-content_margin_right = 16.0
-content_margin_bottom = 12.0
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(1, 1, 1, 0.25)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_solo_orange"]
-content_margin_left = 16.0
-content_margin_top = 8.0
-content_margin_right = 16.0
-content_margin_bottom = 12.0
-bg_color = Color(0, 0, 0, 0.45)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.85)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_solo_orange_hover"]
-content_margin_left = 16.0
-content_margin_top = 8.0
-content_margin_right = 16.0
-content_margin_bottom = 12.0
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-shadow_color = Color(1, 1, 1, 0.25)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
-content_margin_left = 14.0
-content_margin_top = 8.0
-content_margin_right = 14.0
-content_margin_bottom = 8.0
-bg_color = Color(0.04, 0.05, 0.08, 0.85)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.2)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_start"]
-content_margin_left = 20.0
-content_margin_top = 10.0
-content_margin_right = 20.0
-content_margin_bottom = 14.0
-bg_color = Color(1, 1, 1, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(1, 1, 1, 0.2)
-shadow_size = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_start_hover"]
-content_margin_left = 20.0
-content_margin_top = 10.0
-content_margin_right = 20.0
-content_margin_bottom = 14.0
-bg_color = Color(0.9, 0.9, 0.9, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(1, 1, 1, 0.3)
-shadow_size = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_quit"]
-content_margin_left = 18.0
-content_margin_top = 8.0
-content_margin_right = 18.0
-content_margin_bottom = 12.0
-bg_color = Color(0.12, 0.04, 0.06, 0.85)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.75, 0.2, 0.25, 0.85)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_quit_hover"]
-content_margin_left = 18.0
-content_margin_top = 8.0
-content_margin_right = 18.0
-content_margin_bottom = 12.0
-bg_color = Color(0.85, 0.2, 0.25, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 0.3, 0.35, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gameover_card"]
-content_margin_left = 24.0
-content_margin_top = 20.0
-content_margin_right = 24.0
-content_margin_bottom = 20.0
-bg_color = Color(0.04, 0.05, 0.08, 0.95)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.3)
-corner_radius_top_left = 22
-corner_radius_top_right = 22
-corner_radius_bottom_right = 22
-corner_radius_bottom_left = 22
-shadow_color = Color(0, 0, 0, 0.6)
-shadow_size = 20
+content_margin_bottom = 10.0
+bg_color = Color(0.65, 0.45, 0.12, 0.5)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 3
+border_color = Color(0.25, 0.12, 0.03, 0.7)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="Main" type="Node" unique_id=352156919]
 script = ExtResource("1_game_mgr")
@@ -449,122 +508,255 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TextureRect" type="TextureRect" parent="TitleScreenUI" unique_id=246541732]
-layout_mode = 0
-offset_right = 1278.0
-offset_bottom = 721.0
-texture = ExtResource("7_3km4f")
-expand_mode = 1
+[node name="BGs" type="AnimatedSprite2D" parent="TitleScreenUI" unique_id=2022474366]
+position = Vector2(639, 360)
+scale = Vector2(0.9128571, 0.91116756)
+sprite_frames = SubResource("SpriteFrames_g4v7s")
+autoplay = "default"
+frame_progress = 0.9547844
 
 [node name="Bg" type="ColorRect" parent="TitleScreenUI" unique_id=861350185]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -14.0
+offset_top = -9.0
+offset_bottom = -1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.03137255, 0.039215688, 0.07058824, 0.7529412)
+color = Color(0.04, 0.05, 0.08, 0.22)
 
-[node name="TitleImg" type="TextureRect" parent="TitleScreenUI" unique_id=647681088]
-layout_mode = 0
-offset_left = 446.0
-offset_top = 96.0
-offset_right = 831.2094
-offset_bottom = 321.0
-texture = ExtResource("8_p5fgu")
-expand_mode = 1
-
-[node name="Center" type="CenterContainer" parent="TitleScreenUI" unique_id=1316102188]
+[node name="LeftMenuMargin" type="MarginContainer" parent="TitleScreenUI" unique_id=620957030]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
+anchors_preset = 9
 anchor_bottom = 1.0
-offset_top = 74.0
-offset_bottom = 74.0
-grow_horizontal = 2
+offset_left = 130.0
+offset_top = 220.0
+offset_right = 430.0
+offset_bottom = -120.0
 grow_vertical = 2
 
-[node name="VBox" type="VBoxContainer" parent="TitleScreenUI/Center" unique_id=620957030]
+[node name="MenuVBox" type="VBoxContainer" parent="TitleScreenUI/LeftMenuMargin" unique_id=620957031]
 layout_mode = 2
 theme_override_constants/separation = 14
 alignment = 1
 
-[node name="Subtitle" type="Label" parent="TitleScreenUI/Center/VBox" unique_id=1402653337]
-layout_mode = 2
-theme_override_colors/font_shadow_color = Color(0.078431375, 0.019607844, 0.14117648, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0)
-theme_override_font_sizes/font_size = 18
-text = "TAYAAN SA KANTO â€¢ 8-PLAYER CHAOTIC STREET TAG"
-horizontal_alignment = 1
-
-[node name="BtnEnterTitle" type="Button" parent="TitleScreenUI/Center/VBox" unique_id=1605562095]
-custom_minimum_size = Vector2(0, 62)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 20
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_enter")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_3km4f")
-theme_override_styles/hover = ExtResource("8_qkm1d")
-text = "PUMASOK SA LOBBY >"
-
-[node name="BtnTitleSettings" type="Button" parent="TitleScreenUI/Center/VBox" unique_id=1605562099]
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.92, 1, 1)
-theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 15
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_enter")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_3km4f")
-theme_override_styles/hover = ExtResource("8_qkm1d")
-text = "SETTINGS / CONTROLS"
-
-[node name="PillsRow" type="HBoxContainer" parent="TitleScreenUI/Center/VBox" unique_id=757583456]
+[node name="ItemTara" type="HBoxContainer" parent="TitleScreenUI/LeftMenuMargin/MenuVBox" unique_id=620957032]
 layout_mode = 2
 theme_override_constants/separation = 12
-alignment = 1
 
-[node name="Pill1" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=529653573]
+[node name="Pointer" type="TextureRect" parent="TitleScreenUI/LeftMenuMargin/MenuVBox/ItemTara" unique_id=620957033]
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
-theme_override_colors/font_shadow_color = Color(1, 1, 1, 0)
-theme_override_colors/font_outline_color = Color(0.18039216, 0.039215688, 0.3019608, 0)
-theme_override_font_sizes/font_size = 14
-text = "TAYA"
+size_flags_vertical = 4
+texture = ExtResource("16_menu_pointer")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="Dot1" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=1898806757]
-layout_mode = 2
-text = "•"
-
-[node name="Pill2" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=1458544726]
-layout_mode = 2
-theme_override_colors/font_shadow_color = Color(0.078431375, 0.019607844, 0.14117648, 0)
-theme_override_colors/font_outline_color = Color(0.18039216, 0.039215688, 0.3019608, 0)
-theme_override_font_sizes/font_size = 14
-text = "TAKBO"
-
-[node name="Dot2" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=697553231]
-layout_mode = 2
-text = "•"
-
-[node name="Pill3" type="Label" parent="TitleScreenUI/Center/VBox/PillsRow" unique_id=1497282446]
-layout_mode = 2
-theme_override_colors/font_shadow_color = Color(0.078431375, 0.019607844, 0.14117648, 0)
-theme_override_colors/font_outline_color = Color(0.18039216, 0.039215688, 0.3019608, 0)
-theme_override_font_sizes/font_size = 14
-text = "HULI"
-
-[node name="Credits" type="Label" parent="TitleScreenUI/Center/VBox" unique_id=1579673086]
+[node name="BtnEnterTitle" type="Button" parent="TitleScreenUI/LeftMenuMargin/MenuVBox/ItemTara" unique_id=1605562095]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0.078431375, 0.019607844, 0.14117648, 0)
-theme_override_colors/font_outline_color = Color(0.18039216, 0.039215688, 0.3019608, 0)
-theme_override_font_sizes/font_size = 13
-text = "Team Fiery Fox • Philippine Street Games"
-horizontal_alignment = 1
+theme_override_colors/font_focus_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_hover_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.08, 0.06, 0.85)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_title_menu")
+text = "TARA"
+flat = true
+
+[node name="ItemGabay" type="HBoxContainer" parent="TitleScreenUI/LeftMenuMargin/MenuVBox" unique_id=620957034]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Pointer" type="TextureRect" parent="TitleScreenUI/LeftMenuMargin/MenuVBox/ItemGabay" unique_id=620957035]
+visible = false
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("16_menu_pointer")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BtnTitleGuide" type="Button" parent="TitleScreenUI/LeftMenuMargin/MenuVBox/ItemGabay" unique_id=1443828666]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.94, 0.9, 0.92)
+theme_override_colors/font_focus_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_hover_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.08, 0.06, 0.85)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_title_menu")
+text = "Gabay"
+flat = true
+
+[node name="ItemTindahan" type="HBoxContainer" parent="TitleScreenUI/LeftMenuMargin/MenuVBox" unique_id=620957036]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Pointer" type="TextureRect" parent="TitleScreenUI/LeftMenuMargin/MenuVBox/ItemTindahan" unique_id=620957037]
+visible = false
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("16_menu_pointer")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BtnTitleStore" type="Button" parent="TitleScreenUI/LeftMenuMargin/MenuVBox/ItemTindahan" unique_id=2110405365]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.94, 0.9, 0.92)
+theme_override_colors/font_focus_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_hover_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.08, 0.06, 0.85)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_title_menu")
+text = "Tindahan"
+flat = true
+
+[node name="ItemKagamitan" type="HBoxContainer" parent="TitleScreenUI/LeftMenuMargin/MenuVBox" unique_id=620957038]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Pointer" type="TextureRect" parent="TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKagamitan" unique_id=620957039]
+visible = false
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("16_menu_pointer")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BtnTitleCustomize" type="Button" parent="TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKagamitan" unique_id=1437374849]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.94, 0.9, 0.92)
+theme_override_colors/font_focus_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_hover_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.08, 0.06, 0.85)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_title_menu")
+text = "Kagamitan"
+flat = true
+
+[node name="ItemKontrol" type="HBoxContainer" parent="TitleScreenUI/LeftMenuMargin/MenuVBox" unique_id=620957040]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Pointer" type="TextureRect" parent="TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKontrol" unique_id=620957041]
+visible = false
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("16_menu_pointer")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BtnTitleSettings" type="Button" parent="TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKontrol" unique_id=1605562099]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.94, 0.9, 0.92)
+theme_override_colors/font_focus_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_hover_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.08, 0.06, 0.85)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_title_menu")
+text = "Kontrol"
+flat = true
+
+[node name="ItemQuit" type="HBoxContainer" parent="TitleScreenUI/LeftMenuMargin/MenuVBox" unique_id=620957042]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Pointer" type="TextureRect" parent="TitleScreenUI/LeftMenuMargin/MenuVBox/ItemQuit" unique_id=620957043]
+visible = false
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("16_menu_pointer")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BtnTitleQuit" type="Button" parent="TitleScreenUI/LeftMenuMargin/MenuVBox/ItemQuit" unique_id=1605562100]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.94, 0.9, 0.92)
+theme_override_colors/font_focus_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_hover_color = Color(1, 0.84, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.08, 0.06, 0.85)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_title_menu")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_title_menu")
+text = "Uwian na"
+flat = true
+
+[node name="SplashScreenUI" type="Control" parent="." unique_id=1998877665]
+process_mode = 3
+visible = false
+z_index = 140
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SplashBg" type="ColorRect" parent="SplashScreenUI" unique_id=1998877666]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="SplashCenter" type="CenterContainer" parent="SplashScreenUI" unique_id=1998877667]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SplashLogo" type="TextureRect" parent="SplashScreenUI/SplashCenter" unique_id=1998877668]
+custom_minimum_size = Vector2(460, 240)
+layout_mode = 2
+texture = ExtResource("13_splash_logo")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LoadingScreenUI" parent="." unique_id=1998877669 instance=ExtResource("14_loading_ui")]
 
 [node name="LobbyUI" parent="." unique_id=164774265 instance=ExtResource("11_lobby_ui")]
 visible = false
@@ -595,116 +787,221 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.75)
 
-[node name="PausePanel" type="PanelContainer" parent="PauseUI" unique_id=921803920]
-custom_minimum_size = Vector2(500, 400)
+[node name="PausePanel" type="CenterContainer" parent="PauseUI" unique_id=921803920]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -250.0
-offset_top = -200.0
-offset_right = 250.0
-offset_bottom = 200.0
+offset_left = -210.0
+offset_top = -260.0
+offset_right = 210.0
+offset_bottom = 260.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_lobby_bg")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PauseUI/PausePanel" unique_id=1663042859]
+[node name="PaperPad" type="TextureRect" parent="PauseUI/PausePanel" unique_id=1998877670]
+custom_minimum_size = Vector2(400, 520)
+layout_mode = 2
+texture = ExtResource("15_taympers_banner")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="MarginContainer" type="MarginContainer" parent="PauseUI/PausePanel/PaperPad" unique_id=1663042858]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 110.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_right = 32
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PauseUI/PausePanel/PaperPad/MarginContainer" unique_id=1663042859]
 layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="Title" type="Label" parent="PauseUI/PausePanel/VBoxContainer" unique_id=57034645]
+[node name="Title" type="Label" parent="PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer" unique_id=57034645]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.75)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0)
+theme_override_colors/font_color = Color(0.18, 0.12, 0.06, 1)
 theme_override_constants/outline_size = 0
-theme_override_font_sizes/font_size = 24
-text = "NAKAHINTO (PAUSED)"
+theme_override_font_sizes/font_size = 18
+text = "NAKAHINTO ANG LARO"
 horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="PauseUI/PausePanel/VBoxContainer" unique_id=1097176336]
+[node name="Subtitle" type="Label" parent="PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer" unique_id=1097176336]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.42, 0.32, 0.22, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 12
 text = "Batang Kalye: Tayaan sa Kanto"
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="PauseUI/PausePanel/VBoxContainer" unique_id=898086451]
+[node name="HSeparator" type="HSeparator" parent="PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer" unique_id=898086451]
 layout_mode = 2
 
-[node name="BtnResume" type="Button" parent="PauseUI/PausePanel/VBoxContainer" unique_id=584801688]
-custom_minimum_size = Vector2(0, 54)
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 16
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_start")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_start_hover")
-text = "IPAGPATULOY ANG LARO (Resume)"
-
-[node name="BtnSettings" type="Button" parent="PauseUI/PausePanel/VBoxContainer" unique_id=1160281938]
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 15
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
-text = "MGA SETTING (Audio / Mouse / FOV)"
-
-[node name="BtnPauseLobby" type="Button" parent="PauseUI/PausePanel/VBoxContainer" unique_id=1611994850]
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 15
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_solo_orange")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_solo_orange_hover")
-text = "BUMALIK SA LOBBY (Leave Match)"
-
-[node name="BtnPauseQuit" type="Button" parent="PauseUI/PausePanel/VBoxContainer" unique_id=1696186519]
+[node name="BtnResume" type="Button" parent="PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer" unique_id=584801688]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.16, 0.1, 0.04, 1)
+theme_override_colors/font_focus_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_colors/font_pressed_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_colors/font_hover_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_warm_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_warm_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_warm_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_warm_btn_focus")
+text = "IPAGPATULOY ANG LARO (Resume)"
+
+[node name="BtnSettings" type="Button" parent="PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer" unique_id=1160281938]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.16, 0.1, 0.04, 1)
+theme_override_colors/font_focus_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_colors/font_pressed_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_colors/font_hover_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_quit")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_quit_hover")
+theme_override_styles/normal = SubResource("StyleBoxFlat_warm_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_warm_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_warm_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_warm_btn_focus")
+text = "MGA SETTING (Audio / Mouse / FOV)"
+
+[node name="BtnPauseLobby" type="Button" parent="PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer" unique_id=1611994850]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.16, 0.1, 0.04, 1)
+theme_override_colors/font_focus_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_colors/font_pressed_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_colors/font_hover_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_warm_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_warm_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_warm_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_warm_btn_focus")
+text = "BUMALIK SA LOBBY (Leave Match)"
+
+[node name="BtnPauseQuit" type="Button" parent="PauseUI/PausePanel/PaperPad/MarginContainer/VBoxContainer" unique_id=1696186519]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.16, 0.1, 0.04, 1)
+theme_override_colors/font_focus_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_colors/font_pressed_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_colors/font_hover_color = Color(0.12, 0.07, 0.02, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_warm_btn_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_warm_btn_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_warm_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_warm_btn_focus")
 text = "LUMABAS SA LARO (Quit Game)"
 
-[node name="SettingsPanel" type="PanelContainer" parent="PauseUI" unique_id=1947730561]
+[node name="SettingsPanel" type="Control" parent="PauseUI" unique_id=1947730561]
 visible = false
-custom_minimum_size = Vector2(560, 520)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="KontrolBg" type="TextureRect" parent="PauseUI/SettingsPanel" unique_id=1947730562]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("18_kontrol_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="BtnCloseTop" type="TextureButton" parent="PauseUI/SettingsPanel" unique_id=1947730563]
+custom_minimum_size = Vector2(44, 44)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -280.0
-offset_top = -260.0
-offset_right = 280.0
-offset_bottom = 260.0
+offset_left = 370.0
+offset_top = -285.0
+offset_right = 414.0
+offset_bottom = -241.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_lobby_bg")
+focus_mode = 0
+texture_normal = ExtResource("19_no_close")
+texture_pressed = ExtResource("20_no_close_tap")
+ignore_texture_size = true
+stretch_mode = 5
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PauseUI/SettingsPanel" unique_id=996433797]
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -240.0
+offset_right = 340.0
+offset_bottom = 270.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 10
 alignment = 1
 
 [node name="Title" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=1339272570]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 22
-text = "MGA SETTING NG LARO"
+theme_type_variation = &"LabelHeader"
+theme_override_colors/font_color = Color(1, 0.88, 0.4, 1)
+theme_override_font_sizes/font_size = 24
+text = "MGA KONTROL AT SETTING"
 horizontal_alignment = 1
+
+[node name="TabRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=996433798]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="BtnTabGrapiks" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/TabRow" unique_id=996433799]
+custom_minimum_size = Vector2(130, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.12, 0.04, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_tab_active")
+text = "GRAPIKS"
+
+[node name="BtnTabTunog" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/TabRow" unique_id=996433800]
+custom_minimum_size = Vector2(130, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.22, 0.12, 0.9)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_tab_inactive")
+text = "TUNOG"
+
+[node name="BtnTabKontrol" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/TabRow" unique_id=996433801]
+custom_minimum_size = Vector2(130, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.22, 0.12, 0.9)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_tab_inactive")
+text = "KONTROL"
 
 [node name="HSeparator" type="HSeparator" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=369862798]
 layout_mode = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=369862799]
-custom_minimum_size = Vector2(0, 380)
+custom_minimum_size = Vector2(0, 360)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
@@ -716,7 +1013,6 @@ theme_override_constants/separation = 10
 
 [node name="PresetHeader" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862801]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
 theme_override_font_sizes/font_size = 14
 text = "MABILISANG GRAPHICS PRESET:"
 
@@ -728,35 +1024,29 @@ theme_override_constants/separation = 8
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_type_variation = &"BtnTab"
 theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
 text = "MABABA (Tipid)"
 
 [node name="BtnPresetMed" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow" unique_id=369862804]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_type_variation = &"BtnTab"
 theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
 text = "BALANSE"
 
 [node name="BtnPresetHigh" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow" unique_id=369862805]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_type_variation = &"BtnTab"
 theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_host_blue")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_host_blue_hover")
 text = "MATAAS"
 
 [node name="PresetSubLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862806]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.82, 0.9, 1)
+theme_type_variation = &"LabelSmall"
 theme_override_font_sizes/font_size = 11
 text = "Inirerekomenda ang 'MABABA' para sa Realme 6 at Honor Pad 10 upang maalis ang lag!"
 
@@ -765,7 +1055,6 @@ layout_mode = 2
 
 [node name="GfxHeader" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862808]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
 theme_override_font_sizes/font_size = 14
 text = "DETALYADONG GRAPHICS (Custom Tuning):"
 
@@ -774,6 +1063,7 @@ layout_mode = 2
 
 [node name="ScaleLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/ScaleRow" unique_id=369862810]
 layout_mode = 2
+theme_type_variation = &"LabelSmall"
 theme_override_font_sizes/font_size = 13
 text = "3D Render Scale: 75% (Mas mababa = mas mabilis)"
 
@@ -809,6 +1099,7 @@ layout_mode = 2
 [node name="FpsLimitLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FpsLimitRow" unique_id=369862817]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"LabelSmall"
 theme_override_font_sizes/font_size = 13
 text = "Limit sa Framerate (FPS):"
 
@@ -830,6 +1121,7 @@ layout_mode = 2
 [node name="AaLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/AaRow" unique_id=369862820]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"LabelSmall"
 theme_override_font_sizes/font_size = 13
 text = "Anti-Aliasing (Pakinis ng Gilid):"
 
@@ -857,7 +1149,6 @@ layout_mode = 2
 
 [node name="AudioHeader" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=369862825]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
 theme_override_font_sizes/font_size = 14
 text = "TUNOG AT KONTROL:"
 
@@ -866,6 +1157,7 @@ layout_mode = 2
 
 [node name="VolumeLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VolumeRow" unique_id=559263539]
 layout_mode = 2
+theme_type_variation = &"LabelSmall"
 theme_override_font_sizes/font_size = 13
 text = "Master Volume: 100%"
 
@@ -875,11 +1167,57 @@ max_value = 1.0
 step = 0.05
 value = 1.0
 
+[node name="MusicVolumeRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=812128453]
+layout_mode = 2
+
+[node name="MusicVolumeLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/MusicVolumeRow" unique_id=1934952738]
+layout_mode = 2
+theme_type_variation = &"LabelSmall"
+theme_override_font_sizes/font_size = 13
+text = "Music Volume (Tugtog sa Kalye): 80%"
+
+[node name="MusicVolumeSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/MusicVolumeRow" unique_id=1047508444]
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 0.8
+
+[node name="SfxVolumeRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=1812460250]
+layout_mode = 2
+
+[node name="SfxVolumeLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SfxVolumeRow" unique_id=1725549619]
+layout_mode = 2
+theme_type_variation = &"LabelSmall"
+theme_override_font_sizes/font_size = 13
+text = "SFX Volume (Yabag at Hampas): 100%"
+
+[node name="SfxVolumeSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SfxVolumeRow" unique_id=1096336133]
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 1.0
+
+[node name="AmbienceVolumeRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=2003500875]
+layout_mode = 2
+
+[node name="AmbienceVolumeLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/AmbienceVolumeRow" unique_id=1998467234]
+layout_mode = 2
+theme_type_variation = &"LabelSmall"
+theme_override_font_sizes/font_size = 13
+text = "Ambience Volume (Huni ng Barangay): 85%"
+
+[node name="AmbienceVolumeSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/AmbienceVolumeRow" unique_id=781638017]
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 0.85
+
 [node name="SensitivityRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=892305881]
 layout_mode = 2
 
 [node name="SensitivityLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/SensitivityRow" unique_id=1029384756]
 layout_mode = 2
+theme_type_variation = &"LabelSmall"
 theme_override_font_sizes/font_size = 13
 text = "Mouse / Touch Sensitivity: 2.5"
 
@@ -895,8 +1233,9 @@ layout_mode = 2
 
 [node name="FovLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow" unique_id=192837467]
 layout_mode = 2
+theme_type_variation = &"LabelSmall"
 theme_override_font_sizes/font_size = 13
-text = "Field of View (FOV): 75Â°"
+text = "Field of View (FOV): 75°"
 
 [node name="FovSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/FovRow" unique_id=192837468]
 layout_mode = 2
@@ -904,38 +1243,39 @@ min_value = 60.0
 max_value = 110.0
 value = 75.0
 
-[node name="HSep3" type="HSeparator" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent"]
+[node name="HSep3" type="HSeparator" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=857252181]
 layout_mode = 2
 
-[node name="MobileHeader" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent"]
+[node name="MobileHeader" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=768102730]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.92, 0.96, 1)
 theme_override_font_sizes/font_size = 14
 text = "MOBILE / TOUCH KONTROL:"
 
-[node name="VibrationRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent"]
+[node name="VibrationRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=1875432574]
 layout_mode = 2
 
-[node name="VibrationLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VibrationRow"]
+[node name="VibrationLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VibrationRow" unique_id=727919572]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"LabelSmall"
 theme_override_font_sizes/font_size = 13
 text = "Vibration / Haptic Feedback:"
 
-[node name="VibrationCheck" type="CheckButton" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VibrationRow"]
+[node name="VibrationCheck" type="CheckButton" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/VibrationRow" unique_id=33919272]
 layout_mode = 2
 button_pressed = true
 
-[node name="JoystickStyleRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent"]
+[node name="JoystickStyleRow" type="HBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=1322282678]
 layout_mode = 2
 
-[node name="JoystickStyleLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/JoystickStyleRow"]
+[node name="JoystickStyleLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/JoystickStyleRow" unique_id=1623212199]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"LabelSmall"
 theme_override_font_sizes/font_size = 13
 text = "Istilo ng Joystick:"
 
-[node name="JoystickStyleOption" type="OptionButton" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/JoystickStyleRow"]
+[node name="JoystickStyleOption" type="OptionButton" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/JoystickStyleRow" unique_id=99889866]
 custom_minimum_size = Vector2(170, 36)
 layout_mode = 2
 selected = 0
@@ -945,15 +1285,16 @@ popup/item_0/id = 0
 popup/item_1/text = "Nakatutok (Fixed)"
 popup/item_1/id = 1
 
-[node name="UiScaleRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent"]
+[node name="UiScaleRow" type="VBoxContainer" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent" unique_id=1359905230]
 layout_mode = 2
 
-[node name="UiScaleLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/UiScaleRow"]
+[node name="UiScaleLabel" type="Label" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/UiScaleRow" unique_id=1390854567]
 layout_mode = 2
+theme_type_variation = &"LabelSmall"
 theme_override_font_sizes/font_size = 13
 text = "Laki ng Touch Pindutan: 100%"
 
-[node name="UiScaleSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/UiScaleRow"]
+[node name="UiScaleSlider" type="HSlider" parent="PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/UiScaleRow" unique_id=376283466]
 layout_mode = 2
 min_value = 0.7
 max_value = 1.3
@@ -966,11 +1307,11 @@ layout_mode = 2
 [node name="BtnCloseSettings" type="Button" parent="PauseUI/SettingsPanel/VBoxContainer" unique_id=192837469]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_type_variation = &"BtnPrimary"
 theme_override_font_sizes/font_size = 15
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_start")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_start_hover")
 text = "< ISARA AT ILAPAT (Save & Close)"
+
+[node name="UwianNaUI" parent="." unique_id=771122334 instance=ExtResource("17_uwian_ui")]
 
 [node name="GameOverUI" parent="." unique_id=10928137 instance=ExtResource("10_game_over_ui")]
 visible = false
@@ -984,8 +1325,6 @@ offset_left = 16.0
 offset_top = 14.0
 offset_right = 160.0
 offset_bottom = 38.0
-theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
-theme_override_constants/outline_size = 4
+theme_override_colors/font_color = Color(0.54509807, 0.9411765, 0.41568628, 1)
 theme_override_font_sizes/font_size = 14
 text = "FPS: 60"

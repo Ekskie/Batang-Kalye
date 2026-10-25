@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://jqly21k712qi"
+path="res://.godot/imported/Voice Over_Lines 1 - Aray (3).wav-c218d70aa9ae808538fd851ba9059363.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/Voice Packs/Female 2/Aray/Voice Over_Lines 1 - Aray (3).wav"
+dest_files=["res://.godot/imported/Voice Over_Lines 1 - Aray (3).wav-c218d70aa9ae808538fd851ba9059363.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

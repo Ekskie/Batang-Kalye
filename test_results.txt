@@ -1,10 +1,27 @@
-[NETCODE-VERIFICATION] Starting Milestone 1 Netcode & 24-Player Scaling tests...
-[PASS] NetworkManager.MAX_PLAYERS == 24.
-[PASS] PlayerController constants: 25Hz tick rate, 8-snapshot buffer capacity.
-[PASS] Snapshot ring buffer chronological sorting and size bounds verified.
-[PASS] Cubic Hermite Spline calculation verified.
-[PASS] KalyeMap contains 24 spawn markers.
-[PASS] 24 player spawn points procedurally scattered without overlaps.
-[PASS] LobbyUI 24-player slots verified.
-[PASS] HUD scoreboard 24-player rendering verified.
-[ALL NETCODE & 24-PLAYER SCALING TESTS PASSED!]
+[PLATFORM-OVERHAUL-VERIFICATION] Starting comprehensive platform upgrade tests...
+[PLATFORM-TEST] Testing Parkour Vaulting Movement & Obstacle Trajectory...
+[PASS] Initial vaulting state is false.
+[PASS] Vault state engaged; Bezier trajectory calculated (start->apex->end).
+[PASS] Mid-vault quadratic Bezier displacement computed cleanly.
+[PASS] Vault completed with preserved sprint forward momentum (vel=11.50 m/s).
+[PASS] MobileControls dynamic TALON <-> VAULT contextual button verified.
+[PLATFORM-TEST] Testing In-Game Pause Non-Freezing Simulation & Gravity Deceleration...
+[PASS] Player gravity and falling physics operate continuously while pause menu is open (landed normally).
+[PASS] Gameplay actions (jump, vault, dash, slide) strictly locked out during pause.
+[PASS] Dual stamina recovers naturally while standing idle during pause.
+[PASS] match_timer continues ticking in real-time during pause menu.
+[PASS] Unpausing maintains grounded stability without sky launching.
+[PASS] Pause menu overlay cleanly resumed with cursor recaptured.
+[PLATFORM-TEST] Testing Modular Game Modes (BaseGameMode architecture)...
+[PASS] 3 Modular Game Modes verified: Pasa-Taya (Matira Matibay), Infected Base, Normal Taayan.
+[PLATFORM-TEST] Testing VoteManager server-authoritative voting & tie resolution...
+[PASS] Live vote tallying verified: Infection=2, Pasa-Taya=1.
+[PASS] Winning mode resolved correctly to Infection.
+[PASS] VoteManager tie-breaker resolved cleanly (Selected: 0).
+[PLATFORM-TEST] Testing 3D Social Lobby State & Persistent Session Loop...
+[PASS] Persistent return to 3D Social Lobby verified without disconnecting peers.
+[PASS] Player roles, elimination status, and dual stamina reset for Social Lobby.
+[PASS] Social emote triggered with floating popup in Social Lobby.
+[PASS] Floating name tags visible for peers up to 20m in 3D Social Lobby.
+[PASS] Round 2 vote transition invoked cleanly.
+[ALL PLATFORM OVERHAUL TESTS PASSED!] ZERO RUNTIME ERRORS DETECTED!

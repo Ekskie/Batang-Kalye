@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://orvo77tiemhy"
+path="res://.godot/imported/New Project - Taya (2).wav-04119e4e9245de42423f814e2498c1a3.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/Voice Packs/Male 2/Taya!/New Project - Taya (2).wav"
+dest_files=["res://.godot/imported/New Project - Taya (2).wav-04119e4e9245de42423f814e2498c1a3.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

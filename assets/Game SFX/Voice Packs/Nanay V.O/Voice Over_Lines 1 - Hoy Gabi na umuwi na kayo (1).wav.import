@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://d4hckql0moy5d"
+path="res://.godot/imported/Voice Over_Lines 1 - Hoy Gabi na umuwi na kayo (1).wav-f62740c8ce2d51b2998deb2576511a7a.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/Voice Packs/Nanay V.O/Voice Over_Lines 1 - Hoy Gabi na umuwi na kayo (1).wav"
+dest_files=["res://.godot/imported/Voice Over_Lines 1 - Hoy Gabi na umuwi na kayo (1).wav-f62740c8ce2d51b2998deb2576511a7a.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

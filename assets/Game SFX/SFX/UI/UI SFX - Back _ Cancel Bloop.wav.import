@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://daypsq0fn2sp8"
+path="res://.godot/imported/UI SFX - Back _ Cancel Bloop.wav-cb4a3a583a2205ad2d1b4f8a3d0216b4.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/SFX/UI/UI SFX - Back _ Cancel Bloop.wav"
+dest_files=["res://.godot/imported/UI SFX - Back _ Cancel Bloop.wav-cb4a3a583a2205ad2d1b4f8a3d0216b4.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

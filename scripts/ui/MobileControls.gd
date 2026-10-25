@@ -27,21 +27,34 @@ var current_preset: int = LayoutPreset.DEFAULT
 @onready var left_touch_zone: Control = $LeftTouchZone
 @onready var camera_touch_zone: Control = $RightTouchZone
 @onready var action_buttons: Control = $ActionButtons
-@onready var btn_jump: Button = $ActionButtons/BtnJump
-var jump_label: Button:
-	get: return btn_jump
-@onready var btn_sprint: Button = $ActionButtons/BtnSprint
-@onready var btn_slide: Button = $ActionButtons/BtnSlide
-@onready var btn_dash: Button = $ActionButtons/BtnDash
-@onready var btn_tag: Button = $ActionButtons/BtnTag
-@onready var btn_interact: Button = get_node_or_null("ActionButtons/BtnInteract")
-@onready var btn_drop: Button = get_node_or_null("ActionButtons/BtnDrop")
-@onready var btn_item: Button = get_node_or_null("ActionButtons/BtnItem")
+@onready var btn_jump: BaseButton = $ActionButtons/BtnJump
+class JumpLabelProxy:
+	var _ui: Node
+	func _init(ui: Node):
+		_ui = ui
+	var text: String:
+		get:
+			if _ui and "is_vault_available" in _ui and _ui.is_vault_available:
+				return "VAULT"
+			return "TALON"
+		set(_val):
+			pass
+
+var jump_label: JumpLabelProxy:
+	get:
+		return JumpLabelProxy.new(self)
+@onready var btn_sprint: BaseButton = $ActionButtons/BtnSprint
+@onready var btn_slide: BaseButton = $ActionButtons/BtnSlide
+@onready var btn_dash: BaseButton = $ActionButtons/BtnDash
+@onready var btn_tag: BaseButton = $ActionButtons/BtnTag
+@onready var btn_interact: BaseButton = get_node_or_null("ActionButtons/BtnInteract")
+@onready var btn_drop: BaseButton = get_node_or_null("ActionButtons/BtnDrop")
+@onready var btn_item: BaseButton = get_node_or_null("ActionButtons/BtnItem")
 
 # Spectator Controls
 @onready var spectator_controls: Control = get_node_or_null("SpectatorControls")
-@onready var btn_prev_spectate: Button = get_node_or_null("SpectatorControls/BtnPrevSpectate")
-@onready var btn_next_spectate: Button = get_node_or_null("SpectatorControls/BtnNextSpectate")
+@onready var btn_prev_spectate: BaseButton = get_node_or_null("SpectatorControls/BtnPrevSpectate")
+@onready var btn_next_spectate: BaseButton = get_node_or_null("SpectatorControls/BtnNextSpectate")
 
 var camera_touch_id: int = -1
 var is_sprinting: bool = false
@@ -50,7 +63,7 @@ var is_vault_available: bool = false
 
 func _ready() -> void:
 	add_to_group("mobile_controls")
-	var buttons: Array[Button] = [btn_jump, btn_sprint, btn_slide, btn_dash, btn_tag, btn_interact, btn_drop, btn_item]
+	var buttons: Array[BaseButton] = [btn_jump, btn_sprint, btn_slide, btn_dash, btn_tag, btn_interact, btn_drop, btn_item]
 	if btn_prev_spectate: buttons.append(btn_prev_spectate)
 	if btn_next_spectate: buttons.append(btn_next_spectate)
 	
@@ -62,7 +75,8 @@ func _ready() -> void:
 		btn_jump.pressed.connect(func():
 			if is_vault_available:
 				vault_pressed.emit()
-			jump_pressed.emit()
+			else:
+				jump_pressed.emit()
 		)
 	if btn_sprint:
 		btn_sprint.toggled.connect(_on_sprint_toggled)
@@ -110,7 +124,7 @@ func trigger_haptic(duration_ms: int = 18) -> void:
 	if Input.has_method("vibrate_handheld"):
 		Input.vibrate_handheld(duration_ms)
 
-func _setup_button_juice(btn: Button) -> void:
+func _setup_button_juice(btn: BaseButton) -> void:
 	btn.pivot_offset = btn.custom_minimum_size * 0.5
 	btn.button_down.connect(func():
 		trigger_haptic(18)
@@ -122,14 +136,23 @@ func _setup_button_juice(btn: Button) -> void:
 		tw.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.12)
 	)
 
+func _set_button_label(btn: BaseButton, txt: String) -> void:
+	if not btn: return
+	var b := btn.get_node_or_null("Badge") as Label
+	if b:
+		b.text = txt
+		b.visible = not txt.is_empty()
+	elif "text" in btn:
+		btn.set("text", txt)
+
 func _on_sprint_toggled(button_pressed: bool) -> void:
 	is_sprinting = button_pressed
 	sprint_toggled.emit(is_sprinting)
 	if is_sprinting:
-		btn_sprint.text = "SPRINTING"
+		_set_button_label(btn_sprint, "RUN")
 		btn_sprint.modulate = Color(1.0, 0.92, 0.45, 1.0)
 	else:
-		btn_sprint.text = "SPRINT"
+		_set_button_label(btn_sprint, "")
 		btn_sprint.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 func set_sprint_disabled(disabled: bool) -> void:
@@ -137,14 +160,14 @@ func set_sprint_disabled(disabled: bool) -> void:
 		if disabled:
 			btn_sprint.button_pressed = false
 			is_sprinting = false
-			btn_sprint.text = "PAGOD"
+			_set_button_label(btn_sprint, "PAGOD")
 			btn_sprint.modulate = Color(0.65, 0.65, 0.65, 0.5)
 			btn_sprint.disabled = true
 		else:
 			if btn_sprint.disabled:
 				btn_sprint.disabled = false
 				btn_sprint.modulate = Color(1.0, 1.0, 1.0, 1.0)
-				btn_sprint.text = "SPRINT"
+				_set_button_label(btn_sprint, "")
 
 func _on_camera_zone_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
@@ -164,7 +187,7 @@ func set_tag_button_highlight(is_taya: bool) -> void:
 	if btn_tag:
 		if is_taya:
 			btn_tag.visible = true
-			btn_tag.text = "HAMPAS"
+			_set_button_label(btn_tag, "")
 			btn_tag.modulate = Color(1.0, 1.0, 1.0, 1.0)
 		else:
 			btn_tag.visible = false
@@ -175,31 +198,31 @@ func on_powerup_changed(powerup_type: int, _duration_left: float, charges: int) 
 func update_powerup_buttons(powerup_type: int, dash_charges: int) -> void:
 	if btn_dash:
 		if powerup_type == 1 and dash_charges > 0: # DASH
-			btn_dash.text = "DASH (%d)" % dash_charges
+			_set_button_label(btn_dash, "%d" % dash_charges)
 			btn_dash.modulate = Color(0.6, 0.9, 1.0, 1.0)
 		else:
-			btn_dash.text = "DASH"
+			_set_button_label(btn_dash, "")
 			btn_dash.modulate = Color(0.65, 0.65, 0.65, 0.4)
 
 	if btn_jump:
 		if is_vault_available:
-			btn_jump.text = "VAULT"
+			_set_button_label(btn_jump, "VAULT")
 			btn_jump.modulate = Color(1.0, 0.88, 0.25)
 		elif powerup_type == 3: # DOUBLE_JUMP
-			btn_jump.text = "2x TALON"
+			_set_button_label(btn_jump, "2x")
 			btn_jump.modulate = Color(0.7, 1.0, 0.8, 1.0)
 		else:
-			btn_jump.text = "TALON"
+			_set_button_label(btn_jump, "")
 			btn_jump.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 func set_vault_available(available: bool) -> void:
 	is_vault_available = available
 	if btn_jump:
 		if is_vault_available:
-			btn_jump.text = "VAULT"
+			_set_button_label(btn_jump, "VAULT")
 			btn_jump.modulate = Color(1.0, 0.88, 0.25)
 		else:
-			btn_jump.text = "TALON"
+			_set_button_label(btn_jump, "")
 			btn_jump.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 # --- Contextual Interaction Prompt for Mobile ---
@@ -207,7 +230,7 @@ func set_interact_prompt(p_visible: bool, _icon: String, action_text: String) ->
 	if btn_interact:
 		btn_interact.visible = p_visible
 		if p_visible:
-			btn_interact.text = action_text.to_upper()
+			_set_button_label(btn_interact, action_text.to_upper())
 
 func set_drop_button_visible(p_visible: bool) -> void:
 	if btn_drop:
@@ -217,7 +240,7 @@ func set_item_button_visible(p_visible: bool, item_name: String = "BATO") -> voi
 	if btn_item:
 		btn_item.visible = p_visible
 		if p_visible:
-			btn_item.text = item_name.to_upper()
+			_set_button_label(btn_item, item_name.to_upper())
 
 func set_spectator_mode(active: bool) -> void:
 	is_spectator = active
@@ -232,10 +255,10 @@ func set_tag_in_range(in_range: bool) -> void:
 	if not btn_tag or not btn_tag.visible or is_spectator:
 		return
 	if in_range:
-		btn_tag.text = "🔥 HAMPASIN!"
+		_set_button_label(btn_tag, "🔥")
 		btn_tag.modulate = Color(1.0, 0.9, 0.2, 1.0)
 	else:
-		btn_tag.text = "HAMPAS"
+		_set_button_label(btn_tag, "")
 		btn_tag.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 func set_layout_preset(preset: int) -> void:

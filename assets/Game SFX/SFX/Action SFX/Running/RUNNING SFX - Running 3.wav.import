@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://6dkb2cr2kj7v"
+path="res://.godot/imported/RUNNING SFX - Running 3.wav-9c15cdf52527a827b046f1b05f46b010.sample"
+
+[deps]
+
+source_file="res://assets/Game SFX/SFX/Action SFX/Running/RUNNING SFX - Running 3.wav"
+dest_files=["res://.godot/imported/RUNNING SFX - Running 3.wav-9c15cdf52527a827b046f1b05f46b010.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

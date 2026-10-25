@@ -79,9 +79,9 @@ func _physics_process(delta: float) -> void:
 	else:
 		if current_role == Role.RUNNER:
 			_process_runner_ai(delta)
-			_process_scoring(delta)
 		else:
 			_process_chaser_ai(delta)
+		_process_scoring(delta)
 
 		# Banter
 		if ai_banter_timer <= 0.0:
@@ -108,6 +108,8 @@ func _physics_process(delta: float) -> void:
 		model.is_slipping = is_slipping or (is_stunned and stun_timer > 0.0)
 		model.is_stunned = is_stunned and stun_timer > 0.0
 		model.has_superspeed = false
+		if "turn_lean" in model:
+			model.turn_lean = turn_lean_angle
 		model.animate(delta, horizontal_speed, is_on_floor(), current_max)
 
 func _trigger_bot_banter() -> void:
