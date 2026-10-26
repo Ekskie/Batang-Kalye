@@ -11,6 +11,7 @@ signal choice_made(choice: int)
 @onready var panel: PanelContainer = get_node_or_null("CenterContainer/Panel")
 
 var selected_choice: int = -1
+var _has_played_unison: bool = false
 
 func _ready() -> void:
 	visible = false
@@ -48,9 +49,17 @@ func show_chant(text: String) -> void:
 	if result_label:
 		result_label.visible = false
 
-	var am = get_node_or_null("/root/AudioManager")
-	if am and am.has_method("play_maiba_taya_unison"):
-		am.play_maiba_taya_unison()
+	var am = get_node_or_null("/root/AudioManager") if is_inside_tree() else null
+	var t_lower := text.to_lower()
+	var is_final_count := t_lower.contains("taya") or t_lower.contains("1") or t_lower.begins_with("1")
+	if is_final_count:
+		if not _has_played_unison:
+			_has_played_unison = true
+			if am and am.has_method("play_maiba_taya_unison"):
+				am.play_maiba_taya_unison()
+	else:
+		if am and am.has_method("play_sfx") and am.get("sfx_tick"):
+			am.play_sfx(am.sfx_tick, 1.1)
 
 	if chant_label:
 		chant_label.visible = true
@@ -62,6 +71,7 @@ func show_chant(text: String) -> void:
 
 func request_choice(_time_limit: float) -> void:
 	selected_choice = -1
+	_has_played_unison = false
 	if choice_container:
 		choice_container.visible = true
 		choice_container.scale = Vector2(0.85, 0.85)
@@ -76,7 +86,7 @@ func request_choice(_time_limit: float) -> void:
 
 func _choose(choice: int) -> void:
 	selected_choice = choice
-	var am = get_node_or_null("/root/AudioManager")
+	var am = get_node_or_null("/root/AudioManager") if is_inside_tree() else null
 	if am and am.has_method("play_ui_pop"):
 		am.play_ui_pop()
 	if btn_palm_up:

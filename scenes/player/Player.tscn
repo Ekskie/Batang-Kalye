@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bcsv8adfaov6b" path="res://scripts/player/PlayerController.gd" id="1_controller"]
 [ext_resource type="PackedScene" uid="uid://c8m8q44j5kd0q" path="res://scenes/player/CharacterModel.tscn" id="2_model"]
-[ext_resource type="PackedScene" path="res://scenes/ui/MobileControlsUI.tscn" id="3_mobile_ui"]
+[ext_resource type="PackedScene" uid="uid://3i3bgownspa" path="res://scenes/ui/MobileControlsUI.tscn" id="3_mobile_ui"]
 [ext_resource type="PackedScene" path="res://scenes/ui/TagPointerUI.tscn" id="4_pointer"]
 [ext_resource type="Material" path="res://assets/materials/mat_powerup_aura.tres" id="5_aura_mat"]
 
@@ -70,8 +70,7 @@ margin = 0.15
 fov = 72.0
 
 [node name="NameLabel" type="Label3D" parent="." unique_id=1860020287]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85, 0)
-visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1326108, 0)
 billboard = 1
 text = "Batang Kalye"
 font_size = 20

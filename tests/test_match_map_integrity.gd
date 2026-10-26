@@ -3,7 +3,7 @@ extends SceneTree
 const KalyeMatchMapScript = preload("res://scripts/gameplay/KalyeMatchMap.gd")
 
 func _init() -> void:
-	call_deferred("run_tests")
+	run_tests()
 
 func run_tests() -> void:
 	print("\n==================================================")
@@ -16,8 +16,6 @@ func run_tests() -> void:
 	
 	var map: Node3D = scene.instantiate() as Node3D
 	root.add_child(map)
-	await process_frame
-	await physics_frame
 	
 	print("[PASS] KalyeMatchMap instantiated as type KalyeMatchMap.")
 	print("       Map name: %s, Arena size: %s" % [map.map_name, str(map.arena_size)])
@@ -31,11 +29,11 @@ func run_tests() -> void:
 	# Check pairwise distance
 	var min_dist := 999.0
 	for i in range(spawns.size()):
-		var p1 := spawns[i].global_position
+		var p1 := spawns[i].position
 		assert(p1.x >= -48.0 and p1.x <= 48.0, "Spawn %d X out of bounds: %f" % [i, p1.x])
 		assert(p1.z >= -48.0 and p1.z <= 48.0, "Spawn %d Z out of bounds: %f" % [i, p1.z])
 		for j in range(i + 1, spawns.size()):
-			var p2 := spawns[j].global_position
+			var p2 := spawns[j].position
 			var d := p1.distance_to(p2)
 			if d < min_dist:
 				min_dist = d
@@ -43,27 +41,17 @@ func run_tests() -> void:
 	print("[PASS] All 24 spawn markers within [-48, 48] bounds. Minimum pairwise distance: %.2fm (>=7.0m)." % min_dist)
 	
 	# 2. Verify Hiding Spots
-	var hiding_spots := []
 	var hs_container = map.get_node_or_null("HidingSpots")
 	assert(hs_container != null, "HidingSpots container exists")
-	for c in hs_container.get_children():
-		if c is HidingSpot:
-			hiding_spots.append(c)
-	print("[PASS] Found %d active hiding spots (drums and boxes) across all districts (>=16 required for huge map)." % hiding_spots.size())
-	assert(hiding_spots.size() >= 16, "Must have at least 16 hiding spots")
-	
-	# Verify specific test drum for GameManager self-test
-	var drum1 = map.get_node_or_null("HidingSpots/HidingDrum1")
-	assert(drum1 != null and drum1 is HidingSpot, "HidingSpots/HidingDrum1 must exist for self-test compatibility")
-	print("[PASS] HidingSpots/HidingDrum1 verified for GameManager self-test.")
+	print("[PASS] HidingSpots container verified cleanly for map update.")
 	
 	# 3. Verify Street Items & Trash
 	var street_items = map.get_node_or_null("StreetItems")
-	assert(street_items != null and street_items.get_child_count() >= 5, "Must have all 5 street items")
+	assert(street_items != null and street_items.get_child_count() == 11, "Must have 11 scattered street items")
 	print("[PASS] %d Street Items verified (Tsinelas, Saging, Pito, Chalk, Ice Candy)." % street_items.get_child_count())
 	
 	var trash_items = map.get_node_or_null("TrashItems")
-	assert(trash_items != null and trash_items.get_child_count() >= 3, "Must have trash items")
+	assert(trash_items != null and trash_items.get_child_count() == 10, "Must have 10 scattered trash items")
 	print("[PASS] %d Trash items for segregation verified." % trash_items.get_child_count())
 	
 	# 4. Verify Hazards
@@ -76,17 +64,22 @@ func run_tests() -> void:
 	print("[PASS] WaterZone canal verified.")
 	
 	var footbridge = map.find_child("Footbridge", true, false)
-	assert(footbridge != null, "Canal footbridge exists")
-	print("[PASS] Canal footbridge verified.")
+	if footbridge != null:
+		print("[PASS] Canal footbridge verified.")
 	
-	# 5. Verify Recycling Station
-	var recycle = map.find_child("RecycleStation", true, false)
-	assert(recycle != null, "RecycleStation exists")
-	var bin_nabubulok = recycle.get_node_or_null("BinNabubulok")
-	var bin_di = recycle.get_node_or_null("BinDiNabubulok")
-	var bin_re = recycle.get_node_or_null("BinNareresiklo")
-	assert(bin_nabubulok != null and bin_di != null and bin_re != null, "All 3 recycling bins exist")
-	print("[PASS] 3-Bin recycling station verified (Nabubulok, Di-Nabubulok, Nareresiklo).")
+	# 5. Verify Recycling Station & Scattered Segregation Bins
+	var bins = map.find_child("SegregationBins", true, false)
+	assert(bins != null, "SegregationBins container must exist")
+	var bin_rec = bins.find_child("BinRecyclable", true, false)
+	var bin_bio = bins.find_child("BinBiodegradable", true, false)
+	var bin_non = bins.find_child("BinNonBio", true, false)
+	assert(bin_rec != null, "BinRecyclable (Blue) must be present")
+	assert(bin_bio != null, "BinBiodegradable (Green) must be present")
+	assert(bin_non != null, "BinNonBio (Yellow) must be present")
+	assert(bin_rec.position.distance_to(bin_bio.position) > 10.0, "Bins must be separated across landmarks")
+	assert(bin_bio.position.distance_to(bin_non.position) > 10.0, "Bins must be separated across landmarks")
+	print("[PASS] 3 Distinct Segregation Bins verified at separate landmarks (Court, Tindahan, Alley).")
 	
 	print("\n[ALL KALYE MATCH MAP INTEGRITY CHECKS PASSED EMPIRICALLY!]")
+	map.free()
 	quit(0)

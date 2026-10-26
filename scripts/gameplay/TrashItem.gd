@@ -35,15 +35,44 @@ var respawn_timer: float = 0.0
 @onready var pickup_particles: CPUParticles3D = get_node_or_null("PickupParticles")
 
 var anim_time: float = 0.0
-var base_y: float = 0.35
+var base_y: float = 0.03
+var is_flooded: bool = false
+var target_water_y: float = 0.12
 var nearby_players: Array[PlayerController] = []
 var is_player_looking: bool = false
 var is_animating_pickup: bool = false
 var _highlight_mat: StandardMaterial3D = null
 
-func _ready() -> void:
+func _enter_tree() -> void:
+	add_to_group("trash_items")
+
+func set_flooded(flooded: bool, water_y: float = -4.80) -> void:
+	is_flooded = flooded
+	target_water_y = water_y
+	if not visual_root:
+		visual_root = get_node_or_null("VisualRoot")
 	if visual_root:
-		base_y = visual_root.position.y
+		var item_y: float = global_position.y if is_inside_tree() else position.y
+		var water_offset: float = maxf(0.0, target_water_y - item_y) if is_flooded else 0.0
+		visual_root.position.y = (water_offset + 0.03) if is_flooded else 0.03
+
+func _ready() -> void:
+	if not visual_root:
+		visual_root = get_node_or_null("VisualRoot")
+	if not highlight_ring:
+		highlight_ring = get_node_or_null("HighlightRing")
+	if not area:
+		area = get_node_or_null("Area3D")
+	add_to_group("trash_items")
+	var map = get_tree().get_first_node_in_group("kalye_maps") if get_tree() else null
+	if map and "is_flooded" in map:
+		is_flooded = map.is_flooded
+		if "FLOOD_HEIGHT_WET" in map:
+			target_water_y = map.FLOOD_HEIGHT_WET
+	if visual_root:
+		var item_y: float = global_position.y if is_inside_tree() else position.y
+		var water_offset: float = maxf(0.0, target_water_y - item_y) if is_flooded else 0.0
+		visual_root.position.y = (water_offset + 0.03) if is_flooded else 0.03
 	_update_visuals()
 	if area:
 		area.body_entered.connect(_on_body_entered)
@@ -61,6 +90,8 @@ func _ready() -> void:
 			highlight_ring.material_override = _highlight_mat
 
 func _process(delta: float) -> void:
+	if not visual_root:
+		visual_root = get_node_or_null("VisualRoot")
 	if is_collected:
 		respawn_timer -= delta
 		if respawn_timer <= 0.0:
@@ -72,13 +103,24 @@ func _process(delta: float) -> void:
 
 	# Idle floating and spinning
 	anim_time += delta * 2.8
+	var item_y: float = global_position.y if is_inside_tree() else position.y
+	var water_offset: float = maxf(0.0, target_water_y - item_y) if is_flooded else 0.0
 	if visual_root:
-		visual_root.position.y = base_y + sin(anim_time) * 0.08
-		visual_root.rotate_y(delta * 2.0)
+		if is_flooded:
+			# Buoyant bobbing on flood water surface
+			visual_root.position.y = (water_offset + 0.03) + sin(anim_time) * 0.035
+			visual_root.rotation.z = sin(anim_time * 1.5) * 0.06
+			visual_root.rotate_y(delta * 1.4)
+		else:
+			# Flat/level on asphalt/ground when dry
+			visual_root.position.y = 0.03
+			visual_root.rotation.z = 0.0
+			visual_root.rotate_y(delta * 0.8)
 
 	# Dynamic highlight scaling based on player proximity and looking direction
 	if highlight_ring and highlight_ring.visible:
 		var pulse: float = 1.0 + sin(anim_time * 3.5) * 0.12
+		highlight_ring.position.y = (water_offset + 0.02) if is_flooded else 0.02
 		if is_player_looking:
 			pulse *= 1.25
 			highlight_ring.scale = Vector3(pulse, 1.0, pulse)

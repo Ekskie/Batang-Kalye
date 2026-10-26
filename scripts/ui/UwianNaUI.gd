@@ -23,6 +23,8 @@ func _ready() -> void:
 
 func open() -> void:
 	_ensure_references()
+	z_index = 150
+	z_as_relative = false
 	visible = true
 	var am = get_node_or_null("/root/AudioManager") if is_inside_tree() else null
 	if am and am.has_method("play_ui_pop"):

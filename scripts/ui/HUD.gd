@@ -1,28 +1,34 @@
 class_name HUD
 extends Control
 
-# Top Bar (Tournament Pill Header)
-@onready var timer_label: Label = get_node_or_null("TopBar/TimerContainer/TimerLabel")
-@onready var btn_hud_pause: BaseButton = get_node_or_null("TopBar/BtnHudPause")
-@onready var round_label: Label = get_node_or_null("TopBar/RoundContainer/Margin/RoundLabel")
-@onready var alive_label: Label = get_node_or_null("TopBar/AliveContainer/Margin/AliveLabel")
-@onready var barya_label: Label = get_node_or_null("TopBar/BaryaContainer/Margin/HBox/BaryaLabel")
+# Top Bar (Tournament Pill Header & Controls)
+@onready var timer_label: Label = (get_node_or_null("TopRightControls/TimerContainer/Margin/HBox/TimerLabel") as Label) if get_node_or_null("TopRightControls/TimerContainer/Margin/HBox/TimerLabel") else (get_node_or_null("TopBar/TimerContainer/TimerLabel") as Label)
+@onready var btn_hud_pause: BaseButton = (get_node_or_null("TopRightControls/BtnHudPause") as BaseButton) if get_node_or_null("TopRightControls/BtnHudPause") else (get_node_or_null("TopBar/BtnHudPause") as BaseButton)
+@onready var round_label: Label = (get_node_or_null("TopLeftCluster/RoundLabel") as Label) if get_node_or_null("TopLeftCluster/RoundLabel") else (get_node_or_null("TopBar/RoundContainer/Margin/RoundLabel") as Label)
+@onready var alive_label: Label = (get_node_or_null("TopBar/AliveContainer/Margin/AliveLabel") as Label)
+@onready var barya_label: Label = (get_node_or_null("TopRightControls/BaryaContainer/Margin/HBox/BaryaLabel") as Label) if get_node_or_null("TopRightControls/BaryaContainer/Margin/HBox/BaryaLabel") else (get_node_or_null("TopBar/BaryaContainer/Margin/HBox/BaryaLabel") as Label)
 
-# Player Status Deck (Bottom-Left Dashboard)
-@onready var player_deck: PanelContainer = get_node_or_null("PlayerDeck")
-@onready var role_badge: Label = (get_node_or_null("PlayerDeck/Margin/VBox/RoleRow/RoleBadge") as Label) if get_node_or_null("PlayerDeck/Margin/VBox/RoleRow/RoleBadge") else (get_node_or_null("SideBar/RolePanel/Margin/HBox/RoleBadge") as Label)
-@onready var score_label: Label = (get_node_or_null("PlayerDeck/Margin/VBox/RoleRow/ScoreLabel") as Label) if get_node_or_null("PlayerDeck/Margin/VBox/RoleRow/ScoreLabel") else (get_node_or_null("SideBar/RolePanel/Margin/HBox/ScoreLabel") as Label)
-@onready var role_panel: PanelContainer = (get_node_or_null("PlayerDeck") as PanelContainer) if get_node_or_null("PlayerDeck") else (get_node_or_null("SideBar/RolePanel") as PanelContainer)
+# Player Status Deck (Top-Left Dashboard Card)
+@onready var player_deck: PanelContainer = (get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck") as PanelContainer) if get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck") else (get_node_or_null("PlayerDeck") as PanelContainer)
+@onready var role_badge: Label = (get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/RoleRow/RoleBadge") as Label) if get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/RoleRow/RoleBadge") else ((get_node_or_null("PlayerDeck/Margin/VBox/RoleRow/RoleBadge") as Label) if get_node_or_null("PlayerDeck/Margin/VBox/RoleRow/RoleBadge") else (get_node_or_null("SideBar/RolePanel/Margin/HBox/RoleBadge") as Label))
+@onready var score_label: Label = (get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/RoleRow/ScoreLabel") as Label) if get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/RoleRow/ScoreLabel") else ((get_node_or_null("PlayerDeck/Margin/VBox/RoleRow/ScoreLabel") as Label) if get_node_or_null("PlayerDeck/Margin/VBox/RoleRow/ScoreLabel") else (get_node_or_null("SideBar/RolePanel/Margin/HBox/ScoreLabel") as Label))
+@onready var role_panel: PanelContainer = player_deck
 
 # Stamina Display
-@onready var stamina_panel: PanelContainer = (get_node_or_null("PlayerDeck") as PanelContainer) if get_node_or_null("PlayerDeck") else (get_node_or_null("StaminaPanel") as PanelContainer)
-@onready var burst_bar: ProgressBar = (get_node_or_null("PlayerDeck/Margin/VBox/BurstBar") as ProgressBar) if get_node_or_null("PlayerDeck/Margin/VBox/BurstBar") else (get_node_or_null("StaminaPanel/Margin/VBox/BurstBar") as ProgressBar)
-@onready var burst_val_label: Label = (get_node_or_null("PlayerDeck/Margin/VBox/BurstHeader/BurstValue") as Label) if get_node_or_null("PlayerDeck/Margin/VBox/BurstHeader/BurstValue") else (get_node_or_null("StaminaPanel/Margin/VBox/BurstHeader/BurstValue") as Label)
-@onready var endurance_bar: ProgressBar = (get_node_or_null("PlayerDeck/Margin/VBox/EnduranceBar") as ProgressBar) if get_node_or_null("PlayerDeck/Margin/VBox/EnduranceBar") else (get_node_or_null("StaminaPanel/Margin/VBox/EnduranceBar") as ProgressBar)
-@onready var endurance_val_label: Label = (get_node_or_null("PlayerDeck/Margin/VBox/EnduranceHeader/EnduranceValue") as Label) if get_node_or_null("PlayerDeck/Margin/VBox/EnduranceHeader/EnduranceValue") else (get_node_or_null("StaminaPanel/Margin/VBox/EnduranceHeader/EnduranceValue") as Label)
-@onready var exhausted_warning: Label = (get_node_or_null("PlayerDeck/Margin/VBox/ExhaustedWarning") as Label) if get_node_or_null("PlayerDeck/Margin/VBox/ExhaustedWarning") else (get_node_or_null("StaminaPanel/Margin/VBox/ExhaustedWarning") as Label)
+@onready var stamina_panel: PanelContainer = player_deck
+@onready var burst_bar: ProgressBar = (get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/BurstRow/BurstBar") as ProgressBar) if get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/BurstRow/BurstBar") else ((get_node_or_null("PlayerDeck/Margin/VBox/BurstBar") as ProgressBar) if get_node_or_null("PlayerDeck/Margin/VBox/BurstBar") else (get_node_or_null("StaminaPanel/Margin/VBox/BurstBar") as ProgressBar))
+@onready var burst_val_label: Label = (get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/BurstRow/BurstValue") as Label) if get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/BurstRow/BurstValue") else ((get_node_or_null("PlayerDeck/Margin/VBox/BurstHeader/BurstValue") as Label) if get_node_or_null("PlayerDeck/Margin/VBox/BurstHeader/BurstValue") else (get_node_or_null("StaminaPanel/Margin/VBox/BurstHeader/BurstValue") as Label))
+@onready var endurance_bar: ProgressBar = (get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/EnduranceRow/EnduranceBar") as ProgressBar) if get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/EnduranceRow/EnduranceBar") else ((get_node_or_null("PlayerDeck/Margin/VBox/EnduranceBar") as ProgressBar) if get_node_or_null("PlayerDeck/Margin/VBox/EnduranceBar") else (get_node_or_null("StaminaPanel/Margin/VBox/EnduranceBar") as ProgressBar))
+@onready var endurance_val_label: Label = (get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/EnduranceRow/EnduranceValue") as Label) if get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/EnduranceRow/EnduranceValue") else ((get_node_or_null("PlayerDeck/Margin/VBox/EnduranceHeader/EnduranceValue") as Label) if get_node_or_null("PlayerDeck/Margin/VBox/EnduranceHeader/EnduranceValue") else (get_node_or_null("StaminaPanel/Margin/VBox/EnduranceHeader/EnduranceValue") as Label))
+@onready var exhausted_warning: Label = (get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/ExhaustedWarning") as Label) if get_node_or_null("TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/ExhaustedWarning") else ((get_node_or_null("PlayerDeck/Margin/VBox/ExhaustedWarning") as Label) if get_node_or_null("PlayerDeck/Margin/VBox/ExhaustedWarning") else (get_node_or_null("StaminaPanel/Margin/VBox/ExhaustedWarning") as Label))
+
+# Top-Left Item Slot
+@onready var top_item_icon: TextureRect = get_node_or_null("TopLeftCluster/DeckAndItemRow/ItemSlotCard/Margin/VBox/ItemIcon")
+@onready var top_item_name: Label = get_node_or_null("TopLeftCluster/DeckAndItemRow/ItemSlotCard/Margin/VBox/ItemName")
 
 # Center Reticle Crosshair (Crab Game / Karlson style)
+@onready var flood_container: Control = get_node_or_null("TopRightControls/FloodMeterContainer") if get_node_or_null("TopRightControls/FloodMeterContainer") else get_node_or_null("TopBar/FloodMeterContainer")
+@onready var flood_label: Label = get_node_or_null("%FloodLabel") if has_node("%FloodLabel") else (get_node_or_null("TopRightControls/FloodMeterContainer/Margin/FloodLabel") as Label if get_node_or_null("TopRightControls/FloodMeterContainer/Margin/FloodLabel") else get_node_or_null("TopBar/FloodMeterContainer/Margin/FloodLabel") as Label)
 @onready var crosshair: Control = get_node_or_null("Crosshair")
 @onready var crosshair_dot: ColorRect = get_node_or_null("Crosshair/Dot")
 @onready var crosshair_ticks: Array[ColorRect] = [
@@ -66,11 +72,15 @@ extends Control
 @onready var danger_label: Label = get_node_or_null("DangerOverlay/DangerPill/Label")
 
 # Announcements
-@onready var toast_panel: PanelContainer = get_node_or_null("ToastPanel")
+@onready var toast_panel: Control = get_node_or_null("ToastPanel")
 @onready var toast_label: Label = get_node_or_null("ToastPanel/MarginContainer/ToastLabel")
 
-@onready var tag_banner: PanelContainer = get_node_or_null("TagBanner")
+@onready var tag_banner: Control = get_node_or_null("TagBanner")
+@onready var tag_banner_bg: TextureRect = get_node_or_null("TagBanner/BannerBg")
 @onready var tag_banner_label: Label = get_node_or_null("TagBanner/MarginContainer/Label")
+@onready var paper_notification_banner: Control = tag_banner
+@onready var paper_notification_bg: TextureRect = tag_banner_bg
+@onready var paper_notification_label: Label = tag_banner_label
 
 # Tournament & Spectator Nodes
 @onready var critical_vignette: ColorRect = get_node_or_null("CriticalVignette")
@@ -131,6 +141,15 @@ func _ready() -> void:
 		spectator_bar.visible = false
 	if intermission_banner:
 		intermission_banner.visible = false
+	if scoreboard_panel:
+		scoreboard_panel.visible = false
+	if flood_container:
+		flood_container.visible = false
+	if crosshair:
+		crosshair.visible = false
+	var bottom_bar = get_node_or_null("BottomBar")
+	if bottom_bar:
+		bottom_bar.visible = false
 
 func _apply_button_squash(btn: BaseButton) -> void:
 	if not btn:
@@ -184,13 +203,15 @@ func trigger_hit_flash(color: Color = Color(1, 1, 1, 0.65), duration: float = 0.
 var held_street_item_local: int = -1
 
 func _set_crosshair_throwable_mode(active: bool) -> void:
+	if crosshair:
+		crosshair.visible = active
 	for tick in crosshair_ticks:
 		if is_instance_valid(tick):
 			tick.visible = active
 	if crosshair_dot:
 		crosshair_dot.color = Color(1.0, 0.9, 0.3, 0.95) if active else Color(1.0, 1.0, 1.0, 0.85)
-	if crosshair:
-		var target_scale := Vector2(1.2, 1.2) if active else Vector2.ONE
+	if crosshair and active:
+		var target_scale := Vector2(1.2, 1.2)
 		var t := create_tween()
 		t.tween_property(crosshair, "scale", target_scale, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
@@ -198,6 +219,7 @@ func set_aiming_mode(active: bool, is_locked: bool = false) -> void:
 	if not crosshair:
 		return
 	if active:
+		crosshair.visible = true
 		for tick in crosshair_ticks:
 			if is_instance_valid(tick):
 				tick.visible = true
@@ -330,6 +352,30 @@ func update_match_timer(time_left: float) -> void:
 			if critical_vignette:
 				critical_vignette.visible = false
 
+func update_flood_meter(level: float, is_flooded: bool) -> void:
+	if not flood_container:
+		flood_container = get_node_or_null("TopRightControls/FloodMeterContainer") if get_node_or_null("TopRightControls/FloodMeterContainer") else get_node_or_null("TopBar/FloodMeterContainer")
+	if flood_container:
+		flood_container.visible = (is_flooded or level > 0.0)
+
+	if not flood_label:
+		flood_label = get_node_or_null("%FloodLabel") if has_node("%FloodLabel") else get_node_or_null("TopBar/FloodMeterContainer/Margin/FloodLabel")
+	if not flood_label:
+		return
+
+	if is_flooded or level >= 100.0:
+		flood_label.text = "🚨 BUMABAHA NA!"
+		flood_label.add_theme_color_override("font_color", Color(1.0, 0.25, 0.25, 1.0))
+	elif level >= 80.0:
+		flood_label.text = "🚨 KANAL: %d%% MAG-APAW!" % int(level)
+		flood_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.2, 1.0))
+	elif level >= 50.0:
+		flood_label.text = "⚠️ KANAL: %d%% BARADO" % int(level)
+		flood_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.25, 1.0))
+	else:
+		flood_label.text = "🌊 KANAL: MALINIS"
+		flood_label.add_theme_color_override("font_color", Color(0.35, 0.85, 0.95, 1.0))
+
 func _pulse_timer_label() -> void:
 	if not timer_label:
 		return
@@ -443,6 +489,14 @@ func update_scoreboard(players_data: Dictionary) -> void:
 		else:
 			item.modulate = Color(0.85, 0.95, 1.0)
 		player_list_box.add_child(item)
+
+func toggle_scoreboard(show_board: bool) -> void:
+	if scoreboard_panel:
+		scoreboard_panel.visible = show_board
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.keycode == KEY_TAB and not event.echo:
+		toggle_scoreboard(event.pressed)
 
 # --- Contextual Interaction Prompt ---
 func on_interactable_changed(has_target: bool, prompt_icon: String, prompt_action: String) -> void:
@@ -564,7 +618,12 @@ func on_street_item_changed(item_type: int, _item_name: String, count: int) -> v
 			street_item_name.modulate = Color(0.6, 0.6, 0.6, 0.5)
 		if street_item_hint:
 			street_item_hint.visible = false
-		street_item_slot.modulate = Color(0.8, 0.8, 0.8, 0.6)
+		if street_item_slot:
+			street_item_slot.modulate = Color(0.8, 0.8, 0.8, 0.6)
+		if top_item_name:
+			top_item_name.text = "WALA"
+		if top_item_icon:
+			top_item_icon.modulate = Color(1.0, 1.0, 1.0, 0.25)
 	else:
 		_set_crosshair_throwable_mode(item_type == 0 or item_type == 3)
 		var iname := "GAMIT"
@@ -607,6 +666,20 @@ func on_street_item_changed(item_type: int, _item_name: String, count: int) -> v
 		if street_item_hint:
 			street_item_hint.text = hint
 			street_item_hint.visible = true
+
+		if top_item_name:
+			top_item_name.text = iname.split(" ")[0]
+		if top_item_icon:
+			top_item_icon.modulate = Color.WHITE
+			match item_type:
+				0:
+					top_item_icon.texture = load("res://assets/models/Mapupdate/Props_lata.png")
+				1:
+					top_item_icon.texture = load("res://assets/models/Mapupdate/Props_rotten banana.png")
+				3:
+					top_item_icon.texture = load("res://assets/models/Mapupdate/Props_chalk dust.png")
+				4:
+					top_item_icon.texture = load("res://assets/models/Mapupdate/Props_candy wrapper.png")
 
 		street_item_slot.modulate = Color.WHITE
 
@@ -666,68 +739,49 @@ func on_danger_detected(is_danger: bool, distance: float) -> void:
 	if danger_label:
 		danger_label.text = "TAYA MALAPIT! (%.0fm)" % distance
 
-# --- Tag & Nanay Announcements ---
-func show_tag_banner(chaser_name: String, target_name: String) -> void:
+# --- Tag & Nanay Announcements (Unified Paper Banner) ---
+func show_paper_notification(message: String, duration: float = 2.8) -> void:
 	if not tag_banner or not tag_banner_label:
 		return
 
-	tag_banner_label.text = "%s NA-TAYA SI %s!\nWALANG BAWIAN!" % [chaser_name.to_upper(), target_name.to_upper()]
+	tag_banner_label.text = message
 	tag_banner.visible = true
-	tag_banner.scale = Vector2(0.5, 0.5)
+	tag_banner.scale = Vector2(0.85, 0.85)
 	tag_banner.modulate.a = 1.0
+	tag_banner.position.y = -130.0
 
 	if banner_tween and banner_tween.is_valid():
 		banner_tween.kill()
 
-	banner_tween = create_tween()
-	banner_tween.tween_property(tag_banner, "scale", Vector2(1.15, 1.15), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	banner_tween.tween_property(tag_banner, "scale", Vector2.ONE, 0.1)
-	banner_tween.tween_interval(2.0)
-	banner_tween.tween_property(tag_banner, "modulate:a", 0.0, 0.35)
-	banner_tween.tween_callback(func(): tag_banner.visible = false)
+	banner_tween = create_tween().set_parallel(true)
+	banner_tween.tween_property(tag_banner, "scale", Vector2.ONE, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	banner_tween.tween_property(tag_banner, "position:y", 18.0, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-func show_toast_notification(message: String, is_success: bool) -> void:
-	if not toast_panel or not toast_label:
-		return
+	var hide_seq := create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	hide_seq.tween_interval(duration)
+	hide_seq.tween_property(tag_banner, "position:y", -140.0, 0.22)
+	hide_seq.tween_callback(func(): tag_banner.visible = false)
 
-	toast_label.text = message
-	toast_panel.visible = true
-	toast_panel.scale = Vector2(0.8, 0.8)
-	toast_panel.modulate.a = 1.0
+func show_tag_banner(chaser_name: String, target_name: String) -> void:
+	show_paper_notification("%s NA-TAYA SI %s!\nWALANG BAWIAN!" % [chaser_name.to_upper(), target_name.to_upper()])
 
-	if is_success:
-		toast_panel.modulate = Color(0.9, 1.0, 0.9, 1.0)
-	else:
-		toast_panel.modulate = Color(1.0, 0.75, 0.75, 1.0)
-
-	if toast_tween and toast_tween.is_valid():
-		toast_tween.kill()
-
-	toast_tween = create_tween()
-	toast_tween.tween_property(toast_panel, "scale", Vector2(1.06, 1.06), 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	toast_tween.tween_property(toast_panel, "scale", Vector2.ONE, 0.08)
-	toast_tween.tween_interval(2.0)
-	toast_tween.tween_property(toast_panel, "modulate:a", 0.0, 0.3)
-	toast_tween.tween_callback(func(): toast_panel.visible = false)
+func show_toast_notification(message: String, is_success: bool = true) -> void:
+	show_paper_notification(message)
+	if toast_panel and toast_label:
+		toast_label.text = message
+		toast_panel.visible = true
+		toast_panel.scale = Vector2(0.8, 0.8)
+		toast_panel.modulate = Color(0.9, 1.0, 0.9, 1.0) if is_success else Color(1.0, 0.75, 0.75, 1.0)
+		if toast_tween and toast_tween.is_valid():
+			toast_tween.kill()
+		toast_tween = create_tween()
+		toast_tween.tween_property(toast_panel, "scale", Vector2.ONE, 0.15)
+		toast_tween.tween_interval(2.0)
+		toast_tween.tween_property(toast_panel, "modulate:a", 0.0, 0.3)
+		toast_tween.tween_callback(func(): toast_panel.visible = false)
 
 func show_nanay_alert(pname: String) -> void:
-	if not toast_panel or not toast_label:
-		return
-
-	toast_label.text = "HOY %s! UMUWI KA NA!\nPINAPAUWI KA NI NANAY!" % pname.to_upper()
-	toast_panel.visible = true
-	toast_panel.scale = Vector2(0.5, 0.5)
-	toast_panel.modulate = Color(1.0, 0.7, 0.1, 1.0)
-
-	if toast_tween and toast_tween.is_valid():
-		toast_tween.kill()
-
-	toast_tween = create_tween()
-	toast_tween.tween_property(toast_panel, "scale", Vector2(1.2, 1.2), 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	toast_tween.tween_property(toast_panel, "scale", Vector2.ONE, 0.1)
-	toast_tween.tween_interval(3.5)
-	toast_tween.tween_property(toast_panel, "modulate:a", 0.0, 0.4)
-	toast_tween.tween_callback(func(): toast_panel.visible = false)
+	show_paper_notification("HOY %s! UMUWI KA NA!\nPINAPAUWI KA NI NANAY!" % pname.to_upper())
 
 func on_stamina_changed(burst_val: float, burst_max: float, endurance_val: float, endurance_max: float, exhausted: bool) -> void:
 	if burst_bar and burst_max > 0.0:

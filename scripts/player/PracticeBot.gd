@@ -267,14 +267,10 @@ func _find_nearest_street_item() -> StreetItem:
 	var min_d: float = 18.0
 	for item in items:
 		if item is StreetItem and not item.is_collected:
-			var is_taya: bool = (current_role == Role.TAYA)
-			var is_for_taya: bool = (item.item_type in [StreetItem.ItemType.WHISTLE, StreetItem.ItemType.CHALK_BAG, StreetItem.ItemType.ICE_CANDY])
-			var is_for_runner: bool = (item.item_type in [StreetItem.ItemType.TSINELAS, StreetItem.ItemType.SAGING])
-			if (is_taya and is_for_taya) or (not is_taya and is_for_runner):
-				var d := global_position.distance_to(item.global_position)
-				if d < min_d:
-					min_d = d
-					best = item
+			var d := global_position.distance_to(item.global_position)
+			if d < min_d:
+				min_d = d
+				best = item
 	return best
 
 func _apply_bot_movement(move_dir: Vector3, delta: float) -> void:
@@ -355,29 +351,35 @@ func _check_line_of_sight(target: PlayerController) -> bool:
 	var hit := space_state.intersect_ray(query)
 	return hit.is_empty()
 
-func _throw_tsinelas() -> void:
-	var target_player: PlayerController = _find_slipper_target()
-	var aim_target: Vector3
-	if target_player:
-		# Calculate lead prediction based on target velocity and slipper speed (24.0 m/s)
-		var dist := global_position.distance_to(target_player.global_position)
-		var lead_time := dist / 24.0
-		aim_target = target_player.global_position + target_player.velocity * lead_time + Vector3(0, 0.75, 0)
-	elif model and model.global_transform.basis.z.length_squared() > 0.01:
-		aim_target = global_position - model.global_transform.basis.z * 15.0 + Vector3(0, 1.0, 0)
+func _throw_tsinelas(sync_pos: Vector3 = Vector3.ZERO, sync_dir: Vector3 = Vector3.ZERO) -> void:
+	var start_pos: Vector3
+	var dir: Vector3
+
+	if sync_pos != Vector3.ZERO and sync_dir != Vector3.ZERO:
+		start_pos = sync_pos
+		dir = sync_dir
 	else:
-		aim_target = global_position - global_transform.basis.z * 15.0 + Vector3(0, 1.0, 0)
+		var target_player: PlayerController = _find_slipper_target()
+		var aim_target: Vector3
+		if target_player:
+			# Calculate lead prediction based on target velocity and slipper speed (24.0 m/s)
+			var dist := global_position.distance_to(target_player.global_position)
+			var lead_time := dist / 24.0
+			aim_target = target_player.global_position + target_player.velocity * lead_time + Vector3(0, 0.75, 0)
+		elif model and model.global_transform.basis.z.length_squared() > 0.01:
+			aim_target = global_position - model.global_transform.basis.z * 15.0 + Vector3(0, 1.0, 0)
+		else:
+			aim_target = global_position - global_transform.basis.z * 15.0 + Vector3(0, 1.0, 0)
 
-	var shoulder_offset := (model.global_transform.basis if model else global_transform.basis) * Vector3(0.35, 1.25, -0.2)
-	var start_pos := global_position + shoulder_offset
-	var dir := (aim_target - start_pos).normalized()
+		var forward_dir := -(model.global_transform.basis.z if model and model.global_transform.basis.z.length_squared() > 0.01 else global_transform.basis.z)
+		start_pos = global_position + Vector3(0, 1.25, 0) + forward_dir * 0.85 + (model.global_transform.basis.x if model else global_transform.basis.x) * 0.25
+		dir = (aim_target - start_pos).normalized()
 
-	var proj_parent: Node = get_parent() if get_parent() else self
-	var proj_scene: PackedScene = load("res://scenes/gameplay/ThrownProjectile.tscn")
-	if proj_scene:
-		var proj: ThrownProjectile = proj_scene.instantiate() as ThrownProjectile
-		proj_parent.add_child(proj)
-		proj.setup(ThrownProjectile.ProjectileType.TSINELAS, start_pos, dir, player_id, player_name)
+	if model and model.has_method("trigger_throw_animation"):
+		model.trigger_throw_animation(0)
 
 	_play_sfx("play_tsinelas_throw")
+	var proj_parent: Node = get_parent() if get_parent() else self
 	FloatingTextScript.spawn(proj_parent, global_position + Vector3(0, 2.0, 0), "SAPUL TSINELAS!", Color(0.3, 0.85, 1.0))
+
+	_spawn_thrown_projectile(ThrownProjectile.ProjectileType.TSINELAS, start_pos, dir)

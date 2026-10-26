@@ -19,6 +19,8 @@ enum ItemType {
 var is_collected: bool = false
 var respawn_timer: float = 0.0
 var anim_time: float = 0.0
+var is_flooded: bool = false
+var target_water_y: float = 0.12
 
 @onready var visual_root: Node3D = get_node_or_null("VisualRoot")
 @onready var label: Label3D = get_node_or_null("Label3D")
@@ -28,8 +30,34 @@ var anim_time: float = 0.0
 
 var nearby_players: Array[PlayerController] = []
 
-func _ready() -> void:
+func _enter_tree() -> void:
 	add_to_group("street_items")
+
+func set_flooded(flooded: bool, water_y: float = -4.80) -> void:
+	is_flooded = flooded
+	target_water_y = water_y
+	if not visual_root:
+		visual_root = get_node_or_null("VisualRoot")
+	if visual_root:
+		var item_y: float = global_position.y if is_inside_tree() else position.y
+		var water_offset: float = maxf(0.0, target_water_y - item_y) if is_flooded else 0.0
+		visual_root.position.y = (water_offset + 0.04) if is_flooded else 0.04
+
+func _ready() -> void:
+	if not visual_root:
+		visual_root = get_node_or_null("VisualRoot")
+	if not ring:
+		ring = get_node_or_null("HighlightRing")
+	if not area:
+		area = get_node_or_null("Area3D")
+	if not label:
+		label = get_node_or_null("Label3D")
+	add_to_group("street_items")
+	var map = get_tree().get_first_node_in_group("kalye_maps") if get_tree() else null
+	if map and "is_flooded" in map:
+		is_flooded = map.is_flooded
+		if "FLOOD_HEIGHT_WET" in map:
+			target_water_y = map.FLOOD_HEIGHT_WET
 	_build_or_update_meshes()
 	_update_visuals()
 	if area:
@@ -37,6 +65,8 @@ func _ready() -> void:
 		area.body_exited.connect(_on_body_exited)
 
 func _process(delta: float) -> void:
+	if not visual_root:
+		visual_root = get_node_or_null("VisualRoot")
 	if is_collected:
 		respawn_timer -= delta
 		if respawn_timer <= 0.0:
@@ -44,13 +74,24 @@ func _process(delta: float) -> void:
 		return
 
 	anim_time += delta * 2.8
+	var item_y: float = global_position.y if is_inside_tree() else position.y
+	var water_offset: float = maxf(0.0, target_water_y - item_y) if is_flooded else 0.0
 	if visual_root:
-		visual_root.position.y = 0.35 + sin(anim_time) * 0.08
-		visual_root.rotate_y(delta * 1.8)
+		if is_flooded:
+			# Buoyant bobbing on flood water surface
+			visual_root.position.y = (water_offset + 0.04) + sin(anim_time) * 0.035
+			visual_root.rotation.z = sin(anim_time * 1.5) * 0.06
+			visual_root.rotate_y(delta * 1.4)
+		else:
+			# Flat/level on asphalt/ground when dry
+			visual_root.position.y = 0.04
+			visual_root.rotation.z = 0.0
+			visual_root.rotate_y(delta * 0.8)
 
 	if ring and ring.visible:
 		var pulse: float = 1.0 + sin(anim_time * 3.5) * 0.12
 		ring.scale = Vector3(pulse, 1.0, pulse)
+		ring.position.y = (water_offset + 0.02) if is_flooded else 0.02
 
 	# Check pickup proximity
 	_check_auto_pickup()
@@ -63,16 +104,10 @@ func _check_auto_pickup() -> void:
 		if not is_instance_valid(p) or p.is_eliminated:
 			continue
 
-		# Check role compatibility
-		var is_taya := (p.current_role == PlayerController.Role.TAYA)
-		var is_for_taya := (item_type in [ItemType.WHISTLE, ItemType.CHALK_BAG, ItemType.ICE_CANDY])
-		var is_for_runner := (item_type in [ItemType.TSINELAS, ItemType.SAGING])
-
-		if (is_taya and is_for_taya) or (not is_taya and is_for_runner):
-			# If player can carry item
-			if p.has_method("pickup_street_item") and p.call("can_pickup_street_item", int(item_type)):
-				collect(p)
-				break
+		# Universal looting: Any player (Taya or Runner) can pick up and use any item
+		if p.has_method("pickup_street_item") and p.call("can_pickup_street_item", int(item_type)):
+			collect(p)
+			break
 
 func collect(collector: PlayerController) -> void:
 	if is_collected:
@@ -97,7 +132,7 @@ func collect(collector: PlayerController) -> void:
 	if ring:
 		ring.visible = false
 
-	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+	if is_inside_tree() and multiplayer and multiplayer.has_multiplayer_peer() and multiplayer.is_server():
 		rpc("sync_item_collected")
 
 @rpc("call_local", "reliable")
@@ -114,7 +149,7 @@ func respawn() -> void:
 	if label: label.visible = true
 	if ring: ring.visible = true
 
-	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+	if is_inside_tree() and multiplayer and multiplayer.has_multiplayer_peer() and multiplayer.is_server():
 		rpc("sync_item_respawn")
 
 @rpc("call_local", "reliable")

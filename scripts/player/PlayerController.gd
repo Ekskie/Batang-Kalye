@@ -2485,6 +2485,9 @@ func set_in_water(in_water: bool) -> void:
 		var am = get_node_or_null("/root/AudioManager")
 		if am and am.has_method("play_footstep"):
 			am.play_footstep(true)
+	else:
+		if water_splash:
+			water_splash.emitting = false
 	if is_in_water and active_powerup == PowerupType.WATER_RUN:
 		if is_local_human():
 			notification_displayed.emit("WATER RUN! Tumatakbo sa ibabaw ng baha!", true)
@@ -2706,6 +2709,8 @@ func _on_item_input_pressed() -> void:
 	# If throwable item (Tsinelas or Chalk Bag), enter Aiming Mode
 	if held_street_item == 0 or held_street_item == 3:
 		is_aiming_throw = true
+		if model and model.has_method("set_aiming_throw"):
+			model.set_aiming_throw(true, held_street_item)
 		_update_throw_aim_trajectory()
 	else:
 		# Immediate use for non-throwables (Banana, Whistle, Ice Candy)
@@ -2718,6 +2723,8 @@ func _on_item_input_released() -> void:
 
 func _cancel_throw_aim() -> void:
 	is_aiming_throw = false
+	if model and model.has_method("set_aiming_throw"):
+		model.set_aiming_throw(false, -1)
 	if trajectory_preview:
 		trajectory_preview.hide_preview()
 	var main_node = _get_main_node()
@@ -2798,69 +2805,90 @@ func use_current_item() -> void:
 			_throw_tsinelas()
 		1: # SAGING (Banana Peel Trap)
 			_drop_banana()
+			if multiplayer.has_multiplayer_peer() and is_local_controlled():
+				rpc("sync_use_item_rpc", used_type)
 		2: # WHISTLE (Barangay Whistle Radar)
 			_blow_whistle()
+			if multiplayer.has_multiplayer_peer() and is_local_controlled():
+				rpc("sync_use_item_rpc", used_type)
 		3: # CHALK_BAG (Chalk Dust Bag)
 			_throw_chalk_bag()
 		4: # ICE_CANDY (Pampalakas)
 			_consume_ice_candy()
-
-	if multiplayer.has_multiplayer_peer() and is_local_controlled():
-		rpc("sync_use_item_rpc", used_type)
+			if multiplayer.has_multiplayer_peer() and is_local_controlled():
+				rpc("sync_use_item_rpc", used_type)
 
 @rpc("any_peer", "call_local", "reliable")
-func sync_use_item_rpc(used_type: int) -> void:
+func sync_use_item_rpc(used_type: int, sync_pos: Vector3 = Vector3.ZERO, sync_dir: Vector3 = Vector3.ZERO) -> void:
 	if not is_local_controlled():
 		match used_type:
-			0: _throw_tsinelas()
+			0: _throw_tsinelas(sync_pos, sync_dir)
 			1: _drop_banana()
 			2: _blow_whistle()
-			3: _throw_chalk_bag()
+			3: _throw_chalk_bag(sync_pos, sync_dir)
 			4: _consume_ice_candy()
 
-func _throw_tsinelas() -> void:
+func _spawn_thrown_projectile(p_type: int, start_pos: Vector3, dir: Vector3) -> void:
 	var proj_scene: PackedScene = load("res://scenes/gameplay/ThrownProjectile.tscn")
 	if not proj_scene:
 		return
-
-	var aim_target: Vector3
-	if camera:
-		var space_state := get_world_3d().direct_space_state
-		var cam_pos := camera.global_position
-		var cam_forward := -camera.global_transform.basis.z
-		var ray_end := cam_pos + cam_forward * 50.0
-		var query := PhysicsRayQueryParameters3D.create(cam_pos, ray_end)
-		query.exclude = [get_rid()]
-		query.collision_mask = 1 | 2 # Environment & Players
-		var hit := space_state.intersect_ray(query)
-		if hit:
-			aim_target = hit.position
-		else:
-			aim_target = ray_end
-	else:
-		aim_target = global_position - global_transform.basis.z * 20.0 + Vector3(0, 1.2, 0)
-
-	var shoulder_offset := global_transform.basis * Vector3(0.35, 1.25, -0.2)
-	var start_pos := global_position + shoulder_offset
-	var dir := (aim_target - start_pos).normalized()
-
 	var proj: ThrownProjectile = proj_scene.instantiate() as ThrownProjectile
-	get_parent().add_child(proj)
-	proj.setup(ThrownProjectile.ProjectileType.TSINELAS, start_pos, dir, player_id, player_name)
+	proj.setup(p_type as ThrownProjectile.ProjectileType, start_pos, dir, player_id, player_name, self)
+	var parent_node := get_parent()
+	if not parent_node:
+		parent_node = self
+	parent_node.add_child(proj)
+	proj.global_position = start_pos
+
+func _throw_tsinelas(sync_pos: Vector3 = Vector3.ZERO, sync_dir: Vector3 = Vector3.ZERO) -> void:
+	var start_pos: Vector3
+	var dir: Vector3
+
+	if sync_pos != Vector3.ZERO and sync_dir != Vector3.ZERO:
+		start_pos = sync_pos
+		dir = sync_dir
+	else:
+		var aim_target: Vector3
+		if camera and is_local_human():
+			var space_state := get_world_3d().direct_space_state
+			var cam_pos := camera.global_position
+			var cam_forward := -camera.global_transform.basis.z
+			var ray_end := cam_pos + cam_forward * 50.0
+			var query := PhysicsRayQueryParameters3D.create(cam_pos, ray_end)
+			query.exclude = [get_rid()]
+			query.collision_mask = 1 | 2 # Environment & Players
+			var hit := space_state.intersect_ray(query)
+			if hit:
+				aim_target = hit.position
+			else:
+				aim_target = ray_end
+		else:
+			aim_target = global_position - global_transform.basis.z * 20.0 + Vector3(0, 1.2, 0)
+
+		var forward_dir := -camera.global_transform.basis.z if (camera and is_local_human()) else -global_transform.basis.z
+		start_pos = global_position + Vector3(0, 1.25, 0) + forward_dir * 0.85 + global_transform.basis.x * 0.25
+		dir = (aim_target - start_pos).normalized()
+
+	if model and model.has_method("trigger_throw_animation"):
+		model.trigger_throw_animation(0)
 
 	_play_sfx("play_tsinelas_throw")
-
 	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "BATO TSINELAS!", Color(0.3, 0.85, 1.0))
+
+	_spawn_thrown_projectile(ThrownProjectile.ProjectileType.TSINELAS, start_pos, dir)
+
+	if multiplayer.has_multiplayer_peer() and is_local_controlled():
+		rpc("sync_use_item_rpc", 0, start_pos, dir)
 
 func _drop_banana() -> void:
 	var trap_scene: PackedScene = load("res://scenes/gameplay/BananaTrap.tscn")
 	if not trap_scene:
 		return
 
-	var drop_pos := global_position - global_transform.basis.z * 1.2
+	var drop_pos := global_position - global_transform.basis.z * 0.9
 	var trap: BananaTrap = trap_scene.instantiate() as BananaTrap
+	trap.setup(player_id, player_name, drop_pos, self)
 	get_parent().add_child(trap)
-	trap.setup(player_id, player_name, drop_pos)
 
 	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "BALAT NG SAGING!", Color(1.0, 0.9, 0.2))
 
@@ -2884,37 +2912,44 @@ func _blow_whistle() -> void:
 			FloatingTextScript.spawn(get_parent(), p.global_position + Vector3(0, 2.0, 0), "AY TAYA!", Color(1.0, 0.8, 0.2))
 			p.squash_current = Vector3(0.85, 1.25, 0.85)
 
-func _throw_chalk_bag() -> void:
-	var proj_scene: PackedScene = load("res://scenes/gameplay/ThrownProjectile.tscn")
-	if not proj_scene:
-		return
+func _throw_chalk_bag(sync_pos: Vector3 = Vector3.ZERO, sync_dir: Vector3 = Vector3.ZERO) -> void:
+	var start_pos: Vector3
+	var dir: Vector3
 
-	var aim_target: Vector3
-	if camera:
-		var space_state := get_world_3d().direct_space_state
-		var cam_pos := camera.global_position
-		var cam_forward := -camera.global_transform.basis.z
-		var ray_end := cam_pos + cam_forward * 50.0
-		var query := PhysicsRayQueryParameters3D.create(cam_pos, ray_end)
-		query.exclude = [get_rid()]
-		query.collision_mask = 1 | 2 # Environment & Players
-		var hit := space_state.intersect_ray(query)
-		if hit:
-			aim_target = hit.position
-		else:
-			aim_target = ray_end
+	if sync_pos != Vector3.ZERO and sync_dir != Vector3.ZERO:
+		start_pos = sync_pos
+		dir = sync_dir
 	else:
-		aim_target = global_position - global_transform.basis.z * 20.0 + Vector3(0, 1.2, 0)
+		var aim_target: Vector3
+		if camera and is_local_human():
+			var space_state := get_world_3d().direct_space_state
+			var cam_pos := camera.global_position
+			var cam_forward := -camera.global_transform.basis.z
+			var ray_end := cam_pos + cam_forward * 50.0
+			var query := PhysicsRayQueryParameters3D.create(cam_pos, ray_end)
+			query.exclude = [get_rid()]
+			query.collision_mask = 1 | 2 # Environment & Players
+			var hit := space_state.intersect_ray(query)
+			if hit:
+				aim_target = hit.position
+			else:
+				aim_target = ray_end
+		else:
+			aim_target = global_position - global_transform.basis.z * 20.0 + Vector3(0, 1.2, 0)
 
-	var shoulder_offset := global_transform.basis * Vector3(0.35, 1.25, -0.2)
-	var start_pos := global_position + shoulder_offset
-	var dir := (aim_target - start_pos).normalized()
+		var forward_dir := -camera.global_transform.basis.z if (camera and is_local_human()) else -global_transform.basis.z
+		start_pos = global_position + Vector3(0, 1.25, 0) + forward_dir * 0.85 + global_transform.basis.x * 0.25
+		dir = (aim_target - start_pos).normalized()
 
-	var proj: ThrownProjectile = proj_scene.instantiate() as ThrownProjectile
-	get_parent().add_child(proj)
-	proj.setup(ThrownProjectile.ProjectileType.CHALK_BAG, start_pos, dir, player_id, player_name)
+	if model and model.has_method("trigger_throw_animation"):
+		model.trigger_throw_animation(3)
 
 	FloatingTextScript.spawn(get_parent(), global_position + Vector3(0, 2.0, 0), "CHALK DUST!", Color(0.95, 0.95, 1.0))
+
+	_spawn_thrown_projectile(ThrownProjectile.ProjectileType.CHALK_BAG, start_pos, dir)
+
+	if multiplayer.has_multiplayer_peer() and is_local_controlled():
+		rpc("sync_use_item_rpc", 3, start_pos, dir)
 
 func _consume_ice_candy() -> void:
 	burst_stamina = burst_stamina_max

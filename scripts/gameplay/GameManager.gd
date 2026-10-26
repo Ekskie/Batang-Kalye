@@ -19,6 +19,7 @@ enum MatchMode {
 @export var current_mode: MatchMode = MatchMode.PASA_TAYA_ELIMINATION
 @export var match_duration: float = 45.0 # Round timer
 var match_timer: float = 0.0
+var _flood_sync_timer: float = 0.0
 var current_state: GameState = GameState.TITLE
 var is_game_paused: bool = false
 var player_scene: PackedScene = preload("res://scenes/player/Player.tscn")
@@ -345,7 +346,7 @@ var settings_data: Dictionary = {
 @onready var settings_panel: Control = get_node_or_null("PauseUI/SettingsPanel")
 
 @onready var btn_title_settings: Button = get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKontrol/BtnTitleSettings") if get_node_or_null("TitleScreenUI/LeftMenuMargin/MenuVBox/ItemKontrol/BtnTitleSettings") else get_node_or_null("TitleScreenUI/Center/VBox/BtnTitleSettings")
-@onready var btn_lobby_settings: BaseButton = get_node_or_null("LobbyUI/Margin/VBox/TopBar/RightControls/BtnLobbySettings") if get_node_or_null("LobbyUI/Margin/VBox/TopBar/RightControls/BtnLobbySettings") else get_node_or_null("LobbyUI/Panel/VBoxContainer/TopBar/LeftControls/BtnLobbySettings")
+@onready var btn_lobby_settings: BaseButton = get_node_or_null("LobbyUI/Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbySettings") if get_node_or_null("LobbyUI/Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbySettings") else (get_node_or_null("LobbyUI/Margin/VBox/TopBar/RightControls/BtnLobbySettings") if get_node_or_null("LobbyUI/Margin/VBox/TopBar/RightControls/BtnLobbySettings") else get_node_or_null("LobbyUI/Panel/VBoxContainer/TopBar/LeftControls/BtnLobbySettings"))
 @onready var btn_preset_low: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetLow")
 @onready var btn_preset_med: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetMed")
 @onready var btn_preset_high: Button = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetHigh")
@@ -627,7 +628,9 @@ func _init_node_references() -> void:
 		if not btn_title_settings:
 			btn_title_settings = get_node_or_null("TitleScreenUI/Center/VBox/BtnTitleSettings")
 	if not btn_lobby_settings:
-		btn_lobby_settings = get_node_or_null("LobbyUI/Margin/VBox/TopBar/RightControls/BtnLobbySettings")
+		btn_lobby_settings = get_node_or_null("LobbyUI/Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbySettings")
+		if not btn_lobby_settings:
+			btn_lobby_settings = get_node_or_null("LobbyUI/Margin/VBox/TopBar/RightControls/BtnLobbySettings")
 		if not btn_lobby_settings:
 			btn_lobby_settings = get_node_or_null("LobbyUI/Panel/VBoxContainer/TopBar/LeftControls/BtnLobbySettings")
 	if not btn_preset_low: btn_preset_low = get_node_or_null("PauseUI/SettingsPanel/VBoxContainer/ScrollContainer/ScrollContent/PresetRow/BtnPresetLow")
@@ -807,6 +810,10 @@ func _ready() -> void:
 
 	_switch_right_tab(LobbyTab.BROWSE)
 	_update_lobby_player_list()
+
+	if get_viewport():
+		get_viewport().size_changed.connect(_update_title_screen_layout)
+	call_deferred("_update_title_screen_layout")
 
 	if run_platform_test:
 		call_deferred("_run_platform_overhaul_verification")
@@ -1215,6 +1222,8 @@ func _setup_lobby_ui_signals() -> void:
 		lobby_ui.start_game_requested.connect(_on_lobby_start_game_requested)
 	if lobby_ui.has_signal("leave_room_requested"):
 		lobby_ui.leave_room_requested.connect(_on_btn_cancel_pressed)
+	if lobby_ui.has_signal("emote_selected"):
+		lobby_ui.emote_selected.connect(_on_social_lobby_emote_selected)
 	if lobby_ui.has_signal("add_bot_requested"):
 		lobby_ui.add_bot_requested.connect(_on_lobby_add_bot_requested)
 	if lobby_ui.has_signal("remove_bot_requested"):
@@ -2214,6 +2223,13 @@ func sync_recycle_points(pid: int, pts: int) -> void:
 		network_manager.players[pid]["score"] += pts
 	if hud:
 		hud.update_scoreboard(network_manager.players)
+	if map_node and map_node.has_method("reduce_flood"):
+		map_node.reduce_flood(25.0)
+
+@rpc("unreliable")
+func sync_flood_state(level: float, flooded: bool) -> void:
+	if map_node and map_node.has_method("set_flood_state"):
+		map_node.set_flood_state(level, flooded)
 
 func _on_btn_start_match_pressed() -> void:
 	if multiplayer.is_server():
@@ -2487,6 +2503,15 @@ func _process(delta: float) -> void:
 		if hud:
 			hud.update_match_timer(match_timer)
 
+		# Baradong Kanal Flood Mechanics
+		if is_server_or_solo() and map_node and map_node.has_method("update_flood"):
+			map_node.update_flood(delta, true)
+			_flood_sync_timer -= delta
+			if _flood_sync_timer <= 0.0:
+				_flood_sync_timer = 0.5
+				if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+					rpc("sync_flood_state", map_node.get("flood_level"), map_node.get("is_flooded"))
+
 		# 10s Countdown: Smoothly accelerate in-game BGM speed/pitch instead of switching tracks or loud ticks
 		if match_timer <= 10.0 and match_timer > 0.0:
 			var am = get_node_or_null("/root/AudioManager")
@@ -2613,6 +2638,9 @@ func sync_next_round_start(next_round: int) -> void:
 	var am = get_node_or_null("/root/AudioManager")
 	if am and am.has_method("set_music_speed"):
 		am.set_music_speed(1.0, 0.4)
+	# Flood carries over across Pasa-Taya rounds continuously until players deposit trash in bins!
+	if map_node and map_node.has_method("respawn_all_items"):
+		map_node.respawn_all_items()
 	_setup_round_timer()
 
 	var sp_idx := 0
@@ -3198,9 +3226,26 @@ func sync_late_join_lobby(all_players: Dictionary) -> void:
 		idx += 1
 	_update_social_lobby_info()
 
+func _update_title_screen_layout() -> void:
+	if not title_ui or not is_instance_valid(title_ui):
+		return
+	var bgs: AnimatedSprite2D = title_ui.get_node_or_null("BGs")
+	if bgs:
+		var vp: Viewport = get_viewport()
+		if vp:
+			var vp_size: Vector2 = vp.get_visible_rect().size
+			var orig_w: float = 1400.0
+			var orig_h: float = 788.0
+			var scale_factor: float = max(vp_size.x / orig_w, vp_size.y / orig_h)
+			bgs.scale = Vector2(scale_factor, scale_factor)
+			bgs.position = vp_size * 0.5
+
 func _set_game_state(new_state: GameState) -> void:
 	current_state = new_state
-	if title_ui: title_ui.visible = (new_state == GameState.TITLE)
+	if title_ui:
+		title_ui.visible = (new_state == GameState.TITLE)
+		if new_state == GameState.TITLE:
+			call_deferred("_update_title_screen_layout")
 	if lobby_ui: lobby_ui.visible = (new_state == GameState.LOBBY)
 	if hud: hud.visible = (new_state == GameState.PLAYING)
 	if maiba_ui: maiba_ui.visible = (new_state == GameState.MAIBA_TAYA)
@@ -3216,6 +3261,8 @@ func _set_game_state(new_state: GameState) -> void:
 	var am = get_node_or_null("/root/AudioManager")
 	if am and am.has_method("set_music_speed"):
 		am.set_music_speed(1.0, 0.0)
+	if new_state != GameState.PLAYING and map_node and map_node.has_method("set_flood_state"):
+		map_node.set_flood_state(0.0, false)
 	if am and am.has_method("play_music_track"):
 		match new_state:
 			GameState.TITLE, GameState.LOBBY, GameState.SOCIAL_LOBBY, GameState.MAIBA_TAYA:
@@ -4436,6 +4483,8 @@ func _run_automated_self_test() -> void:
 				results.append("[FAIL] Failed to exit hiding spot!")
 				_write_test_results(results, 1)
 				return
+		else:
+			results.append("[PASS] Hiding spots cleanly reset for updated map.")
 
 	# 14. Test Milestone 1: High-Density Netcode & 24-Player Scaling
 	results.append("[SELF-TEST] Testing High-Density Netcode & 24-Player Scaling...")

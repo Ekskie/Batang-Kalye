@@ -1,27 +1,79 @@
-[PLATFORM-OVERHAUL-VERIFICATION] Starting comprehensive platform upgrade tests...
-[PLATFORM-TEST] Testing Parkour Vaulting Movement & Obstacle Trajectory...
-[PASS] Initial vaulting state is false.
-[PASS] Vault state engaged; Bezier trajectory calculated (start->apex->end).
-[PASS] Mid-vault quadratic Bezier displacement computed cleanly.
-[PASS] Vault completed with preserved sprint forward momentum (vel=11.50 m/s).
-[PASS] MobileControls dynamic TALON <-> VAULT contextual button verified.
-[PLATFORM-TEST] Testing In-Game Pause Non-Freezing Simulation & Gravity Deceleration...
-[PASS] Player gravity and falling physics operate continuously while pause menu is open (landed normally).
-[PASS] Gameplay actions (jump, vault, dash, slide) strictly locked out during pause.
-[PASS] Dual stamina recovers naturally while standing idle during pause.
-[PASS] match_timer continues ticking in real-time during pause menu.
-[PASS] Unpausing maintains grounded stability without sky launching.
-[PASS] Pause menu overlay cleanly resumed with cursor recaptured.
-[PLATFORM-TEST] Testing Modular Game Modes (BaseGameMode architecture)...
-[PASS] 3 Modular Game Modes verified: Pasa-Taya (Matira Matibay), Infected Base, Normal Taayan.
-[PLATFORM-TEST] Testing VoteManager server-authoritative voting & tie resolution...
-[PASS] Live vote tallying verified: Infection=2, Pasa-Taya=1.
-[PASS] Winning mode resolved correctly to Infection.
-[PASS] VoteManager tie-breaker resolved cleanly (Selected: 0).
-[PLATFORM-TEST] Testing 3D Social Lobby State & Persistent Session Loop...
-[PASS] Persistent return to 3D Social Lobby verified without disconnecting peers.
-[PASS] Player roles, elimination status, and dual stamina reset for Social Lobby.
-[PASS] Social emote triggered with floating popup in Social Lobby.
-[PASS] Floating name tags visible for peers up to 20m in 3D Social Lobby.
-[PASS] Round 2 vote transition invoked cleanly.
-[ALL PLATFORM OVERHAUL TESTS PASSED!] ZERO RUNTIME ERRORS DETECTED!
+[SELF-TEST] Starting automated verification...
+[SELF-TEST] Testing address parsing...
+[PASS] Auto-parsed host and port correctly: 192.168.43.1:7777
+[SELF-TEST] Spawning Solo Practice match...
+[PASS] Player 1 and Bot 99 spawned successfully.
+[SELF-TEST] Testing Powerup Gating...
+[PASS] Double Jump locked by default (max_air_jumps = 0).
+[PASS] Dash locked by default without Imagination Powerup.
+[SELF-TEST] Testing Trash Pickup & Segregation...
+[PASS] Picked up Plastic Bottle: Bote ng Tubig
+[PASS] Wrong bin rejected deposit; trash kept safely in hand.
+[PASS] Correct bin accepted trash! +30 score awarded (Total: 30).
+[PASS] Imagination Powerup Unlocked: SUPER SPEED (Bilis-Alon)
+[PASS] Kidlat Dash executed successfully with powerup! Charges left: 2
+[SELF-TEST] Testing Dual Stamina & Exhaustion System...
+[PASS] Sprint movement drains burst stamina (76.0/100) and endurance (92.5/100).
+[PASS] Exhaustion triggered when endurance reaches 0; sprint locked out.
+[PASS] Exhaustion cleared after catching breath above threshold (36.2/100).
+[SELF-TEST] Testing Tagging mechanism...
+ - Post-tag P1 Role: 0 (Expected RUNNER: 0)
+ - Post-tag Bot Role: 1 (Expected TAYA: 1)
+[PASS] Tag role transfer successful.
+[SELF-TEST] Testing Pause Menu...
+[PASS] Pause menu opened successfully.
+[PASS] Pause menu closed successfully.
+[SELF-TEST] Testing Mobile Graphics Optimization & Presets...
+[PASS] Mababa (Low) preset applied correctly: 3D scale=60%, shadows=OFF, glow=OFF.
+[PASS] Balanse (Medium) preset applied correctly: 3D scale=75%, shadows=ON.
+[PASS] Main menu settings button opened settings modal successfully.
+[PASS] Settings modal closed cleanly back to main menu.
+[PASS] Pause menu settings button opened settings modal and concealed pause panel.
+[PASS] Settings modal closed cleanly back to pause panel.
+[PASS] Resume button unpaused game cleanly.
+[SELF-TEST] Testing 8-Character Roster & Customization...
+[PASS] All 8 Pinoy Archetypes selected and applied successfully.
+[PASS] Modular outfit saved to config and reloaded successfully.
+[SELF-TEST] Testing Bot Elimination & Spectator Isolation...
+[PASS] Bot 99 eliminated without hijacking human player spectator mode.
+[PASS] Human player successfully tagged living Bot 98 without locking onto dead Bot 99.
+[SELF-TEST] Testing Human Player Elimination & Spectator Mode...
+[PASS] Human player spectator camera tracks target and switches targets correctly.
+[SELF-TEST] Testing Multiplayer Match Flow & Start Match...
+[PASS] Multiplayer match flow started cleanly with 2 players; alive_player_ids populated without type error.
+[PASS] Game over reached. Winner: Completed
+[SELF-TEST] Testing Supabase Matchmaking & Tab Switching...
+[PASS] Switched to Create Tab successfully.
+[PASS] Switched to Hotspot/Solo Tab successfully.
+[PASS] Switched back to Browse Tab successfully.
+[PASS] Supabase dynamic room cards (LAN & WebRTC Online P2P) rendered into lobby list successfully.
+[SELF-TEST] Testing WebRTC Online Peer Initialization & Cleanup...
+[PASS] WebRTC host peer initialized successfully!
+[PASS] WebRTC peer and signaler cleaned up cleanly.
+[SELF-TEST] Testing Street Items & Hiding Spots...
+[PASS] Spartan Tsinelas picked up successfully.
+[PASS] Spartan Tsinelas thrown successfully; inventory cleared.
+[PASS] Balat ng Saging deployed successfully.
+[PASS] Pito ng Barangay blown successfully with 0 errors.
+[PASS] Supot ng Chalk thrown successfully.
+[PASS] Ice Candy consumed successfully.
+[PASS] Hiding spots cleanly reset for updated map.
+[SELF-TEST] Testing High-Density Netcode & 24-Player Scaling...
+[PASS] NetworkManager.MAX_PLAYERS == 24.
+[PASS] PlayerController 25Hz tick rate and 8-snapshot buffer capacity verified.
+[PASS] Snapshot ring buffer enforces max 8 snapshots and sorts chronologically.
+[PASS] Cubic Hermite Spline calculation verified with C1 tangent continuity.
+[PASS] KalyeMap contains 24 spawn markers.
+[PASS] 24 player spawn points distributed with zero collision overlaps.
+[PASS] LobbyUI players_slider supports 24 players.
+[SELF-TEST] Testing Dynamic Multi-Taya Balancing...
+[PASS] Dynamic Multi-Taya ratio formula verified across 1..24 players.
+[PASS] Maiba Taya minority gesture group selected 4 chasers for 16 players.
+[PASS] sync_assign_multi_taya and role sync verified.
+[SELF-TEST] Testing Audio & Studio Sound Effects Collection...
+[PASS] Movement & Action SFX loaded (3 jumps, 3 runs, 3 walks, 3 slides).
+[PASS] UI Sound Effects verified (Click, Pop, Bloop, Reward, Game Over).
+[PASS] All 4 Character Voice Packs loaded with Aray, Takbo, and Taya lines.
+[PASS] Special Pinoy Vocals (Maiba Taya Unison & Nanay VO) verified.
+[PASS] Studio BGM tracks (Game Ambient Music & IN GAME BGM) verified.
+[ALL TESTS PASSED] ZERO RUNTIME ERRORS DETECTED!

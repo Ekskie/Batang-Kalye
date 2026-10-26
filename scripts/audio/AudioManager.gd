@@ -11,6 +11,14 @@ var audio_players_3d: Array[AudioStreamPlayer3D] = []
 const POOL_3D_SIZE: int = 8
 var current_player_3d_idx: int = 0
 
+# Dedicated voice player pools to prevent voice lines from being truncated by footsteps/jumps
+var voice_players_3d: Array[AudioStreamPlayer3D] = []
+const POOL_VOICE_3D_SIZE: int = 6
+var current_voice_3d_idx: int = 0
+var voice_player_2d: AudioStreamPlayer = null
+var _voice_duck_timer: float = 0.0
+var _is_voice_ducked: bool = false
+
 # Cached synthesized audio streams (polymorphic AudioStream supporting WAV, OGG, and MP3)
 var sfx_pickup: AudioStream
 var sfx_bin_correct: AudioStream
@@ -125,6 +133,21 @@ func _ready() -> void:
 		add_child(p3d)
 		audio_players_3d.append(p3d)
 
+	# Create dedicated pool of 3D voice players (isolated from footsteps/jumps)
+	for i in range(POOL_VOICE_3D_SIZE):
+		var vp3d := AudioStreamPlayer3D.new()
+		vp3d.name = "VoicePlayer3D_%d" % i
+		vp3d.bus = "Master"
+		vp3d.max_distance = 42.0
+		vp3d.attenuation_model = AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE
+		add_child(vp3d)
+		voice_players_3d.append(vp3d)
+
+	voice_player_2d = AudioStreamPlayer.new()
+	voice_player_2d.name = "VoicePlayer2D"
+	voice_player_2d.bus = "Master"
+	add_child(voice_player_2d)
+
 	music_player = AudioStreamPlayer.new()
 	music_player.name = "MusicPlayer"
 	music_player.bus = "Master"
@@ -160,6 +183,12 @@ func _setup_audio_bus_processing() -> void:
 			AudioServer.add_bus_effect(master_idx, limiter)
 
 func _process(delta: float) -> void:
+	if _voice_duck_timer > 0.0:
+		_voice_duck_timer -= delta
+		if _voice_duck_timer <= 0.0 and _is_voice_ducked:
+			_is_voice_ducked = false
+			_update_channel_volumes()
+
 	if ambience_volume <= 0.01:
 		return
 	_ambient_event_timer += delta
@@ -235,13 +264,21 @@ func _get_target_music_db() -> float:
 	return (linear_to_db(maxf(0.0001, music_volume)) + MUSIC_GAIN_OFFSET_DB) if music_volume > 0.01 else -80.0
 
 func _update_channel_volumes() -> void:
-	var sfx_db: float = linear_to_db(maxf(0.0001, sfx_volume)) if sfx_volume > 0.01 else -80.0
+	var base_sfx_db: float = linear_to_db(maxf(0.0001, sfx_volume)) if sfx_volume > 0.01 else -80.0
+	var sfx_db: float = (base_sfx_db - 3.5) if _is_voice_ducked else base_sfx_db
 	for p in audio_players:
 		if is_instance_valid(p):
 			p.volume_db = sfx_db
 	for p3d in audio_players_3d:
 		if is_instance_valid(p3d):
 			p3d.volume_db = sfx_db
+	# Dedicated voice channel volume: loud and clear (+5.0 dB boost over base SFX)
+	var voice_db: float = base_sfx_db + 5.0
+	for vp3d in voice_players_3d:
+		if is_instance_valid(vp3d):
+			vp3d.volume_db = voice_db
+	if is_instance_valid(voice_player_2d):
+		voice_player_2d.volume_db = voice_db
 	# Professional level mixing: Energetic & Vibrant Kalye Vibe (-6 dB base offset)
 	if is_instance_valid(music_player) and not _is_music_fading:
 		music_player.volume_db = _get_target_music_db()
@@ -350,12 +387,46 @@ func play_sfx_3d(stream: AudioStream, global_pos: Vector3, max_distance: float =
 	var player: AudioStreamPlayer3D = audio_players_3d[current_player_3d_idx]
 	current_player_3d_idx = (current_player_3d_idx + 1) % POOL_3D_SIZE
 	var base_sfx_db: float = linear_to_db(maxf(0.0001, sfx_volume)) if sfx_volume > 0.01 else -80.0
-	player.volume_db = base_sfx_db + volume_offset_db
+	var sfx_db: float = (base_sfx_db - 3.5) if _is_voice_ducked else base_sfx_db
+	player.volume_db = sfx_db + volume_offset_db
 	player.global_position = global_pos
 	player.max_distance = max_distance
 	player.stream = stream
 	player.pitch_scale = pitch_scale + randf_range(-0.04, 0.04)
 	player.play()
+
+func _apply_voice_ducking(duration: float = 1.6) -> void:
+	_voice_duck_timer = maxf(_voice_duck_timer, duration)
+	if not _is_voice_ducked:
+		_is_voice_ducked = true
+		_update_channel_volumes()
+
+func play_voice_3d(stream: AudioStream, global_pos: Vector3, max_distance: float = 42.0, pitch_scale: float = 1.0, volume_offset_db: float = 5.0) -> void:
+	if not stream or voice_players_3d.is_empty() or sfx_volume <= 0.01:
+		return
+	var player: AudioStreamPlayer3D = voice_players_3d[current_voice_3d_idx]
+	current_voice_3d_idx = (current_voice_3d_idx + 1) % POOL_VOICE_3D_SIZE
+	var base_sfx_db: float = linear_to_db(maxf(0.0001, sfx_volume)) if sfx_volume > 0.01 else -80.0
+	player.volume_db = base_sfx_db + volume_offset_db
+	player.global_position = global_pos
+	player.max_distance = max_distance
+	player.stream = stream
+	player.pitch_scale = pitch_scale + randf_range(-0.02, 0.02)
+	player.play()
+	_apply_voice_ducking(1.6)
+
+func play_voice_2d(stream: AudioStream, pitch_scale: float = 1.0, volume_offset_db: float = 5.0) -> void:
+	if not stream or sfx_volume <= 0.01:
+		return
+	if is_instance_valid(voice_player_2d):
+		var base_sfx_db: float = linear_to_db(maxf(0.0001, sfx_volume)) if sfx_volume > 0.01 else -80.0
+		voice_player_2d.volume_db = base_sfx_db + volume_offset_db
+		voice_player_2d.stream = stream
+		voice_player_2d.pitch_scale = pitch_scale
+		voice_player_2d.play()
+		_apply_voice_ducking(2.0)
+	else:
+		play_sfx(stream, pitch_scale, volume_offset_db)
 
 func play_whiff() -> void:
 	play_sfx(sfx_tag_swing, randf_range(0.95, 1.15))
@@ -830,7 +901,7 @@ func play_voice_line(voice_pack_key: String, line_type: String, global_pos: Vect
 		if not lines.is_empty():
 			var stream: AudioStream = lines[randi() % lines.size()]
 			if stream:
-				play_sfx_3d(stream, global_pos, 32.0, 1.0 + pitch_offset + randf_range(-0.03, 0.03), -4.0)
+				play_voice_3d(stream, global_pos, 38.0, 1.0 + pitch_offset + randf_range(-0.03, 0.03), 5.0)
 				return
 	# Fallback if specific line not found
 	match line_type:
@@ -846,7 +917,7 @@ func play_vo_3d(stream: AudioStream, global_pos: Vector3, char_type: int = 0, pi
 	if not stream:
 		return
 	var base_pitch: float = get_character_pitch_scale(char_type) + pitch_offset
-	play_sfx_3d(stream, global_pos, 28.0, base_pitch)
+	play_voice_3d(stream, global_pos, 38.0, base_pitch, 5.0)
 
 func play_vo_taya(global_pos: Vector3, char_type: int = 0) -> void:
 	var pack_key := get_voice_pack_for_character(char_type)
@@ -882,7 +953,7 @@ func play_vo_dulas(global_pos: Vector3, char_type: int = 0) -> void:
 
 func play_maiba_taya_unison() -> void:
 	if vo_maiba_taya_unison:
-		play_sfx(vo_maiba_taya_unison, 1.0)
+		play_voice_2d(vo_maiba_taya_unison, 1.0, 5.0)
 	else:
 		play_powerup()
 
@@ -890,18 +961,18 @@ func play_nanay_callout(global_pos: Vector3 = Vector3.ZERO) -> void:
 	if not vo_nanay_lines.is_empty():
 		var stream: AudioStream = vo_nanay_lines[randi() % vo_nanay_lines.size()]
 		if global_pos != Vector3.ZERO:
-			play_sfx_3d(stream, global_pos, 80.0, randf_range(0.98, 1.02))
+			play_voice_3d(stream, global_pos, 80.0, randf_range(0.98, 1.02), 5.0)
 		else:
-			play_sfx(stream, 1.0)
+			play_voice_2d(stream, 1.0, 5.0)
 	else:
 		play_whistle()
 
 func play_nanay_hoy(global_pos: Vector3 = Vector3.ZERO) -> void:
 	if vo_nanay_hoy:
 		if global_pos != Vector3.ZERO:
-			play_sfx_3d(vo_nanay_hoy, global_pos, 80.0, randf_range(0.98, 1.02))
+			play_voice_3d(vo_nanay_hoy, global_pos, 80.0, randf_range(0.98, 1.02), 5.0)
 		else:
-			play_sfx(vo_nanay_hoy, 1.0)
+			play_voice_2d(vo_nanay_hoy, 1.0, 5.0)
 	else:
 		play_whistle()
 

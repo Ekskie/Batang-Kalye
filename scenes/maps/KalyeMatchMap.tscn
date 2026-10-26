@@ -1,50 +1,45 @@
 [gd_scene format=3 uid="uid://btjas68rkrvbv"]
 
 [ext_resource type="Script" uid="uid://dup7h2k26jw12" path="res://scripts/gameplay/KalyeMatchMap.gd" id="1_map_script"]
-[ext_resource type="Material" path="res://assets/materials/mat_asphalt.tres" id="2_asphalt"]
-[ext_resource type="Material" path="res://assets/materials/mat_concrete_wall.tres" id="4_wall"]
-[ext_resource type="Material" path="res://assets/materials/mat_wood.tres" id="6_wood"]
 [ext_resource type="Material" path="res://assets/materials/mat_canal_water.tres" id="7_canal_water"]
-[ext_resource type="Material" path="res://assets/materials/mat_trash_blue.tres" id="8_t_blue"]
-[ext_resource type="Material" path="res://assets/materials/mat_trash_green.tres" id="9_t_green"]
-[ext_resource type="Material" path="res://assets/materials/mat_trash_yellow.tres" id="10_t_yellow"]
 [ext_resource type="Material" path="res://assets/materials/mat_dog_fur.tres" id="11_dog_fur"]
-[ext_resource type="PackedScene" path="res://scenes/gameplay/HidingSpot.tscn" id="12_hiding_spot"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/StreetItem.tscn" id="13_street_item"]
 [ext_resource type="PackedScene" uid="uid://byp5gk1jwp01n" path="res://scenes/gameplay/TrashItem.tscn" id="14_trash_item"]
-[ext_resource type="Script" uid="uid://cndmhed5g3avy" path="res://scripts/gameplay/RecyclingBin.gd" id="15_bin_script"]
 [ext_resource type="Script" uid="uid://5abq30evirab" path="res://scripts/gameplay/WaterZone.gd" id="16_water_script"]
 [ext_resource type="Script" uid="uid://cyu3c5f6ub22u" path="res://scripts/gameplay/DogChaser.gd" id="17_dog_script"]
-[ext_resource type="PackedScene" uid="uid://bdlktqtmqiidm" path="res://assets/models/For maps/Batang Kalye.glb" id="18_batang_kalye"]
-[ext_resource type="PackedScene" path="res://scenes/gameplay/SafeBaseZone.tscn" id="19_safe_base"]
+[ext_resource type="PackedScene" uid="uid://cj3fsg72owxrc" path="res://assets/models/Mapupdate/Batang Kalye - nonflood.glb" id="18_batang_kalye"]
+[ext_resource type="Texture2D" uid="uid://4jn84cbn7pl5" path="res://assets/models/HDRI/HDRI.hdr" id="19_hdri_sky"]
+[ext_resource type="Script" uid="uid://cndmhed5g3avy" path="res://scripts/gameplay/RecyclingBin.gd" id="20_bin_script"]
+[ext_resource type="Material" path="res://assets/materials/mat_trash_blue.tres" id="21_t_blu"]
+[ext_resource type="Material" path="res://assets/materials/mat_trash_green.tres" id="22_t_grn"]
+[ext_resource type="Material" path="res://assets/materials/mat_trash_yellow.tres" id="23_t_yel"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sunset"]
-sky_top_color = Color(0.24, 0.48, 0.85, 1)
-sky_horizon_color = Color(0.98, 0.72, 0.52, 1)
-sky_curve = 0.14
-ground_bottom_color = Color(0.18, 0.16, 0.14, 1)
-ground_horizon_color = Color(0.88, 0.65, 0.52, 1)
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_golden_hour"]
+panorama = ExtResource("19_hdri_sky")
 
 [sub_resource type="Sky" id="Sky_kalye_vast"]
-sky_material = SubResource("ProceduralSkyMaterial_sunset")
+sky_material = SubResource("PanoramaSkyMaterial_golden_hour")
 
 [sub_resource type="Environment" id="Environment_kalye_vast"]
 background_mode = 2
 sky = SubResource("Sky_kalye_vast")
-ambient_light_source = 2
-ambient_light_color = Color(0.72, 0.78, 0.9, 1)
-ambient_light_energy = 0.6
+ambient_light_source = 3
+ambient_light_color = Color(0.98, 0.78, 0.62, 1)
+ambient_light_sky_contribution = 0.65
+ambient_light_energy = 0.85
+reflected_light_source = 2
 tonemap_mode = 2
-tonemap_exposure = 1.08
+tonemap_exposure = 1.05
 glow_enabled = true
-glow_bloom = 0.06
-
-[sub_resource type="BoxMesh" id="BoxMesh_arena_road"]
-material = ExtResource("2_asphalt")
-size = Vector3(120, 0.4, 120)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_arena_road"]
-size = Vector3(120, 0.4, 120)
+glow_bloom = 0.05
+fog_enabled = true
+fog_light_color = Color(0.96, 0.8, 0.66, 1)
+fog_light_energy = 0.65
+fog_density = 0.003
+fog_aerial_perspective = 0.35
+fog_sky_affect = 0.15
+fog_depth_begin = 55.0
+fog_depth_end = 135.0
 
 [sub_resource type="SphereMesh" id="SphereMesh_dog"]
 material = ExtResource("11_dog_fur")
@@ -55,12 +50,27 @@ height = 0.7
 radius = 0.4
 height = 1.0
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_canal"]
-size = Vector3(26, 1.2, 6)
+[sub_resource type="BoxMesh" id="BoxMesh_bin"]
+size = Vector3(0.65, 1, 0.65)
+
+[sub_resource type="BoxMesh" id="BoxMesh_water"]
+size = Vector3(140, 0.5, 140)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_flood"]
+size = Vector3(140, 4, 140)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_bin"]
-height = 1.8
-radius = 1.6
+radius = 1.2
+height = 1.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+shading_mode = 0
+albedo_color = Color(1, 0.9, 0.2, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_spark"]
+material = SubResource("StandardMaterial3D_spark")
+radius = 0.05
+height = 0.1
 
 [node name="KalyeMap" type="Node3D" unique_id=1269134282]
 script = ExtResource("1_map_script")
@@ -70,57 +80,18 @@ environment = SubResource("Environment_kalye_vast")
 
 [node name="SunLight" type="DirectionalLight3D" parent="." unique_id=626626954]
 transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 50, 0)
-light_color = Color(1, 0.94, 0.84, 1)
-light_energy = 1.45
+light_color = Color(1, 0.93, 0.82, 1)
+light_energy = 1.4
 shadow_enabled = true
 shadow_bias = 0.03
+shadow_blur = 1.2
 directional_shadow_max_distance = 200.0
-
-[node name="Ground" type="Node3D" parent="." unique_id=2028515386]
-
-[node name="RoadFloor" type="StaticBody3D" parent="Ground" unique_id=927620159]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground/RoadFloor" unique_id=462549726]
-mesh = SubResource("BoxMesh_arena_road")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/RoadFloor" unique_id=888974521]
-shape = SubResource("BoxShape3D_arena_road")
-
-[node name="PerimeterFences" type="Node3D" parent="." unique_id=1152663710]
-
-[node name="FenceNorth" type="CSGBox3D" parent="PerimeterFences" unique_id=1017522456]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -58)
-use_collision = true
-size = Vector3(120, 3.6, 0.6)
-material = ExtResource("4_wall")
-
-[node name="FenceSouth" type="CSGBox3D" parent="PerimeterFences" unique_id=389143595]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 58)
-use_collision = true
-size = Vector3(120, 3.6, 0.6)
-material = ExtResource("4_wall")
-
-[node name="FenceWest" type="CSGBox3D" parent="PerimeterFences" unique_id=1513898703]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58, 1.8, 0)
-use_collision = true
-size = Vector3(0.6, 3.6, 120)
-material = ExtResource("4_wall")
-
-[node name="FenceEast" type="CSGBox3D" parent="PerimeterFences" unique_id=278435995]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58, 1.8, 0)
-use_collision = true
-size = Vector3(0.6, 3.6, 120)
-material = ExtResource("4_wall")
 
 [node name="Batang Kalye" parent="." unique_id=275629889 instance=ExtResource("18_batang_kalye")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39.90213, -4.65662, -34.080193)
 
-[node name="SafeBaseZone" parent="." unique_id=71961137 instance=ExtResource("19_safe_base")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
-
 [node name="DogChaser" type="CharacterBody3D" parent="." unique_id=2113210966]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0.35, 34)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -6.45, 34)
 script = ExtResource("17_dog_script")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="DogChaser" unique_id=1783554277]
@@ -129,172 +100,220 @@ mesh = SubResource("SphereMesh_dog")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DogChaser" unique_id=994403345]
 shape = SubResource("CapsuleShape3D_dog")
 
-[node name="FloodedCanal" type="Node3D" parent="." unique_id=795754907]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 32)
+[node name="StreetFloodWater" type="Node3D" parent="." unique_id=391827461]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -8.5, 0)
 
-[node name="WaterMesh" type="CSGBox3D" parent="FloodedCanal" unique_id=1510434318]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
-size = Vector3(26, 0.15, 6)
-material = ExtResource("7_canal_water")
+[node name="WaterMesh" type="MeshInstance3D" parent="StreetFloodWater" unique_id=184920184]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+mesh = SubResource("BoxMesh_water")
+material_override = ExtResource("7_canal_water")
 
-[node name="Footbridge" type="CSGBox3D" parent="FloodedCanal" unique_id=1039246493]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
-use_collision = true
-size = Vector3(2.5, 0.85, 7)
-material = ExtResource("6_wood")
-
-[node name="WaterZone" type="Area3D" parent="FloodedCanal" unique_id=837840653]
+[node name="WaterZone" type="Area3D" parent="StreetFloodWater" unique_id=837291837]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
+collision_layer = 4
+collision_mask = 2
 script = ExtResource("16_water_script")
+water_depth = 0.25
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FloodedCanal/WaterZone" unique_id=1174588129]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StreetFloodWater/WaterZone" unique_id=92847192]
+shape = SubResource("BoxShape3D_flood")
+
+[node name="SegregationBins" type="Node3D" parent="." unique_id=328761679]
+
+[node name="BinRecyclable" type="Area3D" parent="SegregationBins" unique_id=1114965665]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, -5.055, 5)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("20_bin_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SegregationBins/BinRecyclable" unique_id=1227081956]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CylinderShape3D_bin")
+
+[node name="VisualBin" type="MeshInstance3D" parent="SegregationBins/BinRecyclable" unique_id=334582118]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-shape = SubResource("BoxShape3D_canal")
+mesh = SubResource("BoxMesh_bin")
+material_override = ExtResource("21_t_blu")
 
-[node name="RecycleStation" type="Node3D" parent="." unique_id=328761679]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 12)
+[node name="Label" type="Label3D" parent="SegregationBins/BinRecyclable/VisualBin" unique_id=996639306]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.35, 0.2, 0)
+text = "RECYCLABLE
+(LATA/BOTE)"
+font_size = 14
+outline_size = 4
 
-[node name="BinNabubulok" type="Area3D" parent="RecycleStation" unique_id=1857010869]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, 0)
-script = ExtResource("15_bin_script")
+[node name="SparkParticles" type="CPUParticles3D" parent="SegregationBins/BinRecyclable" unique_id=903585586]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+emitting = false
+amount = 16
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+mesh = SubResource("SphereMesh_spark")
+direction = Vector3(0, 1, 0)
+spread = 60.0
+gravity = Vector3(0, -3, 0)
+initial_velocity_min = 2.0
+initial_velocity_max = 4.0
 
-[node name="VisualMesh" type="CSGCylinder3D" parent="RecycleStation/BinNabubulok" unique_id=545845996]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
-radius = 0.55
-height = 1.4
-material = ExtResource("9_t_green")
+[node name="BinBiodegradable" type="Area3D" parent="SegregationBins" unique_id=671805222]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -6.978, 14)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("20_bin_script")
+bin_category = 1
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RecycleStation/BinNabubulok" unique_id=210656392]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SegregationBins/BinBiodegradable" unique_id=1439877689]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("CylinderShape3D_bin")
 
-[node name="BinDiNabubulok" type="Area3D" parent="RecycleStation" unique_id=956876038]
-script = ExtResource("15_bin_script")
+[node name="VisualBin" type="MeshInstance3D" parent="SegregationBins/BinBiodegradable" unique_id=744405892]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_bin")
+material_override = ExtResource("22_t_grn")
 
-[node name="VisualMesh" type="CSGCylinder3D" parent="RecycleStation/BinDiNabubulok" unique_id=2059399864]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
-radius = 0.55
-height = 1.4
-material = ExtResource("10_t_yellow")
+[node name="Label" type="Label3D" parent="SegregationBins/BinBiodegradable/VisualBin" unique_id=93499310]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.35, 0.2, 0)
+text = "NABUBULOK
+(ORGANIC)"
+font_size = 14
+outline_size = 4
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RecycleStation/BinDiNabubulok" unique_id=187552478]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+[node name="SparkParticles" type="CPUParticles3D" parent="SegregationBins/BinBiodegradable" unique_id=442940576]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+emitting = false
+amount = 16
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+mesh = SubResource("SphereMesh_spark")
+direction = Vector3(0, 1, 0)
+spread = 60.0
+gravity = Vector3(0, -3, 0)
+initial_velocity_min = 2.0
+initial_velocity_max = 4.0
+
+[node name="BinNonBio" type="Area3D" parent="SegregationBins" unique_id=1196347646]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, -4.924, -20)
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("20_bin_script")
+bin_category = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SegregationBins/BinNonBio" unique_id=1229372186]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("CylinderShape3D_bin")
 
-[node name="BinNareresiklo" type="Area3D" parent="RecycleStation" unique_id=2059141504]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0, 0)
-script = ExtResource("15_bin_script")
+[node name="VisualBin" type="MeshInstance3D" parent="SegregationBins/BinNonBio" unique_id=133779335]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_bin")
+material_override = ExtResource("23_t_yel")
 
-[node name="VisualMesh" type="CSGCylinder3D" parent="RecycleStation/BinNareresiklo" unique_id=4776578]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
-radius = 0.55
-height = 1.4
-material = ExtResource("8_t_blue")
+[node name="Label" type="Label3D" parent="SegregationBins/BinNonBio/VisualBin" unique_id=346549115]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.35, 0.2, 0)
+text = "DI-NABUBULOK
+(PLASTIK)"
+font_size = 14
+outline_size = 4
+outline_size = 4
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="RecycleStation/BinNareresiklo" unique_id=2086276331]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-shape = SubResource("CylinderShape3D_bin")
+[node name="SparkParticles" type="CPUParticles3D" parent="SegregationBins/BinNonBio" unique_id=1742212432]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+emitting = false
+amount = 16
+lifetime = 0.5
+one_shot = true
+explosiveness = 0.8
+mesh = SubResource("SphereMesh_spark")
+direction = Vector3(0, 1, 0)
+spread = 60.0
+gravity = Vector3(0, -3, 0)
+initial_velocity_min = 2.0
+initial_velocity_max = 4.0
 
 [node name="HidingSpots" type="Node3D" parent="." unique_id=668092243]
-
-[node name="HidingDrum1" parent="HidingSpots" unique_id=1527500183 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44, 0, -44)
-
-[node name="HidingBox1" parent="HidingSpots" unique_id=1900217927 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28, 0, -14)
-spot_type = 1
-
-[node name="HidingDrum2" parent="HidingSpots" unique_id=1439246152 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -46, 0, -4)
-
-[node name="HidingBox2" parent="HidingSpots" unique_id=330121735 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -28)
-spot_type = 1
-
-[node name="HidingDrum3" parent="HidingSpots" unique_id=42214843 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0, -44)
-
-[node name="HidingBox3" parent="HidingSpots" unique_id=1172054111 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46, 0, -32)
-spot_type = 1
-
-[node name="HidingDrum4" parent="HidingSpots" unique_id=1707380845 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -18)
-
-[node name="HidingBox4" parent="HidingSpots" unique_id=1966468518 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46, 0, -12)
-spot_type = 1
-
-[node name="HidingDrum5" parent="HidingSpots" unique_id=1466175772 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44, 0, 14)
-
-[node name="HidingBox5" parent="HidingSpots" unique_id=1715719610 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 0, 22)
-spot_type = 1
-
-[node name="HidingDrum6" parent="HidingSpots" unique_id=13358565 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42, 0, 28)
-
-[node name="HidingBox6" parent="HidingSpots" unique_id=603779000 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 44)
-spot_type = 1
-
-[node name="HidingDrum7" parent="HidingSpots" unique_id=409657775 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 32)
-
-[node name="HidingDrum8" parent="HidingSpots" unique_id=1032640256 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 24)
-
-[node name="HidingBox7" parent="HidingSpots" unique_id=717312132 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0, 26)
-spot_type = 1
-
-[node name="HidingDrum9" parent="HidingSpots" unique_id=996104244 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 0, 44)
-
-[node name="HidingBox8" parent="HidingSpots" unique_id=1258900119 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0, 10)
-spot_type = 1
-
-[node name="HidingDrum10" parent="HidingSpots" unique_id=26428496 instance=ExtResource("12_hiding_spot")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 32)
 
 [node name="StreetItems" type="Node3D" parent="." unique_id=918811959]
 
 [node name="ItemTsinelas1" parent="StreetItems" unique_id=251602804 instance=ExtResource("13_street_item")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0.2, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, -5.1, -8)
+
+[node name="ItemTsinelas2" parent="StreetItems" unique_id=251602805 instance=ExtResource("13_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, -0.99, -12)
+
+[node name="ItemTsinelas3" parent="StreetItems" unique_id=251602806 instance=ExtResource("13_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, -6.87, 24)
 
 [node name="ItemBanana1" parent="StreetItems" unique_id=821936073 instance=ExtResource("13_street_item")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.2, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, -5.07, -18)
+item_type = 1
+
+[node name="ItemBanana2" parent="StreetItems" unique_id=821936074 instance=ExtResource("13_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, -6.98, 15)
 item_type = 1
 
 [node name="ItemWhistle1" parent="StreetItems" unique_id=1810459335 instance=ExtResource("13_street_item")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -2.4, 6)
+item_type = 2
+
+[node name="ItemWhistle2" parent="StreetItems" unique_id=1810459336 instance=ExtResource("13_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32, -4.94, 20)
 item_type = 2
 
 [node name="ItemChalk1" parent="StreetItems" unique_id=1749542101 instance=ExtResource("13_street_item")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.2, 14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -4.1, 10)
+item_type = 3
+
+[node name="ItemChalk2" parent="StreetItems" unique_id=1749542102 instance=ExtResource("13_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, -1.03, -2)
 item_type = 3
 
 [node name="ItemCandy1" parent="StreetItems" unique_id=1093532200 instance=ExtResource("13_street_item")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.2, 22)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, -4.93, 25)
+item_type = 4
+
+[node name="ItemCandy2" parent="StreetItems" unique_id=1093532201 instance=ExtResource("13_street_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -1.94, -22)
 item_type = 4
 
 [node name="TrashItems" type="Node3D" parent="." unique_id=2116184015]
 
 [node name="Trash1" parent="TrashItems" unique_id=1747338786 instance=ExtResource("14_trash_item")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0.2, 8)
-trash_type = 2
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, -4.94, -15)
 
 [node name="Trash2" parent="TrashItems" unique_id=1197833613 instance=ExtResource("14_trash_item")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0.2, 16)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, -4.93, -22)
 trash_type = 1
 
 [node name="Trash3" parent="TrashItems" unique_id=402858574 instance=ExtResource("14_trash_item")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.2, 10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, -2.79, -20)
+trash_type = 2
 
 [node name="Trash4" parent="TrashItems" unique_id=1899213789 instance=ExtResource("14_trash_item")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.2, 18)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, -0.84, -15)
+trash_type = 3
+
+[node name="Trash5" parent="TrashItems" unique_id=1899213790 instance=ExtResource("14_trash_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -38, -4.75, 5)
+
+[node name="Trash6" parent="TrashItems" unique_id=1899213791 instance=ExtResource("14_trash_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, -6.98, 12)
+trash_type = 3
+
+[node name="Trash7" parent="TrashItems" unique_id=1899213792 instance=ExtResource("14_trash_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, -6.88, 28)
+trash_type = 1
+
+[node name="Trash8" parent="TrashItems" unique_id=1899213793 instance=ExtResource("14_trash_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, -6.88, 26)
 trash_type = 2
+
+[node name="Trash9" parent="TrashItems" unique_id=1899213794 instance=ExtResource("14_trash_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, -6.69, 18)
+
+[node name="Trash10" parent="TrashItems" unique_id=1899213795 instance=ExtResource("14_trash_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, -3.55, -22)
+trash_type = 3
 
 [node name="SpawnPoints" type="Node3D" parent="." unique_id=1934992820]
 

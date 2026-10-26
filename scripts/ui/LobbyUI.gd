@@ -22,6 +22,8 @@ signal leave_room_requested
 signal store_requested
 signal guide_requested
 signal customization_requested
+signal emotes_requested
+signal emote_selected(emote_text: String)
 
 enum LobbyTab {
 	BROWSE = 0,
@@ -32,13 +34,18 @@ enum LobbyTab {
 var current_tab: LobbyTab = LobbyTab.HOTSPOT_SOLO
 
 # Top Navigation
-@onready var btn_back: TextureButton = get_node_or_null("Margin/VBox/TopBar/LeftControls/BtnBack")
-@onready var btn_main_menu: Button = get_node_or_null("Margin/VBox/TopBar/LeftControls/BtnMainMenu")
-@onready var nickname_badge: Button = get_node_or_null("Margin/VBox/TopBar/CenterTitle/NicknameBadge")
-@onready var btn_settings: BaseButton = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbySettings")
-@onready var btn_store: BaseButton = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbyStore")
-@onready var btn_guide: BaseButton = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbyGuide")
-@onready var btn_close_lobby: BaseButton = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnCloseLobby")
+@onready var top_bar_panel: PanelContainer = get_node_or_null("Margin/VBox/TopBarPanel")
+@onready var btn_back: TextureButton = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/BtnBack") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/BtnBack") else get_node_or_null("Margin/VBox/TopBar/LeftControls/BtnBack")
+@onready var player_count_label: Label = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/PlayerCountLabel") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/PlayerCountLabel") else get_node_or_null("Margin/VBox/TopBar/LeftControls/PlayerCountLabel")
+@onready var room_name_label: Label = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/RoomInfoVBox/RoomNameLabel") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/RoomInfoVBox/RoomNameLabel") else get_node_or_null("Margin/VBox/TopBar/LeftControls/RoomInfoVBox/RoomNameLabel")
+@onready var room_code_label: Label = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/RoomInfoVBox/RoomCodeLabel") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/RoomInfoVBox/RoomCodeLabel") else get_node_or_null("Margin/VBox/TopBar/LeftControls/RoomInfoVBox/RoomCodeLabel")
+@onready var btn_emotes: TextureButton = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnEmotes") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnEmotes") else get_node_or_null("Margin/VBox/TopBar/RightControls/BtnEmotes")
+@onready var btn_main_menu: Button = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/BtnMainMenu") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/BtnMainMenu") else get_node_or_null("Margin/VBox/TopBar/LeftControls/BtnMainMenu")
+@onready var nickname_badge: Button = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/CenterTitle/NicknameBadge") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/CenterTitle/NicknameBadge") else get_node_or_null("Margin/VBox/TopBar/CenterTitle/NicknameBadge")
+@onready var btn_settings: BaseButton = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbySettings") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbySettings") else get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbySettings")
+@onready var btn_store: BaseButton = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbyStore") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbyStore") else get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbyStore")
+@onready var btn_guide: BaseButton = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbyGuide") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbyGuide") else get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbyGuide")
+@onready var btn_close_lobby: BaseButton = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnCloseLobby") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnCloseLobby") else get_node_or_null("Margin/VBox/TopBar/RightControls/BtnCloseLobby")
 
 # Tara Hub Main Selection (3 Taped-Paper Options)
 @onready var tara_hub: Control = get_node_or_null("Margin/VBox/BodyArea/TaraHub")
@@ -155,12 +162,14 @@ func open_hub() -> void:
 	if panel_room_waiting:
 		panel_room_waiting.visible = false
 	if btn_back:
-		btn_back.visible = false
+		btn_back.visible = true
 	if nickname_badge:
 		nickname_badge.visible = false
 	if btn_settings:
-		btn_settings.visible = false
-	var title_node = get_node_or_null("Margin/VBox/TopBar/CenterTitle/Title")
+		btn_settings.visible = true
+	if btn_emotes:
+		btn_emotes.visible = true
+	var title_node = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/CenterTitle/Title") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/CenterTitle/Title") else get_node_or_null("Margin/VBox/TopBar/CenterTitle/Title")
 	if title_node:
 		title_node.visible = false
 	if btn_guide:
@@ -182,13 +191,18 @@ func open_subscreen(tab: LobbyTab) -> void:
 	switch_tab(tab)
 
 func _init_references() -> void:
-	if not btn_back: btn_back = get_node_or_null("Margin/VBox/TopBar/LeftControls/BtnBack")
-	if not btn_main_menu: btn_main_menu = get_node_or_null("Margin/VBox/TopBar/LeftControls/BtnMainMenu")
-	if not nickname_badge: nickname_badge = get_node_or_null("Margin/VBox/TopBar/CenterTitle/NicknameBadge")
-	if not btn_settings: btn_settings = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbySettings")
-	if not btn_store: btn_store = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbyStore")
-	if not btn_guide: btn_guide = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbyGuide")
-	if not btn_close_lobby: btn_close_lobby = get_node_or_null("Margin/VBox/TopBar/RightControls/BtnCloseLobby")
+	if not top_bar_panel: top_bar_panel = get_node_or_null("Margin/VBox/TopBarPanel")
+	if not btn_back: btn_back = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/BtnBack") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/BtnBack") else get_node_or_null("Margin/VBox/TopBar/LeftControls/BtnBack")
+	if not player_count_label: player_count_label = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/PlayerCountLabel") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/PlayerCountLabel") else get_node_or_null("Margin/VBox/TopBar/LeftControls/PlayerCountLabel")
+	if not room_name_label: room_name_label = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/RoomInfoVBox/RoomNameLabel") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/RoomInfoVBox/RoomNameLabel") else get_node_or_null("Margin/VBox/TopBar/LeftControls/RoomInfoVBox/RoomNameLabel")
+	if not room_code_label: room_code_label = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/RoomInfoVBox/RoomCodeLabel") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/RoomInfoVBox/RoomCodeLabel") else get_node_or_null("Margin/VBox/TopBar/LeftControls/RoomInfoVBox/RoomCodeLabel")
+	if not btn_emotes: btn_emotes = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnEmotes") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnEmotes") else get_node_or_null("Margin/VBox/TopBar/RightControls/BtnEmotes")
+	if not btn_main_menu: btn_main_menu = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/BtnMainMenu") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/LeftControls/BtnMainMenu") else get_node_or_null("Margin/VBox/TopBar/LeftControls/BtnMainMenu")
+	if not nickname_badge: nickname_badge = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/CenterTitle/NicknameBadge") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/CenterTitle/NicknameBadge") else get_node_or_null("Margin/VBox/TopBar/CenterTitle/NicknameBadge")
+	if not btn_settings: btn_settings = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbySettings") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbySettings") else get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbySettings")
+	if not btn_store: btn_store = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbyStore") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbyStore") else get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbyStore")
+	if not btn_guide: btn_guide = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbyGuide") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnLobbyGuide") else get_node_or_null("Margin/VBox/TopBar/RightControls/BtnLobbyGuide")
+	if not btn_close_lobby: btn_close_lobby = get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnCloseLobby") if get_node_or_null("Margin/VBox/TopBarPanel/TopBar/RightControls/BtnCloseLobby") else get_node_or_null("Margin/VBox/TopBar/RightControls/BtnCloseLobby")
 
 	if not tara_hub: tara_hub = get_node_or_null("Margin/VBox/BodyArea/TaraHub")
 	if not btn_hub_host:
@@ -278,6 +292,8 @@ func _connect_internal_signals() -> void:
 	# Navigation Buttons
 	if btn_back:
 		btn_back.pressed.connect(_on_back_pressed)
+	if btn_emotes:
+		btn_emotes.pressed.connect(_on_btn_emotes_pressed)
 	if btn_main_menu:
 		btn_main_menu.pressed.connect(_on_back_pressed)
 	if nickname_badge:
@@ -421,6 +437,14 @@ func _on_back_pressed() -> void:
 		open_hub()
 	else:
 		main_menu_requested.emit()
+
+func _on_btn_emotes_pressed() -> void:
+	var am = get_node_or_null("/root/AudioManager")
+	if am and am.has_method("play_ui_click"): am.play_ui_click()
+	emotes_requested.emit()
+	var sample_emotes = ["Kumusta! 👋", "Tara laro! 🏃", "Astig! 🔥", "Haha! 😂", "Talon! 🤸"]
+	var chosen = sample_emotes[randi() % sample_emotes.size()]
+	emote_selected.emit(chosen)
 
 func _on_viewport_frame_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
@@ -679,7 +703,30 @@ func set_room_waiting_state(in_room: bool, is_host: bool = false, room_name: Str
 					slot_lbl.add_theme_color_override("font_color", KalyeStyle.TEXT_MUTED)
 				room_slots_container.add_child(slot_lbl)
 
+		var cur_count: int = players.size() if players.size() > 0 else 1
+		var display_max: int = max_slots if max_slots > 0 else (int(players_slider.value) if players_slider else 5)
+		update_header_info(room_name, "0.00.0", cur_count, display_max)
+	else:
+		update_header_info("BRGY. STA. CRUZ", "0.00.0", 2, 5)
+
 	_update_bottom_cta()
+
+func update_header_info(r_name: String = "", r_code: String = "", cur_players: int = -1, max_players: int = -1) -> void:
+	if player_count_label:
+		if cur_players >= 0 and max_players > 0:
+			player_count_label.text = "%d/%d" % [cur_players, max_players]
+			player_count_label.visible = true
+		elif cur_players >= 0:
+			player_count_label.text = "%d" % cur_players
+			player_count_label.visible = true
+	if room_name_label:
+		if not r_name.is_empty():
+			room_name_label.text = r_name
+			room_name_label.visible = true
+	if room_code_label:
+		if not r_code.is_empty():
+			room_code_label.text = r_code
+			room_code_label.visible = true
 
 func populate_online_lobbies(lobbies: Array[Dictionary]) -> void:
 	if not lobby_list_container:

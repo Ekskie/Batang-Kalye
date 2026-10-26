@@ -26,34 +26,40 @@
 [ext_resource type="Material" path="res://assets/materials/mat_danger_road.tres" id="24_danger_road"]
 [ext_resource type="Material" path="res://assets/materials/mat_dog_fur.tres" id="25_dog_fur"]
 [ext_resource type="Script" uid="uid://cyu3c5f6ub22u" path="res://scripts/gameplay/DogChaser.gd" id="26_dog_script"]
-[ext_resource type="PackedScene" uid="uid://c888kmg8ma8uh" path="res://assets/models/Tindahan/Tindahan-ni-Mama.glb" id="27_0i5ci"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/StreetItem.tscn" id="28_street_item"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/HidingSpot.tscn" id="29_hiding_spot"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/VotingStation3D.tscn" id="30_voting_station"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/VotingCourtScoreboard3D.tscn" id="31_court_scoreboard"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/VotingStartButton3D.tscn" id="32_voting_start_button"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/BotStation3D.tscn" id="33_bot_station"]
+[ext_resource type="Texture2D" uid="uid://4jn84cbn7pl5" path="res://assets/models/HDRI/HDRI.hdr" id="34_hdri_sky"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ph"]
-sky_top_color = Color(0.2, 0.48, 0.88, 1)
-sky_horizon_color = Color(0.96, 0.76, 0.58, 1)
-sky_curve = 0.12
-ground_bottom_color = Color(0.18, 0.16, 0.15, 1)
-ground_horizon_color = Color(0.85, 0.68, 0.55, 1)
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_classic"]
+panorama = ExtResource("34_hdri_sky")
 
 [sub_resource type="Sky" id="Sky_kalye"]
-sky_material = SubResource("ProceduralSkyMaterial_ph")
+sky_material = SubResource("PanoramaSkyMaterial_classic")
 
 [sub_resource type="Environment" id="Environment_kalye"]
 background_mode = 2
 sky = SubResource("Sky_kalye")
-ambient_light_source = 2
-ambient_light_color = Color(0.68, 0.76, 0.88, 1)
-ambient_light_energy = 0.55
+ambient_light_source = 3
+ambient_light_color = Color(0.98, 0.78, 0.62, 1)
+ambient_light_sky_contribution = 0.65
+ambient_light_energy = 0.85
+reflected_light_source = 2
 tonemap_mode = 2
 tonemap_exposure = 1.05
 glow_enabled = true
 glow_bloom = 0.05
+fog_enabled = true
+fog_light_color = Color(0.96, 0.8, 0.66, 1)
+fog_light_energy = 0.65
+fog_density = 0.0035
+fog_aerial_perspective = 0.35
+fog_sky_affect = 0.15
+fog_depth_begin = 45.0
+fog_depth_end = 120.0
 
 [sub_resource type="BoxMesh" id="BoxMesh_road"]
 material = ExtResource("1_asphalt")
@@ -135,10 +141,11 @@ environment = SubResource("Environment_kalye")
 
 [node name="SunLight" type="DirectionalLight3D" parent="." unique_id=366197053]
 transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 35, 0)
-light_color = Color(1, 0.94, 0.85, 1)
+light_color = Color(1, 0.93, 0.82, 1)
 light_energy = 1.35
 shadow_enabled = true
 shadow_bias = 0.03
+shadow_blur = 1.2
 directional_shadow_max_distance = 150.0
 
 [node name="Ground" type="Node3D" parent="." unique_id=1316072755]
@@ -1318,9 +1325,6 @@ outline_size = 4
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DangerousZone/DogChaser" unique_id=1937291136]
 shape = SubResource("CapsuleShape3D_dog")
-
-[node name="Tindahan-ni-Mama" parent="." unique_id=555467455 instance=ExtResource("27_0i5ci")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0.018, -25)
 
 [node name="StreetItems" type="Node3D" parent="." unique_id=749576595]
 

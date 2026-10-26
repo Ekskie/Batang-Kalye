@@ -1,6 +1,26 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/SocialLobbyUI.gd" id="1_social_ui"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/Back.png" id="2_back"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/Back.png" id="3_back_tap"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/Settings.png" id="4_settings"]
+[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/Settings.png" id="5_settings_tap"]
+[ext_resource type="Texture2D" uid="uid://c3q22jjnv3fn7" path="res://assets/Game Icons-Buttons/Other Buttons/Emotes.png" id="6_emotes"]
+[ext_resource type="Texture2D" uid="uid://b6bll71trnsx4" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/Emotes.png" id="7_emotes_tap"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_social_topbar"]
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.1, 0.14, 0.35, 0.96)
+border_width_bottom = 2
+border_color = Color(0.24, 0.32, 0.65, 0.7)
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
 
 [node name="SocialLobbyUI" type="Control" unique_id=1889464464]
 layout_mode = 3
@@ -19,67 +39,88 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 56.0
 grow_horizontal = 2
-metadata/_kalye_surface = ""
+theme_override_styles/panel = SubResource("StyleBoxFlat_social_topbar")
 
 [node name="Margin" type="MarginContainer" parent="TopBar" unique_id=1014304348]
 layout_mode = 2
 theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 6
+theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 6
+theme_override_constants/margin_bottom = 4
 
 [node name="HBox" type="HBoxContainer" parent="TopBar/Margin" unique_id=708755362]
 layout_mode = 2
-theme_override_constants/separation = 14
+alignment = 1
 
-[node name="RoomInfo" type="VBoxContainer" parent="TopBar/Margin/HBox" unique_id=1414034595]
+[node name="LeftControls" type="HBoxContainer" parent="TopBar/Margin/HBox" unique_id=1300728694]
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 2
+theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="TopBar/Margin/HBox/RoomInfo" unique_id=2052076323]
+[node name="BtnLeave" type="TextureButton" parent="TopBar/Margin/HBox/LeftControls" unique_id=53236668]
+custom_minimum_size = Vector2(44, 44)
 layout_mode = 2
+focus_mode = 0
+texture_normal = ExtResource("2_back")
+texture_pressed = ExtResource("3_back_tap")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="PlayerCountLabel" type="Label" parent="TopBar/Margin/HBox/LeftControls" unique_id=879106077]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "2/5"
+vertical_alignment = 1
+
+[node name="RoomInfoVBox" type="VBoxContainer" parent="TopBar/Margin/HBox/LeftControls" unique_id=1414034595]
+layout_mode = 2
+theme_override_constants/separation = 1
+alignment = 1
+
+[node name="Title" type="Label" parent="TopBar/Margin/HBox/LeftControls/RoomInfoVBox" unique_id=2052076323]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(1, 0.84705883, 0.2901961, 1)
-text = "BARANGAY LOBBY"
+text = "BRGY. STA. CRUZ"
+vertical_alignment = 1
 
-[node name="Ip" type="Label" parent="TopBar/Margin/HBox/RoomInfo" unique_id=502258252]
+[node name="Ip" type="Label" parent="TopBar/Margin/HBox/LeftControls/RoomInfoVBox" unique_id=502258252]
 layout_mode = 2
-theme_type_variation = &"LabelSmall"
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.79607844, 0.8392157, 1, 1)
-text = "192.168.1.1:7777"
+theme_override_colors/font_color = Color(0.68, 0.8, 0.98, 0.9)
+theme_override_font_sizes/font_size = 11
+text = "0.00.0"
+vertical_alignment = 1
 
-[node name="PlayerCount" type="PanelContainer" parent="TopBar/Margin/HBox" unique_id=1101953711]
+[node name="RightControls" type="HBoxContainer" parent="TopBar/Margin/HBox" unique_id=979527223]
 layout_mode = 2
-theme_type_variation = &"PanelCard"
-metadata/_kalye_surface = "PanelCard"
+size_flags_horizontal = 10
+theme_override_constants/separation = 10
+alignment = 2
 
-[node name="Count" type="Label" parent="TopBar/Margin/HBox/PlayerCount" unique_id=879106077]
-layout_mode = 2
-theme_type_variation = &"LabelSmall"
-theme_override_font_sizes/font_size = 13
-theme_override_colors/font_color = Color(0.4862745, 0.78431374, 1, 1)
-text = "MGA BATA: 1 / 24"
-
-[node name="BtnStartVote" type="Button" parent="TopBar/Margin/HBox" unique_id=291586733]
+[node name="BtnStartVote" type="Button" parent="TopBar/Margin/HBox/RightControls" unique_id=291586733]
 visible = false
 layout_mode = 2
 theme_type_variation = &"BtnPrimary"
 text = "★ BUMOTO NG LARO ★"
 
-[node name="BtnEmotes" type="Button" parent="TopBar/Margin/HBox" unique_id=1566418771]
+[node name="BtnEmotes" type="TextureButton" parent="TopBar/Margin/HBox/RightControls" unique_id=1566418771]
+custom_minimum_size = Vector2(44, 44)
 layout_mode = 2
-theme_type_variation = &"BtnPurple"
-text = "EMOTES [1-5]"
+focus_mode = 0
+texture_normal = ExtResource("6_emotes")
+texture_pressed = ExtResource("7_emotes_tap")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="BtnSettings" type="Button" parent="TopBar/Margin/HBox" unique_id=1391503493]
+[node name="BtnSettings" type="TextureButton" parent="TopBar/Margin/HBox/RightControls" unique_id=1391503493]
+custom_minimum_size = Vector2(44, 44)
 layout_mode = 2
-text = "SETTINGS"
-
-[node name="BtnLeave" type="Button" parent="TopBar/Margin/HBox" unique_id=53236668]
-layout_mode = 2
-theme_type_variation = &"BtnDanger"
-text = "UMALIS"
+focus_mode = 0
+texture_normal = ExtResource("4_settings")
+texture_pressed = ExtResource("5_settings_tap")
+ignore_texture_size = true
+stretch_mode = 5
 
 [node name="EmotesBar" type="PanelContainer" parent="." unique_id=61260178]
 visible = false

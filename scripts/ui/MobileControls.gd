@@ -60,6 +60,17 @@ var camera_touch_id: int = -1
 var is_sprinting: bool = false
 var is_spectator: bool = false
 var is_vault_available: bool = false
+var is_taya_mode: bool = false
+var has_held_item: bool = false
+var is_near_interact: bool = false
+var interact_action_text: String = ""
+
+var tex_tag: Texture2D = preload("res://assets/Game Icons-Buttons/W- Text ver_/Taya_Hampas.png")
+var tex_tag_tap: Texture2D = preload("res://assets/Game Icons-Buttons/W- Text ver_/When Tap/Taya_Hampas.png")
+var tex_tapon: Texture2D = preload("res://assets/Game Icons-Buttons/W-o Text Ver_/Tapon.png")
+var tex_tapon_tap: Texture2D = preload("res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Tapon.png")
+var tex_pulot: Texture2D = preload("res://assets/Game Icons-Buttons/W-o Text Ver_/Pulot.png")
+var tex_pulot_tap: Texture2D = preload("res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Pulot.png")
 
 func _ready() -> void:
 	add_to_group("mobile_controls")
@@ -85,7 +96,17 @@ func _ready() -> void:
 	if btn_dash:
 		btn_dash.pressed.connect(func(): dash_pressed.emit())
 	if btn_tag:
-		btn_tag.pressed.connect(func(): tag_pressed.emit())
+		btn_tag.pressed.connect(func():
+			if is_taya_mode:
+				tag_pressed.emit()
+			elif has_held_item:
+				item_pressed.emit()
+				item_released.emit()
+			elif is_near_interact:
+				interact_pressed.emit()
+			else:
+				tag_pressed.emit()
+		)
 	if btn_interact:
 		btn_interact.pressed.connect(func(): interact_pressed.emit())
 	if btn_drop:
@@ -184,13 +205,33 @@ func get_movement_vector() -> Vector2:
 	return Vector2.ZERO
 
 func set_tag_button_highlight(is_taya: bool) -> void:
-	if btn_tag:
-		if is_taya:
-			btn_tag.visible = true
-			_set_button_label(btn_tag, "")
-			btn_tag.modulate = Color(1.0, 1.0, 1.0, 1.0)
-		else:
-			btn_tag.visible = false
+	is_taya_mode = is_taya
+	_update_primary_action_visuals()
+
+func _update_primary_action_visuals() -> void:
+	if not btn_tag:
+		return
+	btn_tag.visible = not is_spectator
+	if is_taya_mode:
+		btn_tag.texture_normal = tex_tag
+		btn_tag.texture_pressed = tex_tag_tap
+		_set_button_label(btn_tag, "")
+		btn_tag.modulate = Color.WHITE
+	elif has_held_item:
+		btn_tag.texture_normal = tex_tapon
+		btn_tag.texture_pressed = tex_tapon_tap
+		_set_button_label(btn_tag, "TAPON")
+		btn_tag.modulate = Color(1.0, 0.95, 0.6)
+	elif is_near_interact:
+		btn_tag.texture_normal = tex_pulot
+		btn_tag.texture_pressed = tex_pulot_tap
+		_set_button_label(btn_tag, interact_action_text.to_upper())
+		btn_tag.modulate = Color(0.6, 1.0, 0.8)
+	else:
+		btn_tag.texture_normal = tex_tag
+		btn_tag.texture_pressed = tex_tag_tap
+		_set_button_label(btn_tag, "")
+		btn_tag.modulate = Color.WHITE
 
 func on_powerup_changed(powerup_type: int, _duration_left: float, charges: int) -> void:
 	update_powerup_buttons(powerup_type, charges)
@@ -227,20 +268,25 @@ func set_vault_available(available: bool) -> void:
 
 # --- Contextual Interaction Prompt for Mobile ---
 func set_interact_prompt(p_visible: bool, _icon: String, action_text: String) -> void:
+	is_near_interact = p_visible
+	interact_action_text = action_text
 	if btn_interact:
 		btn_interact.visible = p_visible
 		if p_visible:
 			_set_button_label(btn_interact, action_text.to_upper())
+	_update_primary_action_visuals()
 
 func set_drop_button_visible(p_visible: bool) -> void:
 	if btn_drop:
 		btn_drop.visible = p_visible
 
 func set_item_button_visible(p_visible: bool, item_name: String = "BATO") -> void:
+	has_held_item = p_visible
 	if btn_item:
 		btn_item.visible = p_visible
 		if p_visible:
 			_set_button_label(btn_item, item_name.to_upper())
+	_update_primary_action_visuals()
 
 func set_spectator_mode(active: bool) -> void:
 	is_spectator = active

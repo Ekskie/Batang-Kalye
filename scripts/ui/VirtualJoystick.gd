@@ -9,11 +9,23 @@ enum JoystickMode {
 	FIXED = 1    # Static: stays at default center position
 }
 
+@export_group("Textures")
+@export var texture_boundary: Texture2D = preload("res://assets/Game Icons-Buttons/Joystick/JoystickBoundery.png")
+@export var texture_knob: Texture2D = preload("res://assets/Game Icons-Buttons/Joystick/joystickCenter.png")
+
+@export_group("Dimensions & Physics")
 @export var joystick_mode: JoystickMode = JoystickMode.DYNAMIC
-@export var max_range: float = 65.0
+@export var boundary_size: Vector2 = Vector2(200.0, 200.0)
+@export var knob_size: Vector2 = Vector2(110.0, 110.0)
+@export var max_range: float = 75.0
+@export var deadzone: float = 0.15
+@export var idle_opacity: float = 0.50
+@export var active_opacity: float = 1.0
+@export var default_offset_from_bottom_left: Vector2 = Vector2(145.0, 145.0)
+
+@export_group("Fallback Colors")
 @export var base_color: Color = Color(0.08, 0.10, 0.15, 0.45)
 @export var knob_color: Color = Color(0.85, 0.88, 0.92, 0.65)
-@export var deadzone: float = 0.15
 
 var touch_id: int = -1
 var default_center: Vector2 = Vector2.ZERO
@@ -35,7 +47,10 @@ func _on_resized() -> void:
 		queue_redraw()
 
 func _update_default_center() -> void:
-	default_center = size * 0.5
+	if size.x > default_offset_from_bottom_left.x * 1.5 and size.y > default_offset_from_bottom_left.y * 1.5:
+		default_center = Vector2(default_offset_from_bottom_left.x, size.y - default_offset_from_bottom_left.y)
+	else:
+		default_center = size * 0.5
 	if not is_active:
 		center_pos = default_center
 		current_pos = default_center
@@ -45,24 +60,32 @@ func set_joystick_mode(mode: int) -> void:
 	_reset_joystick()
 
 func _draw() -> void:
-	var c := center_pos
-	var alpha_factor := 1.0 if is_active else 0.45
+	var alpha_factor: float = active_opacity if is_active else idle_opacity
 
-	# Outer base circle (translucent dark slate glass with subtle white rim)
-	var b_col := base_color
-	b_col.a *= alpha_factor
-	draw_circle(c, max_range, b_col)
-	draw_arc(c, max_range, 0, TAU, 36, Color(1.0, 1.0, 1.0, 0.25 * alpha_factor), 2.0)
+	if texture_boundary and texture_knob:
+		# Draw boundary texture (frame + directional arrows)
+		var b_col := Color(1.0, 1.0, 1.0, alpha_factor)
+		var b_rect := Rect2(center_pos - boundary_size * 0.5, boundary_size)
+		draw_texture_rect(texture_boundary, b_rect, false, b_col)
 
-	# Subtle inner deadzone guide
-	draw_arc(c, max_range * deadzone, 0, TAU, 24, Color(1.0, 1.0, 1.0, 0.10 * alpha_factor), 1.0)
+		# Draw knob texture (3D shaded center sphere)
+		var k_col := Color(1.0, 1.0, 1.0, alpha_factor)
+		var k_rect := Rect2(current_pos - knob_size * 0.5, knob_size)
+		draw_texture_rect(texture_knob, k_rect, false, k_col)
+	else:
+		# Fallback vector circles if textures are unavailable
+		var c := center_pos
+		var b_col := base_color
+		b_col.a *= alpha_factor
+		draw_circle(c, max_range, b_col)
+		draw_arc(c, max_range, 0, TAU, 36, Color(1.0, 1.0, 1.0, 0.25 * alpha_factor), 2.0)
+		draw_arc(c, max_range * deadzone, 0, TAU, 24, Color(1.0, 1.0, 1.0, 0.10 * alpha_factor), 1.0)
 
-	# Inner knob circle (frosted glass with crisp tactile rim)
-	var knob_c := current_pos
-	var k_col := knob_color
-	k_col.a *= (1.0 if is_active else 0.5)
-	draw_circle(knob_c, max_range * 0.42, k_col)
-	draw_arc(knob_c, max_range * 0.42, 0, TAU, 28, Color(1.0, 1.0, 1.0, 0.85 * alpha_factor), 2.0)
+		var knob_c := current_pos
+		var k_col := knob_color
+		k_col.a *= (1.0 if is_active else 0.5)
+		draw_circle(knob_c, max_range * 0.42, k_col)
+		draw_arc(knob_c, max_range * 0.42, 0, TAU, 28, Color(1.0, 1.0, 1.0, 0.85 * alpha_factor), 2.0)
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
@@ -127,7 +150,7 @@ func _reset_joystick() -> void:
 		_reset_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		_reset_tween.tween_property(self, "center_pos", default_center, 0.2)
 		_reset_tween.tween_property(self, "current_pos", default_center, 0.2)
-		_reset_tween.tween_callback(queue_redraw)
+		_reset_tween.tween_method(func(_v: float): queue_redraw(), 0.0, 1.0, 0.2)
 	else:
 		current_pos = center_pos
 		queue_redraw()

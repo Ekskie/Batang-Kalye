@@ -6,6 +6,41 @@
 [ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/Pause.png" id="4_hud_pause"]
 [ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/Pause.png" id="5_hud_pause_tap"]
 [ext_resource type="Texture2D" path="res://assets/Backgrounds/Game_Notification_Banner.png" id="6_notif_banner"]
+[ext_resource type="Texture2D" uid="uid://ct2f0nxc6wo4" path="res://assets/Game Icons-Buttons/Clock.png" id="7_clock"]
+[ext_resource type="Texture2D" uid="uid://sg30om8qj103" path="res://assets/models/Mapupdate/Props_lata.png" id="8_default_item"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_card"]
+bg_color = Color(0.1, 0.14, 0.32, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.24, 0.36, 0.65, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_burst_fill"]
+bg_color = Color(0.96, 0.72, 0.15, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_endurance_fill"]
+bg_color = Color(0.88, 0.24, 0.24, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar_bg"]
+bg_color = Color(0.04, 0.06, 0.14, 0.85)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
 
 [node name="HUD" type="Control" unique_id=1819631202]
 layout_mode = 3
@@ -17,106 +52,104 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_hud")
 
-[node name="TopBar" type="HBoxContainer" parent="." unique_id=917313946]
+[node name="TopRightControls" type="HBoxContainer" parent="." unique_id=917313946]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -310.0
-offset_top = 16.0
-offset_right = 310.0
-offset_bottom = 66.0
-grow_horizontal = 2
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -460.0
+offset_top = 22.0
+offset_right = -32.0
+offset_bottom = 82.0
+grow_horizontal = 0
 mouse_filter = 2
 theme_override_constants/separation = 10
-alignment = 1
+alignment = 2
 
-[node name="RoundContainer" type="PanelContainer" parent="TopBar" unique_id=1028143019]
+[node name="BaryaContainer" type="PanelContainer" parent="TopRightControls" unique_id=2052423699]
 layout_mode = 2
 mouse_filter = 2
-theme_type_variation = &"PanelHUD"
-metadata/_kalye_surface = "PanelHUD"
+theme_override_styles/panel = SubResource("StyleBoxFlat_hud_card")
 
-[node name="Margin" type="MarginContainer" parent="TopBar/RoundContainer" unique_id=1021116208]
+[node name="Margin" type="MarginContainer" parent="TopRightControls/BaryaContainer" unique_id=2052423700]
 layout_mode = 2
-theme_override_constants/margin_left = 14
+theme_override_constants/margin_left = 12
 theme_override_constants/margin_right = 14
 
-[node name="RoundLabel" type="Label" parent="TopBar/RoundContainer/Margin" unique_id=1632624179]
+[node name="HBox" type="HBoxContainer" parent="TopRightControls/BaryaContainer/Margin" unique_id=2052423701]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(1, 0.84705883, 0.2901961, 1)
-text = "ROUND 1: PASA-TAYA"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="TimerContainer" type="PanelContainer" parent="TopBar" unique_id=1762705734]
-custom_minimum_size = Vector2(130, 0)
-layout_mode = 2
-mouse_filter = 2
-theme_type_variation = &"PanelHUD"
-metadata/_kalye_surface = "PanelHUD"
-
-[node name="TimerLabel" type="Label" parent="TopBar/TimerContainer" unique_id=310653560]
-layout_mode = 2
-theme_type_variation = &"LabelHeader"
-theme_override_font_sizes/font_size = 24
-text = "03:00"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="AliveContainer" type="PanelContainer" parent="TopBar" unique_id=28490886]
-layout_mode = 2
-mouse_filter = 2
-theme_type_variation = &"PanelHUD"
-metadata/_kalye_surface = "PanelHUD"
-
-[node name="Margin" type="MarginContainer" parent="TopBar/AliveContainer" unique_id=2052423641]
-layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_right = 14
-
-[node name="AliveLabel" type="Label" parent="TopBar/AliveContainer/Margin" unique_id=558340573]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "8 BUHAY"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="BaryaContainer" type="PanelContainer" parent="TopBar" unique_id=2052423699]
-layout_mode = 2
-mouse_filter = 2
-theme_type_variation = &"PanelHUD"
-metadata/_kalye_surface = "PanelHUD"
-
-[node name="Margin" type="MarginContainer" parent="TopBar/BaryaContainer" unique_id=2052423700]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_right = 12
-
-[node name="HBox" type="HBoxContainer" parent="TopBar/BaryaContainer/Margin" unique_id=2052423701]
-layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 8
 alignment = 1
 
-[node name="BaryaIcon" type="TextureRect" parent="TopBar/BaryaContainer/Margin/HBox" unique_id=2052423702]
-custom_minimum_size = Vector2(20, 20)
+[node name="BaryaIcon" type="TextureRect" parent="TopRightControls/BaryaContainer/Margin/HBox" unique_id=2052423702]
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
 size_flags_vertical = 4
 texture = ExtResource("3_barya")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="BaryaLabel" type="Label" parent="TopBar/BaryaContainer/Margin/HBox" unique_id=2052423703]
+[node name="BaryaLabel" type="Label" parent="TopRightControls/BaryaContainer/Margin/HBox" unique_id=2052423703]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.84705883, 0.2901961, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
+theme_override_font_sizes/font_size = 18
 text = "0"
 vertical_alignment = 1
 
-[node name="BtnHudPause" type="TextureButton" parent="TopBar" unique_id=946065433]
-custom_minimum_size = Vector2(44, 44)
+[node name="TimerContainer" type="PanelContainer" parent="TopRightControls" unique_id=1762705734]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hud_card")
+
+[node name="Margin" type="MarginContainer" parent="TopRightControls/TimerContainer" unique_id=1762705735]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 14
+
+[node name="HBox" type="HBoxContainer" parent="TopRightControls/TimerContainer/Margin" unique_id=1762705736]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="ClockIcon" type="TextureRect" parent="TopRightControls/TimerContainer/Margin/HBox" unique_id=1762705737]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("7_clock")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TimerLabel" type="Label" parent="TopRightControls/TimerContainer/Margin/HBox" unique_id=310653560]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_font_sizes/font_size = 20
+text = "00:42"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FloodMeterContainer" type="PanelContainer" parent="TopRightControls" unique_id=293847102]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hud_card")
+
+[node name="Margin" type="MarginContainer" parent="TopRightControls/FloodMeterContainer" unique_id=293847103]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 12
+
+[node name="FloodLabel" type="Label" parent="TopRightControls/FloodMeterContainer/Margin" unique_id=293847104]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.35, 0.85, 0.95, 1)
+text = "🌊 MALINIS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BtnHudPause" type="TextureButton" parent="TopRightControls" unique_id=946065433]
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
 size_flags_vertical = 4
 focus_mode = 0
@@ -125,105 +158,141 @@ texture_pressed = ExtResource("5_hud_pause_tap")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="PlayerDeck" type="PanelContainer" parent="." unique_id=2068459639]
+[node name="TopLeftCluster" type="VBoxContainer" parent="." unique_id=1028143019]
 layout_mode = 1
-offset_left = 18.0
-offset_top = 16.0
-offset_right = 268.0
-offset_bottom = 152.0
+offset_left = 32.0
+offset_top = 22.0
+offset_right = 320.0
+offset_bottom = 150.0
 mouse_filter = 2
-theme_type_variation = &"PanelHUD"
-metadata/_kalye_surface = "PanelHUD"
+theme_override_constants/separation = 6
 
-[node name="Margin" type="MarginContainer" parent="PlayerDeck" unique_id=736597285]
+[node name="RoundLabel" type="Label" parent="TopLeftCluster" unique_id=1632624179]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 10
+theme_override_colors/font_color = Color(0.95, 0.22, 0.22, 1)
+theme_override_colors/font_outline_color = Color(0.2, 0.04, 0.04, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 17
+text = "ROUND 1: PASA-PASA"
 
-[node name="VBox" type="VBoxContainer" parent="PlayerDeck/Margin" unique_id=1683251981]
+[node name="DeckAndItemRow" type="HBoxContainer" parent="TopLeftCluster" unique_id=1028143020]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PlayerDeck" type="PanelContainer" parent="TopLeftCluster/DeckAndItemRow" unique_id=2068459639]
+custom_minimum_size = Vector2(180, 96)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hud_card")
+
+[node name="Margin" type="MarginContainer" parent="TopLeftCluster/DeckAndItemRow/PlayerDeck" unique_id=736597285]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin" unique_id=1683251981]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="RoleRow" type="HBoxContainer" parent="PlayerDeck/Margin/VBox" unique_id=98695772]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="RoleBadge" type="Label" parent="PlayerDeck/Margin/VBox/RoleRow" unique_id=487438450]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(0.54509807, 0.9411765, 0.41568628, 1)
-text = "LIGTAS"
-
-[node name="VSeparator" type="VSeparator" parent="PlayerDeck/Margin/VBox/RoleRow" unique_id=676834484]
+[node name="RoleRow" type="HBoxContainer" parent="TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox" unique_id=98695772]
 layout_mode = 2
 
-[node name="ScoreLabel" type="Label" parent="PlayerDeck/Margin/VBox/RoleRow" unique_id=1092490953]
+[node name="RoleBadge" type="Label" parent="TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/RoleRow" unique_id=487438450]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "0.0s"
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+text = "D'Taya 2/5"
 
-[node name="ExhaustedWarning" type="Label" parent="PlayerDeck/Margin/VBox" unique_id=1182281034]
+[node name="ScoreLabel" type="Label" parent="TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/RoleRow" unique_id=1092490953]
 visible = false
 layout_mode = 2
-theme_type_variation = &"LabelSmall"
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(1, 0.47843137, 0.5254902, 1)
-text = "HINGAL NA! MAGPAHINGA MUNA"
+theme_override_font_sizes/font_size = 13
+text = "0.0s"
+
+[node name="ExhaustedWarning" type="Label" parent="TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox" unique_id=1182281034]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1, 0.45, 0.5, 1)
+text = "HINGAL NA!"
 horizontal_alignment = 1
 
-[node name="BurstHeader" type="HBoxContainer" parent="PlayerDeck/Margin/VBox" unique_id=75066069]
+[node name="BurstRow" type="HBoxContainer" parent="TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox" unique_id=75066069]
 layout_mode = 2
 
-[node name="BurstTitle" type="Label" parent="PlayerDeck/Margin/VBox/BurstHeader" unique_id=34996269]
+[node name="BurstBar" type="ProgressBar" parent="TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/BurstRow" unique_id=1476574422]
+custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_type_variation = &"LabelSmall"
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(1, 0.84705883, 0.2901961, 1)
-text = "HATAW (SPRINT)"
-
-[node name="BurstValue" type="Label" parent="PlayerDeck/Margin/VBox/BurstHeader" unique_id=1486617349]
-layout_mode = 2
-theme_type_variation = &"LabelSmall"
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(1, 0.84705883, 0.2901961, 1)
-text = "100%"
-horizontal_alignment = 2
-
-[node name="BurstBar" type="ProgressBar" parent="PlayerDeck/Margin/VBox" unique_id=1476574422]
-custom_minimum_size = Vector2(0, 8)
-layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_burst_fill")
 value = 100.0
 show_percentage = false
 
-[node name="EnduranceHeader" type="HBoxContainer" parent="PlayerDeck/Margin/VBox" unique_id=537017476]
+[node name="BurstValue" type="Label" parent="TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/BurstRow" unique_id=1486617349]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.85, 0.35, 1)
+theme_override_font_sizes/font_size = 12
+text = "100%"
+
+[node name="EnduranceRow" type="HBoxContainer" parent="TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox" unique_id=537017476]
 layout_mode = 2
 
-[node name="EnduranceTitle" type="Label" parent="PlayerDeck/Margin/VBox/EnduranceHeader" unique_id=547629221]
+[node name="EnduranceBar" type="ProgressBar" parent="TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/EnduranceRow" unique_id=790783854]
+custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_type_variation = &"LabelSmall"
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.4862745, 0.78431374, 1, 1)
-text = "HANGIN (ENDURANCE)"
-
-[node name="EnduranceValue" type="Label" parent="PlayerDeck/Margin/VBox/EnduranceHeader" unique_id=249027478]
-layout_mode = 2
-theme_type_variation = &"LabelSmall"
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.4862745, 0.78431374, 1, 1)
-text = "100%"
-horizontal_alignment = 2
-
-[node name="EnduranceBar" type="ProgressBar" parent="PlayerDeck/Margin/VBox" unique_id=790783854]
-custom_minimum_size = Vector2(0, 8)
-layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_endurance_fill")
 value = 100.0
 show_percentage = false
+
+[node name="EnduranceValue" type="Label" parent="TopLeftCluster/DeckAndItemRow/PlayerDeck/Margin/VBox/EnduranceRow" unique_id=249027478]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.55, 0.55, 1)
+theme_override_font_sizes/font_size = 12
+text = "100%"
+
+[node name="ItemSlotCard" type="PanelContainer" parent="TopLeftCluster/DeckAndItemRow" unique_id=2068459640]
+custom_minimum_size = Vector2(76, 96)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hud_card")
+
+[node name="Margin" type="MarginContainer" parent="TopLeftCluster/DeckAndItemRow/ItemSlotCard" unique_id=736597286]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="TopLeftCluster/DeckAndItemRow/ItemSlotCard/Margin" unique_id=736597287]
+layout_mode = 2
+alignment = 1
+
+[node name="ItemIcon" type="TextureRect" parent="TopLeftCluster/DeckAndItemRow/ItemSlotCard/Margin/VBox" unique_id=736597288]
+custom_minimum_size = Vector2(46, 46)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("8_default_item")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ItemName" type="Label" parent="TopLeftCluster/DeckAndItemRow/ItemSlotCard/Margin/VBox" unique_id=736597289]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 0.9)
+text = "LATA"
+horizontal_alignment = 1
 
 [node name="Crosshair" type="Control" parent="." unique_id=2132325434]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -320,17 +389,21 @@ mouse_filter = 2
 color = Color(1, 1, 1, 0.7)
 
 [node name="ScoreboardPanel" type="PanelContainer" parent="." unique_id=1816543720]
+visible = false
 layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -240.0
-offset_top = 16.0
-offset_right = -20.0
-offset_bottom = 260.0
-grow_horizontal = 0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -140.0
+offset_right = 180.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 1
-theme_type_variation = &"PanelHUD"
+theme_override_styles/panel = SubResource("StyleBoxFlat_hud_card")
 metadata/_kalye_surface = "PanelHUD"
 
 [node name="MarginContainer" type="MarginContainer" parent="ScoreboardPanel" unique_id=1103348797]
@@ -405,6 +478,7 @@ theme_override_colors/font_color = Color(0.6431373, 0.47843137, 1, 1)
 text = "[E] PULUTIN"
 
 [node name="BottomBar" type="HBoxContainer" parent="." unique_id=1520799472]
+visible = false
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -637,42 +711,51 @@ text = "TAMANG TAPON!"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="TagBanner" type="PanelContainer" parent="." unique_id=65856321]
+[node name="TagBanner" type="Control" parent="." unique_id=65856321]
 visible = false
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -240.0
-offset_top = 75.0
-offset_right = 240.0
-offset_bottom = 145.0
+offset_left = -225.0
+offset_top = 20.0
+offset_right = 225.0
+offset_bottom = 156.0
 grow_horizontal = 2
-pivot_offset = Vector2(240, 35)
+pivot_offset = Vector2(225, 68)
 mouse_filter = 2
-theme_type_variation = &"BadgeBlue"
-metadata/_kalye_surface = "BadgeBlue"
 
 [node name="BannerBg" type="TextureRect" parent="TagBanner" unique_id=435661719]
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 texture = ExtResource("6_notif_banner")
 expand_mode = 1
 stretch_mode = 6
 
 [node name="MarginContainer" type="MarginContainer" parent="TagBanner" unique_id=435661718]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 8
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 54
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 18
 
 [node name="Label" type="Label" parent="TagBanner/MarginContainer" unique_id=4662436]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(1, 0.84705883, 0.2901961, 1)
+theme_override_colors/font_color = Color(0.12, 0.18, 0.32, 1)
+theme_override_font_sizes/font_size = 15
 text = "NA-TAYA SI JUAN!"
 horizontal_alignment = 1
 vertical_alignment = 1
+autowrap_mode = 2
 
 [node name="CriticalVignette" type="ColorRect" parent="." unique_id=877982230]
 visible = false

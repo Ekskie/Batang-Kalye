@@ -1,23 +1,35 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://3i3bgownspa"]
 
-[ext_resource type="Script" path="res://scripts/ui/MobileControls.gd" id="1_controls"]
-[ext_resource type="Script" path="res://scripts/ui/VirtualJoystick.gd" id="2_joystick"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Talon.png" id="3_talon"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Talon.png" id="4_talon_tap"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Dulas.png" id="5_dulas"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Dulas.png" id="6_dulas_tap"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Takbo_Sprint.png" id="7_sprint"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Takbo_Sprint.png" id="8_sprint_tap"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Karipas_Dash.png" id="9_dash"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Karipas_Dash.png" id="10_dash_tap"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W- Text ver_/Taya_Hampas.png" id="11_tag"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W- Text ver_/When Tap/Taya_Hampas.png" id="12_tag_tap"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Pulot.png" id="13_pulot"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Pulot.png" id="14_pulot_tap"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/No_Close.png" id="15_drop"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/No_Close.png" id="16_drop_tap"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Tapon.png" id="17_tapon"]
-[ext_resource type="Texture2D" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Tapon.png" id="18_tapon_tap"]
+[ext_resource type="Script" uid="uid://cidcairwldace" path="res://scripts/ui/MobileControls.gd" id="1_controls"]
+[ext_resource type="Script" uid="uid://bbwtagjormexv" path="res://scripts/ui/VirtualJoystick.gd" id="2_joystick"]
+[ext_resource type="Texture2D" uid="uid://dqhs4s4kk65ah" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Talon.png" id="3_talon"]
+[ext_resource type="Texture2D" uid="uid://ckbapiijqcy48" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Talon.png" id="4_talon_tap"]
+[ext_resource type="Texture2D" uid="uid://74017au0kn5r" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Dulas.png" id="5_dulas"]
+[ext_resource type="Texture2D" uid="uid://cone30oht5lei" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Dulas.png" id="6_dulas_tap"]
+[ext_resource type="Texture2D" uid="uid://b1av8njch2nd3" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Takbo_Sprint.png" id="7_sprint"]
+[ext_resource type="Texture2D" uid="uid://22gt6dogfg7a" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Takbo_Sprint.png" id="8_sprint_tap"]
+[ext_resource type="Texture2D" uid="uid://dinbqk4jrh0o5" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Karipas_Dash.png" id="9_dash"]
+[ext_resource type="Texture2D" uid="uid://bt8kxpb88qtny" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Karipas_Dash.png" id="10_dash_tap"]
+[ext_resource type="Texture2D" uid="uid://brt3lvncja6yc" path="res://assets/Game Icons-Buttons/W- Text ver_/Taya_Hampas.png" id="11_tag"]
+[ext_resource type="Texture2D" uid="uid://7ttptdqq2mab" path="res://assets/Game Icons-Buttons/W- Text ver_/When Tap/Taya_Hampas.png" id="12_tag_tap"]
+[ext_resource type="Texture2D" uid="uid://bacbmoa6buvsn" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Pulot.png" id="13_pulot"]
+[ext_resource type="Texture2D" uid="uid://ba2h8odxt3pc" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Pulot.png" id="14_pulot_tap"]
+[ext_resource type="Texture2D" uid="uid://cq1vjmtmtoapg" path="res://assets/Game Icons-Buttons/Other Buttons/No_Close.png" id="15_drop"]
+[ext_resource type="Texture2D" uid="uid://taxdq2garjpg" path="res://assets/Game Icons-Buttons/Other Buttons/When Tap/No_Close.png" id="16_drop_tap"]
+[ext_resource type="Texture2D" uid="uid://d16wadokcn8nq" path="res://assets/Game Icons-Buttons/W-o Text Ver_/Tapon.png" id="17_tapon"]
+[ext_resource type="Texture2D" uid="uid://riui8aenlc7n" path="res://assets/Game Icons-Buttons/W-o Text Ver_/When Tap/Tapon.png" id="18_tapon_tap"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_primary_circle"]
+bg_color = Color(1, 1, 1, 0.22)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 1, 1, 0.65)
+corner_radius_top_left = 60
+corner_radius_top_right = 60
+corner_radius_bottom_right = 60
+corner_radius_bottom_left = 60
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_circle_btn"]
 bg_color = Color(0.08, 0.07, 0.16, 0.55)
@@ -25,11 +37,11 @@ border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(1, 1, 1, 0.25)
-corner_radius_top_left = 60
-corner_radius_top_right = 60
-corner_radius_bottom_right = 60
-corner_radius_bottom_left = 60
+border_color = Color(1, 1, 1, 0.3)
+corner_radius_top_left = 46
+corner_radius_top_right = 46
+corner_radius_bottom_right = 46
+corner_radius_bottom_left = 46
 
 [node name="MobileControlsUI" type="Control" unique_id=495241052]
 layout_mode = 3
@@ -69,26 +81,73 @@ mouse_filter = 1
 
 [node name="ActionButtons" type="Control" parent="." unique_id=1744694871]
 layout_mode = 1
-anchor_left = 0.55
-anchor_top = 0.45
-anchor_right = 0.98
-anchor_bottom = 0.96
+anchor_left = 0.5
+anchor_top = 0.35
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 2
 
-[node name="BtnJump" type="TextureButton" parent="ActionButtons" unique_id=1127326981]
-custom_minimum_size = Vector2(86, 86)
+[node name="BtnTag" type="TextureButton" parent="ActionButtons" unique_id=695422723]
+custom_minimum_size = Vector2(120, 120)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -110.0
-offset_top = -110.0
-offset_right = -24.0
-offset_bottom = -24.0
+offset_left = -148.0
+offset_top = -148.0
+offset_right = -28.0
+offset_bottom = -28.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+texture_normal = ExtResource("11_tag")
+texture_pressed = ExtResource("12_tag_tap")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnTag" unique_id=1030396931]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_primary_circle")
+
+[node name="Badge" type="Label" parent="ActionButtons/BtnTag" unique_id=695422724]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -30.0
+offset_top = -16.0
+offset_right = 30.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1
+
+[node name="BtnJump" type="TextureButton" parent="ActionButtons" unique_id=1127326981]
+custom_minimum_size = Vector2(92, 92)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -144.0
+offset_top = -258.0
+offset_right = -52.0
+offset_bottom = -166.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
@@ -97,7 +156,7 @@ texture_pressed = ExtResource("4_talon_tap")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnJump"]
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnJump" unique_id=1637922763]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15
@@ -126,65 +185,18 @@ theme_override_colors/font_color = Color(1, 0.88, 0.25, 1)
 theme_override_font_sizes/font_size = 11
 horizontal_alignment = 1
 
-[node name="BtnSlide" type="TextureButton" parent="ActionButtons" unique_id=1130975003]
-custom_minimum_size = Vector2(66, 66)
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -188.0
-offset_top = -90.0
-offset_right = -122.0
-offset_bottom = -24.0
-grow_horizontal = 0
-grow_vertical = 0
-focus_mode = 0
-texture_normal = ExtResource("5_dulas")
-texture_pressed = ExtResource("6_dulas_tap")
-ignore_texture_size = true
-stretch_mode = 5
-
-[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnSlide"]
-show_behind_parent = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_circle_btn")
-
-[node name="Badge" type="Label" parent="ActionButtons/BtnSlide" unique_id=1130975004]
-visible = false
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -30.0
-offset_top = -16.0
-offset_right = 30.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_font_sizes/font_size = 10
-horizontal_alignment = 1
-
 [node name="BtnSprint" type="TextureButton" parent="ActionButtons" unique_id=1319652832]
-custom_minimum_size = Vector2(72, 72)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -104.0
-offset_top = -188.0
-offset_right = -32.0
-offset_bottom = -116.0
+offset_left = -248.0
+offset_top = -222.0
+offset_right = -160.0
+offset_bottom = -134.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
@@ -194,7 +206,7 @@ texture_pressed = ExtResource("8_sprint_tap")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnSprint"]
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnSprint" unique_id=575633380]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15
@@ -222,17 +234,17 @@ theme_override_font_sizes/font_size = 10
 horizontal_alignment = 1
 
 [node name="BtnDash" type="TextureButton" parent="ActionButtons" unique_id=123008399]
-custom_minimum_size = Vector2(66, 66)
+custom_minimum_size = Vector2(84, 84)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -184.0
-offset_top = -170.0
-offset_right = -118.0
-offset_bottom = -104.0
+offset_left = -294.0
+offset_top = -128.0
+offset_right = -210.0
+offset_bottom = -44.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
@@ -241,7 +253,7 @@ texture_pressed = ExtResource("10_dash_tap")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnDash"]
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnDash" unique_id=2065401070]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15
@@ -269,8 +281,7 @@ theme_override_colors/font_color = Color(0.6, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 10
 horizontal_alignment = 1
 
-[node name="BtnTag" type="TextureButton" parent="ActionButtons" unique_id=695422723]
-visible = false
+[node name="BtnSlide" type="TextureButton" parent="ActionButtons" unique_id=1130975003]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 1
 anchors_preset = 3
@@ -278,19 +289,19 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -272.0
-offset_top = -116.0
-offset_right = -192.0
-offset_bottom = -36.0
+offset_left = -384.0
+offset_top = -106.0
+offset_right = -304.0
+offset_bottom = -26.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
-texture_normal = ExtResource("11_tag")
-texture_pressed = ExtResource("12_tag_tap")
+texture_normal = ExtResource("5_dulas")
+texture_pressed = ExtResource("6_dulas_tap")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnTag"]
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnSlide" unique_id=2054999116]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15
@@ -301,7 +312,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_circle_btn")
 
-[node name="Badge" type="Label" parent="ActionButtons/BtnTag" unique_id=695422724]
+[node name="Badge" type="Label" parent="ActionButtons/BtnSlide" unique_id=1130975004]
 visible = false
 layout_mode = 1
 anchors_preset = 7
@@ -319,17 +330,17 @@ horizontal_alignment = 1
 
 [node name="BtnInteract" type="TextureButton" parent="ActionButtons" unique_id=1685395767]
 visible = false
-custom_minimum_size = Vector2(70, 70)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -264.0
-offset_top = -246.0
-offset_right = -194.0
-offset_bottom = -176.0
+offset_left = -280.0
+offset_top = -324.0
+offset_right = -192.0
+offset_bottom = -236.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
@@ -338,7 +349,7 @@ texture_pressed = ExtResource("14_pulot_tap")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnInteract"]
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnInteract" unique_id=1287126740]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15
@@ -368,17 +379,17 @@ horizontal_alignment = 1
 
 [node name="BtnDrop" type="TextureButton" parent="ActionButtons" unique_id=949041659]
 visible = false
-custom_minimum_size = Vector2(58, 58)
+custom_minimum_size = Vector2(72, 72)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -110.0
-offset_top = -250.0
-offset_right = -52.0
-offset_bottom = -192.0
+offset_left = -134.0
+offset_top = -342.0
+offset_right = -62.0
+offset_bottom = -270.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
@@ -387,7 +398,7 @@ texture_pressed = ExtResource("16_drop_tap")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnDrop"]
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnDrop" unique_id=535583107]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15
@@ -416,17 +427,17 @@ horizontal_alignment = 1
 
 [node name="BtnItem" type="TextureButton" parent="ActionButtons" unique_id=547233188]
 visible = false
-custom_minimum_size = Vector2(70, 70)
+custom_minimum_size = Vector2(88, 88)
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -264.0
-offset_top = -184.0
-offset_right = -194.0
-offset_bottom = -114.0
+offset_left = -348.0
+offset_top = -222.0
+offset_right = -260.0
+offset_bottom = -134.0
 grow_horizontal = 0
 grow_vertical = 0
 focus_mode = 0
@@ -435,7 +446,7 @@ texture_pressed = ExtResource("18_tapon_tap")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnItem"]
+[node name="CircleBacking" type="Panel" parent="ActionButtons/BtnItem" unique_id=1373615182]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15

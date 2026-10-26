@@ -520,9 +520,6 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -14.0
-offset_top = -9.0
-offset_bottom = -1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.04, 0.05, 0.08, 0.22)
@@ -531,10 +528,10 @@ color = Color(0.04, 0.05, 0.08, 0.22)
 layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
-offset_left = 130.0
-offset_top = 220.0
+offset_left = 110.0
+offset_top = 210.0
 offset_right = 430.0
-offset_bottom = -120.0
+offset_bottom = -110.0
 grow_vertical = 2
 
 [node name="MenuVBox" type="VBoxContainer" parent="TitleScreenUI/LeftMenuMargin" unique_id=620957031]
@@ -1312,6 +1309,7 @@ theme_override_font_sizes/font_size = 15
 text = "< ISARA AT ILAPAT (Save & Close)"
 
 [node name="UwianNaUI" parent="." unique_id=771122334 instance=ExtResource("17_uwian_ui")]
+z_index = 150
 
 [node name="GameOverUI" parent="." unique_id=10928137 instance=ExtResource("10_game_over_ui")]
 visible = false

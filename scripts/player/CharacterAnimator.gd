@@ -229,6 +229,12 @@ var is_tag_swinging: bool = false
 var tag_swing_timer: float = 0.0
 var tag_swing_duration: float = 0.40
 var tag_whiff_timer: float = 0.0
+var is_aiming_throw: bool = false
+var is_throwing: bool = false
+var throw_timer: float = 0.0
+var throw_duration: float = 0.36
+var throw_release_threshold: float = 0.08
+var held_throwable_type: int = -1
 var hit_reaction_timer: float = 0.0
 var landing_compression_timer: float = 0.0
 var landing_compression_strength: float = 0.0
@@ -369,7 +375,29 @@ func _setup_modular_accessories() -> void:
 		attach_dict["r_foot"] = r_foot
 		_build_foot_accessories(r_foot, false)
 
+		# 4. Right Hand Attachment (for held throwables: tsinelas / chalk bag)
+		var r_hand := BoneAttachment3D.new()
+		r_hand.name = "Attach_RHand"
+		var b_rhand_name = "mixamorig_RightHand"
+		var b_rhand_idx = skel.find_bone("mixamorig_RightHand")
+		if b_rhand_idx == -1:
+			b_rhand_name = "mixamorig:RightHand"
+			b_rhand_idx = skel.find_bone("mixamorig:RightHand")
+		if b_rhand_idx != -1:
+			r_hand.bone_name = b_rhand_name
+			r_hand.bone_idx = b_rhand_idx
+			skel.add_child(r_hand)
+			attach_dict["r_hand"] = r_hand
+			_build_hand_throwables(r_hand, false)
+
 		modular_attachments[m] = attach_dict
+
+	if right_arm and not right_arm.has_node("HandThrowables"):
+		var orig_hand := Node3D.new()
+		orig_hand.name = "HandThrowables"
+		orig_hand.position = Vector3(0, -0.22, 0)
+		right_arm.add_child(orig_hand)
+		_build_hand_throwables(orig_hand, true)
 
 func _build_head_accessories(parent: Node3D) -> void:
 	var toon_black := StandardMaterial3D.new()
@@ -736,6 +764,89 @@ func _build_foot_accessories(parent: Node3D, _is_left: bool) -> void:
 	slide.add_child(sl_inst)
 	parent.add_child(slide)
 
+func _build_hand_throwables(parent: Node3D, is_retro: bool) -> void:
+	# Mini Spartan Tsinelas
+	var t_root := Node3D.new()
+	t_root.name = "HeldTsinelas"
+	t_root.visible = false
+
+	var sole_mat := StandardMaterial3D.new()
+	sole_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	sole_mat.albedo_color = Color(0.12, 0.45, 0.88, 1.0) # Spartan Blue
+
+	var strap_mat := StandardMaterial3D.new()
+	strap_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	strap_mat.albedo_color = Color(0.95, 0.95, 0.95, 1.0) # White strap
+
+	var sole := MeshInstance3D.new()
+	var strap := MeshInstance3D.new()
+
+	if is_retro:
+		t_root.position = Vector3(0.0, -0.22, 0.0)
+		t_root.rotation_degrees = Vector3(30, -20, 15)
+		var sm := BoxMesh.new()
+		sm.size = Vector3(0.18, 0.04, 0.42)
+		sole.mesh = sm
+		sole.material_override = sole_mat
+		t_root.add_child(sole)
+
+		var stm := TorusMesh.new()
+		stm.inner_radius = 0.06
+		stm.outer_radius = 0.11
+		strap.mesh = stm
+		strap.material_override = strap_mat
+		strap.position = Vector3(0, 0.05, -0.04)
+		strap.rotation_degrees = Vector3(90, 0, 0)
+		strap.scale = Vector3(1.0, 0.3, 0.8)
+		t_root.add_child(strap)
+	else:
+		# Skeletal bone space (scaled by 25)
+		t_root.position = Vector3(0.002, 0.004, -0.005)
+		t_root.rotation_degrees = Vector3(25, -15, 10)
+		var sm := BoxMesh.new()
+		sm.size = Vector3(0.008, 0.002, 0.018)
+		sole.mesh = sm
+		sole.material_override = sole_mat
+		t_root.add_child(sole)
+
+		var stm := BoxMesh.new()
+		stm.size = Vector3(0.009, 0.003, 0.008)
+		strap.mesh = stm
+		strap.material_override = strap_mat
+		strap.position = Vector3(0, 0.002, -0.002)
+		t_root.add_child(strap)
+
+	parent.add_child(t_root)
+
+	# Mini Chalk Bag
+	var c_root := Node3D.new()
+	c_root.name = "HeldChalkBag"
+	c_root.visible = false
+
+	var chalk_mat := StandardMaterial3D.new()
+	chalk_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	chalk_mat.albedo_color = Color(0.95, 0.95, 0.98, 1.0)
+	chalk_mat.roughness = 0.9
+
+	var sack := MeshInstance3D.new()
+	if is_retro:
+		c_root.position = Vector3(0.0, -0.22, 0.0)
+		var sm := SphereMesh.new()
+		sm.radius = 0.14
+		sm.height = 0.26
+		sack.mesh = sm
+		sack.material_override = chalk_mat
+	else:
+		c_root.position = Vector3(0.002, 0.003, -0.004)
+		var sm := SphereMesh.new()
+		sm.radius = 0.007
+		sm.height = 0.013
+		sack.mesh = sm
+		sack.material_override = chalk_mat
+
+	c_root.add_child(sack)
+	parent.add_child(c_root)
+
 func apply_preset(idx: int) -> void:
 	if idx < 0 or idx >= ARCHETYPES.size():
 		idx = 0
@@ -847,6 +958,8 @@ func _update_modular_visuals() -> void:
 		if spartan: spartan.visible = (current_footwear == 0)
 		if islander: islander.visible = (current_footwear == 1)
 		if slide: slide.visible = (current_footwear == 2)
+
+	set_held_throwable(held_throwable_type)
 
 func get_outfit_data() -> Dictionary:
 	return {
@@ -1148,6 +1261,45 @@ func _play_anim(anim_name: String, custom_blend: float = -1.0) -> void:
 		if active_anim.current_animation != target:
 			active_anim.play(target, blend_t)
 
+func set_held_throwable(item_type: int) -> void:
+	held_throwable_type = item_type
+	for m in [model_tsuna, model_kalbo, model_totoy]:
+		if m and modular_attachments.has(m):
+			var attaches: Dictionary = modular_attachments[m]
+			var r_hand: Node3D = attaches.get("r_hand")
+			if r_hand:
+				var t_item = r_hand.get_node_or_null("HeldTsinelas")
+				if t_item: t_item.visible = (item_type == 0)
+				var c_item = r_hand.get_node_or_null("HeldChalkBag")
+				if c_item: c_item.visible = (item_type == 3)
+	if right_arm:
+		var orig_hand = right_arm.get_node_or_null("HandThrowables")
+		if orig_hand:
+			var t_item = orig_hand.get_node_or_null("HeldTsinelas")
+			if t_item: t_item.visible = (item_type == 0)
+			var c_item = orig_hand.get_node_or_null("HeldChalkBag")
+			if c_item: c_item.visible = (item_type == 3)
+
+func set_aiming_throw(aiming: bool, item_type: int = -1) -> void:
+	is_aiming_throw = aiming
+	if aiming:
+		held_throwable_type = item_type
+		set_held_throwable(item_type)
+	elif not is_throwing:
+		held_throwable_type = -1
+		set_held_throwable(-1)
+
+func trigger_throw_animation(throw_type: int = 0) -> void:
+	is_aiming_throw = false
+	is_throwing = true
+	throw_timer = throw_duration
+	held_throwable_type = throw_type
+	set_held_throwable(throw_type)
+
+	if active_anim and _has_anim("punching"):
+		_play_anim("punching", 0.05)
+		active_anim.speed_scale = 2.4 # Fast 0.35s forward overhand strike
+
 func trigger_tag_animation() -> void:
 	is_tag_swinging = true
 	tag_swing_timer = tag_swing_duration
@@ -1219,7 +1371,7 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 			_play_anim("slip", 0.08)
 			if active_anim.speed_scale < 1.0 or active_anim.speed_scale > 3.0:
 				active_anim.speed_scale = 2.0
-		elif is_tag_swinging and _has_anim("punching"):
+		elif (is_tag_swinging or is_throwing) and _has_anim("punching"):
 			pass
 		elif is_vaulting:
 			if _has_anim("jump"):
@@ -1256,7 +1408,7 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 		if is_slipping or slip_anim_timer > 0.0:
 			if left_leg: left_leg.rotation.x = lerp_angle(left_leg.rotation.x, -deg_to_rad(75.0), delta * 18.0)
 			if right_leg: right_leg.rotation.x = lerp_angle(right_leg.rotation.x, -deg_to_rad(45.0), delta * 18.0)
-			if not is_tag_swinging:
+			if not is_tag_swinging and not is_throwing and not is_aiming_throw:
 				if left_arm: left_arm.rotation.x = lerp_angle(left_arm.rotation.x, deg_to_rad(80.0), delta * 18.0)
 				if right_arm: right_arm.rotation.x = lerp_angle(right_arm.rotation.x, deg_to_rad(80.0), delta * 18.0)
 			if body_mesh:
@@ -1264,7 +1416,7 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 		elif is_vaulting:
 			if left_leg: left_leg.rotation.x = lerp_angle(left_leg.rotation.x, -deg_to_rad(65.0), delta * 18.0)
 			if right_leg: right_leg.rotation.x = lerp_angle(right_leg.rotation.x, -deg_to_rad(45.0), delta * 18.0)
-			if not is_tag_swinging:
+			if not is_tag_swinging and not is_throwing and not is_aiming_throw:
 				if left_arm: left_arm.rotation.x = lerp_angle(left_arm.rotation.x, deg_to_rad(45.0), delta * 18.0)
 				if right_arm: right_arm.rotation.x = lerp_angle(right_arm.rotation.x, deg_to_rad(45.0), delta * 18.0)
 			if body_mesh:
@@ -1274,7 +1426,7 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 			var leg_swing: float = sin(walk_cycle_time) * 0.65
 			if left_leg: left_leg.rotation.x = leg_swing
 			if right_leg: right_leg.rotation.x = -leg_swing
-			if not is_tag_swinging:
+			if not is_tag_swinging and not is_throwing and not is_aiming_throw:
 				if left_arm: left_arm.rotation.x = -leg_swing * 0.75
 				if right_arm: right_arm.rotation.x = leg_swing * 0.75
 			if body_mesh:
@@ -1282,7 +1434,7 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 		else:
 			if left_leg: left_leg.rotation.x = lerp_angle(left_leg.rotation.x, 0.0, delta * 12.0)
 			if right_leg: right_leg.rotation.x = lerp_angle(right_leg.rotation.x, 0.0, delta * 12.0)
-			if not is_tag_swinging:
+			if not is_tag_swinging and not is_throwing and not is_aiming_throw:
 				if left_arm: left_arm.rotation.x = lerp_angle(left_arm.rotation.x, 0.0, delta * 12.0)
 				if right_arm: right_arm.rotation.x = lerp_angle(right_arm.rotation.x, 0.0, delta * 12.0)
 			if body_mesh:
@@ -1324,6 +1476,40 @@ func animate(delta: float, horizontal_speed: float, is_on_floor: bool, max_speed
 				active_model.rotation.y = model_base_rot_y
 			if right_arm:
 				right_arm.rotation = Vector3.ZERO
+	elif is_throwing:
+		throw_timer -= delta
+		var progress: float = 1.0 - (throw_timer / throw_duration)
+
+		# Release threshold: item leaves hand at forward apex (~0.08s into throw)
+		if progress >= (throw_release_threshold / throw_duration):
+			set_held_throwable(-1)
+
+		if active_model:
+			var lunge: float = sin(progress * PI) * 0.28
+			active_model.position.z = model_base_pos.z - lunge
+			active_model.rotation.x = lerp_angle(active_model.rotation.x, deg_to_rad(12.0 * sin(progress * PI)), delta * 20.0)
+			active_model.rotation.y = model_base_rot_y + sin(progress * PI) * 0.28
+
+		if right_arm:
+			var whip: float = lerp(-1.9, 1.2, clampf(progress * 1.5, 0.0, 1.0))
+			right_arm.rotation.x = whip
+			right_arm.rotation.y = -sin(progress * PI) * 0.5
+
+		if throw_timer <= 0.0:
+			is_throwing = false
+			set_held_throwable(-1)
+			if active_model:
+				active_model.position.z = model_base_pos.z
+				active_model.rotation.y = model_base_rot_y
+				active_model.rotation.x = 0.0
+			if right_arm:
+				right_arm.rotation = Vector3.ZERO
+	elif is_aiming_throw:
+		if active_model:
+			active_model.rotation.x = lerp_angle(active_model.rotation.x, deg_to_rad(-8.0), delta * 12.0)
+		if right_arm:
+			right_arm.rotation.x = lerp_angle(right_arm.rotation.x, deg_to_rad(-110.0), delta * 14.0)
+			right_arm.rotation.y = lerp_angle(right_arm.rotation.y, deg_to_rad(25.0), delta * 14.0)
 	else:
 		if active_model:
 			active_model.position.z = lerp(active_model.position.z, model_base_pos.z, delta * 12.0)
